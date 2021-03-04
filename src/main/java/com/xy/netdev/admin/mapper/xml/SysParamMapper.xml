@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xy.netdev.admin.mapper.SysParamMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xy.netdev.admin.entity.SysParam">
+        <id column="PARA_CODE" property="paraCode" />
+        <result column="PARA_NAME" property="paraName" />
+        <result column="PARA_PARENT_ID" property="paraParentId" />
+        <result column="REMARK1" property="remark1" />
+        <result column="REMARK2" property="remark2" />
+        <result column="REMARK3" property="remark3" />
+        <result column="IS_VALIDATE" property="isValidate" />
+    </resultMap>
+
+    <!--通过父id查询出参数表-->
+    <select id="queryParamsByParentId" parameterType="String"  resultType="com.xy.netdev.admin.entity.SysParam">
+		   select *  from  XY_SYS_PARAM where PARA_PARENT_ID = #{paraParentId}
+	</select>
+
+    <!--通过条件查询参数-->
+    <select id="queryParamByName" parameterType="String" resultType="com.xy.netdev.admin.entity.SysParam">
+           select *  from  XY_SYS_PARAM where PARA_NAME like '%${paraName}%' and IS_VALIDATE = '0001001'
+	</select>
+
+
+</mapper>

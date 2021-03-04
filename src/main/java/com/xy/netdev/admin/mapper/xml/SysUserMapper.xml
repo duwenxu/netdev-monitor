@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xy.netdev.admin.mapper.SysUserMapper">
+
+    <!-- 开通二级缓存 -->
+    <cache />
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xy.netdev.admin.entity.SysUser">
+        <id column="USER_ID" property="userId"/>
+        <result column="USER_NAME" property="userName"/>
+        <result column="USER_CHNAME" property="userChname"/>
+        <result column="USER_TYPE" property="userType"/>
+        <result column="USER_ORGID" property="userOrgid"/>
+        <result column="USER_PWD" property="userPwd"/>
+        <result column="USER_SALT" property="userSalt"/>
+        <result column="USER_CONTACT" property="userContact"/>
+        <result column="USER_PHONE" property="userPhone"/>
+        <result column="USER_EMAIL" property="userEmail"/>
+        <result column="USER_STATUS" property="userStatus"/>
+        <result column="USER_DATE" property="userDate"/>
+    </resultMap>
+
+    <!-- 根据用户名查询 -->
+    <select id="getUserByName" resultType="com.xy.netdev.admin.entity.SysUser">
+		select * from  XY_SYS_USER  where USER_NAME = #{userName} and  USER_STATUS = '0001001'
+	</select>
+
+    <!--  修改用户部门code -->
+    <update id="updateUserDepart">
+		UPDATE XY_SYS_USER SET USER_ORGID = #{userOrgid} where USER_NAME = #{userName} and  USER_STATUS = '0001001'
+	</update>
+
+    <!-- 根据手机号查询 -->
+    <select id="getUserByPhone"  resultType="com.xy.netdev.admin.entity.SysUser">
+		select * from  XY_SYS_USER  where phone = #{phone} and  USER_STATUS = '0001001'
+	</select>
+
+
+
+</mapper>

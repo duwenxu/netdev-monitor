@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xy.netdev.admin.mapper.SysLogMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xy.netdev.admin.entity.SysLog">
+        <id column="ID" property="id" />
+        <result column="LOG_TYPE" property="logType" />
+        <result column="LOG_CONTENT" property="logContent" />
+        <result column="OPERATE_TYPE" property="operateType" />
+        <result column="USER_ID" property="userId" />
+        <result column="USER_NAME" property="userName" />
+        <result column="IP" property="ip" />
+        <result column="METHOD" property="method" />
+        <result column="REQUEST_URL" property="requestUrl" />
+        <result column="REQUEST_PARAM" property="requestParam" />
+        <result column="REQUEST_TYPE" property="requestType" />
+        <result column="COST_TIME" property="costTime" />
+        <result column="CREATE_BY" property="createBy" />
+        <result column="CREATE_TIME" property="createTime" />
+    </resultMap>
+
+    <!-- 清空所有日志记录 -->
+    <delete id="removeAll">
+		DELETE FROM XY_SYS_LOG
+	</delete>
+
+    <!-- 获取访问总数 -->
+    <select id="findTotalVisitCount" resultType="long">
+        select count(1) from XY_SYS_LOG where LOG_TYPE = 1
+    </select>
+
+    <!-- 获取今日访问总数 -->
+    <select id="findTodayVisitCount" resultType="long">
+        select count(1) from XY_SYS_LOG where LOG_TYPE = 1 and CREATE_TIME &gt;= #{dayStart} and CREATE_TIME &lt; #{dayEnd}
+    </select>
+
+    <!-- 获取今日访问总IP数 -->
+    <select id="findTodayIp" resultType="long">
+        select count(distinct(ip)) from XY_SYS_LOG where log_type = 1 and CREATE_TIME &gt;= #{dayStart} and CREATE_TIME &lt; #{dayEnd}
+    </select>
+
+    <!-- 首页访问统计 -->
+    <select id="findVisitCount" resultType="java.util.HashMap">
+        select count(*) as visit,
+        	   count(distinct(ip)) as ip,
+        	   DATE_FORMAT(CREATE_TIME, '%Y-%m-%d') as tian,
+        	   DATE_FORMAT(CREATE_TIME, '%m-%d') as type
+         from XY_SYS_LOG
+         where LOG_TYPE = 1 and CREATE_TIME &gt;= #{dayStart} and CREATE_TIME &lt; #{dayEnd}
+         group by tian,type
+         order by tian asc
+    </select>
+
+</mapper>

@@ -1,0 +1,15 @@
+
+server:
+  port: 8088
+spring:
+  application:
+    name: netdev-monitor
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    password: 123456
+    url: jdbc:mysql://172.23.0.60:3306/netdb-dev?useUnicode=true&characterEncoding=utf8&useSSL=false
+    username: root
+
+mybatis-plus:
+  mapper-locations: classpath*:com/xy/demo/**/xml/*Mapper.xml
+  typeAliasesPackage: com.xy.demo.**.entity

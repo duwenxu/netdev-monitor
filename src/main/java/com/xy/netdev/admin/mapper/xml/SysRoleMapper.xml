@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xy.netdev.admin.mapper.SysRoleMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xy.netdev.admin.entity.SysRole">
+        <id column="ROLE_ID" property="roleId" />
+        <result column="ROLE_NAME" property="roleName" />
+        <result column="ROLE_STATUS" property="roleStatus" />
+        <result column="ROLE_DESC" property="roleDesc" />
+        <result column="ROLE_DATE" property="roleDate" />
+        <result column="ROLE_UESRID" property="roleUesrid" />
+    </resultMap>
+
+    <select id="getUserRoles" resultType="com.xy.netdev.admin.entity.SysRole">
+        select a.* from XY_SYS_ROLE a,XY_SYS_USER_ROLE b,XY_SYS_USER c
+        where a.ROLE_ID = b.ROLE_ID and b.USER_ID = c.USER_ID and
+        c.USER_ID = #{userId} and a.ROLE_STATUS = #{roleStatus}
+    </select>
+
+    <select id="getRolesByMenu" resultType="java.lang.String">
+       select ROLE_ID from XY_SYS_ROLE_MENU
+        where  MENU_ID = #{menuId}
+    </select>
+</mapper>

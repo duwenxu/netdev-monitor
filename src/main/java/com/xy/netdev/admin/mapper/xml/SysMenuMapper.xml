@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xy.netdev.admin.mapper.SysMenuMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xy.netdev.admin.entity.SysMenu">
+        <id column="MENU_ID" property="menuId" />
+        <result column="MENU_NAME" property="menuName" />
+        <result column="MENU_PARENT_ID" property="menuParentId" />
+        <result column="MENU_URL" property="menuUrl" />
+        <result column="MENU_STATUS" property="menuStatus" />
+        <result column="MENU_PAGETYPE" property="menuPagetype" />
+        <result column="MENU_SEQ" property="menuSeq" />
+        <result column="MENU_DATE" property="menuDate" />
+        <result column="MENU_UESRID" property="menuUesrid" />
+        <result column="REMARK1" property="remark1" />
+        <result column="REMARK2" property="remark2" />
+        <result column="REMARK3" property="remark3" />
+    </resultMap>
+
+    <select id="queryMenuByRole" resultType="com.xy.netdev.admin.entity.SysMenu">
+        select distinct a.* from XY_SYS_MENU a,XY_SYS_ROLE_MENU b,XY_SYS_ROLE c
+        where a.MENU_ID = b.MENU_ID and b.ROLE_ID = c.ROLE_ID and
+        a.MENU_STATUS= #{menuStatus}
+        <if test="roleIds!=null and roleIds.size()!=0">
+            and c.ROLE_ID IN
+            <foreach collection="roleIds" item="roleId" index="index" open="(" close=")" separator=",">
+                #{roleId}
+            </foreach>
+        </if>
+        order by a.MENU_SEQ asc
+    </select>
+
+</mapper>
