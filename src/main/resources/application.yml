@@ -11,5 +11,5 @@ spring:
     username: root
 
 mybatis-plus:
-  mapper-locations: classpath*:com/xy/demo/**/xml/*Mapper.xml
-  typeAliasesPackage: com.xy.demo.**.entity
+  mapper-locations: classpath*:com/xy/netdev/**/xml/*Mapper.xml
+  typeAliasesPackage: com.xy.netdev.**.entity
