@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xy.netdev.monitor.mapper.ParaInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xy.netdev.monitor.entity.ParaInfo">
+        <id column="NDPA_ID" property="ndpaId" />
+        <result column="FMT_ID" property="fmtId" />
+        <result column="NDPA_NO" property="ndpaNo" />
+        <result column="NDPA_CODE" property="ndpaCode" />
+        <result column="NDPA_NAME" property="ndpaName" />
+        <result column="DEV_TYPE" property="devType" />
+        <result column="NDPA_ACCESS_RIGHT" property="ndpaAccessRight" />
+        <result column="NDPA_UNIT" property="ndpaUnit" />
+        <result column="NDPA_DATATYPE" property="ndpaDatatype" />
+        <result column="NDPA_STR_LEN" property="ndpaStrLen" />
+        <result column="NDPA_SHOW_MODE" property="ndpaShowMode" />
+        <result column="NDPA_VAL_MAX" property="ndpaValMax" />
+        <result column="NDPA_VAL_MIN" property="ndpaValMin" />
+        <result column="NDPA_VAL_STEP" property="ndpaValStep" />
+        <result column="NDPA_SELECT_DATA" property="ndpaSelectData" />
+        <result column="NDPA_BYTE_LEN" property="ndpaByteLen" />
+        <result column="NDPA_CMD_MARK" property="ndpaCmdMark" />
+        <result column="NDPA_STATUS" property="ndpaStatus" />
+        <result column="NDPA_OUTTER_STATUS" property="ndpaOutterStatus" />
+        <result column="NDPA_TRANS_RULE" property="ndpaTransRule" />
+        <result column="NDPA_ALERT_PARA" property="ndpaAlertPara" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        NDPA_ID, FMT_ID, NDPA_NO, NDPA_CODE, NDPA_NAME, DEV_TYPE, NDPA_ACCESS_RIGHT, NDPA_UNIT, NDPA_DATATYPE, NDPA_STR_LEN, NDPA_SHOW_MODE, NDPA_VAL_MAX, NDPA_VAL_MIN, NDPA_VAL_STEP, NDPA_SELECT_DATA, NDPA_BYTE_LEN, NDPA_CMD_MARK, NDPA_STATUS, NDPA_OUTTER_STATUS, NDPA_TRANS_RULE, NDPA_ALERT_PARA
+    </sql>
+
+
+</mapper>

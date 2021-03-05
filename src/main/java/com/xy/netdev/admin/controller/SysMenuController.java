@@ -9,6 +9,7 @@ import com.xy.netdev.admin.entity.SysMenu;
 import com.xy.netdev.admin.service.ISysMenuService;
 import com.xy.netdev.common.annotation.AutoLog;
 import com.xy.netdev.common.constant.SysConfigConstant;
+import com.xy.netdev.common.util.JwtUtil;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,9 +44,10 @@ public class SysMenuController {
      * @return
      */
     @RequestMapping(method = RequestMethod.GET)
-    public Result<JSONObject> getUserMenu() {
+    public Result<JSONObject> getUserMenu(HttpServletRequest req) {
+        Integer userId = JwtUtil.getUserIdByToken(req);
         Result<JSONObject> result = new Result<JSONObject>();
-        result.setResult(service.getMenuByUser());
+        result.setResult(service.getMenuByUser(userId));
         result = result.ok();
         return result;
     }
@@ -69,8 +71,8 @@ public class SysMenuController {
      */
     @RequestMapping(method = RequestMethod.POST)
     @AutoLog(value = "添加菜单信息", operateType = SysConfigConstant.OPERATE_TYPE_ADD)
-    public Result<SysMenu> add(SysMenu rowData) {
-        rowData.setMenuUesrid(sysBaseAPI.getLoginUser().getUserId());
+    public Result<SysMenu> add(SysMenu rowData,HttpServletRequest req) {
+        rowData.setMenuUesrid(JwtUtil.getUserIdByToken(req));
         return service.add(rowData);
     }
 

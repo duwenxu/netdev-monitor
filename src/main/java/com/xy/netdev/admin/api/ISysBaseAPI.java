@@ -33,7 +33,7 @@ public interface ISysBaseAPI {
 	 * @param
 	 * @return
 	 */
-	public SysUser getLoginUser();
+	//public SysUser getLoginUser();
 
 	/**
 	  * 根据用户账号查询登录用户信息

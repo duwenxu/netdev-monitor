@@ -74,10 +74,10 @@ public class SysBaseApiImpl implements ISysBaseAPI {
 	public void setLoginUser(SysUser user){
 		 this.LoginUser = user;
 	}
-	@Override
-	public SysUser getLoginUser(){
-		return LoginUser;
-	}
+	//@Override
+	//public SysUser getLoginUser(){
+	//	return LoginUser;
+	//}
 
 	@Override
 	public SysUser getUserByName(String username) {

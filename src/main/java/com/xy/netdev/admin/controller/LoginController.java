@@ -1,6 +1,7 @@
 package com.xy.netdev.admin.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.xy.common.constant.CommonConstant;
 import com.xy.common.model.Result;
 import com.xy.common.model.ResultBody;
 import com.xy.common.util.ConvertUtils;
@@ -12,6 +13,7 @@ import com.xy.netdev.admin.service.ISysDepartService;
 import com.xy.netdev.admin.service.ISysLogService;
 import com.xy.netdev.admin.service.ISysUserService;
 import com.xy.netdev.common.constant.SysConfigConstant;
+import com.xy.netdev.common.util.JwtUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +40,7 @@ public class LoginController {
 	@Autowired
     private ISysDepartService sysDepartService;
 
+	private static Map<String,String> tokenCache = new HashMap<>();
 
 
 	@PostMapping(value = "/login")
@@ -147,9 +150,14 @@ public class LoginController {
 	private Result<JSONObject> userInfo(SysUser sysUser, Result<JSONObject> result) {
 		String syspassword = sysUser.getUserPwd();
 		String username = sysUser.getUserName();
+		Integer userId = sysUser.getUserId();
+		// 生成token
+		String token = JwtUtil.sign(userId, syspassword);
+		tokenCache.put(CommonConstant.PREFIX_USER_TOKEN + token,token);
 		// 获取用户部门信息
 		JSONObject obj = new JSONObject();
 		List<SysDepart> departs = sysDepartService.queryUserDeparts(sysUser.getUserOrgid());
+		obj.put("token", token);
 		obj.put("departs", departs);
 		obj.put("userInfo", sysUser);
 		result.setResult(obj);

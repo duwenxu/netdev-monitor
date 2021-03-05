@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xy.netdev.monitor.mapper.AlertInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xy.netdev.monitor.entity.AlertInfo">
+        <id column="ALERT_ID" property="alertId" />
+        <result column="DEV_TYPE" property="devType" />
+        <result column="DEV_NO" property="devNo" />
+        <result column="NDPA_NO" property="ndpaNo" />
+        <result column="ALERT_NUM" property="alertNum" />
+        <result column="ALERT_TIME" property="alertTime" />
+        <result column="ALERT_STATION_NO" property="alertStationNo" />
+        <result column="ALERT_LEVEL" property="alertLevel" />
+        <result column="ALERT_DESC" property="alertDesc" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        ALERT_ID, DEV_TYPE, DEV_NO, NDPA_NO, ALERT_NUM, ALERT_TIME, ALERT_STATION_NO, ALERT_LEVEL, ALERT_DESC
+    </sql>
+
+
+</mapper>
