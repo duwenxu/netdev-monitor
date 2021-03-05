@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xy.netdev.monitor.mapper.PrtclFormatMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xy.netdev.monitor.entity.PrtclFormat">
+        <id column="FMT_ID" property="fmtId" />
+        <result column="DEV_TYPE" property="devType" />
+        <result column="FMT_SKEY" property="fmtSkey" />
+        <result column="FMT_CKEY" property="fmtCkey" />
+        <result column="FMT_CCKEY" property="fmtCckey" />
+        <result column="FMT_SCKEY" property="fmtSckey" />
+        <result column="FMT_SC_NUM" property="fmtScNum" />
+        <result column="FMT_CC_NUM" property="fmtCcNum" />
+        <result column="FMT_HANDLER_CLASS" property="fmtHandlerClass" />
+        <result column="FMT_SC_TYPE" property="fmtScType" />
+        <result column="FMT_CC_TYPE" property="fmtCcType" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        FMT_ID, DEV_TYPE, FMT_SKEY, FMT_CKEY, FMT_CCKEY, FMT_SCKEY, FMT_SC_NUM, FMT_CC_NUM, FMT_HANDLER_CLASS, FMT_SC_TYPE, FMT_CC_TYPE
+    </sql>
+
+
+</mapper>

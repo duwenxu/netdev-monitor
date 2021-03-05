@@ -12,6 +12,7 @@ import com.xy.netdev.admin.service.ISysRoleService;
 import com.xy.netdev.admin.vo.SysRoleMenuModel;
 import com.xy.netdev.common.annotation.AutoLog;
 import com.xy.netdev.common.constant.SysConfigConstant;
+import com.xy.netdev.common.util.JwtUtil;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -72,10 +73,10 @@ public class SysRoleController {
      */
     @RequestMapping(method = RequestMethod.POST)
     @AutoLog(value = "添加角色信息", operateType = SysConfigConstant.OPERATE_TYPE_ADD)
-    public Result<SysRole> add(SysRole rowData) {
+    public Result<SysRole> add(SysRole rowData,HttpServletRequest req) {
         rowData.setRoleStatus(SysConfigConstant.STATUS_OK);
         rowData.setRoleDate(DateUtils.now());
-        rowData.setRoleUesrid(sysBaseAPI.getLoginUser().getUserId());
+        rowData.setRoleUesrid(JwtUtil.getUserIdByToken(req));
         return ControllerHelper.add(rowData, service);
     }
 

@@ -11,6 +11,7 @@ import com.xy.netdev.admin.entity.SysDepart;
 import com.xy.netdev.admin.service.ISysDepartService;
 import com.xy.netdev.common.annotation.AutoLog;
 import com.xy.netdev.common.constant.SysConfigConstant;
+import com.xy.netdev.common.util.JwtUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,10 +72,11 @@ public class SysDepartController {
      */
     @RequestMapping(method = RequestMethod.POST)
     @AutoLog(value = "添加用户所属部门信息", operateType = SysConfigConstant.OPERATE_TYPE_ADD)
-    public Result<SysDepart> add(SysDepart rowData) {
+    public Result<SysDepart> add(SysDepart rowData, HttpServletRequest req) {
+        Integer userId = JwtUtil.getUserIdByToken(req);
         rowData.setDepartStatus(SysConfigConstant.STATUS_OK);
         rowData.setDepartDate(DateUtils.now());
-        rowData.setDepartUesrid(sysBaseAPI.getLoginUser().getUserId());
+        rowData.setDepartUesrid(userId);
         return ControllerHelper.add(rowData, service);
     }
 

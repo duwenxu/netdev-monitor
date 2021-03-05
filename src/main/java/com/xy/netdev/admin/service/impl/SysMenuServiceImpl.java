@@ -53,8 +53,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
      * @功能：获取用户权限菜单
      */
     @Override
-    public JSONObject getMenuByUser() {
-        Integer userId = sysBaseAPI.getLoginUser().getUserId();
+    public JSONObject getMenuByUser(Integer userId) {
         List<SysMenu> metaList = queryMenuByUser(userId);
         JSONObject json = new JSONObject();
         JSONArray menuJsonArray = new JSONArray();
