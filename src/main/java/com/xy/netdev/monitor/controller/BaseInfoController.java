@@ -61,7 +61,10 @@ public class BaseInfoController {
     @GetMapping("/{id}")
     public Result<BaseInfo> queryItem(@PathVariable String id){
         BaseInfo entity = targetService.getById(id);
-        return Result.ok().data(entity);
+        Result result = new Result();
+        result.ok();
+        result.setResult(entity);
+        return result;
     }
 
     /**

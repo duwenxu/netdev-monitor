@@ -61,7 +61,10 @@ public class PrtclFormatController {
     @GetMapping("/{id}")
     public Result<PrtclFormat> queryItem(@PathVariable String id){
         PrtclFormat entity = targetService.getById(id);
-        return Result.ok().data(entity);
+        Result result = new Result();
+        result.ok();
+        result.setResult(entity);
+        return result;
     }
 
     /**

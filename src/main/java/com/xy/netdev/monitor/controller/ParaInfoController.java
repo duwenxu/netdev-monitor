@@ -61,7 +61,10 @@ public class ParaInfoController {
     @GetMapping("/{id}")
     public Result<ParaInfo> queryItem(@PathVariable String id){
         ParaInfo entity = targetService.getById(id);
-        return Result.ok().data(entity);
+        Result result = new Result();
+        result.ok();
+        result.setResult(entity);
+        return result;
     }
 
     /**

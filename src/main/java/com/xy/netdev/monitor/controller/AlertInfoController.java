@@ -61,7 +61,10 @@ public class AlertInfoController {
     @GetMapping("/{id}")
     public Result<AlertInfo> queryItem(@PathVariable String id){
         AlertInfo entity = targetService.getById(id);
-        return Result.ok().data(entity);
+        Result result = new Result();
+        result.ok();
+        result.setResult(entity);
+        return result;
     }
 
     /**

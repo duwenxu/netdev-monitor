@@ -61,7 +61,10 @@ public class OperLogController {
     @GetMapping("/{id}")
     public Result<OperLog> queryItem(@PathVariable String id){
         OperLog entity = targetService.getById(id);
-        return Result.ok().data(entity);
+        Result result = new Result();
+        result.ok();
+        result.setResult(entity);
+        return result;
     }
 
     /**

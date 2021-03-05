@@ -61,7 +61,10 @@ public class InterfaceController {
     @GetMapping("/{id}")
     public Result<Interface> queryItem(@PathVariable String id){
         Interface entity = targetService.getById(id);
-        return Result.ok().data(entity);
+        Result result = new Result();
+        result.ok();
+        result.setResult(entity);
+        return result;
     }
 
     /**
