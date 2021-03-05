@@ -25,7 +25,7 @@ public interface ISysMenuService extends IService<SysMenu> {
      * @功能：获取用户权限菜单
      * @return
      */
-    public JSONObject getMenuByUser();
+    public JSONObject getMenuByUser(Integer userId);
 
     /**
      * @功能：获取菜单树

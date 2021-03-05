@@ -1,4 +1,4 @@
-package com.xy.netdev.config.filter;
+package com.xy.netdev.common.config.filter;
 
 import org.springframework.stereotype.Component;
 

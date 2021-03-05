@@ -1,4 +1,4 @@
-package com.xy.netdev.config;
+package com.xy.netdev.common.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;

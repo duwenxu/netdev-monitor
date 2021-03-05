@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xy.netdev.monitor.mapper.InterfaceMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xy.netdev.monitor.entity.Interface">
+        <id column="ITF_ID" property="itfId" />
+        <result column="DEV_TYPE" property="devType" />
+        <result column="FMT_ID" property="fmtId" />
+        <result column="ITF_CODE" property="itfCode" />
+        <result column="ITF_NAME" property="itfName" />
+        <result column="ITF_TYPE" property="itfType" />
+        <result column="ITF_STATUS" property="itfStatus" />
+        <result column="ITF_DATA_FORMAT" property="itfDataFormat" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        ITF_ID, DEV_TYPE, FMT_ID, ITF_CODE, ITF_NAME, ITF_TYPE, ITF_STATUS, ITF_DATA_FORMAT
+    </sql>
+
+
+</mapper>
