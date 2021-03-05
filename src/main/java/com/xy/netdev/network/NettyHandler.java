@@ -1,8 +1,11 @@
-package com.xy.netdev.socket;
+package com.xy.netdev.network;
 
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.HexUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.xy.netdev.frame.entity.SocketEntity;
+import com.xy.netdev.network.enums.SocketTypeEnum;
+import com.xy.netdev.network.server.NettyTcpClient;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
@@ -16,6 +19,7 @@ import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedTransferQueue;
 import java.util.function.Function;
 
 
@@ -25,7 +29,12 @@ import java.util.function.Function;
  */
 @Slf4j
 @Component
-public class NettyUtil {
+public class NettyHandler {
+
+    /**
+     * netty 数据缓存队列
+     */
+    public static final LinkedTransferQueue<SocketEntity> SOCKET_QUEUE = new LinkedTransferQueue<>();
 
     /**
      * netty channel 存储
@@ -112,8 +121,8 @@ public class NettyUtil {
     public static void tcpClientBind(String remoteHost, int remotePort, int localPort){
         nettyClose(localPort);
         ThreadUtil.execute(() -> {
-//            NettyTcpClient nettyTcpClient = new NettyTcpClient(remoteHost, remotePort, localPort);
-//            nettyTcpClient.run();
+            NettyTcpClient nettyTcpClient = new NettyTcpClient(remoteHost, remotePort, localPort);
+            nettyTcpClient.run();
         });
     }
 

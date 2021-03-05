@@ -1,17 +1,12 @@
-package com.xy.netdev.protocol.model;
+package com.xy.netdev.frame.entity;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * 数据基类
- * @author cc
- */
 @Setter
 @Getter
-public class DataBaseModel {
-
+public class SocketEntity {
     @ApiModelProperty("本地端口")
     private Integer localPort;
 

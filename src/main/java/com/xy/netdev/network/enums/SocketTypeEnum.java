@@ -1,14 +1,20 @@
-package com.xy.netdev.socket;
+package com.xy.netdev.network.enums;
 
 
 public enum SocketTypeEnum  {
 
+    /**
+     * udp
+     */
     UDP(0, "UDP"),
-//    TCP_SERVER(1, "tcp_server"),
-    TCP_CLIENT(2, "TCP客户端"),
-    MULTICAST(3, "组播"),
-
-
+    /**
+     * Tcp
+     */
+    TCP_CLIENT(1, "TCP客户端"),
+    /**
+     * 组播
+     */
+    MULTICAST(2, "组播")
     ;
     SocketTypeEnum(int type, String typeName){
         this.type = type;

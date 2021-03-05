@@ -1,6 +1,6 @@
-package com.xy.netdev.common.util;
+package com.xy.netdev.network.server;
 
-import com.xy.netdev.socket.handler.PipeLineHandler;
+import com.xy.netdev.network.handler.PipeLineHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelFuture;
@@ -44,7 +44,8 @@ public class NettyUdp implements Runnable {
     @Override
     @SneakyThrows
     public void run() {
-        MultithreadEventLoopGroup loopGroup = Epoll.isAvailable() ? new EpollEventLoopGroup(1) : new NioEventLoopGroup(1);
+        MultithreadEventLoopGroup loopGroup = Epoll.isAvailable() ? new EpollEventLoopGroup(2) :
+                new NioEventLoopGroup(2);
         eventLoopGroupsList.add(loopGroup);
         try {
             String address = InetAddress.getLocalHost().getHostAddress();
