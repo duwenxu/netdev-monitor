@@ -1,6 +1,7 @@
 package com.xy.netdev.socket.handler;
 
 import cn.hutool.core.util.NetUtil;
+import com.xy.netdev.protocol.model.DataBaseModel;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -27,13 +28,20 @@ public class SimpleUdpMessage extends SimpleChannelInboundHandler<DatagramPacket
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket msg) {
+
         ByteBuf byteBuf = msg.content();
         int byteSize = byteBuf.readableBytes();
         byte[] bytes = new byte[byteSize];
         byteBuf.readBytes(bytes);
-        String ipAddress = NetUtil.getIpByHost(msg.sender().getHostName());
+        String remoteAddress= NetUtil.getIpByHost(msg.sender().getHostName());
+        int remotePort = msg.sender().getPort();
+        InetSocketAddress localAddress = (InetSocketAddress) ctx.channel().localAddress();
+
+        DataBaseModel dataBaseModel = new DataBaseModel();
+        dataBaseModel.setLocalPort(localAddress.getPort());
+        dataBaseModel.setRemotePort(remotePort);
+        dataBaseModel.setRemoteAddress(remoteAddress);
+        dataBaseModel.setOriginalReceiveBytes(bytes);
     }
-
-
 
 }

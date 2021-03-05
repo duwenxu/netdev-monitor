@@ -19,7 +19,7 @@ public class DataBaseModel {
     private Integer remotePort;
 
     @ApiModelProperty("远程地址")
-    private Integer remoteAddress;
+    private String remoteAddress;
 
     @ApiModelProperty("原始收字节数据")
     private byte[] originalReceiveBytes;
