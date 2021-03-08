@@ -56,4 +56,7 @@ public class DataBodyPara {
     @ApiModelProperty(value = "设备编号")
     private String devNo;
 
+    @ApiModelProperty(value = "告警级别")
+    private String alertLevel;
+
 }
