@@ -2,13 +2,13 @@ package com.xy.netdev.rpt.bo;
 
 
 
-import com.xy.netdev.frame.bo.DataBodyPara;
+
+import com.xy.netdev.monitor.entity.ParaInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-
 import java.util.List;
 
 /**
@@ -36,7 +36,7 @@ public class RptBodyDev {
     private String devParaTotal;
 
     @ApiModelProperty(value = "设备参数列表")
-    private List<DataBodyPara> devParaList;
+    private List<ParaInfo> devParaList;
 
 
 

@@ -30,6 +30,6 @@ public interface IQueryInterPrtclAnalysisService {
      * @param  paraList  参数解析列表
      * @return  查询到的参数列表
      */
-    List<DataBodyPara> queryParaResponse(BaseInfo devInfo,List<DataBodyPara> paraList);
+    List<ParaInfo> queryParaResponse(BaseInfo devInfo,List<ParaInfo> paraList);
 
 }
