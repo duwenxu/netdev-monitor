@@ -8,10 +8,10 @@ import java.util.List;
 public interface ProtocolActionService {
 
     //查询
-    void doQuery();
+    <T extends TransportEntity>void doQuery(T t);
 
     //控制
-    void doControl();
+    <T extends TransportEntity>void doControl(T t);
 
     //查询应答
     <T extends TransportEntity> List<T> doQueryResult();

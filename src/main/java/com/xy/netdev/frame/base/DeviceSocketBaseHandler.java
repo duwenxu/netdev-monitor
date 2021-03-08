@@ -15,10 +15,10 @@ import java.util.Set;
  */
 public abstract class DeviceSocketBaseHandler<R extends TransportEntity> implements DeviceSocketService<R>, ProtocolActionService {
     @Override
-    public void doQuery() { }
+    public <T extends TransportEntity> void doQuery(T t) { }
 
     @Override
-    public void doControl() { }
+    public <T extends TransportEntity> void doControl(T t) { }
 
     @Override
     public Set<String> queryMark() {

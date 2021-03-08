@@ -47,12 +47,12 @@ public abstract class AbsDeviceSocketHandler<T extends TransportEntity> extends 
     public void request(T t) {
         //查询
         if (queryMark().contains(nowReceiveFlag())){
-            doQuery();
+            doQuery(t);
             return;
         }
         //控制
         if (controlMark().contains(nowReceiveFlag())){
-            doControl();
+            doControl(t);
         }
     }
 
@@ -69,14 +69,9 @@ public abstract class AbsDeviceSocketHandler<T extends TransportEntity> extends 
         }
     }
 
+
     @Override
-    public void doQuery() {
-        //数据拆箱, 装箱
-//        pack()
-        //数据发送
+    public <T1 extends TransportEntity> void doQuery(T1 t1) {
+        super.doQuery(t1);
     }
-
-
-
-
 }

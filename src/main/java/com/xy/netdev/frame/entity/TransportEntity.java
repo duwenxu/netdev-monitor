@@ -18,7 +18,5 @@ public class TransportEntity {
 
     private BaseInfo devInfo;
 
-    private ParaInfo paraInfo;
-
     private List<DataBodyPara> dataBodyParas;
 }
