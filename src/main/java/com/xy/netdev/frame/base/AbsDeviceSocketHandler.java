@@ -3,7 +3,7 @@ package com.xy.netdev.frame.base;
 import com.xy.netdev.frame.base.service.ProtocolPackService;
 import com.xy.netdev.frame.bo.DataBodyPara;
 import com.xy.netdev.frame.entity.SocketEntity;
-import com.xy.netdev.frame.serivce.SocketMutualService;
+import com.xy.netdev.frame.service.SocketMutualService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;

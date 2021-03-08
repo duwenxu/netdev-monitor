@@ -1,5 +1,6 @@
 package com.xy.netdev.common.util;
 
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.HexUtil;
 import com.google.common.primitives.Bytes;
 import io.netty.buffer.ByteBuf;
@@ -9,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.DigestUtils;
 
 import java.nio.ByteOrder;
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Function;
 
 
@@ -45,6 +48,11 @@ public class ByteUtils {
         return array;
     }
 
+
+    public static byte[] listToBytes(List<byte[]> list){
+        return list.stream().reduce(new byte[]{}, com.google.common.primitives.Bytes::concat);
+    }
+
     /**
      * 指定长度copy数组
      * @param bytes
@@ -57,4 +65,63 @@ public class ByteUtils {
         System.arraycopy(bytes, start, byteArray, 0, length);
         return byteArray;
     }
+
+    public static byte[] objectToByte(Object obj, int systemNum, int len, int order){
+        byte [] data = {};
+        if (systemNum == 0023001){
+            return new byte[]{(byte)obj};
+        }
+        ByteOrder byteOrder;
+        if (order != 1) {
+            byteOrder =  Unpooled.LITTLE_ENDIAN;
+        } else {
+            byteOrder =  Unpooled.BIG_ENDIAN;
+        }
+        switch (systemNum){
+            //int
+            case 0023002:
+                data = numToBytes((int)obj, byteOrder, Unpooled::copyInt);
+                break;
+            //unit
+            case 0023003:
+                data = numToBytes((long)obj, byteOrder, Unpooled::copyLong);
+                break;
+            // str
+            case 0023004:
+                data = numToBytes((short)obj, byteOrder, Unpooled::copyShort);
+                break;
+            default:break;
+        }
+        return ArrayUtil.sub(data, data.length - len, len);
+    }
+
+    public static byte[] objectToByte(Object obj, int len, int order){
+        byte [] data = {};
+        if (len == 1){
+            return new byte[]{(byte)obj};
+        }
+        ByteOrder byteOrder;
+        if (order != 1) {
+            byteOrder =  Unpooled.LITTLE_ENDIAN;
+        } else {
+            byteOrder =  Unpooled.BIG_ENDIAN;
+        }
+        switch(len){
+            case 2:
+                data = numToBytes((short)obj, byteOrder, Unpooled::copyShort);
+                break;
+            case 3:
+                data = numToBytes((int)obj, byteOrder, Unpooled::copyMedium);
+                break;
+            case 4:
+                data = numToBytes((int)obj, byteOrder, Unpooled::copyInt);
+                break;
+            case 8:
+                data = numToBytes((long)obj, byteOrder, Unpooled::copyLong);
+                break;
+            default:break;
+        }
+        return data;
+    }
+
 }

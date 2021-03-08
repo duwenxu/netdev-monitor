@@ -11,16 +11,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.xy.netdev.common.util.ByteUtils.numToBytes;
+import static com.xy.netdev.common.util.ByteUtils.*;
 
 public final class ProtocolXmlHandler {
 
-//    public static byte[] pack(List<ProtocolXmlEntity.ParamEntity> paramEntities){
-//       List<ProtocolXmlEntity.ParamEntity> list = new ArrayList<>(paramEntities.size());
-//        paramEntities.forEach(paramEntity -> {
-//            list.add(numToBytes())
-//        });
-//    }
+    public static byte[] pack(List<ProtocolXmlEntity.ParamEntity> paramEntities){
+       List<byte[]> list = new ArrayList<>(paramEntities.size());
+        paramEntities.forEach(paramEntity -> {
+            list.add(objectToByte(paramEntity.getValue(), paramEntity.getLength(), paramEntity.getOrder()));
+        });
+        return listToBytes(list);
+    }
 
 
 

@@ -1,9 +1,9 @@
-package com.xy.netdev.frame.serivce.impl;
+package com.xy.netdev.frame.service.impl;
 
 import com.xy.netdev.common.util.BeanFactoryUtil;
 import com.xy.netdev.frame.base.AbsDeviceSocketHandler;
 import com.xy.netdev.frame.bo.DataBodyPara;
-import com.xy.netdev.frame.serivce.SocketMutualService;
+import com.xy.netdev.frame.service.SocketMutualService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

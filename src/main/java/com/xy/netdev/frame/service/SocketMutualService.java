@@ -1,4 +1,4 @@
-package com.xy.netdev.frame.serivce;
+package com.xy.netdev.frame.service;
 
 import com.xy.netdev.frame.bo.DataBodyPara;
 

@@ -1,16 +1,28 @@
-package com.xy.netdev.frame.serivce.impl.device;
+package com.xy.netdev.frame.service.impl.device;
 
+import ch.qos.logback.core.encoder.ByteArrayUtil;
+import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.HexUtil;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.frame.base.AbsDeviceSocketHandler;
 import com.xy.netdev.frame.bo.DataBodyPara;
 import com.xy.netdev.frame.entity.SocketEntity;
+import com.xy.netdev.frame.entity.device.AntennaControlEntity;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
+import org.apache.commons.lang3.ArrayUtils;
+import org.assertj.core.internal.Bytes;
 import org.mockito.internal.util.collections.Sets;
 import org.springframework.stereotype.Service;
 
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 import static com.xy.netdev.common.util.ByteUtils.bytesToNum;
+import static com.xy.netdev.common.util.ByteUtils.listToBytes;
 
 /**
  * 2.4米卫通天线控制
@@ -50,5 +62,19 @@ public class AntennaControlImpl extends AbsDeviceSocketHandler<DataBodyPara> {
         return null;
     }
 
+
+
+
+    private byte[] pack(AntennaControlEntity antennaControlEntity){
+        List<byte[]> list = new ArrayList<>();
+        list.add(new byte[]{antennaControlEntity.getStx()});
+        list.add(new byte[]{antennaControlEntity.getLc()});
+        list.add(new byte[]{antennaControlEntity.getSad()});
+        list.add(new byte[]{antennaControlEntity.getCmd()});
+        list.add(antennaControlEntity.getData());
+        list.add(new byte[]{antennaControlEntity.getVs()});
+        list.add(new byte[]{antennaControlEntity.getEtx()});
+        return listToBytes(list);
+    }
 
 }
