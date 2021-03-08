@@ -1,11 +1,10 @@
 package com.xy.netdev.frame.service;
 
 
-import com.xy.netdev.frame.bo.DataBodyPara;
+
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.entity.ParaInfo;
-
 import java.util.List;
 
 /**
