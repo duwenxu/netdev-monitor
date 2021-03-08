@@ -5,7 +5,7 @@ import lombok.Getter;
 public enum ProtocolClassEnum {
 
     /**
-     * 4米卫通天线控制接口协议
+     * 2.4米卫通天线控制接口协议
      */
     ANTENNA_CONTROL("AntennaControlImpl", "2.4米卫通天线控制接口协议");
 

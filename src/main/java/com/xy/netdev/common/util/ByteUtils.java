@@ -123,4 +123,28 @@ public class ByteUtils {
         return data;
     }
 
+
+    public static Number byteToNumber(byte[] bytes, int offset, int length){
+        Number num = null;
+        switch (length){
+            case 1:
+                num = bytesToNum(bytes, offset, length, ByteBuf::readByte);
+                break;
+            case 2:
+                num = bytesToNum(bytes, offset, length, ByteBuf::readShort);
+                break;
+            case 3:
+                num = bytesToNum(bytes, offset, length, ByteBuf::readMedium);
+                break;
+            case 4:
+                num = bytesToNum(bytes, offset, length, ByteBuf::readInt);
+                break;
+            case 8:
+                num = bytesToNum(bytes, offset, length, ByteBuf::readLong);
+                break;
+            default:break;
+        }
+        return num;
+    }
+
 }

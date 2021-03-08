@@ -34,7 +34,7 @@ public class BaseInfoContainer {
      * @param devIPAddr    设备IP地址
      * @return  设备对象
      */
-    public static BaseInfo   getDevInfo(String devIPAddr){
+    public static BaseInfo getDevInfo(String devIPAddr){
         return devMap.get(devIPAddr);
     }
 

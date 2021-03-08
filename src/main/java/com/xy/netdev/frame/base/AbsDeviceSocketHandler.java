@@ -4,9 +4,15 @@ import com.xy.netdev.frame.base.service.ProtocolPackService;
 import com.xy.netdev.frame.entity.SocketEntity;
 import com.xy.netdev.frame.entity.TransportEntity;
 import com.xy.netdev.frame.service.SocketMutualService;
+import com.xy.netdev.monitor.entity.ParaInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+
+import static com.xy.netdev.common.util.ByteUtils.byteToNumber;
+import static com.xy.netdev.common.util.ByteUtils.objectToByte;
 
 /**
  * 设备数据流程处理基类
@@ -68,6 +74,15 @@ public abstract class AbsDeviceSocketHandler<T extends TransportEntity> extends 
         }
     }
 
+
+    public static List<ParaInfo> dataPack(List<ParaInfo> list, byte[] bytes){
+        list.forEach(paraInfo -> {
+            int offset = paraInfo.getParaStartPoint();
+            int byteLen = Integer.parseInt(paraInfo.getNdpaByteLen());
+            String value = byteToNumber(bytes, offset, byteLen).toString();
+        });
+        return list;
+    }
 
     @Override
     public <T1 extends TransportEntity> void doQuery(T1 t1) {

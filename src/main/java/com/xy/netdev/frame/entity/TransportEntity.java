@@ -1,7 +1,7 @@
 package com.xy.netdev.frame.entity;
 
-import com.xy.netdev.frame.bo.DataBodyPara;
 import com.xy.netdev.monitor.entity.BaseInfo;
+import com.xy.netdev.monitor.entity.ParaInfo;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,5 +18,5 @@ public class TransportEntity {
     private BaseInfo devInfo;
 
 
-    private List<DataBodyPara> dataBodyParas;
+    private List<ParaInfo> dataBodyParas;
 }

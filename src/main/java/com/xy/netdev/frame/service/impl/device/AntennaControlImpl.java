@@ -4,13 +4,18 @@ import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.frame.base.AbsDeviceSocketHandler;
 import com.xy.netdev.frame.entity.SocketEntity;
 import com.xy.netdev.frame.entity.TransportEntity;
+import com.xy.netdev.frame.entity.device.AntennaControlEntity;
+import com.xy.netdev.monitor.entity.BaseInfo;
 import io.netty.buffer.ByteBuf;
 import org.mockito.internal.util.collections.Sets;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import static com.xy.netdev.common.util.ByteUtils.bytesToNum;
+import static com.xy.netdev.container.BaseInfoContainer.getDevInfo;
 
 /**
  * 2.4米卫通天线控制
@@ -53,6 +58,7 @@ public class AntennaControlImpl extends AbsDeviceSocketHandler<TransportEntity> 
 
 
 
+//
 //    private byte[] pack(AntennaControlEntity antennaControlEntity){
 //        List<byte[]> list = new ArrayList<>();
 //        list.add(new byte[]{antennaControlEntity.getStx()});
