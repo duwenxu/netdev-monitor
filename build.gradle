@@ -14,9 +14,10 @@ repositories {
 }
 
 dependencies {
-	compile 'com.xy:xy-base-core:1.0.2-SNAPSHOT'
+	compile 'com.xy:xy-base-core:1.0.3-SNAPSHOT'
 	compile 'org.projectlombok:lombok:1.18.8'
 	compile  'commons-lang:commons-lang:2.6'
+	compile 'com.github.xiaoymin:swagger-bootstrap-ui:1.9.6'
 }
 
 test {
