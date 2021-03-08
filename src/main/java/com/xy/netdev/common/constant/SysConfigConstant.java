@@ -9,36 +9,16 @@ package com.xy.netdev.common.constant;
  */
 public interface SysConfigConstant {
 
-     /**
-      * 钉钉地址
-      */
-     String DING_ADDRESS = "0106001";
-
-    /**
-     * 模式标识
-     */
-     String MODE_MARK = "0100025";
-
 
     /**
      * 设备状态： 新品
      */
-     String DEV_STATUS_NEW = "0064001";
-
-    /**
-     * 设备状态： 勘用
-     */
-     String DEV_STATUS_USED = "0064002";
-
+     String DEV_STATUS_NEW = "0028001";
     /**
      * 设备状态： 维修
      */
-     String DEV_STATUS_REPAIR = "0064003";
+     String DEV_STATUS_REPAIR = "0028002";
 
-    /**
-     * 设备状态： 报废
-     */
-     String DEV_STATUS_SCRAP = "0064004";
 
     /**
      * 系统日志类型： 登录
