@@ -5,7 +5,6 @@ import com.xy.common.util.DateUtils;
 import com.xy.common.util.SpringContextUtils;
 import com.xy.netdev.admin.api.ISysBaseAPI;
 import com.xy.netdev.admin.entity.SysLog;
-import com.xy.netdev.admin.entity.SysUser;
 import com.xy.netdev.admin.service.ISysLogService;
 import com.xy.netdev.common.annotation.AutoLog;
 import com.xy.netdev.common.constant.SysConfigConstant;

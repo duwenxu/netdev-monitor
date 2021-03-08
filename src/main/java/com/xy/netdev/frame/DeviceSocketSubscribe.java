@@ -5,14 +5,13 @@ import cn.hutool.cache.impl.FIFOCache;
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.thread.ThreadUtil;
 import com.xy.netdev.frame.base.AbsDeviceSocketHandler;
-import com.xy.netdev.frame.bo.DataBodyPara;
 import com.xy.netdev.frame.entity.SocketEntity;
+import com.xy.netdev.frame.entity.TransportEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-
 import java.util.List;
 import java.util.Objects;
 
@@ -27,12 +26,12 @@ import static com.xy.netdev.network.NettyHandler.SOCKET_QUEUE;
 public class DeviceSocketSubscribe {
 
     @Autowired
-    private List<AbsDeviceSocketHandler<DataBodyPara>> absSocketHandlerList;
+    private List<AbsDeviceSocketHandler<TransportEntity>> absSocketHandlerList;
 
     /**
      * 带时效的先进先出队列
      */
-    private FIFOCache<String, AbsDeviceSocketHandler<DataBodyPara>> cache;
+    private FIFOCache<String, AbsDeviceSocketHandler<TransportEntity>> cache;
 
     @PostConstruct
     public void init(){
@@ -41,7 +40,7 @@ public class DeviceSocketSubscribe {
             try {
                 while (true){
                     SocketEntity socketEntity = SOCKET_QUEUE.take();
-                    AbsDeviceSocketHandler<DataBodyPara> deviceSocketHandler
+                    AbsDeviceSocketHandler<TransportEntity> deviceSocketHandler
                             = getHandler(socketEntity.getRemoteAddress(), absSocketHandlerList);
                     deviceSocketHandler.response(socketEntity);
                 }
@@ -57,12 +56,12 @@ public class DeviceSocketSubscribe {
      * @param list 目标list
      * @return 目标实体
      */
-    private AbsDeviceSocketHandler<DataBodyPara> getHandler(String key, List<AbsDeviceSocketHandler<DataBodyPara>> list){
-        AbsDeviceSocketHandler<DataBodyPara> socketHandler = cache.get(key);
+    private AbsDeviceSocketHandler<TransportEntity> getHandler(String key, List<AbsDeviceSocketHandler<TransportEntity>> list){
+        AbsDeviceSocketHandler<TransportEntity> socketHandler = cache.get(key);
         if (socketHandler != null){
             return socketHandler;
         }
-        AbsDeviceSocketHandler<DataBodyPara> handler = absSocketHandlerList.stream()
+        AbsDeviceSocketHandler<TransportEntity> handler = absSocketHandlerList.stream()
                 .filter(Objects::nonNull)
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("未找到指定设备处理流程"));

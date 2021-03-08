@@ -1,7 +1,7 @@
 package com.xy.netdev.monitor.service;
 
-import com.xy.netdev.monitor.entity.BaseInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.xy.netdev.monitor.entity.BaseInfo;
 
 /**
  * 设备信息 服务类

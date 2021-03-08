@@ -2,18 +2,16 @@ package com.xy.netdev.monitor.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.xy.common.model.Result;
 import com.xy.common.helper.ControllerHelper;
+import com.xy.common.model.Result;
+import com.xy.netdev.common.util.JwtUtil;
 import com.xy.netdev.monitor.entity.AlertInfo;
 import com.xy.netdev.monitor.service.IAlertInfoService;
-import com.xy.netdev.common.annotation.AutoLog;
-import com.xy.netdev.common.constant.SysConfigConstant;
-import com.xy.netdev.common.util.JwtUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.RestController;
+
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 

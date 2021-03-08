@@ -1,8 +1,7 @@
 package com.xy.netdev.admin.service;
 
-import com.xy.netdev.admin.entity.SysParam;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.xy.netdev.admin.service.impl.SysParamServiceImpl;
+import com.xy.netdev.admin.entity.SysParam;
 
 import java.util.List;
 

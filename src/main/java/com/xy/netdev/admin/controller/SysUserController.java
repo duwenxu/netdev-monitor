@@ -1,8 +1,6 @@
 package com.xy.netdev.admin.controller;
 
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -10,9 +8,8 @@ import com.xy.common.helper.ControllerHelper;
 import com.xy.common.helper.ControllerResultWrapper;
 import com.xy.common.model.Result;
 import com.xy.common.query.QueryGenerator;
-import com.xy.netdev.admin.service.ISysUserService;
 import com.xy.netdev.admin.entity.SysUser;
-import com.xy.netdev.admin.entity.SysUserRole;
+import com.xy.netdev.admin.service.ISysUserService;
 import com.xy.netdev.common.annotation.AutoLog;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import io.swagger.annotations.Api;
@@ -21,8 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**

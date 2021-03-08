@@ -1,7 +1,7 @@
 package com.xy.netdev.monitor.service;
 
-import com.xy.netdev.monitor.entity.Interface;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.xy.netdev.monitor.entity.Interface;
 
 /**
  * 设备接口 服务类

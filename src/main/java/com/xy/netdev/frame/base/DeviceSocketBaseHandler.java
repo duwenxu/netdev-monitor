@@ -1,8 +1,7 @@
 package com.xy.netdev.frame.base;
 
-import com.xy.netdev.frame.bo.DataBodyPara;
-import com.xy.netdev.frame.base.service.ProtocolActionService;
 import com.xy.netdev.frame.base.service.DeviceSocketService;
+import com.xy.netdev.frame.base.service.ProtocolActionService;
 import com.xy.netdev.frame.entity.TransportEntity;
 
 import java.util.Collections;

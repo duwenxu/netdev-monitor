@@ -1,6 +1,5 @@
 package com.xy.netdev.frame.base.service;
 
-import com.xy.netdev.frame.bo.DataBodyPara;
 import com.xy.netdev.frame.entity.TransportEntity;
 
 import java.util.List;

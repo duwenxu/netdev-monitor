@@ -1,7 +1,7 @@
 package com.xy.netdev.admin.mapper;
 
-import com.xy.netdev.admin.entity.SysUserRole;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.xy.netdev.admin.entity.SysUserRole;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Component;

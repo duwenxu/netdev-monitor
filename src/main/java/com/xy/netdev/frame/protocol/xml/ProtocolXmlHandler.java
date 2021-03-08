@@ -11,7 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.xy.netdev.common.util.ByteUtils.*;
+import static com.xy.netdev.common.util.ByteUtils.listToBytes;
+import static com.xy.netdev.common.util.ByteUtils.objectToByte;
 
 public final class ProtocolXmlHandler {
 
