@@ -23,7 +23,6 @@ import lombok.experimental.Accessors;
 public class DataBodyPara {
     private static final long serialVersionUID = 1L;
 
-
     @ApiModelProperty(value = "参数ID")
     private String paraId;
 
@@ -32,11 +31,29 @@ public class DataBodyPara {
 
     @ApiModelProperty(value = "参数序号")
     private Integer paraSeq;
+    /**
+     * 按照序号 累加 字节长度
+     */
+    @ApiModelProperty(value = "参数下标")
+    private Integer paraStartPoint;
+    /**
+     * 参数表中 0023
+     */
+    @ApiModelProperty(value = "参数数据类型")
+    private String ndpaDatatype;
 
     @ApiModelProperty(value = "字节长度")
     private Integer byteLen;
 
     @ApiModelProperty(value = "参数值")
     private String paraVal;
+    /**
+     * 参数表中 0020
+     */
+    @ApiModelProperty(value = "设备类型编码")
+    private String devTypeCode;
+
+    @ApiModelProperty(value = "设备编号")
+    private String devNo;
 
 }

@@ -60,6 +60,10 @@ public class Interface extends Model<Interface> {
     private String itfDataFormat;
 
 
+    @ApiModelProperty(value = "字段类型")
+    @TableField(value = "ALERT_PARA")
+    private String alertPara;
+
     @Override
     protected Serializable pkVal() {
         return this.itfId;

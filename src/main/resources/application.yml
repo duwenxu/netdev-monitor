@@ -13,3 +13,6 @@ spring:
 mybatis-plus:
   mapper-locations: classpath*:com/xy/netdev/**/xml/*Mapper.xml
   typeAliasesPackage: com.xy.netdev.**.entity
+
+swagger:
+  enable: true
