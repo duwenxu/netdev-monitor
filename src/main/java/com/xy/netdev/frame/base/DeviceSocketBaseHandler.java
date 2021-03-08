@@ -1,7 +1,7 @@
 package com.xy.netdev.frame.base;
 
 import com.xy.netdev.frame.bo.DataBodyPara;
-import com.xy.netdev.frame.base.service.ProtocolPackService;
+import com.xy.netdev.frame.base.service.ProtocolActionService;
 import com.xy.netdev.frame.base.service.DeviceSocketService;
 
 import java.util.Collections;
@@ -12,7 +12,7 @@ import java.util.Set;
  * 方法默认空实现
  * @author cc
  */
-public abstract class DeviceSocketBaseHandler<R extends DataBodyPara> implements DeviceSocketService<R>, ProtocolPackService {
+public abstract class DeviceSocketBaseHandler<R extends DataBodyPara> implements DeviceSocketService<R>, ProtocolActionService {
     @Override
     public void doQuery() { }
 

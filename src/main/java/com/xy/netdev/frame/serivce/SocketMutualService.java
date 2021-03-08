@@ -17,6 +17,10 @@ public interface SocketMutualService {
     */
    <T extends DataBodyPara> void request(T t);
 
-
-   <T extends DataBodyPara> void callBack(List<T> list);
+   /**
+    * 回调
+    * @param list
+    * @param <T>
+    */
+   <T extends DataBodyPara> void callback(List<T> list);
 }

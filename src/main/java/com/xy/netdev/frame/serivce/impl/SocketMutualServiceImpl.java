@@ -23,7 +23,7 @@ public class SocketMutualServiceImpl implements SocketMutualService {
     }
 
     @Override
-    public <T extends DataBodyPara> void callBack(List<T> list) {
+    public <T extends DataBodyPara> void callback(List<T> list) {
 
     }
 }

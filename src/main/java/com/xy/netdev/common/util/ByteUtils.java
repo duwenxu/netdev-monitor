@@ -1,12 +1,14 @@
 package com.xy.netdev.common.util;
 
 import cn.hutool.core.util.HexUtil;
+import com.google.common.primitives.Bytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.util.ReferenceCountUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.DigestUtils;
 
+import java.nio.ByteOrder;
 import java.util.function.Function;
 
 
@@ -31,6 +33,16 @@ public class ByteUtils {
         T t = function.apply(byteBuf);
         ReferenceCountUtil.release(t);
         return t;
+    }
+
+    public static <T extends Number> byte[] numToBytes(T t, ByteOrder order, Function<T, ByteBuf> function){
+        ByteBuf apply = function.apply(t);
+        byte[] array = apply.array();
+        if (order == Unpooled.LITTLE_ENDIAN){
+            Bytes.reverse(array);
+        }
+        ReferenceCountUtil.release(apply);
+        return array;
     }
 
     /**

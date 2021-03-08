@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration>
+    <Device>
+        <Mark>device1</Mark>
+        <Param>
+            <Mark>param1</Mark>
+            <Body>
+                  <!--  编号,起始位,长度, 值, 字节序, 是否数据体   -->
+                <STX>0,0,1,0,0,false</STX>
+                <LC>1,1,1,0,0,false</LC>
+                <SAD>2,2,1,0,0,false</SAD>
+                <CMD>3,3,1,0,0,false</CMD>
+                <DATA>4,4,1,0,0,true</DATA>
+                <VS>5,5,1,0,0,false</VS>
+                <ETX>6,6,1,0,0,false</ETX>
+            </Body>
+        </Param>
+    </Device>
+</configuration>

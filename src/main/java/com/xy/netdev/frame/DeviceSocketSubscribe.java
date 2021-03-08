@@ -41,11 +41,9 @@ public class DeviceSocketSubscribe {
             try {
                 while (true){
                     SocketEntity socketEntity = SOCKET_QUEUE.take();
-                    //查询设备信息
-
-                    //缓存获取数据
-
-                    //执行AbsSocketHandler.response 方法
+                    AbsDeviceSocketHandler<DataBodyPara> deviceSocketHandler
+                            = getHandler(socketEntity.getRemoteAddress(), absSocketHandlerList);
+                    deviceSocketHandler.response(socketEntity);
                 }
             } catch (InterruptedException e) {
                 log.error("数据存储队列异常:", e);
@@ -59,7 +57,7 @@ public class DeviceSocketSubscribe {
      * @param list 目标list
      * @return 目标实体
      */
-    private AbsDeviceSocketHandler<DataBodyPara> filter(String key, List<AbsDeviceSocketHandler<DataBodyPara>> list){
+    private AbsDeviceSocketHandler<DataBodyPara> getHandler(String key, List<AbsDeviceSocketHandler<DataBodyPara>> list){
         AbsDeviceSocketHandler<DataBodyPara> socketHandler = cache.get(key);
         if (socketHandler != null){
             return socketHandler;

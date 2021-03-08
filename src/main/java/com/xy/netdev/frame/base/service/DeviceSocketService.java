@@ -4,7 +4,16 @@ import com.xy.netdev.frame.bo.DataBodyPara;
 
 import java.util.Set;
 
+/**
+ * @author cc
+ */
 public interface DeviceSocketService<T extends DataBodyPara> extends ProtocolRequestService<T>, ProtocolResponseService<T>{
+
+    /**
+     * 设备标记
+     * @return 设备标识
+     */
+    String deviceMark();
 
     /**
      * 当前接收标识

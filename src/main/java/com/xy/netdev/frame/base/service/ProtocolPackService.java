@@ -1,20 +1,11 @@
 package com.xy.netdev.frame.base.service;
 
 import com.xy.netdev.frame.bo.DataBodyPara;
-
-import java.util.List;
+import com.xy.netdev.frame.entity.SocketEntity;
 
 public interface ProtocolPackService {
 
-    //查询
-    void doQuery();
+    <T extends SocketEntity, R extends DataBodyPara> R unpack(T t);
 
-    //控制
-    void doControl();
-
-    //查询应答
-    <T extends DataBodyPara> List<T> doQueryResult();
-
-    //控制应答
-    <T extends DataBodyPara> List<T> doControlResult();
+    <T extends SocketEntity, R extends DataBodyPara> T pack(R r);
 }
