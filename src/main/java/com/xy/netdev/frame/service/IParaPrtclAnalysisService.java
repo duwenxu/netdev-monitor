@@ -1,7 +1,7 @@
 package com.xy.netdev.frame.service;
 
 
-import com.xy.netdev.frame.bo.DataBodyPara;
+
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.ParaInfo;
 /**
@@ -25,7 +25,7 @@ public interface IParaPrtclAnalysisService {
      * @param  paraInfo  参数信息
      * @return  响应数据
      */
-    DataBodyPara queryParaResponse(BaseInfo devInfo,ParaInfo paraInfo);
+    ParaInfo queryParaResponse(BaseInfo devInfo,ParaInfo paraInfo);
     /**
      * 控制协议
      * @param  devInfo   设备信息
@@ -38,5 +38,5 @@ public interface IParaPrtclAnalysisService {
      * @param  paraInfo  参数信息
      * @return  响应数据
      */
-    DataBodyPara ctrlParaResponse(BaseInfo devInfo,ParaInfo paraInfo);
+    ParaInfo ctrlParaResponse(BaseInfo devInfo,ParaInfo paraInfo);
 }
