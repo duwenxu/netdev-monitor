@@ -1,6 +1,7 @@
 package com.xy.netdev.frame.service;
 
 import com.xy.netdev.frame.bo.DataBodyPara;
+import com.xy.netdev.frame.entity.TransportEntity;
 
 import java.util.List;
 
@@ -15,12 +16,12 @@ public interface SocketMutualService {
     * @param t t
     * @param <T> t
     */
-   <T extends DataBodyPara> void request(T t);
+   <T extends TransportEntity> void request(T t);
 
    /**
     * 回调
     * @param list
     * @param <T>
     */
-   <T extends DataBodyPara> void callback(List<T> list);
+   <T extends TransportEntity> void callback(List<T> list);
 }

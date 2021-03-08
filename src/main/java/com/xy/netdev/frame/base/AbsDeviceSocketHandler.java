@@ -3,6 +3,7 @@ package com.xy.netdev.frame.base;
 import com.xy.netdev.frame.base.service.ProtocolPackService;
 import com.xy.netdev.frame.bo.DataBodyPara;
 import com.xy.netdev.frame.entity.SocketEntity;
+import com.xy.netdev.frame.entity.TransportEntity;
 import com.xy.netdev.frame.service.SocketMutualService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Component;
  * @author cc
  */
 @Component
-public abstract class AbsDeviceSocketHandler<T extends DataBodyPara> extends DeviceSocketBaseHandler<T> implements ProtocolPackService {
+public abstract class AbsDeviceSocketHandler<T extends TransportEntity> extends DeviceSocketBaseHandler<T> implements ProtocolPackService {
 
     @Lazy
     @Autowired

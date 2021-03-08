@@ -1,6 +1,7 @@
 package com.xy.netdev.frame.base.service;
 
 import com.xy.netdev.frame.bo.DataBodyPara;
+import com.xy.netdev.frame.entity.TransportEntity;
 
 import java.util.List;
 
@@ -13,8 +14,8 @@ public interface ProtocolActionService {
     void doControl();
 
     //查询应答
-    <T extends DataBodyPara> List<T> doQueryResult();
+    <T extends TransportEntity> List<T> doQueryResult();
 
     //控制应答
-    <T extends DataBodyPara> List<T> doControlResult();
+    <T extends TransportEntity> List<T> doControlResult();
 }

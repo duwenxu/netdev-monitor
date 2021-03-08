@@ -7,6 +7,7 @@ import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.frame.base.AbsDeviceSocketHandler;
 import com.xy.netdev.frame.bo.DataBodyPara;
 import com.xy.netdev.frame.entity.SocketEntity;
+import com.xy.netdev.frame.entity.TransportEntity;
 import com.xy.netdev.frame.entity.device.AntennaControlEntity;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
@@ -29,7 +30,7 @@ import static com.xy.netdev.common.util.ByteUtils.listToBytes;
  * @author cc
  */
 @Service
-public class AntennaControlImpl extends AbsDeviceSocketHandler<DataBodyPara> {
+public class AntennaControlImpl extends AbsDeviceSocketHandler<TransportEntity> {
 
     @Override
     public String deviceMark() {
@@ -38,43 +39,44 @@ public class AntennaControlImpl extends AbsDeviceSocketHandler<DataBodyPara> {
 
     @Override
     public Set<String> queryMark() {
-        return Sets.newSet("10");
+        return Sets.newSet("7B");
     }
 
     @Override
     public Set<String> queryResultMark() {
-        return Sets.newSet("10");
+        return Sets.newSet("7F");
     }
 
     @Override
-    public <T extends SocketEntity, R extends DataBodyPara> R unpack(T t) {
+    public <T extends SocketEntity, R extends TransportEntity> R unpack(T t) {
         byte[] originalReceiveBytes = t.getOriginalReceiveBytes();
         //信息长度
         Byte length = bytesToNum(originalReceiveBytes, 1, 1, ByteBuf::readByte);
         //数据体
         byte[] paramData = ByteUtils.byteArrayCopy(originalReceiveBytes, 4, length);
         //数据体解析
+
         return null;
     }
 
     @Override
-    public <T extends SocketEntity, R extends DataBodyPara> T pack(R r) {
+    public <T extends SocketEntity, R extends TransportEntity> T pack(R r) {
         return null;
     }
 
 
 
 
-    private byte[] pack(AntennaControlEntity antennaControlEntity){
-        List<byte[]> list = new ArrayList<>();
-        list.add(new byte[]{antennaControlEntity.getStx()});
-        list.add(new byte[]{antennaControlEntity.getLc()});
-        list.add(new byte[]{antennaControlEntity.getSad()});
-        list.add(new byte[]{antennaControlEntity.getCmd()});
-        list.add(antennaControlEntity.getData());
-        list.add(new byte[]{antennaControlEntity.getVs()});
-        list.add(new byte[]{antennaControlEntity.getEtx()});
-        return listToBytes(list);
-    }
+//    private byte[] pack(AntennaControlEntity antennaControlEntity){
+//        List<byte[]> list = new ArrayList<>();
+//        list.add(new byte[]{antennaControlEntity.getStx()});
+//        list.add(new byte[]{antennaControlEntity.getLc()});
+//        list.add(new byte[]{antennaControlEntity.getSad()});
+//        list.add(new byte[]{antennaControlEntity.getCmd()});
+//        list.add(antennaControlEntity.getData());
+//        list.add(new byte[]{antennaControlEntity.getVs()});
+//        list.add(new byte[]{antennaControlEntity.getEtx()});
+//        return listToBytes(list);
+//    }
 
 }

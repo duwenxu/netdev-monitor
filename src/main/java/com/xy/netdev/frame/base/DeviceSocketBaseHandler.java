@@ -3,6 +3,7 @@ package com.xy.netdev.frame.base;
 import com.xy.netdev.frame.bo.DataBodyPara;
 import com.xy.netdev.frame.base.service.ProtocolActionService;
 import com.xy.netdev.frame.base.service.DeviceSocketService;
+import com.xy.netdev.frame.entity.TransportEntity;
 
 import java.util.Collections;
 import java.util.List;
@@ -12,7 +13,7 @@ import java.util.Set;
  * 方法默认空实现
  * @author cc
  */
-public abstract class DeviceSocketBaseHandler<R extends DataBodyPara> implements DeviceSocketService<R>, ProtocolActionService {
+public abstract class DeviceSocketBaseHandler<R extends TransportEntity> implements DeviceSocketService<R>, ProtocolActionService {
     @Override
     public void doQuery() { }
 
@@ -40,12 +41,12 @@ public abstract class DeviceSocketBaseHandler<R extends DataBodyPara> implements
     }
 
     @Override
-    public <T extends DataBodyPara> List<T> doQueryResult() {
+    public <T extends TransportEntity> List<T> doQueryResult() {
         return Collections.emptyList();
     }
 
     @Override
-    public <T extends DataBodyPara> List<T> doControlResult() {
+    public <T extends TransportEntity> List<T> doControlResult() {
         return Collections.emptyList();
     }
 }

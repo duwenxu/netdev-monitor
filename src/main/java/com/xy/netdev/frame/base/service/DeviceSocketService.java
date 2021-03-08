@@ -1,13 +1,14 @@
 package com.xy.netdev.frame.base.service;
 
 import com.xy.netdev.frame.bo.DataBodyPara;
+import com.xy.netdev.frame.entity.TransportEntity;
 
 import java.util.Set;
 
 /**
  * @author cc
  */
-public interface DeviceSocketService<T extends DataBodyPara> extends ProtocolRequestService<T>, ProtocolResponseService<T>{
+public interface DeviceSocketService<T extends TransportEntity> extends ProtocolRequestService<T>, ProtocolResponseService<T>{
 
     /**
      * 设备标记
