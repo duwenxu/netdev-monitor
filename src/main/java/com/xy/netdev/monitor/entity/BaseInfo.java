@@ -1,17 +1,18 @@
 package com.xy.netdev.monitor.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableField;
+import java.io.Serializable;
+
+import com.xy.common.annotation.Param;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-
-import java.io.Serializable;
 
 /**
  * 设备信息
@@ -34,6 +35,7 @@ public class BaseInfo extends Model<BaseInfo> {
 
     @ApiModelProperty(value = "设备类型")
     @TableField(value = "DEV_TYPE")
+    @Param
     private String devType;
 
     @ApiModelProperty(value = "设备名称")
@@ -41,11 +43,13 @@ public class BaseInfo extends Model<BaseInfo> {
     private String devName;
 
     @ApiModelProperty(value = "设备状态")
+    @Param
     @TableField(value = "DEV_STATUS")
     private String devStatus;
 
     @ApiModelProperty(value = "设备所属公司")
     @TableField(value = "DEV_CORP")
+    @Param
     private String devCorp;
 
     @ApiModelProperty(value = "设备版本")
