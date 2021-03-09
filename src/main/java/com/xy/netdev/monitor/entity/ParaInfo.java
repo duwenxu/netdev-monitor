@@ -55,6 +55,7 @@ public class ParaInfo extends Model<ParaInfo> {
     private String devType;
 
     @ApiModelProperty(value = "访问权限")
+    @Param
     @TableField(value = "NDPA_ACCESS_RIGHT")
     private String ndpaAccessRight;
 
