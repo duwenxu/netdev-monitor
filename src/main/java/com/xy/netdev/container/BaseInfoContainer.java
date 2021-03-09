@@ -24,6 +24,12 @@ public class BaseInfoContainer {
      * 设备MAP K设备IP地址 V设备信息
      */
     private static Map<String, BaseInfo> devMap = new HashMap<>();
+
+    /**
+     * 设备MAP K设备编号 V设备信息
+     */
+    private static Map<String, BaseInfo> devNoMap = new HashMap<>();
+
     /**
      * 接口关联参数MAP K设备类型+接口编码 V设备参数列表信息
      */
@@ -48,8 +54,9 @@ public class BaseInfoContainer {
         devList.forEach(baseInfo -> {
             try {
                 devMap.put(baseInfo.getDevIpAddr(),baseInfo);
+                devNoMap.put(baseInfo.getDevNo(),baseInfo);
             } catch (Exception e) {
-                log.error("设备["+baseInfo.getDevNo()+"]ip地址存在异常，请检查:"+e.getMessage());
+                log.error("设备["+baseInfo.getDevNo()+"]ip地址或设备编号存在异常，请检查:"+e.getMessage());
             }
         });
     }
@@ -100,6 +107,15 @@ public class BaseInfoContainer {
      */
     public static BaseInfo getDevInfo(String devIPAddr){
         return devMap.get(devIPAddr);
+    }
+
+    /**
+     * @功能：根据设备编号 获取设备信息
+     * @param devNo    设备编号
+     * @return  设备对象
+     */
+    public static BaseInfo getDevInfoByNo(String devNo){
+        return devNoMap.get(devNo);
     }
 
     /**
