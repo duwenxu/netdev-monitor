@@ -12,7 +12,7 @@ import java.util.Map;
  *基础信息容器类
  * </p>
  *
- * @author tangxl
+ * @author sunchao
  * @since 2021-03-08
  */
 public class BaseInfoContainer {
