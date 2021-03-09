@@ -150,12 +150,7 @@ public class ParaInfo extends Model<ParaInfo> {
     @TableField(exist = false)
     private String alertLevel;
 
-    /**
-     *  下拉框显示数据,当显示类型 是1  A下拉框时,需要赋值下拉框列表
-     */
-    @ApiModelProperty(value = "下拉框显示数据")
-    @TableField(exist = false)
-    private List<ParaSpinnerInfo> spinnerInfoList = new ArrayList<>();
+
 
 
     @Override
