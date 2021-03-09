@@ -1,7 +1,12 @@
 package com.xy.netdev.container;
 
+import com.xy.netdev.common.collection.FixedSizeMap;
+import com.xy.netdev.monitor.entity.ParaInfo;
+
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * <p>
@@ -13,10 +18,18 @@ import java.util.Map;
  */
 public class DevParaInfoContainer {
     /**
-     * 设备MAP K设备IP地址 V设备状态
+     * 设备参数MAP K设备  V设备参数信息
      */
-    private static Map<String, String> devMap = new HashMap<>();
+    private static Map<String, Map<String,ParaInfo>> devParaMap = new HashMap<>();
 
+    /**
+     * @功能：当系统启动时,进行初始化各设备日志
+     */
+    public static void init(){
+        BaseInfoContainer.getDevNos().forEach(baseInfo -> {
+            devParaMap.put(baseInfo,new TreeMap<>());
+        });
+    }
 
     /**
      * @功能：添加设备MAP
@@ -34,7 +47,7 @@ public class DevParaInfoContainer {
      * @return  设备对象
      */
     public static String   getDevInfo(String devNo){
-        return devMap.get(devNo);
+        return "";
     }
 
 

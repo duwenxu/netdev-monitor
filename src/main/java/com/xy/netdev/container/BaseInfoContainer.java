@@ -3,9 +3,7 @@ package com.xy.netdev.container;
 import com.xy.netdev.common.util.ParaHandlerUtil;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.ParaInfo;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * <p>
@@ -26,12 +24,23 @@ public class BaseInfoContainer {
     private static Map<String, List<ParaInfo>> InterLinkParaMap = new HashMap<>();
 
     /**
+     * 初始化基础信息
+     * @param devs
+     */
+    public static void init(List<BaseInfo> devs,List<ParaInfo> paraList){
+        addDevMap(devs);
+        addInterLinkParaMap(paraList);
+    }
+
+    /**
      * @功能：添加设备MAP
      * @param devList    设备列表
      * @return
      */
     public static void addDevMap(List<BaseInfo> devList) {
-
+        devList.forEach(baseInfo -> {
+            devMap.put(baseInfo.getDevIpAddr(),baseInfo);
+        });
     }
 
     /**
@@ -40,7 +49,6 @@ public class BaseInfoContainer {
      * @return
      */
     public static void addInterLinkParaMap(List<ParaInfo> paraList) {
-
     }
 
     /**
@@ -48,7 +56,7 @@ public class BaseInfoContainer {
      * @param devIPAddr    设备IP地址
      * @return  设备对象
      */
-    public static BaseInfo   getDevInfo(String devIPAddr){
+    public static BaseInfo getDevInfo(String devIPAddr){
         return devMap.get(devIPAddr);
     }
 
@@ -60,6 +68,22 @@ public class BaseInfoContainer {
      */
     public static List<ParaInfo>   getInterLinkParaList(String devType,String itfCode){
         return InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType,itfCode));
+    }
+
+    /**
+     * @功能：获取可用的所有设备信息集合
+     * @return  设备对象
+     */
+    public static Collection<BaseInfo> getDevInfos(){
+        return devMap.values();
+    }
+
+    /**
+     * @功能：获取可用的所有设备编号集合
+     * @return  设备对象
+     */
+    public static Set<String> getDevNos(){
+        return devMap.keySet();
     }
 
 }
