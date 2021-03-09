@@ -5,7 +5,7 @@ import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.entity.ParaInfo;
 import com.xy.netdev.monitor.vo.DevInterParam;
-
+import lombok.extern.slf4j.Slf4j;
 import java.util.*;
 
 /**
@@ -16,6 +16,7 @@ import java.util.*;
  * @author sunchao
  * @since 2021-03-08
  */
+@Slf4j
 public class BaseInfoContainer {
     /**
      * 设备MAP K设备IP地址 V设备信息
@@ -39,7 +40,11 @@ public class BaseInfoContainer {
      */
     public static void addDevMap(List<BaseInfo> devList) {
         devList.forEach(baseInfo -> {
-            devMap.put(baseInfo.getDevIpAddr(),baseInfo);
+            try {
+                devMap.put(baseInfo.getDevIpAddr(),baseInfo);
+            } catch (Exception e) {
+                log.error("设备["+baseInfo.getDevNo()+"]ip地址为空，请检查:"+e.getMessage());
+            }
         });
     }
 
@@ -50,7 +55,11 @@ public class BaseInfoContainer {
      */
     public static void addParaMap(List<ParaInfo> paraList) {
         paraList.forEach(paraInfo -> {
-            paramMap.put(ParaHandlerUtil.genLinkKey(paraInfo.getNdpaNo(),paraInfo.getNdpaCmdMark()),paraInfo);
+            try {
+                paramMap.put(ParaHandlerUtil.genLinkKey(paraInfo.getNdpaNo(),paraInfo.getNdpaCmdMark()),paraInfo);
+            } catch (Exception e) {
+                log.error("参数["+paraInfo.getNdpaCode()+"]的编号或命令标识为空，请检查:"+e.getMessage());
+            }
         });
     }
 
@@ -65,9 +74,13 @@ public class BaseInfoContainer {
             int seq = 1;
             Integer point = 0 ;
             for (ParaInfo paraInfo : devInterParam.getDevParamList()) {
-                paraInfo.setParaSeq(seq);
-                point = point+Integer.valueOf(paraInfo.getNdpaByteLen());
-                paraInfo.setParaStartPoint(point);
+                try {
+                    paraInfo.setParaSeq(seq);
+                    point = point+Integer.valueOf(paraInfo.getNdpaByteLen());
+                    paraInfo.setParaStartPoint(point);
+                } catch (NumberFormatException e) {
+                    log.error("参数["+paraInfo.getNdpaCode()+"]的字节长度存在异常，请检查："+e.getMessage());
+                }
             }
             InterLinkParaMap.put(devInterParam.getId(),devInterParam);
         });
