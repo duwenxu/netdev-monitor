@@ -136,7 +136,7 @@ public class ParaInfo extends Model<ParaInfo> {
     @TableField(exist = false)
     private Integer paraStartPoint;
     /**
-     * 参数表中 0020
+     * 参数表中 0020 中编码
      */
     @ApiModelProperty(value = "设备类型编码")
     @TableField(exist = false)

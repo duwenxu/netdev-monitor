@@ -39,8 +39,8 @@ public class DevAlertInfoContainer {
      */
     public static void init(){
         int devAlertInfoSize = Integer.parseInt(sysParamService.getParaRemark1(SysConfigConstant.DEV_ALERT_INFO_SZIE));
-        BaseInfoContainer.getDevNos().forEach(baseInfo -> {
-            devAlertInfoMap.put(baseInfo,new FixedSizeMap<>(devAlertInfoSize));
+        BaseInfoContainer.getDevNos().forEach(devNo -> {
+            devAlertInfoMap.put(devNo,new FixedSizeMap<>(devAlertInfoSize));
         });
     }
 
