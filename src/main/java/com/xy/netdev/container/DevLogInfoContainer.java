@@ -52,7 +52,7 @@ public class DevLogInfoContainer {
 
 
     /**
-     * @功能：根据设备IP地址 获取按照时间倒序排列的设备信息列表
+     * @功能：根据设备编号 获取按照时间倒序排列的设备日志列表
      * @param devNo        设备编号
      * @return  设备日志列表
      */
