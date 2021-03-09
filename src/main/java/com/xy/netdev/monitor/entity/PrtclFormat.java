@@ -33,6 +33,10 @@ public class PrtclFormat extends Model<PrtclFormat> {
     @TableId(value = "FMT_ID", type = IdType.AUTO)
     private Integer fmtId;
 
+    @ApiModelProperty(value = "协议名称")
+    @TableField(value = "FMT_NAME")
+    private String fmtName;
+
     @ApiModelProperty(value = "设备类型")
     @TableField(value = "DEV_TYPE")
     @Param
