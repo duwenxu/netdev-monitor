@@ -70,17 +70,21 @@ public class BaseContainerLoader {
         //加载设备参数信息
         BaseInfoContainer.addParaMap(paraInfos);
         List<Interface> interfaces = interfaceService.list().stream().filter(anInterface -> anInterface.getItfStatus().equals(SysConfigConstant.STATUS_OK)).collect(Collectors.toList());
+        //加载设备类型对应的参数list
+        BaseInfoContainer.addDevTypeParaMap(paraInfos);
+        //加载设备类型对应的接口list
+        BaseInfoContainer.addDevTypeInterMap(interfaces);
         //加载设备接口参数信息
         List<PrtclFormat> prtclList = prtclFormatService.list();
         List<DevInterParam> devInterParams = new ArrayList<>();
         //封装设备接口参数实体类list
         interfaces.forEach(anInterface -> {
-            List<String> paraCodes = Arrays.asList(anInterface.getItfDataFormat().split(","));
+            List<String> paraIds = Arrays.asList(anInterface.getItfDataFormat().split(","));
             DevInterParam devInterParam = new DevInterParam();
             devInterParam.setId(ParaHandlerUtil.genLinkKey(anInterface.getDevType(),anInterface.getItfCode()));
             devInterParam.setInterfacePrtcl(prtclList.stream().filter(prtclFormat -> prtclFormat.getFmtId() == anInterface.getFmtId()).collect(Collectors.toList()).get(0));
             devInterParam.setDevInterface(anInterface);
-            devInterParam.setDevParamList(paraInfos.stream().filter(paraInfo -> paraCodes.contains(paraInfo.getNdpaCode())).collect(Collectors.toList()));
+            devInterParam.setDevParamList(paraInfos.stream().filter(paraInfo -> paraIds.contains(paraInfo.getNdpaId().toString())).collect(Collectors.toList()));
             devInterParams.add(devInterParam);
         });
         BaseInfoContainer.addInterLinkParaMap(devInterParams);
