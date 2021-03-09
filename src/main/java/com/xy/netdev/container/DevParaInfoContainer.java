@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -53,8 +54,14 @@ public class DevParaInfoContainer {
      */
     public static void addDevParaMap(List<ParaInfo> paraList) {
         paraList.forEach(paraInfo -> {
+            attachParaInfo(paraInfo);
+        });
+        Map<String,List<ParaInfo>> paraMapByDevType = paraList.stream().collect(Collectors.groupingBy(ParaInfo::getDevType));
+        devParaMap.keySet().forEach(devNo->{
+            String devType = BaseInfoContainer.getDevInfoByNo(devNo).getDevType();
+            if(paraMapByDevType.containsKey(devType)){
 
-
+            }
         });
     }
     /**
@@ -62,7 +69,7 @@ public class DevParaInfoContainer {
      */
     private static void attachParaInfo(ParaInfo paraInfo){
         List<ParaSpinnerInfo>  spinnerInfoList = JSONArray.parseArray(paraInfo.getNdpaSelectData(), ParaSpinnerInfo.class);
-        paraInfo.setSpinnerInfoList(spinnerInfoList);
+        //paraInfo.setSpinnerInfoList(spinnerInfoList);
         paraInfo.setDevTypeCode(sysParamService.getParaRemark1(paraInfo.getDevType()));
     }
     /**
