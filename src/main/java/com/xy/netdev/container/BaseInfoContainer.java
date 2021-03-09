@@ -5,6 +5,7 @@ import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.entity.ParaInfo;
 import com.xy.netdev.monitor.bo.DevInterParam;
+import com.xy.netdev.monitor.entity.PrtclFormat;
 import lombok.extern.slf4j.Slf4j;
 import java.util.*;
 
@@ -112,7 +113,11 @@ public class BaseInfoContainer {
      * @return  接口解析参数列表
      */
     public static List<ParaInfo> getInterLinkParaList(String devType,String itfCode){
-        return InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType,itfCode)).getDevParamList();
+        DevInterParam devInterParam = InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType,itfCode));
+        if(devInterParam == null){
+            return devInterParam.getDevParamList();
+        }
+        return null;
     }
 
     /**
@@ -122,7 +127,25 @@ public class BaseInfoContainer {
      * @return  接口解析参数列表
      */
     public static Interface getInterLinkInterface(String devType, String itfCode){
-        return InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType,itfCode)).getDevInterface();
+        DevInterParam devInterParam = InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType,itfCode));
+        if(devInterParam == null){
+            return devInterParam.getDevInterface();
+        }
+        return null;
+    }
+
+    /**
+     * @功能：根据设备类型  和  接口编码 获取接口信息
+     * @param devType     设备类型
+     * @param itfCode     接口编码
+     * @return  接口解析参数列表
+     */
+    public static PrtclFormat getInterLinkFmtFormat(String devType, String itfCode){
+        DevInterParam devInterParam = InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType,itfCode));
+        if(devInterParam == null){
+            return devInterParam.getInterfacePrtcl();
+        }
+        return null;
     }
 
     /**
