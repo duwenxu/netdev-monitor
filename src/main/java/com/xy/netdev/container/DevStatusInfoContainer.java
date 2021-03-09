@@ -18,52 +18,41 @@ public class DevInfoContainer {
      */
     private static Map<String, String> devMap = new HashMap<>();
 
-    private static Map<String, BaseInfo> devList = new HashMap<>();
-
     /**
      * 初始化所有设备信息
      * @param devs
      */
     public static void init(List<BaseInfo> devs){
         devs.forEach(baseInfo -> {
-            devList.put(baseInfo.getDevNo(),baseInfo);
             devMap.put(baseInfo.getDevIpAddr(),baseInfo.getDevStatus());
         });
     }
 
 
     /**
-     * @功能：添加设备MAP
-     * @param devNo    设备编号
+     * @功能：添加设备信息
+     * @param devAddress  设备ip地址
      * @return
      */
-    public static void addDevMap(String devNo) {
-
+    public static void addDevMap(String devAddress,String devStatus) {
+        devMap.put(devAddress,devStatus);
     }
 
 
     /**
      * @功能：根据设备IP地址 获取设备信息
-     * @param devNo        设备编号
-     * @return  设备对象
+     * @param devAddress  设备ip地址
+     * @return 设备状态
      */
-    public static String   getDevInfo(String devNo){
-        return devMap.get(devNo);
+    public static String getDevInfo(String devAddress){
+        return devMap.get(devAddress);
     }
 
     /**
-     * @功能：获取可用的所有设备信息集合
-     * @return  设备对象
+     * @功能：根据设备IP地址 获取设备信息
+     * @return 设备的所有ip地址
      */
-    public static Collection<BaseInfo> getDevInfos(){
-        return devList.values();
-    }
-
-    /**
-     * @功能：获取可用的所有设备编号集合
-     * @return  设备对象
-     */
-    public static Set<String> getDevNos(){
-        return devList.keySet();
+    public static Set<String> getAllDevAddress(){
+        return devMap.keySet();
     }
 }
