@@ -2,20 +2,19 @@ package com.xy.netdev.monitor.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.xy.common.model.Result;
 import com.xy.common.helper.ControllerHelper;
+import com.xy.common.model.Result;
+import com.xy.netdev.common.util.JwtUtil;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.service.IBaseInfoService;
-import com.xy.netdev.common.annotation.AutoLog;
-import com.xy.netdev.common.constant.SysConfigConstant;
-import com.xy.netdev.common.util.JwtUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.RestController;
+
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 设备信息 前端控制器
@@ -29,7 +28,7 @@ import java.util.List;
 public class BaseInfoController {
 
     @Autowired
-    private IBaseInfoService targetService;
+    private IBaseInfoService baseInfoService;
 
     /**
     * 获取分页数据
@@ -39,7 +38,7 @@ public class BaseInfoController {
     @ApiOperation(value = "获取分页设备信息", notes = "获取分页设备信息")
     @PostMapping(value = "/list")
     public Result<IPage<BaseInfo>> queryPageList(BaseInfo data,Page page,HttpServletRequest req){
-        return ControllerHelper.queryPageList(data, page, req, targetService);
+        return ControllerHelper.queryPageList(data, page, req, baseInfoService);
     }
 
     /**
@@ -50,7 +49,7 @@ public class BaseInfoController {
     @ApiOperation(value = "获取所有设备信息", notes = "获取所有设备信息")
     @PostMapping(value = "/allList")
     public Result<List<BaseInfo>> queryList(BaseInfo data,HttpServletRequest req){
-        return ControllerHelper.queryList(data, req, targetService);
+        return ControllerHelper.queryList(data, req, baseInfoService);
     }
 
 
@@ -60,7 +59,7 @@ public class BaseInfoController {
     @ApiOperation(value = "根据ID查找设备信息", notes = "根据ID查找设备信息")
     @GetMapping("/{id}")
     public Result<BaseInfo> queryItem(@PathVariable String id){
-        BaseInfo entity = targetService.getById(id);
+        BaseInfo entity = baseInfoService.getById(id);
         Result result = new Result();
         result.ok();
         result.setResult(entity);
@@ -75,7 +74,7 @@ public class BaseInfoController {
     @PostMapping
     public Result<BaseInfo> add(BaseInfo data,HttpServletRequest req) {
         Integer userId = JwtUtil.getUserIdByToken(req);
-        return ControllerHelper.add(data, targetService);
+        return ControllerHelper.add(data, baseInfoService);
     }
 
     /**
@@ -85,7 +84,7 @@ public class BaseInfoController {
     @ApiOperation(value = "更新设备信息", notes = "更新设备信息")
     @PutMapping
     public Result<BaseInfo> edit(BaseInfo data) {
-        return ControllerHelper.edit(data,targetService);
+        return ControllerHelper.edit(data, baseInfoService);
     }
 
     /**
@@ -95,7 +94,20 @@ public class BaseInfoController {
     @ApiOperation(value = "删除设备信息", notes = "删除设备信息")
     @DeleteMapping("/{id}")
     public Result<BaseInfo> delete(@PathVariable String id) {
-        return ControllerHelper.delete(id,targetService);
+        return ControllerHelper.delete(id, baseInfoService);
+    }
+
+    /**
+     * 设备导航信息
+     * @return
+     */
+    @ApiOperation(value = "设备信息导航", notes = "设备信息导航")
+    @GetMapping("/baseMenu")
+    public Result<Object> baseMenu() {
+        Map<String, Object> map = baseInfoService.baseInfoMenuMap();
+        Result<Object> result = new Result<>();
+        result.setResult(map);
+        return result;
     }
 
 }
