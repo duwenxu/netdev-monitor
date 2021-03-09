@@ -2,7 +2,7 @@ package com.xy.netdev.monitor.service;
 
 import com.xy.netdev.monitor.entity.Interface;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.xy.netdev.monitor.vo.TransUiData;
+import com.xy.netdev.monitor.bo.TransUiData;
 
 import java.util.List;
 

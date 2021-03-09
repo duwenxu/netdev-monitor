@@ -18,6 +18,7 @@ dependencies {
 	compile 'org.projectlombok:lombok:1.18.8'
 	compile  'commons-lang:commons-lang:2.6'
 	compile 'com.github.xiaoymin:swagger-bootstrap-ui:1.9.6'
+	compile 'io.netty:netty-all:4.1.40.Final'
 }
 
 test {

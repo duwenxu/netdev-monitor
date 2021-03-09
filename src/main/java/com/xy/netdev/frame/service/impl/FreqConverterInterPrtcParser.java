@@ -5,12 +5,14 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.monitor.entity.BaseInfo;
-import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.entity.ParaInfo;
+<<<<<<< HEAD
 import com.xy.netdev.monitor.service.IBaseInfoService;
 import com.xy.netdev.monitor.service.IInterfaceService;
 import com.xy.netdev.monitor.service.IParaInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.xy.netdev.monitor.bo.DevInterParam;
+
 
 import java.util.List;
 

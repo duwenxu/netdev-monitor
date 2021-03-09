@@ -1,4 +1,4 @@
-package com.xy.netdev.monitor.vo;
+package com.xy.netdev.monitor.bo;
 
 import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.entity.ParaInfo;
