@@ -131,7 +131,10 @@ public interface SysConfigConstant {
      * 是否   0003002 FALSE
      */
      String  IS_DEFAULT_FALSE="0003002";
-
+    /***
+     * 公共参数--设备日志信息显示条数
+     */
+    String  DEV_LOG_VIEW_SZIE="0100004";
 
 
 

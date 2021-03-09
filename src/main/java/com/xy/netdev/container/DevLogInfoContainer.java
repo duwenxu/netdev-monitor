@@ -8,7 +8,7 @@ import java.util.Map;
  *设备日志信息容器类
  * </p>
  *
- * @author sunchao
+ * @author tangxl
  * @since 2021-03-08
  */
 public class DevLogInfoContainer {
