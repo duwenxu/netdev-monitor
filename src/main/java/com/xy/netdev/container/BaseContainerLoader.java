@@ -11,7 +11,7 @@ import com.xy.netdev.monitor.service.IBaseInfoService;
 import com.xy.netdev.monitor.service.IInterfaceService;
 import com.xy.netdev.monitor.service.IParaInfoService;
 import com.xy.netdev.monitor.service.IPrtclFormatService;
-import com.xy.netdev.monitor.vo.DevInterParam;
+import com.xy.netdev.monitor.bo.DevInterParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;

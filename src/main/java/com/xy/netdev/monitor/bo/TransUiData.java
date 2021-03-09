@@ -1,4 +1,4 @@
-package com.xy.netdev.monitor.vo;
+package com.xy.netdev.monitor.bo;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

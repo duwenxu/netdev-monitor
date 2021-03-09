@@ -3,9 +3,8 @@ package com.xy.netdev.frame.service;
 
 
 import com.xy.netdev.monitor.entity.BaseInfo;
-import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.entity.ParaInfo;
-import com.xy.netdev.monitor.vo.DevInterParam;
+import com.xy.netdev.monitor.bo.DevInterParam;
 
 import java.util.List;
 

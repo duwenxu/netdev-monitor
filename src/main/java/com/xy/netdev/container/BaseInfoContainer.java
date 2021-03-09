@@ -4,7 +4,7 @@ import com.xy.netdev.common.util.ParaHandlerUtil;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.entity.ParaInfo;
-import com.xy.netdev.monitor.vo.DevInterParam;
+import com.xy.netdev.monitor.bo.DevInterParam;
 import lombok.extern.slf4j.Slf4j;
 import java.util.*;
 

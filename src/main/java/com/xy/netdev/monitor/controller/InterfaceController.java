@@ -8,7 +8,7 @@ import com.xy.common.helper.ControllerHelper;
 import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.service.IInterfaceService;
 import com.xy.netdev.common.util.JwtUtil;
-import com.xy.netdev.monitor.vo.TransUiData;
+import com.xy.netdev.monitor.bo.TransUiData;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
