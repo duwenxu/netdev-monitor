@@ -40,7 +40,9 @@ public class DevLogInfoContainer {
      */
     public static void init(){
         int devLogSize = Integer.parseInt(sysParamService.getParaRemark1(SysConfigConstant.DEV_LOG_VIEW_SZIE));
-
+        BaseInfoContainer.getDevNos().forEach(baseInfo -> {
+            devLogInfoMap.put(baseInfo,new FixedSizeMap<>(devLogSize));
+        });
     }
     /**
      * @功能：添加设备日志信息
@@ -60,7 +62,4 @@ public class DevLogInfoContainer {
     public static List<OperLog> getDevLogList(String devNo){
         return new ArrayList(devLogInfoMap.get(devNo).getMap().descendingMap().values());
     }
-
-
-
 }

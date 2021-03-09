@@ -6,8 +6,11 @@ import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableField;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.xy.common.annotation.Param;
+import com.xy.netdev.monitor.bo.ParaSpinnerInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -146,6 +149,13 @@ public class ParaInfo extends Model<ParaInfo> {
     @ApiModelProperty(value = "告警级别")
     @TableField(exist = false)
     private String alertLevel;
+
+    /**
+     *  下拉框显示数据,当显示类型 是1  A下拉框时,需要赋值下拉框列表
+     */
+    @ApiModelProperty(value = "下拉框显示数据")
+    @TableField(exist = false)
+    private List<ParaSpinnerInfo> spinnerInfoList = new ArrayList<>();
 
 
     @Override
