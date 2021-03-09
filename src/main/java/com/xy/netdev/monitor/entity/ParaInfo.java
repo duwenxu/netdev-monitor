@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableField;
 import java.io.Serializable;
+
+import com.xy.common.annotation.Param;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -48,6 +50,7 @@ public class ParaInfo extends Model<ParaInfo> {
     private String ndpaName;
 
     @ApiModelProperty(value = "设备类型")
+    @Param
     @TableField(value = "DEV_TYPE")
     private String devType;
 
@@ -60,6 +63,7 @@ public class ParaInfo extends Model<ParaInfo> {
     private String ndpaUnit;
 
     @ApiModelProperty(value = "参数数据类型")
+    @Param
     @TableField(value = "NDPA_DATATYPE")
     private String ndpaDatatype;
 
@@ -96,10 +100,12 @@ public class ParaInfo extends Model<ParaInfo> {
     private String ndpaCmdMark;
 
     @ApiModelProperty(value = "参数状态")
+    @Param
     @TableField(value = "NDPA_STATUS")
     private String ndpaStatus;
 
     @ApiModelProperty(value = "是否该字段提供给54所访问")
+    @Param
     @TableField(value = "NDPA_OUTTER_STATUS")
     private String ndpaOutterStatus;
 
@@ -108,6 +114,7 @@ public class ParaInfo extends Model<ParaInfo> {
     private String ndpaTransRule;
 
     @ApiModelProperty(value = "该字段是否是表明设备是否故障")
+    @Param
     @TableField(value = "NDPA_ALERT_PARA")
     private String ndpaAlertPara;
 
