@@ -136,6 +136,11 @@ public interface SysConfigConstant {
      */
     String  DEV_LOG_VIEW_SZIE="0100004";
 
+    /***
+     * 公共参数--设备告警信息保存条数
+     */
+    String  DEV_ALERT_INFO_SZIE="0100005";
+
 
 
 }
