@@ -1,10 +1,6 @@
 package com.xy.netdev.frame.service;
 
 
-
-import com.xy.netdev.monitor.entity.BaseInfo;
-import com.xy.netdev.monitor.entity.ParaInfo;
-
 /**
  * <p>
  * 设备响应头处理接口
@@ -15,29 +11,16 @@ import com.xy.netdev.monitor.entity.ParaInfo;
  */
 public interface IDevRepHeadHandlerService {
     /**
-     * 查询协议
-     * @param  devInfo   设备信息
-     * @param  paraInfo  参数信息
-     */
-    void queryPara(BaseInfo devInfo,ParaInfo paraInfo);
-    /**
-     * 查询响应协议
-     * @param  devInfo   设备信息
-     * @param  paraInfo  参数信息
+     * 解析数据获取命令
+     * @param  frameData   帧数据
      * @return  响应数据
      */
-    ParaInfo queryParaResponse(BaseInfo devInfo,ParaInfo paraInfo);
+    String unPackForCmd(byte[] frameData);
     /**
-     * 控制协议
-     * @param  devInfo   设备信息
-     * @param  paraInfo  参数信息
+     * 解析数据获取数据体
+     * @param  frameData   帧数据
+     * @return  数据体
      */
-    void ctrlPara(BaseInfo devInfo,ParaInfo paraInfo);
-    /**
-     * 控制响应协议
-     * @param  devInfo   设备信息
-     * @param  paraInfo  参数信息
-     * @return  响应数据
-     */
-    ParaInfo ctrlParaResponse(BaseInfo devInfo,ParaInfo paraInfo);
+    String unPackForBody(byte[] frameData);
+
 }
