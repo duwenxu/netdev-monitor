@@ -38,7 +38,7 @@ public class InterfaceController {
     */
     @ApiOperation(value = "获取分页设备接口", notes = "获取分页设备接口")
     @PostMapping(value = "/list")
-    public Result<IPage<Interface>> queryPageList(@RequestBody Interface data,Page page,HttpServletRequest req){
+    public Result<IPage<Interface>> queryPageList(Interface data,Page page,HttpServletRequest req){
         return ControllerHelper.queryPageList(data, page, req, targetService);
     }
 
@@ -84,7 +84,7 @@ public class InterfaceController {
     */
     @ApiOperation(value = "更新设备接口", notes = "更新设备接口")
     @PutMapping
-    public Result<Interface> edit(@RequestBody Interface data) {
+    public Result<Interface> edit(Interface data) {
         return ControllerHelper.edit(data,targetService);
     }
 
