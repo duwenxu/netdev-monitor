@@ -1,15 +1,12 @@
 package com.xy.netdev.container;
 
-import com.alibaba.fastjson.JSONArray;
-import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.util.ParaHandlerUtil;
-import com.xy.netdev.monitor.bo.ParaSpinnerInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.entity.ParaInfo;
-import com.xy.netdev.monitor.vo.DevInterParam;
-import org.springframework.beans.factory.annotation.Autowired;
-
+import com.xy.netdev.monitor.bo.DevInterParam;
+import com.xy.netdev.monitor.entity.PrtclFormat;
+import lombok.extern.slf4j.Slf4j;
 import java.util.*;
 
 /**
@@ -20,6 +17,7 @@ import java.util.*;
  * @author sunchao
  * @since 2021-03-08
  */
+@Slf4j
 public class BaseInfoContainer {
 
     /**
@@ -48,7 +46,11 @@ public class BaseInfoContainer {
      */
     public static void addDevMap(List<BaseInfo> devList) {
         devList.forEach(baseInfo -> {
-            devMap.put(baseInfo.getDevIpAddr(),baseInfo);
+            try {
+                devMap.put(baseInfo.getDevIpAddr(),baseInfo);
+            } catch (Exception e) {
+                log.error("设备["+baseInfo.getDevNo()+"]ip地址存在异常，请检查:"+e.getMessage());
+            }
         });
     }
 
@@ -59,8 +61,12 @@ public class BaseInfoContainer {
      */
     public static void addParaMap(List<ParaInfo> paraList) {
         paraList.forEach(paraInfo -> {
-            paramCmdMap.put(ParaHandlerUtil.genLinkKey(paraInfo.getDevType(),paraInfo.getNdpaCmdMark()),paraInfo);
-            paramNoMap.put(ParaHandlerUtil.genLinkKey(paraInfo.getDevType(),paraInfo.getNdpaNo()),paraInfo);
+            try {
+                paramCmdMap.put(ParaHandlerUtil.genLinkKey(paraInfo.getDevType(),paraInfo.getNdpaCmdMark()),paraInfo);
+                paramNoMap.put(ParaHandlerUtil.genLinkKey(paraInfo.getDevType(),paraInfo.getNdpaNo()),paraInfo);
+            } catch (Exception e) {
+                log.error("参数["+paraInfo.getNdpaCode()+"]的设备类型或命令标识或参数编号存在异常，请检查:"+e.getMessage());
+            }
         });
     }
 
@@ -75,9 +81,13 @@ public class BaseInfoContainer {
             int seq = 1;
             Integer point = 0 ;
             for (ParaInfo paraInfo : devInterParam.getDevParamList()) {
-                paraInfo.setParaSeq(seq);
-                point = point+Integer.valueOf(paraInfo.getNdpaByteLen());
-                paraInfo.setParaStartPoint(point);
+                try {
+                    paraInfo.setParaSeq(seq);
+                    point = point+Integer.valueOf(paraInfo.getNdpaByteLen());
+                    paraInfo.setParaStartPoint(point);
+                } catch (NumberFormatException e) {
+                    log.error("参数["+paraInfo.getNdpaCode()+"]的字节长度存在异常，请检查："+e.getMessage());
+                }
             }
             InterLinkParaMap.put(devInterParam.getId(),devInterParam);
         });
@@ -118,7 +128,11 @@ public class BaseInfoContainer {
      * @return  接口解析参数列表
      */
     public static List<ParaInfo> getInterLinkParaList(String devType,String itfCode){
-        return InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType,itfCode)).getDevParamList();
+        DevInterParam devInterParam = InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType,itfCode));
+        if(devInterParam == null){
+            return devInterParam.getDevParamList();
+        }
+        return null;
     }
 
     /**
@@ -128,7 +142,25 @@ public class BaseInfoContainer {
      * @return  接口解析参数列表
      */
     public static Interface getInterLinkInterface(String devType, String itfCode){
-        return InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType,itfCode)).getDevInterface();
+        DevInterParam devInterParam = InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType,itfCode));
+        if(devInterParam == null){
+            return devInterParam.getDevInterface();
+        }
+        return null;
+    }
+
+    /**
+     * @功能：根据设备类型  和  接口编码 获取接口信息
+     * @param devType     设备类型
+     * @param itfCode     接口编码
+     * @return  接口解析参数列表
+     */
+    public static PrtclFormat getInterLinkFmtFormat(String devType, String itfCode){
+        DevInterParam devInterParam = InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType,itfCode));
+        if(devInterParam == null){
+            return devInterParam.getInterfacePrtcl();
+        }
+        return null;
     }
 
     /**
