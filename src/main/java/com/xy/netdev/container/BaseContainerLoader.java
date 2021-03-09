@@ -49,10 +49,12 @@ public class BaseContainerLoader {
     public void load(){
         //初始化基础信息
         initBaseInfo();
-        //初始化设备容器
-        initDevInfo();
         //初始化设备日志容器
         initDevLog();
+        //初始化告警信息
+        initDevAlert();
+        //初始化设备参数容器
+        DevParaInfoContainer.init();
     }
 
     /**
@@ -83,18 +85,22 @@ public class BaseContainerLoader {
     }
 
     /**
-     * 加载设备信息容器
-     */
-    private void initDevInfo(){
-        DevInfoContainer.init(BaseInfoContainer.getDevInfos());
-    }
-
-    /**
      * 加载设备日志容器
      */
     private void initDevLog(){
         int devLogSize = Integer.parseInt(sysParamService.getParaRemark1(SysConfigConstant.DEV_LOG_VIEW_SZIE));
         //初始化各设备日志
-        DevLogInfoContainer.init(devLogSize,BaseInfoContainer.getDevInfos());
+        DevLogInfoContainer.init(devLogSize);
     }
+
+    /**
+     * 加载设备告警信息容器
+     */
+    private void initDevAlert(){
+        int devAlertInfoSize = Integer.parseInt(sysParamService.getParaRemark1(SysConfigConstant.DEV_ALERT_INFO_SZIE));
+        //初始化各设备日志
+        DevAlertInfoContainer.init(devAlertInfoSize);
+    }
+
+
 }

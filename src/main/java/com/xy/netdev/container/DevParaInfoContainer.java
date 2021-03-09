@@ -2,10 +2,10 @@ package com.xy.netdev.container;
 
 import com.alibaba.fastjson.JSONArray;
 import com.xy.netdev.admin.service.ISysParamService;
-import com.xy.netdev.common.collection.FixedSizeMap;
 import com.xy.netdev.monitor.bo.ParaSpinnerInfo;
 import com.xy.netdev.monitor.entity.ParaInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +20,7 @@ import java.util.TreeMap;
  * @author tangxl
  * @since 2021-03-08
  */
+@Component
 public class DevParaInfoContainer {
     /**
      * 系统参数服务类

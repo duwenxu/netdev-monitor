@@ -24,8 +24,8 @@ public class DevLogInfoContainer {
     /**
      * @功能：当系统启动时,进行初始化各设备日志
      */
-    public static void init(int devLogSize,Collection<BaseInfo> devs){
-        devs.forEach(baseInfo -> {
+    public static void init(int devLogSize){
+        BaseInfoContainer.getDevInfos().forEach(baseInfo -> {
             devLogInfoMap.put(baseInfo.getDevNo(),new FixedSizeMap<>(devLogSize));
         });
     }
