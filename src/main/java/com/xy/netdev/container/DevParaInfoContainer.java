@@ -1,10 +1,12 @@
 package com.xy.netdev.container;
 
+import com.xy.netdev.common.collection.FixedSizeMap;
 import com.xy.netdev.monitor.entity.ParaInfo;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * <p>
@@ -24,7 +26,9 @@ public class DevParaInfoContainer {
      * @功能：当系统启动时,进行初始化各设备日志
      */
     public static void init(){
-
+        BaseInfoContainer.getDevNos().forEach(baseInfo -> {
+            devParaMap.put(baseInfo,new TreeMap<>());
+        });
     }
 
     /**
