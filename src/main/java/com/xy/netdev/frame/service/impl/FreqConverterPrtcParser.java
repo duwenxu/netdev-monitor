@@ -21,13 +21,13 @@ public class FreqConverterPrtcParser implements IParaPrtclAnalysisService {
 
 
     /**用户命令起始标记*/
-    private final static String SEND_START_MARK = "<";
+    public final static String SEND_START_MARK = "<";
     /**设备响应开始标记*/
-    private final static String RESP_START_MARK = ">";
+    public final static String RESP_START_MARK = ">";
     /**用户命令结尾标记*/
-    private final static String SEND_END_MARK = "'cr'";
+    public final static String SEND_END_MARK = "'cr'";
     /**设备响应结尾标记*/
-    private final static String RESP_END_MARK = "'cr''lf']";
+    public final static String RESP_END_MARK = "'cr''lf']";
 
     @Autowired
     IParaInfoService paraInfoService;
@@ -41,18 +41,13 @@ public class FreqConverterPrtcParser implements IParaPrtclAnalysisService {
         paraInfo = getParaInfoDetail(devInfo,paraInfo);
         StringBuilder sb = new StringBuilder();
         sb.append(SEND_START_MARK).append(devInfo.getDevIpAddr()).append("/")
-                .append(paraInfo.getNdpaCode()).append("_").append(SEND_END_MARK);
+                .append(paraInfo.getNdpaCmdMark()).append("_").append(SEND_END_MARK);
         String command = sb.toString();
     }
 
     @Override
     public ParaInfo queryParaResponse(BaseInfo devInfo, ParaInfo paraInfo) {
-        devInfo = getDevInfoDetail(devInfo);
-        paraInfo = getParaInfoDetail(devInfo,paraInfo);
-        StringBuilder sb = new StringBuilder();
-        sb.append(RESP_START_MARK).append(devInfo.getDevIpAddr()).append("/")
-                .append(paraInfo.getNdpaCode()).append("_").append(RESP_END_MARK);
-        String command = sb.toString();
+
         return null;
     }
 
