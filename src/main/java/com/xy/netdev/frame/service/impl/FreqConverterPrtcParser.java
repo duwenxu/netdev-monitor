@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.container.DevParaInfoContainer;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
+import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.ParaInfo;
 import com.xy.netdev.monitor.service.IBaseInfoService;
@@ -36,42 +37,42 @@ public class FreqConverterPrtcParser implements IParaPrtclAnalysisService {
 
 
     @Override
-    public void queryPara(BaseInfo devInfo, ParaInfo paraInfo) {
+    public void queryPara(BaseInfo devInfo, FrameParaInfo paraInfo) {
         devInfo = BaseInfoContainer.getDevInfo(devInfo.getDevIpAddr());
-        paraInfo = getParaInfoDetail(devInfo,paraInfo);
+        //paraInfo = getParaInfoDetail(devInfo,paraInfo);
         StringBuilder sb = new StringBuilder();
         sb.append(SEND_START_MARK).append(devInfo.getDevIpAddr()).append("/")
-                .append(paraInfo.getNdpaCode()).append("_").append(SEND_END_MARK);
+                .append(paraInfo.getCmdMark()).append("_").append(SEND_END_MARK);
         String command = sb.toString();
     }
 
     @Override
-    public ParaInfo queryParaResponse(BaseInfo devInfo, ParaInfo paraInfo) {
+    public FrameParaInfo queryParaResponse(BaseInfo devInfo, FrameParaInfo paraInfo) {
         devInfo = getDevInfoDetail(devInfo);
-        paraInfo = getParaInfoDetail(devInfo,paraInfo);
+        //paraInfo = getParaInfoDetail(devInfo,paraInfo);
         StringBuilder sb = new StringBuilder();
         sb.append(RESP_START_MARK).append(devInfo.getDevIpAddr()).append("/")
-                .append(paraInfo.getNdpaCode()).append("_").append(RESP_END_MARK);
+                .append(paraInfo.getCmdMark()).append("_").append(RESP_END_MARK);
         String command = sb.toString();
         return null;
     }
 
     @Override
-    public void ctrlPara(BaseInfo devInfo, ParaInfo paraInfo) {
+    public void ctrlPara(BaseInfo devInfo, FrameParaInfo paraInfo) {
         devInfo = getDevInfoDetail(devInfo);
-        paraInfo = getParaInfoDetail(devInfo,paraInfo);
+        //paraInfo = getParaInfoDetail(devInfo,paraInfo);
         StringBuilder sb = new StringBuilder();
-        sb.append(SEND_START_MARK).append(devInfo.getDevIpAddr()).append("/").append(paraInfo.getNdpaCode())
+        sb.append(SEND_START_MARK).append(devInfo.getDevIpAddr()).append("/").append(paraInfo.getCmdMark())
                 .append("_").append(paraInfo.getParaVal()).append(SEND_END_MARK);
         String command = sb.toString();
     }
 
     @Override
-    public ParaInfo ctrlParaResponse(BaseInfo devInfo, ParaInfo paraInfo) {
+    public FrameParaInfo ctrlParaResponse(BaseInfo devInfo, FrameParaInfo paraInfo) {
         devInfo = getDevInfoDetail(devInfo);
-        paraInfo = getParaInfoDetail(devInfo,paraInfo);
+        //paraInfo = getParaInfoDetail(devInfo,paraInfo);
         StringBuilder sb = new StringBuilder();
-        sb.append(RESP_START_MARK).append(devInfo.getDevIpAddr()).append("/").append(paraInfo.getNdpaCode())
+        sb.append(RESP_START_MARK).append(devInfo.getDevIpAddr()).append("/").append(paraInfo.getCmdMark())
                 .append("_").append(paraInfo.getParaVal()).append(RESP_END_MARK);
         String command = sb.toString();
         return null;
@@ -83,9 +84,9 @@ public class FreqConverterPrtcParser implements IParaPrtclAnalysisService {
      * @param paraInfo
      * @return
      */
-    private ParaInfo getParaInfoDetail(BaseInfo devInfo, ParaInfo paraInfo){
+    private ParaInfo getParaInfoDetail(BaseInfo devInfo, FrameParaInfo paraInfo){
         String devType = devInfo.getDevType();
-        Integer paraId = paraInfo.getNdpaId();
+        Integer paraId = paraInfo.getParaId();
         QueryWrapper<ParaInfo> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(ParaInfo::getDevType,devType);
         queryWrapper.lambda().eq(ParaInfo::getNdpaId,paraId);

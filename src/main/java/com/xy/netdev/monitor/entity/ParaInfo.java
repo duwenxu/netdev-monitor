@@ -122,35 +122,6 @@ public class ParaInfo extends Model<ParaInfo> {
     @TableField(value = "NDPA_ALERT_PARA")
     private String ndpaAlertPara;
 
-    @ApiModelProperty(value = "参数值")
-    @TableField(exist = false)
-    private String paraVal;
-
-    @ApiModelProperty(value = "参数序号")
-    @TableField(exist = false)
-    private Integer paraSeq;
-    /**
-     * 按照序号 累加 字节长度
-     */
-    @ApiModelProperty(value = "参数下标")
-    @TableField(exist = false)
-    private Integer paraStartPoint;
-    /**
-     * 参数表中 0020 中编码
-     */
-    @ApiModelProperty(value = "设备类型编码")
-    @TableField(exist = false)
-    private String devTypeCode;
-
-    @ApiModelProperty(value = "设备编号")
-    @TableField(exist = false)
-    private String devNo;
-
-    @ApiModelProperty(value = "告警级别")
-    @TableField(exist = false)
-    private String alertLevel;
-
-
 
 
     @Override
