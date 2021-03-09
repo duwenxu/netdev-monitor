@@ -22,7 +22,7 @@ public class DevInfoContainer {
      * 初始化所有设备信息
      * @param devs
      */
-    public static void init(List<BaseInfo> devs){
+    public static void init(Collection<BaseInfo> devs){
         devs.forEach(baseInfo -> {
             devMap.put(baseInfo.getDevIpAddr(),baseInfo.getDevStatus());
         });

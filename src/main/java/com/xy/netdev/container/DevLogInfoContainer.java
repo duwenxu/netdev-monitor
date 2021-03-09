@@ -4,13 +4,10 @@ import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.collection.FixedSizeMap;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.DateTools;
+import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.OperLog;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * <p>
@@ -38,10 +35,10 @@ public class DevLogInfoContainer {
     /**
      * @功能：当系统启动时,进行初始化各设备日志
      */
-    public static void init(){
+    public static void init(Collection<BaseInfo> devs){
         int devLogSize = Integer.parseInt(sysParamService.getParaRemark1(SysConfigConstant.DEV_LOG_VIEW_SZIE));
-        BaseInfoContainer.getDevNos().forEach(baseInfo -> {
-            devLogInfoMap.put(baseInfo,new FixedSizeMap<>(devLogSize));
+        devs.forEach(baseInfo -> {
+            devLogInfoMap.put(baseInfo.getDevNo(),new FixedSizeMap<>(devLogSize));
         });
     }
     /**
