@@ -141,6 +141,8 @@ public interface SysConfigConstant {
      */
     String  DEV_ALERT_INFO_SZIE="0100005";
 
-
-
+    /***
+     * 设备类型父节点
+     */
+    String  DEV_TYPE_PARENT="0020";
 }
