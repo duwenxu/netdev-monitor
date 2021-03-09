@@ -118,6 +118,10 @@ public class ParaInfo extends Model<ParaInfo> {
     @TableField(value = "NDPA_ALERT_PARA")
     private String ndpaAlertPara;
 
+    @ApiModelProperty(value = "参数值")
+    @TableField(exist = false)
+    private String paraVal;
+
     @ApiModelProperty(value = "参数序号")
     @TableField(exist = false)
     private Integer paraSeq;
