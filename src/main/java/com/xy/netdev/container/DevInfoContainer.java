@@ -1,12 +1,8 @@
 package com.xy.netdev.container;
 
-import com.xy.netdev.common.util.ParaHandlerUtil;
 import com.xy.netdev.monitor.entity.BaseInfo;
-import com.xy.netdev.monitor.entity.ParaInfo;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * <p>
@@ -21,6 +17,19 @@ public class DevInfoContainer {
      * 设备MAP K设备IP地址 V设备状态
      */
     private static Map<String, String> devMap = new HashMap<>();
+
+    private static Map<String, BaseInfo> devList = new HashMap<>();
+
+    /**
+     * 初始化所有设备信息
+     * @param devs
+     */
+    public static void init(List<BaseInfo> devs){
+        devs.forEach(baseInfo -> {
+            devList.put(baseInfo.getDevNo(),baseInfo);
+            devMap.put(baseInfo.getDevIpAddr(),baseInfo.getDevStatus());
+        });
+    }
 
 
     /**
@@ -42,6 +51,19 @@ public class DevInfoContainer {
         return devMap.get(devNo);
     }
 
+    /**
+     * @功能：获取可用的所有设备信息集合
+     * @return  设备对象
+     */
+    public static Collection<BaseInfo> getDevInfos(){
+        return devList.values();
+    }
 
-
+    /**
+     * @功能：获取可用的所有设备编号集合
+     * @return  设备对象
+     */
+    public static Set<String> getDevNos(){
+        return devList.keySet();
+    }
 }

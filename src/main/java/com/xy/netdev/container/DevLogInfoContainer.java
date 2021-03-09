@@ -40,6 +40,9 @@ public class DevLogInfoContainer {
      */
     public static void init(){
         int devLogSize = Integer.parseInt(sysParamService.getParaRemark1(SysConfigConstant.DEV_LOG_VIEW_SZIE));
+        DevInfoContainer.getDevNos().forEach(baseInfo -> {
+            devLogInfoMap.put(baseInfo,new FixedSizeMap<>(devLogSize));
+        });
 
     }
     /**
