@@ -122,6 +122,15 @@ public class ParaInfo extends Model<ParaInfo> {
     @TableField(value = "NDPA_ALERT_PARA")
     private String ndpaAlertPara;
 
+    @ApiModelProperty(value = "参数序号")
+    @TableField(exist = false)
+    private Integer paraSeq;
+    /**
+     * 按照序号 累加 字节长度
+     */
+    @ApiModelProperty(value = "参数下标")
+    @TableField(exist = false)
+    private Integer paraStartPoint;
 
 
     @Override
