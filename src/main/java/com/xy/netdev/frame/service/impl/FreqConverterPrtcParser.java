@@ -1,6 +1,8 @@
 package com.xy.netdev.frame.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.xy.netdev.container.BaseInfoContainer;
+import com.xy.netdev.container.DevParaInfoContainer;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.ParaInfo;
@@ -35,7 +37,7 @@ public class FreqConverterPrtcParser implements IParaPrtclAnalysisService {
 
     @Override
     public void queryPara(BaseInfo devInfo, ParaInfo paraInfo) {
-        devInfo = getDevInfoDetail(devInfo);
+        devInfo = BaseInfoContainer.getDevInfo(devInfo.getDevIpAddr());
         paraInfo = getParaInfoDetail(devInfo,paraInfo);
         StringBuilder sb = new StringBuilder();
         sb.append(SEND_START_MARK).append(devInfo.getDevIpAddr()).append("/")
