@@ -5,6 +5,7 @@ import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.entity.ParaInfo;
+import com.xy.netdev.monitor.vo.DevInterParam;
 
 import java.util.List;
 
@@ -16,13 +17,14 @@ import java.util.List;
  */
 public class FreqConverterInterPrtcParser implements IQueryInterPrtclAnalysisService {
 
+
     @Override
-    public void queryPara(BaseInfo devInfo, Interface interInfo) {
+    public void queryPara(BaseInfo devInfo, DevInterParam interInfo) {
 
     }
 
     @Override
-    public List<ParaInfo> queryParaResponse(BaseInfo devInfo, List<ParaInfo> paraList) {
+    public List<ParaInfo> queryParaResponse(BaseInfo devInfo, DevInterParam interInfo) {
         return null;
     }
 }
