@@ -45,4 +45,8 @@ public class FixedSizeMap<K,V>   {
     public boolean containsKey(K key){
         return map.containsKey(key);
     }
+
+    public TreeMap<K,V> getMap(){
+        return map;
+    }
 }
