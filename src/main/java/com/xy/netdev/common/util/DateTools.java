@@ -1,5 +1,6 @@
 package com.xy.netdev.common.util;
-import com.xy.netmgr.common.exception.NetmgrException;
+
+import com.xy.common.exception.BaseException;
 
 import java.util.Date;
 
@@ -20,7 +21,7 @@ public class DateTools {
         try {
             return DateThreadLocal.getSimpleDateFormat(FORMAT_YMD).format(DateThreadLocal.getSimpleDateFormat(FORMAT).parse(dateTime));
         }catch (Exception e) {
-            throw new NetmgrException(e.getMessage());
+            throw new BaseException(e.getMessage());
         }
     }
 
