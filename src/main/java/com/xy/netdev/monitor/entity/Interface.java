@@ -54,6 +54,11 @@ public class Interface extends Model<Interface> {
     @TableField(value = "ITF_TYPE")
     private String itfType;
 
+
+    @ApiModelProperty(value = "接口命令标识")
+    @TableField(value = "ITF_CMD_MARK")
+    private String itfCmdMark;
+
     @Param
     @ApiModelProperty(value = "接口状态")
     @TableField(value = "ITF_STATUS")

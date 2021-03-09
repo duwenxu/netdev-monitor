@@ -41,11 +41,22 @@ public class DevParaInfoContainer {
      * @功能：当系统启动时,进行初始化各设备日志
      */
     public static void init(){
-        BaseInfoContainer.getDevNos().forEach(baseInfo -> {
-            devParaMap.put(baseInfo,new TreeMap<>());
+        BaseInfoContainer.getDevNos().forEach(devNo -> {
+            devParaMap.put(devNo,new HashMap<>());
         });
     }
 
+    /**
+     * @功能：添加设备参数MAP
+     * @param paraList  参数列表
+     * @return
+     */
+    public static void addDevParaMap(List<ParaInfo> paraList) {
+        paraList.forEach(paraInfo -> {
+
+
+        });
+    }
     /**
      * @功能：添加设备附加信息
      */
