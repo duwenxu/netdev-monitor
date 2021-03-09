@@ -49,7 +49,7 @@ public class DevLogInfoContainer {
      * @param devLog    设备日志信息
      * @return
      */
-    public static void addDevLog(OperLog devLog) {
+    public synchronized static void addDevLog(OperLog devLog) {
         devLogInfoMap.get(devLog.getDevNo()).put(DateTools.getDateTime(),devLog);
     }
 

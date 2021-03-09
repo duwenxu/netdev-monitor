@@ -29,7 +29,7 @@ public class BaseContainerLoader {
         //初始化基础信息
         BaseInfoContainer.init(baseInfoService.list(),paraInfoService.list());
         //初始化所有设备信息
-        DevInfoContainer.init(baseInfoService.list());
+        //DevInfoContainer.init(baseInfoService.list());
         //初始化各设备日志
         DevLogInfoContainer.init();
     }
