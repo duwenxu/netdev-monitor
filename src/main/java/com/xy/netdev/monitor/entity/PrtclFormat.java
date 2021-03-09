@@ -34,8 +34,8 @@ public class PrtclFormat extends Model<PrtclFormat> {
     private Integer fmtId;
 
     @ApiModelProperty(value = "协议名称")
-    @TableId(value = "FMT_NAME")
-    private Integer fmtName;
+    @TableField(value = "FMT_NAME")
+    private String fmtName;
 
     @ApiModelProperty(value = "设备类型")
     @TableField(value = "DEV_TYPE")
