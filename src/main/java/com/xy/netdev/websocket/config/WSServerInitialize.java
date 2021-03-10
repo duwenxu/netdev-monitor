@@ -1,5 +1,6 @@
 package com.xy.netdev.websocket.config;
 
+import com.xy.netdev.network.NettyHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
@@ -36,7 +37,7 @@ public class WSServerInitialize extends ChannelInitializer<SocketChannel> {
         // 入参是 ws://server:port/context_path 中的 contex_path
         pipeline.addLast(new WebSocketServerProtocolHandler("/ws",true,65536));
         //添加自定义处理函数
-        pipeline.addLast(new NettyHandler());
+//        pipeline.addLast(new NettyHandler());
     }
 
 }
