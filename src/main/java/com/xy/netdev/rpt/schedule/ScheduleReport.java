@@ -2,18 +2,15 @@ package com.xy.netdev.rpt.schedule;
 
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
-import com.xy.netdev.monitor.MonitorConstants;
+import com.xy.netdev.monitor.constant.MonitorConstants;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.Interface;
-import com.xy.netdev.monitor.entity.ParaInfo;
 import com.xy.netdev.monitor.service.IBaseInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 

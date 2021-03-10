@@ -1,4 +1,4 @@
-package com.xy.netdev.monitor;
+package com.xy.netdev.monitor.constant;
 
 /**
  * 监控系统常量类
