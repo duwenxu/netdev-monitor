@@ -30,6 +30,6 @@ public interface IQueryInterPrtclAnalysisService {
      * @param  interInfo  接口信息
      * @return  查询到的参数列表
      */
-    List<ParaInfo> queryParaResponse(BaseInfo devInfo, DevInterParam interInfo);
+    List<ParaInfo> queryParaResponse(BaseInfo devInfo, DevInterParam interInfo,byte[] dataByte);
 
 }
