@@ -5,6 +5,7 @@ import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.entity.ParaInfo;
 import com.xy.netdev.monitor.bo.DevInterParam;
+import com.xy.netdev.monitor.entity.PrtclFormat;
 import lombok.extern.slf4j.Slf4j;
 import java.util.*;
 
@@ -18,20 +19,31 @@ import java.util.*;
  */
 @Slf4j
 public class BaseInfoContainer {
+
     /**
      * 设备MAP K设备IP地址 V设备信息
      */
     private static Map<String, BaseInfo> devMap = new HashMap<>();
+
+    /**
+     * 设备MAP K设备编号 V设备信息
+     */
+    private static Map<String, BaseInfo> devNoMap = new HashMap<>();
+
     /**
      * 接口关联参数MAP K设备类型+接口编码 V设备参数列表信息
      */
     private static Map<String, DevInterParam> InterLinkParaMap = new HashMap<>();
 
     /**
-     * 参数map K参数编号+命令标识 V参数信息
+     * 参数map K设备类型+命令标识 V参数信息
      */
-    private static Map<String, ParaInfo> paramMap = new HashMap<>();
+    private static Map<String, ParaInfo> paramCmdMap = new HashMap<>();
 
+    /**
+     * 参数map K设备类型+参数编号 V参数信息
+     */
+    private static Map<String, ParaInfo> paramNoMap = new HashMap<>();
 
     /**
      * @功能：添加设备MAP
@@ -42,8 +54,9 @@ public class BaseInfoContainer {
         devList.forEach(baseInfo -> {
             try {
                 devMap.put(baseInfo.getDevIpAddr(),baseInfo);
+                devNoMap.put(baseInfo.getDevNo(),baseInfo);
             } catch (Exception e) {
-                log.error("设备["+baseInfo.getDevNo()+"]ip地址为空，请检查:"+e.getMessage());
+                log.error("设备["+baseInfo.getDevNo()+"]ip地址或设备编号存在异常，请检查:"+e.getMessage());
             }
         });
     }
@@ -56,9 +69,10 @@ public class BaseInfoContainer {
     public static void addParaMap(List<ParaInfo> paraList) {
         paraList.forEach(paraInfo -> {
             try {
-                paramMap.put(ParaHandlerUtil.genLinkKey(paraInfo.getNdpaNo(),paraInfo.getNdpaCmdMark()),paraInfo);
+                paramCmdMap.put(ParaHandlerUtil.genLinkKey(paraInfo.getDevType(),paraInfo.getNdpaCmdMark()),paraInfo);
+                paramNoMap.put(ParaHandlerUtil.genLinkKey(paraInfo.getDevType(),paraInfo.getNdpaNo()),paraInfo);
             } catch (Exception e) {
-                log.error("参数["+paraInfo.getNdpaCode()+"]的编号或命令标识为空，请检查:"+e.getMessage());
+                log.error("参数["+paraInfo.getNdpaCode()+"]的设备类型或命令标识或参数编号存在异常，请检查:"+e.getMessage());
             }
         });
     }
@@ -96,13 +110,31 @@ public class BaseInfoContainer {
     }
 
     /**
-     * @功能：根据参数编号 和 命令标识 获取参数信息
-     * @param paraNo   参数编号
+     * @功能：根据设备编号 获取设备信息
+     * @param devNo    设备编号
+     * @return  设备对象
+     */
+    public static BaseInfo getDevInfoByNo(String devNo){
+        return devNoMap.get(devNo);
+    }
+
+    /**
+     * @功能：根据设备类型 和 命令标识 获取参数信息
+     * @param devType  设备类型
      * @param cmrMark  命令标识
      * @return  设备对象
      */
-    public static ParaInfo getParaInfo(String paraNo,String cmrMark){
-        return paramMap.get(ParaHandlerUtil.genLinkKey(paraNo,cmrMark));
+    public static ParaInfo getParaInfoByCmd(String devType,String cmrMark){
+        return paramCmdMap.get(ParaHandlerUtil.genLinkKey(devType,cmrMark));
+    }
+    /**
+     * @功能：根据 设备类型 和 参数编号 获取参数信息
+     * @param devType  设备类型
+     * @param ndpaNo   命令标识
+     * @return  设备对象
+     */
+    public static ParaInfo getParaInfoByNo(String devType,String ndpaNo){
+        return paramNoMap.get(ParaHandlerUtil.genLinkKey(devType,ndpaNo));
     }
 
     /**
@@ -112,7 +144,11 @@ public class BaseInfoContainer {
      * @return  接口解析参数列表
      */
     public static List<ParaInfo> getInterLinkParaList(String devType,String itfCode){
-        return InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType,itfCode)).getDevParamList();
+        DevInterParam devInterParam = InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType,itfCode));
+        if(devInterParam == null){
+            return devInterParam.getDevParamList();
+        }
+        return null;
     }
 
     /**
@@ -122,7 +158,25 @@ public class BaseInfoContainer {
      * @return  接口解析参数列表
      */
     public static Interface getInterLinkInterface(String devType, String itfCode){
-        return InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType,itfCode)).getDevInterface();
+        DevInterParam devInterParam = InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType,itfCode));
+        if(devInterParam == null){
+            return devInterParam.getDevInterface();
+        }
+        return null;
+    }
+
+    /**
+     * @功能：根据设备类型  和  接口编码 获取接口信息
+     * @param devType     设备类型
+     * @param itfCode     接口编码
+     * @return  接口解析参数列表
+     */
+    public static PrtclFormat getInterLinkFmtFormat(String devType, String itfCode){
+        DevInterParam devInterParam = InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType,itfCode));
+        if(devInterParam == null){
+            return devInterParam.getInterfacePrtcl();
+        }
+        return null;
     }
 
     /**
