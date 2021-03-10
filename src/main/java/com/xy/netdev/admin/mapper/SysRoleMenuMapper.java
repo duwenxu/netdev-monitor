@@ -1,7 +1,7 @@
 package com.xy.netdev.admin.mapper;
 
-import com.xy.netdev.admin.entity.SysRoleMenu;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.xy.netdev.admin.entity.SysRoleMenu;
 
 /**
  * <p>

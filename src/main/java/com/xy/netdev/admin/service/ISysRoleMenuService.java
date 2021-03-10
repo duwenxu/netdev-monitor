@@ -1,7 +1,7 @@
 package com.xy.netdev.admin.service;
 
-import com.xy.netdev.admin.entity.SysRoleMenu;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.xy.netdev.admin.entity.SysRoleMenu;
 
 /**
  * <p>

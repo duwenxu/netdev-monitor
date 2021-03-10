@@ -1,11 +1,11 @@
 package com.xy.netdev.admin.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xy.common.exception.BaseException;
 import com.xy.netdev.admin.entity.SysParam;
 import com.xy.netdev.admin.mapper.SysParamMapper;
 import com.xy.netdev.admin.service.ISysParamService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;

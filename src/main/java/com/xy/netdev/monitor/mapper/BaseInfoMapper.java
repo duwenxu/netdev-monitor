@@ -1,7 +1,7 @@
 package com.xy.netdev.monitor.mapper;
 
-import com.xy.netdev.monitor.entity.BaseInfo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.xy.netdev.monitor.entity.BaseInfo;
 import org.apache.ibatis.annotations.Mapper;
 /**
  * 设备信息 Mapper 接口

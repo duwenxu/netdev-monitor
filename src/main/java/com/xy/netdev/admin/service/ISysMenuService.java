@@ -1,13 +1,11 @@
 package com.xy.netdev.admin.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.xy.common.model.Result;
 import com.xy.netdev.admin.entity.SysMenu;
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.xy.netdev.admin.entity.SysRole;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 import java.util.Map;
 
 /**

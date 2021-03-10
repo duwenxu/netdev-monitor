@@ -1,7 +1,7 @@
 package com.xy.netdev.admin.mapper;
 
-import com.xy.netdev.admin.entity.SysRole;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.xy.netdev.admin.entity.SysRole;
 
 import java.util.List;
 import java.util.Map;
