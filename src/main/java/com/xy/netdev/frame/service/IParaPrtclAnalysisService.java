@@ -1,10 +1,9 @@
 package com.xy.netdev.frame.service;
 
 
-
-import com.xy.netdev.monitor.bo.FrameParaInfo;
-import com.xy.netdev.monitor.entity.BaseInfo;
-import com.xy.netdev.monitor.entity.ParaInfo;
+import com.xy.netdev.frame.bo.FrameReqData;
+import com.xy.netdev.frame.bo.FrameRespData;
+import com.xy.netdev.frame.entity.TransportEntity;
 /**
  * <p>
  * 参数协议解析接口
@@ -16,28 +15,25 @@ import com.xy.netdev.monitor.entity.ParaInfo;
 public interface IParaPrtclAnalysisService {
     /**
      * 查询协议
-     * @param  devInfo   设备信息
-     * @param  paraInfo  参数信息
+     * @param  reqInfo   请求参数信息
      */
-    void queryPara(BaseInfo devInfo, FrameParaInfo paraInfo);
+    void queryPara(FrameReqData reqInfo);
     /**
      * 查询响应协议
-     * @param  devInfo   设备信息
-     * @param  paraInfo  参数信息
+     * @param  reqInfo   请求参数信息
      * @return  响应数据
      */
-    FrameParaInfo queryParaResponse(BaseInfo devInfo,FrameParaInfo paraInfo,byte[] dataByte);
+    FrameRespData queryParaResponse(TransportEntity transportEntity);
     /**
      * 控制协议
-     * @param  devInfo   设备信息
-     * @param  paraInfo  参数信息
+     * @param  reqInfo   请求参数信息
      */
-    void ctrlPara(BaseInfo devInfo,FrameParaInfo paraInfo);
+    void ctrlPara(FrameReqData reqInfo);
     /**
      * 控制响应协议
      * @param  devInfo   设备信息
      * @param  paraInfo  参数信息
      * @return  响应数据
      */
-    FrameParaInfo ctrlParaResponse(BaseInfo devInfo,FrameParaInfo paraInfo,byte[] dataByte);
+    FrameRespData ctrlParaResponse(TransportEntity transportEntity);
 }
