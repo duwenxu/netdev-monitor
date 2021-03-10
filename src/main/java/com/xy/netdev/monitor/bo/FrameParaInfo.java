@@ -27,7 +27,7 @@ public class FrameParaInfo {
     private Integer paraId;
 
     @ApiModelProperty(value = "参数编号")
-    private Integer paraNo;
+    private  paraNo;String
 
     @ApiModelProperty(value = "参数值")
     private String paraVal;
