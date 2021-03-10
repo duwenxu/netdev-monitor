@@ -56,9 +56,7 @@ public abstract class AbsDeviceSocketHandler<R extends SocketEntity, T extends T
 
     @Override
     public void socketResponse(SocketEntity socketEntity) {
-        String remoteAddress = socketEntity.getRemoteAddress();
-        T t = unpack(t);
-        this.callback(t);
+        this.callback(unpack((R)socketEntity));
     }
 
 

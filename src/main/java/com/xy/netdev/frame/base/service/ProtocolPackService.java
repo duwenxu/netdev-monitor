@@ -6,10 +6,8 @@ import com.xy.netdev.frame.entity.TransportEntity;
 
 public interface ProtocolPackService <T extends SocketEntity, R extends TransportEntity>{
 
-     R unpack(T t);
+    R unpack(T t);
 
-    T pack(T t);
-
-
+    T pack(R r);
 
 }

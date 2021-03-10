@@ -42,6 +42,7 @@ public class DeviceSocketSubscribe {
                     SocketEntity socketEntity = SOCKET_QUEUE.take();
                     AbsDeviceSocketHandler<SocketEntity,TransportEntity> deviceSocketHandler
                             = getHandler(socketEntity.getRemoteAddress());
+                    //执行数据响应
                     deviceSocketHandler.socketResponse(socketEntity);
                 }
             } catch (InterruptedException e) {

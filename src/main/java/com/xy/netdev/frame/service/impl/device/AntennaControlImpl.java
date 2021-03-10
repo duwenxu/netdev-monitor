@@ -43,14 +43,14 @@ public class AntennaControlImpl extends AbsDeviceSocketHandler<SocketEntity, Tra
         TransportEntity transportEntity = new TransportEntity();
         transportEntity.setParamMark(cmd.toString());
         transportEntity.setParamBytes(paramData);
-        transportEntity.setDevInfo( getDevInfo(t.getRemoteAddress()));
+        transportEntity.setDevInfo( getDevInfo(socketEntity.getRemoteAddress()));
         //数据体解析
         return transportEntity;
     }
 
     @Override
-    public SocketEntity pack(SocketEntity socketEntity) {
-        List<FrameParaInfo> dataBodyParas = t.getDataBodyParas();
+    public SocketEntity pack(TransportEntity transportEntity) {
+        List<FrameParaInfo> dataBodyParas = transportEntity.getDataBodyParas();
         List<byte[]> list = dataBodyParas.stream()
                 .map(paraInfo -> objectToByte(paraInfo.getParaVal(), paraInfo.getParaStartPoint()))
                 .collect(Collectors.toList());
@@ -60,6 +60,7 @@ public class AntennaControlImpl extends AbsDeviceSocketHandler<SocketEntity, Tra
         int dataLength = paramByte.length + 6;
         return null;
     }
+
 
 
     @Override
