@@ -8,6 +8,6 @@ public interface ProtocolPackService <T extends SocketEntity, R extends Transpor
 
     R unpack(T t);
 
-    T pack(R r);
+    byte[] pack(R r);
 
 }

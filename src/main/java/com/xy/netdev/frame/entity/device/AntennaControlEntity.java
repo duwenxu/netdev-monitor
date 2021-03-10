@@ -15,7 +15,7 @@ public class AntennaControlEntity {
 
     private Byte sad;
 
-    private Byte cmd;
+    private byte[] cmd;
 
     private byte[] data;
 
