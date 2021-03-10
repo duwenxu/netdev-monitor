@@ -42,7 +42,7 @@ public class AntennaControlImpl extends AbsDeviceSocketHandler<SocketEntity, Tra
         TransportEntity transportEntity = new TransportEntity();
         transportEntity.setParamMark(cmd.toString());
         transportEntity.setParamBytes(paramData);
-        transportEntity.setDevInfo( getDevInfo(socketEntity.getRemoteAddress()));
+        transportEntity.setDevInfo(getDevInfo(socketEntity.getRemoteAddress()));
         //数据体解析
         return transportEntity;
     }
@@ -55,7 +55,7 @@ public class AntennaControlImpl extends AbsDeviceSocketHandler<SocketEntity, Tra
         int dataLength = paramBytes.length + 6;
 
         AntennaControlEntity antennaControlEntity = AntennaControlEntity.builder()
-                .stx((byte) 0x7F)
+                .stx((byte) 0x7B)
                 .lc((byte) dataLength)
                 .sad((byte) 0)
                 .cmd(Byte.valueOf(transportEntity.getParamMark()))
@@ -71,6 +71,7 @@ public class AntennaControlImpl extends AbsDeviceSocketHandler<SocketEntity, Tra
 
     @Override
     public void callback(TransportEntity transportEntity) {
+
     }
 
     private byte xor( AntennaControlEntity entity){

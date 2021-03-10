@@ -4,10 +4,16 @@ import com.xy.netdev.frame.base.service.ProtocolPackService;
 import com.xy.netdev.frame.entity.SocketEntity;
 import com.xy.netdev.frame.entity.TransportEntity;
 import com.xy.netdev.frame.enums.ProtocolRequestEnum;
+import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.network.NettyUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+
+import static com.xy.netdev.container.BaseInfoContainer.getDevInfo;
+import static com.xy.netdev.container.BaseInfoContainer.getInterLinkParaList;
 
 /**
  * 设备数据流程处理基类
@@ -72,4 +78,8 @@ public abstract class AbsDeviceSocketHandler<R extends SocketEntity, T extends T
      */
     public abstract void callback(T t);
 
+    public static List<FrameParaInfo> getParamByIp(String ip, String itfCode){
+        BaseInfo devInfo = getDevInfo(ip);
+        return getInterLinkParaList(devInfo.getDevType(), itfCode);
+    }
 }
