@@ -1,7 +1,7 @@
 package com.xy.netdev.monitor.service;
 
-import com.xy.netdev.monitor.entity.PrtclFormat;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.xy.netdev.monitor.entity.PrtclFormat;
 
 /**
  * 协议格式 服务类
