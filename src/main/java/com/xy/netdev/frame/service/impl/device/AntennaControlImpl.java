@@ -1,5 +1,6 @@
 package com.xy.netdev.frame.service.impl.device;
 
+import cn.hutool.core.util.ArrayUtil;
 import com.baomidou.mybatisplus.extension.api.R;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.frame.base.AbsDeviceSocketHandler;
@@ -14,6 +15,7 @@ import org.assertj.core.internal.Bytes;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,19 +50,21 @@ public class AntennaControlImpl extends AbsDeviceSocketHandler<SocketEntity, Tra
     @Override
     public byte[] pack(TransportEntity transportEntity) {
         //参数数据
-        byte[] paramByte = transportEntity.getParamBytes();
+        byte[] paramBytes = transportEntity.getParamBytes();
         //数据长度
-        int dataLength = paramByte.length + 6;
+        int dataLength = paramBytes.length + 6;
 
         AntennaControlEntity antennaControlEntity = AntennaControlEntity.builder()
                 .stx((byte) 0x7F)
                 .lc((byte) dataLength)
                 .sad((byte) 0)
-                .cmd(transportEntity.getParamBytes())
-//                .data()
-//                .vs()
+                .cmd(Byte.valueOf(transportEntity.getParamMark()))
+                .data(transportEntity.getParamBytes())
+                .vs((byte) 0)
                 .etx((byte) 0x7D)
                 .build();
+        byte vs = xor(antennaControlEntity);
+        antennaControlEntity.setVs(vs);
         return pack(antennaControlEntity);
     }
 
@@ -69,13 +73,18 @@ public class AntennaControlImpl extends AbsDeviceSocketHandler<SocketEntity, Tra
     public void callback(TransportEntity transportEntity) {
     }
 
+    private byte xor( AntennaControlEntity entity){
+        byte[] bytes = {entity.getLc(), entity.getSad(), entity.getCmd()};
+        byte[] xorBytes = ArrayUtil.addAll(bytes, entity.getData());
+        return ByteUtils.xor(xorBytes, 0, xorBytes.length);
+    }
 
     private byte[] pack(AntennaControlEntity antennaControlEntity){
     List<byte[]> list = new ArrayList<>();
     list.add(new byte[]{antennaControlEntity.getStx()});
     list.add(new byte[]{antennaControlEntity.getLc()});
     list.add(new byte[]{antennaControlEntity.getSad()});
-    list.add(antennaControlEntity.getCmd());
+    list.add(new byte[]{antennaControlEntity.getCmd()});
     list.add(antennaControlEntity.getData());
     list.add(new byte[]{antennaControlEntity.getVs()});
     list.add(new byte[]{antennaControlEntity.getEtx()});

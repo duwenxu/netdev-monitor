@@ -47,6 +47,20 @@ public class ByteUtils {
         return array;
     }
 
+    public static byte xor(byte[] bytes, int offset, int len){
+        byte[] data;
+        if (bytes.length != len){
+            data = byteArrayCopy(bytes, offset, len);
+        }else {
+            data = bytes;
+        }
+        byte temp = data[0];
+        for(int i=1;i<data.length;i++){
+            temp^=data[i];
+        }
+        return temp;
+    }
+
 
     public static byte[] listToBytes(List<byte[]> list){
         return list.stream().reduce(new byte[]{}, com.google.common.primitives.Bytes::concat);
@@ -65,34 +79,6 @@ public class ByteUtils {
         return byteArray;
     }
 
-//    public static byte[] objectToByte(Object obj, int systemNum, int len, int order){
-//        byte [] data = {};
-//        if (systemNum == 0023001){
-//            return new byte[]{(byte)obj};
-//        }
-//        ByteOrder byteOrder;
-//        if (order != 1) {
-//            byteOrder =  Unpooled.LITTLE_ENDIAN;
-//        } else {
-//            byteOrder =  Unpooled.BIG_ENDIAN;
-//        }
-//        switch (systemNum){
-//            //int
-//            case 0023002:
-//                data = numToBytes((int)obj, byteOrder, Unpooled::copyInt);
-//                break;
-//            //unit
-//            case 0023003:
-//                data = numToBytes((long)obj, byteOrder, Unpooled::copyLong);
-//                break;
-//            // str
-//            case 0023004:
-//                data = numToBytes((short)obj, byteOrder, Unpooled::copyShort);
-//                break;
-//            default:break;
-//        }
-//        return ArrayUtil.sub(data, data.length - len, len);
-//    }
 
     public static byte[] objectToByte(Object obj, int len){
         byte [] data = {};

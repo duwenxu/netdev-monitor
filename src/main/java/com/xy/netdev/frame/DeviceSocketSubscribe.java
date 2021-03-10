@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.xy.netdev.container.BaseInfoContainer.getDevInfo;
-import static com.xy.netdev.network.NettyHandler.SOCKET_QUEUE;
+import static com.xy.netdev.network.NettyUtil.SOCKET_QUEUE;
 
 /**
  * 设备数据订阅

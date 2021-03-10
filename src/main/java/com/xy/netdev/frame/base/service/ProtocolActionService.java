@@ -2,19 +2,17 @@ package com.xy.netdev.frame.base.service;
 
 import com.xy.netdev.frame.entity.TransportEntity;
 
-import java.util.List;
-
-public interface ProtocolActionService {
+public interface ProtocolActionService<T extends TransportEntity> {
 
     //查询
-    <T extends TransportEntity>void doQuery(T t);
+    void doQuery(T t);
 
     //控制
-    <T extends TransportEntity>void doControl(T t);
+    void doControl(T t);
 
     //查询应答
-    <T extends TransportEntity> List<T> doQueryResult(T t);
+    void doQueryResult(T t);
 
     //控制应答
-    <T extends TransportEntity> List<T> doControlResult(T t);
+    void doControlResult(T t);
 }

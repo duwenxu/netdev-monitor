@@ -4,16 +4,10 @@ import com.xy.netdev.frame.base.service.ProtocolPackService;
 import com.xy.netdev.frame.entity.SocketEntity;
 import com.xy.netdev.frame.entity.TransportEntity;
 import com.xy.netdev.frame.enums.ProtocolRequestEnum;
-import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
-import com.xy.netdev.monitor.entity.ParaInfo;
+import com.xy.netdev.network.NettyUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
-
-import static com.xy.netdev.container.BaseInfoContainer.getDevInfo;
-import static com.xy.netdev.container.BaseInfoContainer.getInterLinkParaList;
 
 /**
  * 设备数据流程处理基类
@@ -44,7 +38,28 @@ public abstract class AbsDeviceSocketHandler<R extends SocketEntity, T extends T
         }
     }
 
+    @Override
+    public void doQuery(T t) {
+        byte[] bytes = pack(t);
+        BaseInfo devInfo = t.getDevInfo();
+        int port = Integer.parseInt(devInfo.getDevPort());
+        NettyUtil.sendMsg(bytes, port, devInfo.getDevIpAddr(), port, 0);
+    }
 
+    @Override
+    public void doControl(T t) {
+        this.doQuery(t);
+    }
+
+    @Override
+    public void doQueryResult(T t) {
+        this.doQuery(t);
+    }
+
+    @Override
+    public void doControlResult(T t) {
+        this.doQuery(t);
+    }
 
     @Override
     public void socketResponse(SocketEntity socketEntity) {
@@ -56,13 +71,5 @@ public abstract class AbsDeviceSocketHandler<R extends SocketEntity, T extends T
      * @param t
      */
     public abstract void callback(T t);
-
-
-    public static List<FrameParaInfo> getParamByIp(String ip, String itfCode){
-        BaseInfo devInfo = getDevInfo(ip);
-        List<ParaInfo> interLinkParaList = getInterLinkParaList(devInfo.getDevType(), itfCode);
-        return null;
-    }
-
 
 }
