@@ -1,12 +1,14 @@
 package com.xy.netdev.container;
 
 import com.alibaba.fastjson.JSONObject;
+import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.util.ParaHandlerUtil;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.entity.*;
 import com.xy.netdev.monitor.bo.DevInterParam;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -20,7 +22,17 @@ import java.util.stream.Collectors;
  * @since 2021-03-08
  */
 @Slf4j
+@Component
 public class BaseInfoContainer {
+
+    /**
+     * 系统参数服务类
+     */
+    private static ISysParamService sysParamService;
+    @Autowired
+    public void setSysParamService(ISysParamService sysParamService){
+        this.sysParamService = sysParamService;
+    }
 
     /**
      * 设备MAP K设备IP地址 V设备信息
@@ -60,7 +72,7 @@ public class BaseInfoContainer {
     /**
      * @功能：当系统启动时,进行初始化各设备日志
      */
-    public static void init(List<BaseInfo> devs,List<ParaInfo> paraInfos,List<Interface> interfaces,List<PrtclFormat> prtclList,List<AlertInfo> alertInfoList){
+    public static void init(List<BaseInfo> devs,List<ParaInfo> paraInfos,List<Interface> interfaces,List<PrtclFormat> prtclList){
         //将设备参数转化为帧参数
         List<FrameParaInfo> frameParaInfos = changeDevParaToFrame(paraInfos,prtclList);
         //加载设备信息
@@ -78,7 +90,11 @@ public class BaseInfoContainer {
             List<String> paraIds = Arrays.asList(anInterface.getItfDataFormat().split(","));
             DevInterParam devInterParam = new DevInterParam();
             devInterParam.setId(ParaHandlerUtil.genLinkKey(anInterface.getDevType(),anInterface.getItfCode()));
-            devInterParam.setInterfacePrtcl(prtclList.stream().filter(prtclFormat -> prtclFormat.getFmtId() == anInterface.getFmtId()).collect(Collectors.toList()).get(0));
+            List<PrtclFormat> prtclFormats = prtclList.stream().filter(prtclFormat -> prtclFormat.getFmtId() == anInterface.getFmtId()).collect(Collectors.toList());
+            if(prtclFormats.size()>0){
+                prtclFormats.get(0).setIsPrtclParam(1);
+                devInterParam.setInterfacePrtcl(prtclFormats.get(0));
+            }
             devInterParam.setDevInterface(anInterface);
             devInterParam.setDevParamList(frameParaInfos.stream().filter(paraInfo -> paraIds.contains(paraInfo.getParaId().toString())).collect(Collectors.toList()));
             devInterParams.add(devInterParam);
@@ -265,6 +281,15 @@ public class BaseInfoContainer {
     }
 
     /**
+     * @功能：根据设备类型  获取处理类名
+     * @param devType     设备类型(参数表中的编码
+     * @return  处理类名
+     */
+    public static String getClassByDevType(String devType){
+        return sysParamService.getParaRemark2(devType);
+    }
+
+    /**
      * @功能：获取所有设备信息集合
      * @return  设备对象
      */
@@ -297,7 +322,7 @@ public class BaseInfoContainer {
             frameParaInfo.setDevTypeCode(paraInfo.getDevTypeCode());      //设备类型编码
             List<PrtclFormat> prtclFormats = prtclList.stream().filter(prtclFormat -> prtclFormat.getFmtId() == paraInfo.getFmtId()).collect(Collectors.toList());
             if(prtclFormats.size()>0){
-                prtclFormats.get(0).setIsPrtclParam(true);
+                prtclFormats.get(0).setIsPrtclParam(0);
                 frameParaInfo.setInterfacePrtcl(prtclFormats.get(0));      //解析协议
             }
             frameParaInfos.add(frameParaInfo);

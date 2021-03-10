@@ -66,10 +66,8 @@ public class BaseContainerLoader {
         List<Interface> interfaces = interfaceService.list().stream().filter(anInterface -> anInterface.getItfStatus().equals(SysConfigConstant.STATUS_OK)).collect(Collectors.toList());
         //查询协议列表
         List<PrtclFormat> prtclList = prtclFormatService.list();
-        //查询告警列表
-        List<AlertInfo> alertInfoList = alertInfoService.list();
         //初始化基础容器的数据
-        BaseInfoContainer.init(devs,paraInfos,interfaces,prtclList,alertInfoList);
+        BaseInfoContainer.init(devs,paraInfos,interfaces,prtclList);
     }
 
 

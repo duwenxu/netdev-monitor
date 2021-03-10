@@ -140,4 +140,42 @@ public interface SysConfigConstant {
      * 公共参数--设备告警信息保存条数
      */
     String  DEV_ALERT_INFO_SZIE="0100005";
+
+    /**
+     * 操作类型--查询
+     */
+    String OPREATE_QUERY = "0026001";
+
+    /**
+     * 操作类型--查询响应
+     */
+    String OPREATE_QUERY_RESP = "0026002";
+
+    /**
+     * 操作类型--控制
+     */
+    String OPREATE_CONTROL = "0026003";
+
+    /**
+     * 操作类型--控制响应
+     */
+    String OPREATE_CONTROL_RESP = "0026004";
+
+
+    /**
+     * 访问类型--只写
+     */
+    String  ONLY_WRITE= "0022001";
+
+    /**
+     * 访问类型--只读
+     */
+    String ONLY_READ = "0022002";
+
+    /**
+     * 访问类型--读写
+     */
+    String READ_WRITE = "0022003";
+
+
 }
