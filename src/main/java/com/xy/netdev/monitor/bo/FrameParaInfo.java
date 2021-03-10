@@ -1,6 +1,7 @@
 package com.xy.netdev.monitor.bo;
 
 
+import com.xy.netdev.monitor.entity.PrtclFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -51,4 +52,7 @@ public class FrameParaInfo {
 
     @ApiModelProperty(value = "告警级别")
     private String alertLevel;
+
+    @ApiModelProperty(value = "解析协议")
+    private PrtclFormat interfacePrtcl;
 }

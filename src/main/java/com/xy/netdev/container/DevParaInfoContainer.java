@@ -70,7 +70,7 @@ public class DevParaInfoContainer {
     private static void attachParaInfo(ParaInfo paraInfo){
         List<ParaSpinnerInfo>  spinnerInfoList = JSONArray.parseArray(paraInfo.getNdpaSelectData(), ParaSpinnerInfo.class);
         //paraInfo.setSpinnerInfoList(spinnerInfoList);
-        paraInfo.setDevTypeCode(sysParamService.getParaRemark1(paraInfo.getDevType()));
+        //paraInfo.setDevTypeCode(sysParamService.getParaRemark1(paraInfo.getDevType()));
     }
     /**
      * @功能：添加设备MAP

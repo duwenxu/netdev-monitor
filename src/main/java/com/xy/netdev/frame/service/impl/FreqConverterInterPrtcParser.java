@@ -23,7 +23,7 @@ public class FreqConverterInterPrtcParser implements IQueryInterPrtclAnalysisSer
     }
 
     @Override
-    public List<ParaInfo> queryParaResponse(BaseInfo devInfo, DevInterParam interInfo) {
+    public List<ParaInfo> queryParaResponse(BaseInfo devInfo, DevInterParam interInfo,byte[] dataByte) {
         return null;
     }
 }

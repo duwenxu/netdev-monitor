@@ -47,7 +47,7 @@ public class FreqConverterPrtcParser implements IParaPrtclAnalysisService {
     }
 
     @Override
-    public FrameParaInfo queryParaResponse(BaseInfo devInfo, FrameParaInfo paraInfo) {
+    public FrameParaInfo queryParaResponse(BaseInfo devInfo, FrameParaInfo paraInfo,byte[] dataByte) {
         devInfo = getDevInfoDetail(devInfo);
         //paraInfo = getParaInfoDetail(devInfo,paraInfo);
         StringBuilder sb = new StringBuilder();
@@ -68,7 +68,7 @@ public class FreqConverterPrtcParser implements IParaPrtclAnalysisService {
     }
 
     @Override
-    public FrameParaInfo ctrlParaResponse(BaseInfo devInfo, FrameParaInfo paraInfo) {
+    public FrameParaInfo ctrlParaResponse(BaseInfo devInfo, FrameParaInfo paraInfo,byte[] dataByte) {
         devInfo = getDevInfoDetail(devInfo);
         //paraInfo = getParaInfoDetail(devInfo,paraInfo);
         StringBuilder sb = new StringBuilder();
