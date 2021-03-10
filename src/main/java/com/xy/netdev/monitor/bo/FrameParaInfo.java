@@ -1,13 +1,13 @@
 package com.xy.netdev.monitor.bo;
 
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.xy.netdev.monitor.entity.PrtclFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
 
 /**
  * <p>
@@ -27,7 +27,7 @@ public class FrameParaInfo {
     private Integer paraId;
 
     @ApiModelProperty(value = "参数编号")
-    private Integer paraNo;
+    private String paraNo;
 
     @ApiModelProperty(value = "参数值")
     private String paraVal;
@@ -36,7 +36,7 @@ public class FrameParaInfo {
     private Integer paraSeq;
 
     @ApiModelProperty(value = "命令标识符")
-    private Integer cmdMark;
+    private String cmdMark;
 
     @ApiModelProperty(value = "字节长度")
     private String paraByteLen;
@@ -62,6 +62,6 @@ public class FrameParaInfo {
     @ApiModelProperty(value = "告警级别")
     private String alertLevel;
 
-    @ApiModelProperty(value = "解析协议")
+    @ApiModelProperty(value = "帧解析协议")
     private PrtclFormat interfacePrtcl;
 }

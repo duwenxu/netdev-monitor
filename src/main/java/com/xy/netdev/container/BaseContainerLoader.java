@@ -2,21 +2,11 @@ package com.xy.netdev.container;
 
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
-import com.xy.netdev.common.util.ParaHandlerUtil;
-import com.xy.netdev.monitor.entity.BaseInfo;
-import com.xy.netdev.monitor.entity.Interface;
-import com.xy.netdev.monitor.entity.ParaInfo;
-import com.xy.netdev.monitor.entity.PrtclFormat;
-import com.xy.netdev.monitor.service.IBaseInfoService;
-import com.xy.netdev.monitor.service.IInterfaceService;
-import com.xy.netdev.monitor.service.IParaInfoService;
-import com.xy.netdev.monitor.service.IPrtclFormatService;
-import com.xy.netdev.monitor.bo.DevInterParam;
+import com.xy.netdev.monitor.entity.*;
+import com.xy.netdev.monitor.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,6 +31,8 @@ public class BaseContainerLoader {
     private IPrtclFormatService prtclFormatService;
     @Autowired
     private ISysParamService sysParamService;
+    @Autowired
+    private IAlertInfoService alertInfoService;
 
     /**
      * 初始化信息加载
@@ -63,31 +55,21 @@ public class BaseContainerLoader {
      * 加载基础信息容器
      */
     private void initBaseInfo(){
-        //加载设备信息
+        //查询有效的设备列表
         List<BaseInfo> devs = baseInfoService.list().stream().filter(baseInfo -> baseInfo.getDevStatus().equals(SysConfigConstant.DEV_STATUS_NEW)).collect(Collectors.toList());
-        BaseInfoContainer.addDevMap(devs);
+        //查询有效的参数列表
         List<ParaInfo> paraInfos = paraInfoService.list().stream().filter(paraInfo -> paraInfo.getNdpaStatus().equals(SysConfigConstant.STATUS_OK)).collect(Collectors.toList());
-        //加载设备参数信息
-        BaseInfoContainer.addParaMap(paraInfos);
-        List<Interface> interfaces = interfaceService.list().stream().filter(anInterface -> anInterface.getItfStatus().equals(SysConfigConstant.STATUS_OK)).collect(Collectors.toList());
-        //加载设备类型对应的参数list
-        BaseInfoContainer.addDevTypeParaMap(paraInfos);
-        //加载设备类型对应的接口list
-        BaseInfoContainer.addDevTypeInterMap(interfaces);
-        //加载设备接口参数信息
-        List<PrtclFormat> prtclList = prtclFormatService.list();
-        List<DevInterParam> devInterParams = new ArrayList<>();
-        //封装设备接口参数实体类list
-        interfaces.forEach(anInterface -> {
-            List<String> paraIds = Arrays.asList(anInterface.getItfDataFormat().split(","));
-            DevInterParam devInterParam = new DevInterParam();
-            devInterParam.setId(ParaHandlerUtil.genLinkKey(anInterface.getDevType(),anInterface.getItfCode()));
-            devInterParam.setInterfacePrtcl(prtclList.stream().filter(prtclFormat -> prtclFormat.getFmtId() == anInterface.getFmtId()).collect(Collectors.toList()).get(0));
-            devInterParam.setDevInterface(anInterface);
-            devInterParam.setDevParamList(paraInfos.stream().filter(paraInfo -> paraIds.contains(paraInfo.getNdpaId().toString())).collect(Collectors.toList()));
-            devInterParams.add(devInterParam);
+        paraInfos.forEach(paraInfo -> {
+            paraInfo.setDevTypeCode(sysParamService.getParaRemark1(paraInfo.getDevType()));
         });
-        BaseInfoContainer.addInterLinkParaMap(devInterParams);
+        //查询有效的接口列表
+        List<Interface> interfaces = interfaceService.list().stream().filter(anInterface -> anInterface.getItfStatus().equals(SysConfigConstant.STATUS_OK)).collect(Collectors.toList());
+        //查询协议列表
+        List<PrtclFormat> prtclList = prtclFormatService.list();
+        //查询告警列表
+        List<AlertInfo> alertInfoList = alertInfoService.list();
+        //初始化基础容器的数据
+        BaseInfoContainer.init(devs,paraInfos,interfaces,prtclList,alertInfoList);
     }
 
 
