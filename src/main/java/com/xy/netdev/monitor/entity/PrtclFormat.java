@@ -78,9 +78,9 @@ public class PrtclFormat extends Model<PrtclFormat> {
     @TableField(value = "FMT_CC_TYPE")
     private String fmtCcType;
 
-    @ApiModelProperty(value = "归属(true：参数；false：接口)")
+    @ApiModelProperty(value = "归属(0：参数；1：接口)")
     @TableField(exist = false)
-    private Boolean isPrtclParam;
+    private Integer isPrtclParam;
 
     @Override
     protected Serializable pkVal() {
