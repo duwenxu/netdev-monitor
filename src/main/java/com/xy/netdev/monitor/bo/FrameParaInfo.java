@@ -62,6 +62,6 @@ public class FrameParaInfo {
     @ApiModelProperty(value = "告警级别")
     private String alertLevel;
 
-    @ApiModelProperty(value = "帧解析协议")
+    @ApiModelProperty(value = "解析协议")
     private PrtclFormat interfacePrtcl;
 }
