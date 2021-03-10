@@ -28,7 +28,7 @@ public class SimpleTcpMessage extends SimpleChannelInboundHandler<ByteBuf> {
         socketEntity.setLocalPort(localAddress.getPort());
         socketEntity.setRemotePort(socketAddress.getPort());
         socketEntity.setRemoteAddress(NetUtil.getIpByHost(socketAddress.getHostName()));
-        socketEntity.setOriginalReceiveBytes(bytes);
+        socketEntity.setBytes(bytes);
         //数据放入队列
         SOCKET_QUEUE.offer(socketEntity, 1, TimeUnit.SECONDS);
 

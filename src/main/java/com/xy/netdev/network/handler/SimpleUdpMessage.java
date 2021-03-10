@@ -42,7 +42,7 @@ public class SimpleUdpMessage extends SimpleChannelInboundHandler<DatagramPacket
         socketEntity.setLocalPort(localAddress.getPort());
         socketEntity.setRemotePort(remotePort);
         socketEntity.setRemoteAddress(remoteAddress);
-        socketEntity.setOriginalReceiveBytes(bytes);
+        socketEntity.setBytes(bytes);
         //数据放入队列
         SOCKET_QUEUE.offer(socketEntity, 1, TimeUnit.SECONDS);
     }

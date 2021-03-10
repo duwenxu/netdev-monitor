@@ -17,6 +17,11 @@ public class TransportEntity {
 
     private BaseInfo devInfo;
 
-
     private List<ParaInfo> dataBodyParas;
+
+    public static<T extends TransportEntity> T setList(List<ParaInfo> dataBodyParas){
+        TransportEntity transportEntity = new TransportEntity();
+        transportEntity.setDataBodyParas(dataBodyParas);
+        return (T)transportEntity;
+    }
 }

@@ -14,12 +14,13 @@ import java.util.stream.Collectors;
 import static com.xy.netdev.common.util.ByteUtils.listToBytes;
 import static com.xy.netdev.common.util.ByteUtils.objectToByte;
 
+@Deprecated
 public final class ProtocolXmlHandler {
 
     public static byte[] pack(List<ProtocolXmlEntity.ParamEntity> paramEntities){
        List<byte[]> list = new ArrayList<>(paramEntities.size());
         paramEntities.forEach(paramEntity -> {
-            list.add(objectToByte(paramEntity.getValue(), paramEntity.getLength(), paramEntity.getOrder()));
+            list.add(objectToByte(paramEntity.getValue(), paramEntity.getLength()));
         });
         return listToBytes(list);
     }

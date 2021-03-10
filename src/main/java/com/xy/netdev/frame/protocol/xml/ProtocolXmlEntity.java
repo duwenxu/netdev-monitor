@@ -13,6 +13,7 @@ import java.util.List;
  */
 @Setter
 @Getter
+@Deprecated
 public class ProtocolXmlEntity {
     @ApiModelProperty("设备标识")
     private String deviceMark;

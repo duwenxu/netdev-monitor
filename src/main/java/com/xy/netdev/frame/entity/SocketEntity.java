@@ -16,12 +16,7 @@ public class SocketEntity {
     @ApiModelProperty("远程地址")
     private String remoteAddress;
 
-    @ApiModelProperty("原始收字节数据")
-    private byte[] originalReceiveBytes;
+    @ApiModelProperty("数据体")
+    private byte[] bytes;
 
-    @ApiModelProperty("参数部分")
-    private byte[] paramsDataBytes;
-
-    @ApiModelProperty("发数据")
-    private byte[] sendBytes;
 }
