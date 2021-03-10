@@ -33,6 +33,18 @@ public class FrameReqData {
     @ApiModelProperty(value = "设备编号")
     private String devNo;
 
+    /**
+     * 参数表中  0025001 参数  0025002 接口
+     */
+    @ApiModelProperty(value = "访问类型")
+    private String accessType;
+
+    /**
+     * 参数表中  0026001 查询  0026003 控制
+     */
+    @ApiModelProperty(value = "操作类型")
+    private String operType;
+
     @ApiModelProperty(value = "帧参数列表")
     private List<FrameParaData> frameParaList;
 }

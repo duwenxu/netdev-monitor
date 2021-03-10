@@ -27,7 +27,7 @@ public class ParaViewInfo {
     private Integer paraId;
 
     @ApiModelProperty(value = "参数编号")
-    private Integer paraNo;
+    private String paraNo;
 
     @ApiModelProperty(value = "参数值")
     private String paraVal;
@@ -40,10 +40,15 @@ public class ParaViewInfo {
 
     @ApiModelProperty(value = "参数单位")
     private String paraUnit;
-
+    /**
+     * 0023001 byte  0023002 int  0023003 unit  0023004 str 0023005 buf  0023006 ipAddress  0023007 ipMask
+     */
     @ApiModelProperty(value = "参数数据类型")
     private String paraDatatype;
 
+    /**
+     * 参数数据类型是 0023004 时,设置时需判断长度
+     */
     @ApiModelProperty(value = "参数长度")
     private String paraStrLen;
 
@@ -53,12 +58,20 @@ public class ParaViewInfo {
     @ApiModelProperty(value = "显示模式")
     private String parahowMode;
 
+    /**
+     * 参数数据类型是 0023001,0023002,0023003 时,并数据合法时,设置时需判断最大值
+     */
     @ApiModelProperty(value = "最大值")
     private String paraValMax;
 
+    /**
+     * 参数数据类型是 0023001,0023002,0023003 时,设置时需判断最小值
+     */
     @ApiModelProperty(value = "最小值")
     private String paraValMin;
-
+    /**
+     * 参数数据类型是 0023001,0023002,0023003 时,并数据合法时,设置时需添加加减按钮步进
+     */
     @ApiModelProperty(value = "步进")
     private String paraValStep;
     /**

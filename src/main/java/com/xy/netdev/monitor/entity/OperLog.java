@@ -44,6 +44,9 @@ public class OperLog extends Model<OperLog> {
     @TableField(value = "LOG_TIME")
     private String logTime;
 
+    /**
+     * 参数表中  0025001 参数  0025002 接口
+     */
     @ApiModelProperty(value = "访问类型")
     @TableField(value = "LOG_ACCESS_TYPE")
     private String logAccessType;
@@ -55,6 +58,14 @@ public class OperLog extends Model<OperLog> {
     @ApiModelProperty(value = "操作对象")
     @TableField(value = "LOG_OPER_OBJ")
     private Integer logOperObj;
+
+    @ApiModelProperty(value = "命令标识符")
+    @TableField(exist = false)
+    private String logCmdMark;
+
+    @ApiModelProperty(value = "操作对象名称")
+    @TableField(exist = false)
+    private String logOperObjName;
 
     @ApiModelProperty(value = "操作内容")
     @TableField(value = "LOG_OPER_CONTENT")

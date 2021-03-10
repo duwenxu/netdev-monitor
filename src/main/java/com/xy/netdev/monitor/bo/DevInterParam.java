@@ -24,7 +24,7 @@ import java.util.List;
 @ApiModel(value = "设备接口参数实体类", description = "设备接口参数实体类")
 public class DevInterParam {
 
-    @ApiModelProperty(value = "id(接口编码+设备类型)")
+    @ApiModelProperty(value = "id(设备类型+命令标识)")
     private String id;
 
     @ApiModelProperty(value = "设备接口")
