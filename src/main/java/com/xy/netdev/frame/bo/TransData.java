@@ -4,7 +4,7 @@ import io.swagger.annotations.ApiModelProperty;
 
 /**
  * <p>
- * 协议解析输入数据
+ * 协议解析传输数据
  * </p>
  *
  * @author tangxl
@@ -20,7 +20,11 @@ public class TransData {
 
     @ApiModelProperty(value = "命令标识符")
     private Integer cmdMark;
-
+    /**
+     * 参数表中 0020
+     */
+    @ApiModelProperty(value = "设备类型")
+    private String devType;
 
     @ApiModelProperty(value = "设备编号")
     private String devNo;
