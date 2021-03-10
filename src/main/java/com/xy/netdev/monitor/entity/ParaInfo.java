@@ -117,24 +117,10 @@ public class ParaInfo extends Model<ParaInfo> {
     @TableField(value = "NDPA_TRANS_RULE")
     private String ndpaTransRule;
 
-    @ApiModelProperty(value = "该字段是否是表明设备是否故障")
+    @ApiModelProperty(value = "字段类型")
     @Param
     @TableField(value = "NDPA_ALERT_PARA")
     private String ndpaAlertPara;
-
-    @ApiModelProperty(value = "参数值")
-    @TableField(exist = false)
-    private String paraVal;
-
-    @ApiModelProperty(value = "参数序号")
-    @TableField(exist = false)
-    private Integer paraSeq;
-    /**
-     * 按照序号 累加 字节长度
-     */
-    @ApiModelProperty(value = "参数下标")
-    @TableField(exist = false)
-    private Integer paraStartPoint;
 
     @ApiModelProperty(value = "设备类型编码")
     @TableField(exist = false)

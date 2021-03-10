@@ -1,6 +1,7 @@
 package com.xy.netdev.frame.bo;
 
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
 
 /**
  * <p>
@@ -10,6 +11,7 @@ import io.swagger.annotations.ApiModelProperty;
  * @author tangxl
  * @since 2021-03-10
  */
+@Data
 public class FrameParaData {
 
     @ApiModelProperty(value = "参数编号")

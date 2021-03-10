@@ -1,12 +1,9 @@
 package com.xy.netdev.frame.service;
 
 
-
-import com.xy.netdev.monitor.entity.BaseInfo;
-import com.xy.netdev.monitor.entity.ParaInfo;
-import com.xy.netdev.monitor.bo.DevInterParam;
-
-import java.util.List;
+import com.xy.netdev.frame.bo.FrameReqData;
+import com.xy.netdev.frame.bo.FrameRespData;
+import com.xy.netdev.frame.entity.TransportEntity;
 
 /**
  * <p>
@@ -20,16 +17,14 @@ public interface IQueryInterPrtclAnalysisService {
 
     /**
      * 查询协议
-     * @param  devInfo    设备信息
-     * @param  interInfo  接口信息
+     * @param  reqInfo    请求参数信息
      */
-    void queryPara(BaseInfo devInfo, DevInterParam interInfo);
+    void queryPara(FrameReqData reqInfo);
     /**
      * 查询响应协议
-     * @param  devInfo   设备信息
-     * @param  interInfo  接口信息
-     * @return  查询到的参数列表
+     * @param  transportEntity   数据传输对象
+     * @return  协议解析响应数据
      */
-    List<ParaInfo> queryParaResponse(BaseInfo devInfo, DevInterParam interInfo,byte[] dataByte);
+    FrameRespData queryParaResponse(TransportEntity transportEntity);
 
 }
