@@ -1,6 +1,5 @@
 package com.xy.netdev.frame.service.impl;
 
-import com.baomidou.mybatisplus.extension.api.R;
 import com.xy.netdev.common.util.BeanFactoryUtil;
 import com.xy.netdev.frame.base.AbsDeviceSocketHandler;
 import com.xy.netdev.frame.entity.SocketEntity;

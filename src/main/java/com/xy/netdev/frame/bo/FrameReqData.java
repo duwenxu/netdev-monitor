@@ -1,6 +1,7 @@
 package com.xy.netdev.frame.bo;
 
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
 
 import java.util.List;
 
@@ -12,10 +13,11 @@ import java.util.List;
  * @author tangxl
  * @since 2021-03-10
  */
+@Data
 public class FrameReqData {
 
     @ApiModelProperty(value = "命令标识符")
-    private Integer cmdMark;
+    private String cmdMark;
     /**
      * 参数表中 0020
      */

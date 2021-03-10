@@ -9,6 +9,7 @@ import java.io.Serializable;
 
 import com.xy.common.annotation.Param;
 import com.xy.netdev.monitor.bo.DevStatusInfo;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -77,6 +78,10 @@ public class BaseInfo extends Model<BaseInfo> {
     @TableField(value = "DEV_INTERVAL_TIME")
     private Integer devIntervalTime;
 
+    @ApiModelProperty(value = "设备网络协议")
+    @TableField(value = "DEV_NET_PTCL")
+    @Param
+    private String devNetPtcl;
 
     @Override
     protected Serializable pkVal() {
