@@ -2,16 +2,18 @@ package com.xy.netdev.monitor.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.xy.common.helper.ControllerHelper;
+import com.xy.common.helper.ControllerResultWrapper;
 import com.xy.common.model.Result;
-import com.xy.netdev.common.util.JwtUtil;
+import com.xy.common.helper.ControllerHelper;
 import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.service.IInterfaceService;
+import com.xy.netdev.common.util.JwtUtil;
+import com.xy.netdev.monitor.bo.TransUiData;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
@@ -94,6 +96,18 @@ public class InterfaceController {
     @DeleteMapping("/{id}")
     public Result<Interface> delete(@PathVariable String id) {
         return ControllerHelper.delete(id,targetService);
+    }
+
+    @ApiOperation(value = "组件右框已连接事件", notes = "组件右框已连接事件")
+    @RequestMapping(value = "/linked/{id}", method = RequestMethod.GET)
+    public Result<List<TransUiData>> getMdlLinkedEvents(@PathVariable String id)  {
+        return ControllerResultWrapper.genListResult(targetService.getlLinkedParams(id));
+    }
+
+    @ApiOperation(value = "组件左框未连接事件", notes = "组件左框未连接事件")
+    @RequestMapping(value = "/unlinked/{id}", method = RequestMethod.GET)
+    public Result<List<TransUiData>> getMdlUnlinkedEvents(@PathVariable String id)  {
+        return ControllerResultWrapper.genListResult(targetService.getUnlinkedParams(id));
     }
 
 }

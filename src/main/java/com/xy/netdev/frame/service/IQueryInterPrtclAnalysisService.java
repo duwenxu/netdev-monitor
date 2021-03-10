@@ -1,9 +1,10 @@
 package com.xy.netdev.frame.service;
 
 
+
 import com.xy.netdev.monitor.entity.BaseInfo;
-import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.entity.ParaInfo;
+import com.xy.netdev.monitor.bo.DevInterParam;
 
 import java.util.List;
 
@@ -22,13 +23,13 @@ public interface IQueryInterPrtclAnalysisService {
      * @param  devInfo    设备信息
      * @param  interInfo  接口信息
      */
-    void queryPara(BaseInfo devInfo, Interface interInfo);
+    void queryPara(BaseInfo devInfo, DevInterParam interInfo);
     /**
      * 查询响应协议
      * @param  devInfo   设备信息
-     * @param  paraList  参数解析列表
+     * @param  interInfo  接口信息
      * @return  查询到的参数列表
      */
-    List<ParaInfo> queryParaResponse(BaseInfo devInfo,List<ParaInfo> paraList);
+    List<ParaInfo> queryParaResponse(BaseInfo devInfo, DevInterParam interInfo);
 
 }

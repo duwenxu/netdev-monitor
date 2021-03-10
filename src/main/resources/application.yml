@@ -9,6 +9,8 @@ spring:
     password: 123456
     url: jdbc:mysql://172.23.0.60:3306/netdevice-dev?useUnicode=true&characterEncoding=utf8&useSSL=false
     username: root
+  websocket:
+    port: 9000
 
 mybatis-plus:
   mapper-locations: classpath*:com/xy/netdev/**/xml/*Mapper.xml

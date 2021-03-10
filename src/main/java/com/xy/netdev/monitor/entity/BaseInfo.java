@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import java.io.Serializable;
 
 import com.xy.common.annotation.Param;
+import com.xy.netdev.monitor.bo.DevStatusInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -75,6 +76,10 @@ public class BaseInfo extends Model<BaseInfo> {
     @ApiModelProperty(value = "设备访间隔时间(毫秒)")
     @TableField(value = "DEV_INTERVAL_TIME")
     private Integer devIntervalTime;
+
+    @ApiModelProperty(value = "设备状态信息")
+    @TableField(exist = false)
+    private DevStatusInfo devStatusInfo;
 
 
     @Override

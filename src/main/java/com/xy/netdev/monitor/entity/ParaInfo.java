@@ -1,17 +1,21 @@
 package com.xy.netdev.monitor.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableField;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.xy.common.annotation.Param;
+import com.xy.netdev.monitor.bo.ParaSpinnerInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-
-import java.io.Serializable;
 
 /**
  * 设备参数
@@ -49,10 +53,12 @@ public class ParaInfo extends Model<ParaInfo> {
     private String ndpaName;
 
     @ApiModelProperty(value = "设备类型")
+    @Param
     @TableField(value = "DEV_TYPE")
     private String devType;
 
     @ApiModelProperty(value = "访问权限")
+    @Param
     @TableField(value = "NDPA_ACCESS_RIGHT")
     private String ndpaAccessRight;
 
@@ -61,6 +67,7 @@ public class ParaInfo extends Model<ParaInfo> {
     private String ndpaUnit;
 
     @ApiModelProperty(value = "参数数据类型")
+    @Param
     @TableField(value = "NDPA_DATATYPE")
     private String ndpaDatatype;
 
@@ -97,10 +104,12 @@ public class ParaInfo extends Model<ParaInfo> {
     private String ndpaCmdMark;
 
     @ApiModelProperty(value = "参数状态")
+    @Param
     @TableField(value = "NDPA_STATUS")
     private String ndpaStatus;
 
     @ApiModelProperty(value = "是否该字段提供给54所访问")
+    @Param
     @TableField(value = "NDPA_OUTTER_STATUS")
     private String ndpaOutterStatus;
 
@@ -109,12 +118,9 @@ public class ParaInfo extends Model<ParaInfo> {
     private String ndpaTransRule;
 
     @ApiModelProperty(value = "该字段是否是表明设备是否故障")
+    @Param
     @TableField(value = "NDPA_ALERT_PARA")
     private String ndpaAlertPara;
-
-    @ApiModelProperty(value = "参数值")
-    @TableField(exist = false)
-    private String paraVal;
 
     @ApiModelProperty(value = "参数序号")
     @TableField(exist = false)
@@ -125,20 +131,6 @@ public class ParaInfo extends Model<ParaInfo> {
     @ApiModelProperty(value = "参数下标")
     @TableField(exist = false)
     private Integer paraStartPoint;
-    /**
-     * 参数表中 0020
-     */
-    @ApiModelProperty(value = "设备类型编码")
-    @TableField(exist = false)
-    private String devTypeCode;
-
-    @ApiModelProperty(value = "设备编号")
-    @TableField(exist = false)
-    private String devNo;
-
-    @ApiModelProperty(value = "告警级别")
-    @TableField(exist = false)
-    private String alertLevel;
 
 
     @Override

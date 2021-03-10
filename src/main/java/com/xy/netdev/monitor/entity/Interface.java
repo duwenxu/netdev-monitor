@@ -1,17 +1,17 @@
 package com.xy.netdev.monitor.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableField;
+import java.io.Serializable;
+import com.xy.common.annotation.Param;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-
-import java.io.Serializable;
 
 /**
  * 设备接口
@@ -32,6 +32,7 @@ public class Interface extends Model<Interface> {
     @TableId(value = "ITF_ID", type = IdType.AUTO)
     private Integer itfId;
 
+    @Param
     @ApiModelProperty(value = "设备类型")
     @TableField(value = "DEV_TYPE")
     private String devType;
@@ -48,10 +49,17 @@ public class Interface extends Model<Interface> {
     @TableField(value = "ITF_NAME")
     private String itfName;
 
+    @Param
     @ApiModelProperty(value = "接口类型")
     @TableField(value = "ITF_TYPE")
     private String itfType;
 
+
+    @ApiModelProperty(value = "接口命令标识")
+    @TableField(value = "ITF_CMD_MARK")
+    private String itfCmdMark;
+
+    @Param
     @ApiModelProperty(value = "接口状态")
     @TableField(value = "ITF_STATUS")
     private String itfStatus;
@@ -59,11 +67,6 @@ public class Interface extends Model<Interface> {
     @ApiModelProperty(value = "此处用逗号分隔,填写参数ID,如果是查询表明 响应的字段,如果是控制 表明 控制的字段必须按照顺序填写")
     @TableField(value = "ITF_DATA_FORMAT")
     private String itfDataFormat;
-
-
-    @ApiModelProperty(value = "字段类型")
-    @TableField(value = "ALERT_PARA")
-    private String alertPara;
 
     @Override
     protected Serializable pkVal() {
