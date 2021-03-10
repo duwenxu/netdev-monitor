@@ -2,21 +2,17 @@ package com.xy.netdev.frame.bo;
 
 import io.swagger.annotations.ApiModelProperty;
 
+import java.util.List;
+
 /**
  * <p>
- * 协议解析传输数据
+ * 协议解析请求数据
  * </p>
  *
  * @author tangxl
  * @since 2021-03-10
  */
-public class TransData {
-
-    @ApiModelProperty(value = "参数编号")
-    private String paraNo;
-
-    @ApiModelProperty(value = "参数值")
-    private String paraVal;
+public class FrameReqData {
 
     @ApiModelProperty(value = "命令标识符")
     private Integer cmdMark;
@@ -28,4 +24,7 @@ public class TransData {
 
     @ApiModelProperty(value = "设备编号")
     private String devNo;
+
+    @ApiModelProperty(value = "帧参数列表")
+    private List<FrameParaData> frameParaList;
 }
