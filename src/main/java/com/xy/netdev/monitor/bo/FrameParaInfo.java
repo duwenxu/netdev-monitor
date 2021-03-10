@@ -36,7 +36,7 @@ public class FrameParaInfo {
     private Integer paraSeq;
 
     @ApiModelProperty(value = "命令标识符")
-    private Integer cmdMark;
+    private String cmdMark;
 
     @ApiModelProperty(value = "字节长度")
     private String paraByteLen;
