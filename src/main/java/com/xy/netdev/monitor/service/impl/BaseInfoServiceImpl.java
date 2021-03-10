@@ -3,6 +3,7 @@ package com.xy.netdev.monitor.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.mapper.BaseInfoMapper;
 import com.xy.netdev.monitor.service.IBaseInfoService;
@@ -15,8 +16,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import static com.xy.netdev.monitor.MonitorConstants.BASE_INFO_AVAILABLE;
 
 /**
  * 设备信息 服务实现类
@@ -33,7 +32,7 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
     public Map<String, Object> baseInfoMenuMap() {
         QueryWrapper<BaseInfo> wrapper = new QueryWrapper<>();
         //所有可用的设备
-        wrapper.eq("DEV_STATUS",BASE_INFO_AVAILABLE);
+        wrapper.eq("DEV_STATUS", SysConfigConstant.DEV_STATUS_NEW);
         List<BaseInfo> baseInfos = this.baseMapper.selectList(wrapper);
         //顶级菜单设备信息
         List<BaseInfo> topMenu = baseInfos.stream().filter(base -> StringUtils.isEmpty(base.getDevParentNo())).collect(Collectors.toList());

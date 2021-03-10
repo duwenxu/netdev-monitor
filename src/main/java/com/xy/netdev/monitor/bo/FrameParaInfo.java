@@ -1,6 +1,8 @@
 package com.xy.netdev.monitor.bo;
 
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.xy.common.annotation.Param;
 import com.xy.netdev.monitor.entity.PrtclFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -50,6 +52,10 @@ public class FrameParaInfo {
      */
     @ApiModelProperty(value = "设备类型")
     private String devType;
+
+    @ApiModelProperty(value = "访问权限")
+    private String ndpaAccessRight;
+
     /**
      * 参数表中 0020 中编码
      */
