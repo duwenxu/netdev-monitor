@@ -5,7 +5,6 @@ import com.xy.netdev.frame.entity.TransportEntity;
 import java.util.Set;
 
 /**
- * 设备通讯类
  * @author cc
  */
 public interface DeviceSocketService<T extends TransportEntity> extends ProtocolRequestService<T>, ProtocolResponseService<T>{

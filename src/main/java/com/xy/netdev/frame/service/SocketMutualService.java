@@ -1,5 +1,6 @@
 package com.xy.netdev.frame.service;
 
+import com.xy.netdev.frame.base.AbsDeviceSocketHandler;
 import com.xy.netdev.frame.entity.TransportEntity;
 import com.xy.netdev.frame.enums.ProtocolRequestEnum;
 
@@ -19,10 +20,4 @@ public interface SocketMutualService {
     */
    <T extends TransportEntity> void request(T t, ProtocolRequestEnum requestEnum);
 
-   /**
-    * 回调
-    * @param list
-    * @param <T>
-    */
-   <T extends TransportEntity> void callback(T t);
 }

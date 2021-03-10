@@ -7,8 +7,6 @@ import com.xy.netdev.frame.enums.ProtocolRequestEnum;
 import com.xy.netdev.frame.service.SocketMutualService;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 /**
  * 数据交互实现类
  * @author cc
@@ -20,12 +18,7 @@ public class SocketMutualServiceImpl implements SocketMutualService {
     @Override
     public <T extends TransportEntity> void request(T t, ProtocolRequestEnum requestEnum) {
         AbsDeviceSocketHandler<T> socketHandler = BeanFactoryUtil.getBean("");
-        socketHandler.request(t, requestEnum);
-    }
-
-    @Override
-    public <T extends TransportEntity> void callback(T t) {
-        return;
+        socketHandler.socketRequest(t, requestEnum);
     }
 
 

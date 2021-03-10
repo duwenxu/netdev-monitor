@@ -4,9 +4,12 @@ import com.baomidou.mybatisplus.extension.api.R;
 import com.xy.netdev.frame.entity.SocketEntity;
 import com.xy.netdev.frame.entity.TransportEntity;
 
-public interface ProtocolPackService {
+public interface ProtocolPackService <T extends SocketEntity, R extends TransportEntity>{
 
-    <T extends SocketEntity, R extends TransportEntity> R unpack(T t);
+     R unpack(T t);
 
-    <T extends TransportEntity> T pack(T t);
+    T pack(T t);
+
+
+
 }

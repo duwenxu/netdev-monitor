@@ -9,5 +9,5 @@ import com.xy.netdev.frame.enums.ProtocolRequestEnum;
  */
 public interface ProtocolRequestService<T extends TransportEntity> {
 
-    void request(T t,  ProtocolRequestEnum requestEnum);
+    void socketRequest(T t, ProtocolRequestEnum requestEnum);
 }

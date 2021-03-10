@@ -26,12 +26,12 @@ import static com.xy.netdev.network.NettyHandler.SOCKET_QUEUE;
 public class DeviceSocketSubscribe {
 
     @Autowired
-    private List<AbsDeviceSocketHandler<TransportEntity>> absSocketHandlerList;
+    private List<AbsDeviceSocketHandler<SocketEntity,TransportEntity>> absSocketHandlerList;
 
     /**
      * 带时效的先进先出队列
      */
-    private FIFOCache<String, AbsDeviceSocketHandler<TransportEntity>> cache;
+    private FIFOCache<String, AbsDeviceSocketHandler<SocketEntity,TransportEntity>> cache;
 
     @PostConstruct
     public void init(){
@@ -40,9 +40,9 @@ public class DeviceSocketSubscribe {
             try {
                 while (true){
                     SocketEntity socketEntity = SOCKET_QUEUE.take();
-                    AbsDeviceSocketHandler<TransportEntity> deviceSocketHandler
+                    AbsDeviceSocketHandler<SocketEntity,TransportEntity> deviceSocketHandler
                             = getHandler(socketEntity.getRemoteAddress());
-                    deviceSocketHandler.response(socketEntity);
+                    deviceSocketHandler.socketResponse(socketEntity);
                 }
             } catch (InterruptedException e) {
                 log.error("数据存储队列异常:", e);
@@ -55,12 +55,12 @@ public class DeviceSocketSubscribe {
      * @param key key
      * @return 目标实体
      */
-    private AbsDeviceSocketHandler<TransportEntity> getHandler(String key){
-        AbsDeviceSocketHandler<TransportEntity> socketHandler = cache.get(key);
+    private AbsDeviceSocketHandler<SocketEntity,TransportEntity> getHandler(String key){
+        AbsDeviceSocketHandler<SocketEntity,TransportEntity> socketHandler = cache.get(key);
         if (socketHandler != null){
             return socketHandler;
         }
-        AbsDeviceSocketHandler<TransportEntity> handler = absSocketHandlerList.stream()
+        AbsDeviceSocketHandler<SocketEntity,TransportEntity> handler = absSocketHandlerList.stream()
                 .filter(Objects::nonNull)
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("未找到指定设备处理流程"));

@@ -9,5 +9,5 @@ import com.xy.netdev.frame.entity.TransportEntity;
  */
 public interface ProtocolResponseService<T extends TransportEntity> {
 
-    void response(SocketEntity socketEntity);
+    void socketResponse(SocketEntity socketEntity);
 }

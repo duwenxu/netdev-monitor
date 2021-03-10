@@ -25,14 +25,10 @@ import static com.xy.netdev.container.BaseInfoContainer.getInterLinkParaList;
  */
 @Component
 @Slf4j
-public abstract class AbsDeviceSocketHandler<T extends TransportEntity> extends DeviceSocketBaseHandler<T> implements ProtocolPackService {
-
-    @Autowired
-    private SocketMutualService socketMutualService;
-
+public abstract class AbsDeviceSocketHandler<R extends SocketEntity, T extends TransportEntity> extends DeviceSocketBaseHandler<T> implements ProtocolPackService<R, T> {
 
     @Override
-    public void request(T t,  ProtocolRequestEnum requestEnum) {
+    public void socketRequest(T t, ProtocolRequestEnum requestEnum) {
         switch (requestEnum){
             case QUERY:
                 doQuery(t);
@@ -52,11 +48,17 @@ public abstract class AbsDeviceSocketHandler<T extends TransportEntity> extends 
         }
     }
 
+    /**
+     * 回调
+     * @param t
+     */
+    public abstract void callback(T t);
+
     @Override
-    public void response(SocketEntity socketEntity) {
+    public void socketResponse(SocketEntity socketEntity) {
         String remoteAddress = socketEntity.getRemoteAddress();
-        TransportEntity transportEntity = unpack(t);
-        socketMutualService.callback(transportEntity);
+        T t = unpack(t);
+        this.callback(t);
     }
 
 
@@ -68,7 +70,7 @@ public abstract class AbsDeviceSocketHandler<T extends TransportEntity> extends 
     protected List<FrameParaInfo> byteParamToFrameParaInfo(List<FrameParaInfo> list, byte[] bytes){
         list.forEach(paraInfo -> {
             int offset = paraInfo.getParaStartPoint();
-            int byteLen = Integer.parseInt(paraInfo.getNdpaByteLen());
+            int byteLen = Integer.parseInt(paraInfo.getParaByteLen());
             String value = byteToNumber(bytes, offset, byteLen).toString();
             paraInfo.setParaVal(value);
         });
