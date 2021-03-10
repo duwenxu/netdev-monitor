@@ -3,15 +3,14 @@ package com.xy.netdev.admin.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.xy.common.constant.CommonConstant;
 import com.xy.common.model.Result;
-import com.xy.common.model.ResultBody;
 import com.xy.common.util.ConvertUtils;
 import com.xy.netdev.admin.api.ISysBaseAPI;
 import com.xy.netdev.admin.entity.SysDepart;
 import com.xy.netdev.admin.entity.SysUser;
-import com.xy.netdev.admin.vo.SysLoginModel;
 import com.xy.netdev.admin.service.ISysDepartService;
 import com.xy.netdev.admin.service.ISysLogService;
 import com.xy.netdev.admin.service.ISysUserService;
+import com.xy.netdev.admin.vo.SysLoginModel;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.JwtUtil;
 import io.swagger.annotations.Api;
@@ -19,6 +18,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.*;
 
 /**

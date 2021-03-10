@@ -1,7 +1,7 @@
 package com.xy.netdev.admin.mapper;
 
-import com.xy.netdev.admin.entity.SysLog;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.xy.netdev.admin.entity.SysLog;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.Date;

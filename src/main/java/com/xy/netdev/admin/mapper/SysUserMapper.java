@@ -1,10 +1,8 @@
 package com.xy.netdev.admin.mapper;
 
-import com.xy.netdev.admin.entity.SysUser;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.xy.netdev.admin.entity.SysUser;
 import org.apache.ibatis.annotations.Param;
-
-import javax.annotation.Resource;
 
 /**
  * <p>
