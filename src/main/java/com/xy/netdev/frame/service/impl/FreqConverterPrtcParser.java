@@ -2,7 +2,6 @@ package com.xy.netdev.frame.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.xy.netdev.container.BaseInfoContainer;
-import com.xy.netdev.container.DevParaInfoContainer;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.ParaInfo;
@@ -24,10 +23,7 @@ public class FreqConverterPrtcParser implements IParaPrtclAnalysisService {
     public final static String SEND_START_MARK = "<";
     /**设备响应开始标记*/
     public final static String RESP_START_MARK = ">";
-    /**用户命令结尾标记*/
-    public final static String SEND_END_MARK = "'cr'";
-    /**设备响应结尾标记*/
-    public final static String RESP_END_MARK = "'cr''lf']";
+
 
     @Autowired
     IParaInfoService paraInfoService;
@@ -37,11 +33,11 @@ public class FreqConverterPrtcParser implements IParaPrtclAnalysisService {
 
     @Override
     public void queryPara(BaseInfo devInfo, ParaInfo paraInfo) {
-        devInfo = BaseInfoContainer.getDevInfo(devInfo.getDevIpAddr());
+        devInfo = BaseInfoContainer.getDevInfo(devInfo.getDevLocalAddr());
         paraInfo = getParaInfoDetail(devInfo,paraInfo);
         StringBuilder sb = new StringBuilder();
         sb.append(SEND_START_MARK).append(devInfo.getDevIpAddr()).append("/")
-                .append(paraInfo.getNdpaCmdMark()).append("_").append(SEND_END_MARK);
+                .append(paraInfo.getNdpaCmdMark()).append("_");
         String command = sb.toString();
     }
 
@@ -56,8 +52,8 @@ public class FreqConverterPrtcParser implements IParaPrtclAnalysisService {
         devInfo = getDevInfoDetail(devInfo);
         paraInfo = getParaInfoDetail(devInfo,paraInfo);
         StringBuilder sb = new StringBuilder();
-        sb.append(SEND_START_MARK).append(devInfo.getDevIpAddr()).append("/").append(paraInfo.getNdpaCode())
-                .append("_").append(paraInfo.getParaVal()).append(SEND_END_MARK);
+        sb.append(SEND_START_MARK).append(devInfo.getDevLocalAddr()).append("/").append(paraInfo.getNdpaCode())
+                .append("_").append(paraInfo.getParaVal());
         String command = sb.toString();
     }
 
@@ -67,7 +63,7 @@ public class FreqConverterPrtcParser implements IParaPrtclAnalysisService {
         paraInfo = getParaInfoDetail(devInfo,paraInfo);
         StringBuilder sb = new StringBuilder();
         sb.append(RESP_START_MARK).append(devInfo.getDevIpAddr()).append("/").append(paraInfo.getNdpaCode())
-                .append("_").append(paraInfo.getParaVal()).append(RESP_END_MARK);
+                .append("_").append(paraInfo.getParaVal());
         String command = sb.toString();
         return null;
     }

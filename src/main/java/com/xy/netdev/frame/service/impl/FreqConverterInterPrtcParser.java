@@ -4,14 +4,12 @@ package com.xy.netdev.frame.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
-import com.xy.netdev.monitor.entity.BaseInfo;
-import com.xy.netdev.monitor.entity.ParaInfo;
-<<<<<<< HEAD
-import com.xy.netdev.monitor.service.IBaseInfoService;
-import com.xy.netdev.monitor.service.IInterfaceService;
-import com.xy.netdev.monitor.service.IParaInfoService;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.xy.netdev.monitor.bo.DevInterParam;
+import com.xy.netdev.monitor.entity.BaseInfo;
+import com.xy.netdev.monitor.entity.Interface;
+import com.xy.netdev.monitor.entity.ParaInfo;
+import com.xy.netdev.monitor.service.IInterfaceService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 
 import java.util.List;
@@ -28,18 +26,19 @@ public class FreqConverterInterPrtcParser implements IQueryInterPrtclAnalysisSer
     @Autowired
     IInterfaceService interfaceService;
 
+
     @Override
-    public void queryPara(BaseInfo devInfo, Interface interInfo) {
+    public void queryPara(BaseInfo devInfo, DevInterParam interParam) {
         devInfo = BaseInfoContainer.getDevInfo(devInfo.getDevIpAddr());
-        interInfo = getInterfaceDetail(devInfo,interInfo);
+        Interface interInfo = getInterfaceDetail(devInfo,interParam.getDevInterface());
         StringBuilder sb = new StringBuilder();
         sb.append(FreqConverterPrtcParser.SEND_START_MARK).append(devInfo.getDevIpAddr()).append("/")
-                .append(interInfo.getItfCode()).append("_").append(FreqConverterPrtcParser.SEND_END_MARK);
+                .append(interInfo.getItfCode());
         String command = sb.toString();
     }
 
     @Override
-    public List<ParaInfo> queryParaResponse(BaseInfo devInfo, List<ParaInfo> paraList) {
+    public List<ParaInfo> queryParaResponse(BaseInfo devInfo, DevInterParam interInfo) {
         /*devInfo = BaseInfoContainer.getDevInfo(devInfo.getDevIpAddr());
 
         interInfo = getInterfaceDetail(devInfo,interInfo);
@@ -49,7 +48,6 @@ public class FreqConverterInterPrtcParser implements IQueryInterPrtclAnalysisSer
         String command = sb.toString();*/
         return null;
     }
-
 
     /**
      * 获取接口详细信息
