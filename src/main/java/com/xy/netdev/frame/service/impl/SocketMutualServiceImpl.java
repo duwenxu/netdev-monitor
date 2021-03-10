@@ -16,10 +16,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class SocketMutualServiceImpl implements SocketMutualService {
 
-
     @Override
     public void request(TransportEntity transportEntity, ProtocolRequestEnum requestEnum) {
-        AbsDeviceSocketHandler<SocketEntity, TransportEntity> socketHandler = BeanFactoryUtil.getBean("");
+        String beanName = transportEntity.getDevInfo().getDevStatus();
+        AbsDeviceSocketHandler<SocketEntity, TransportEntity> socketHandler = BeanFactoryUtil.getBean(beanName);
         socketHandler.socketRequest(transportEntity, requestEnum);
     }
 }

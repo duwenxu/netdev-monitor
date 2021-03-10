@@ -84,5 +84,4 @@ public abstract class AbsDeviceSocketHandler<R extends SocketEntity, T extends T
         return null;
     }
 
-    }
 }

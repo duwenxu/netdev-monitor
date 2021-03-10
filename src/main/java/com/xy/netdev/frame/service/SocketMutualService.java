@@ -12,6 +12,11 @@ import java.util.List;
  */
 public interface SocketMutualService {
 
+    /**
+     * 外发数据请求接口
+     * @param transportEntity
+     * @param requestEnum
+     */
     void request(TransportEntity transportEntity, ProtocolRequestEnum requestEnum);
 
 }
