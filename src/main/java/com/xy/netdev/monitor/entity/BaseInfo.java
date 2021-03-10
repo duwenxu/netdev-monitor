@@ -77,10 +77,6 @@ public class BaseInfo extends Model<BaseInfo> {
     @TableField(value = "DEV_INTERVAL_TIME")
     private Integer devIntervalTime;
 
-    @ApiModelProperty(value = "设备状态信息")
-    @TableField(exist = false)
-    private DevStatusInfo devStatusInfo;
-
 
     @Override
     protected Serializable pkVal() {

@@ -1,6 +1,7 @@
 package com.xy.netdev.monitor.bo;
 
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.xy.netdev.monitor.entity.PrtclFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -36,6 +37,9 @@ public class FrameParaInfo {
 
     @ApiModelProperty(value = "命令标识符")
     private Integer cmdMark;
+
+    @ApiModelProperty(value = "字节长度")
+    private String paraByteLen;
     /**
      * 按照序号 累加 字节长度
      */
