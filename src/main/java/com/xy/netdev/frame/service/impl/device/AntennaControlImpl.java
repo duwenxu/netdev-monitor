@@ -1,25 +1,19 @@
 package com.xy.netdev.frame.service.impl.device;
 
 import cn.hutool.core.util.ArrayUtil;
-import com.baomidou.mybatisplus.extension.api.R;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.frame.base.AbsDeviceSocketHandler;
 import com.xy.netdev.frame.entity.SocketEntity;
 import com.xy.netdev.frame.entity.TransportEntity;
 import com.xy.netdev.frame.entity.device.AntennaControlEntity;
-import com.xy.netdev.frame.enums.ProtocolRequestEnum;
-import com.xy.netdev.monitor.bo.FrameParaInfo;
-import com.xy.netdev.monitor.entity.BaseInfo;
 import io.netty.buffer.ByteBuf;
-import org.assertj.core.internal.Bytes;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static com.xy.netdev.common.util.ByteUtils.*;
+import static com.xy.netdev.common.util.ByteUtils.bytesToNum;
+import static com.xy.netdev.common.util.ByteUtils.listToBytes;
 import static com.xy.netdev.container.BaseInfoContainer.getDevInfo;
 
 /**
@@ -71,7 +65,7 @@ public class AntennaControlImpl extends AbsDeviceSocketHandler<SocketEntity, Tra
 
     @Override
     public void callback(TransportEntity transportEntity) {
-
+        iParaPrtclAnalysisService.ctrlParaResponse(transportEntity);
     }
 
     private byte xor( AntennaControlEntity entity){

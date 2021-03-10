@@ -4,6 +4,7 @@ import cn.hutool.cache.CacheUtil;
 import cn.hutool.cache.impl.FIFOCache;
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.thread.ThreadUtil;
+import com.xy.netdev.common.util.BeanFactoryUtil;
 import com.xy.netdev.frame.base.AbsDeviceSocketHandler;
 import com.xy.netdev.frame.entity.SocketEntity;
 import com.xy.netdev.frame.entity.TransportEntity;
@@ -14,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 
 import static com.xy.netdev.container.BaseInfoContainer.getDevInfo;
 import static com.xy.netdev.network.NettyUtil.SOCKET_QUEUE;
@@ -42,10 +43,9 @@ public class DeviceSocketSubscribe {
             try {
                 while (true){
                     SocketEntity socketEntity = SOCKET_QUEUE.take();
-                    AbsDeviceSocketHandler<SocketEntity,TransportEntity> deviceSocketHandler
-                            = getHandler(socketEntity.getRemoteAddress());
                     //执行数据响应
-                    deviceSocketHandler.socketResponse(socketEntity);
+                    getHandler(socketEntity.getRemoteAddress())
+                            .ifPresent(handler -> handler.socketResponse(socketEntity));
                 }
             } catch (InterruptedException e) {
                 log.error("数据存储队列异常:", e);
@@ -58,19 +58,22 @@ public class DeviceSocketSubscribe {
      * @param ip ip
      * @return 目标实体
      */
-    private AbsDeviceSocketHandler<SocketEntity,TransportEntity> getHandler(String ip){
+    private Optional<AbsDeviceSocketHandler<SocketEntity,TransportEntity>> getHandler(String ip){
         AbsDeviceSocketHandler<SocketEntity,TransportEntity> socketHandler = cache.get(ip);
         if (socketHandler != null){
-            return socketHandler;
+            return Optional.of(socketHandler);
         }
         //设备信息
         BaseInfo devInfo = getDevInfo(ip);
-
-        AbsDeviceSocketHandler<SocketEntity,TransportEntity> handler = absSocketHandlerList.stream()
-                .filter(Objects::nonNull)
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("未找到指定设备处理流程"));
+        if (devInfo == null){
+            log.error("位置设备数据, 设备ip:{}", ip);
+            return Optional.empty();
+        }
+        //TODO 设备回调方法
+        //设备网络协议
+        String devNetPtcl = devInfo.getDevNetPtcl();
+        AbsDeviceSocketHandler<SocketEntity,TransportEntity> handler = BeanFactoryUtil.getBean(devNetPtcl);
         cache.put(ip, handler, DateUnit.MINUTE.getMillis());
-        return handler;
+        return Optional.of(handler);
     }
 }

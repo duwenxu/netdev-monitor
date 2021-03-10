@@ -17,7 +17,7 @@ public class SocketMutualServiceImpl implements SocketMutualService {
 
     @Override
     public void request(TransportEntity transportEntity, ProtocolRequestEnum requestEnum) {
-        String beanName = transportEntity.getDevInfo().getDevStatus();
+        String beanName = transportEntity.getDevInfo().getDevNetPtcl();
         AbsDeviceSocketHandler<SocketEntity, TransportEntity> socketHandler = BeanFactoryUtil.getBean(beanName);
         socketHandler.socketRequest(transportEntity, requestEnum);
     }

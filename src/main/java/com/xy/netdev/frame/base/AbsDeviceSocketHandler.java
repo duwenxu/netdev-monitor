@@ -4,16 +4,14 @@ import com.xy.netdev.frame.base.service.ProtocolPackService;
 import com.xy.netdev.frame.entity.SocketEntity;
 import com.xy.netdev.frame.entity.TransportEntity;
 import com.xy.netdev.frame.enums.ProtocolRequestEnum;
-import com.xy.netdev.monitor.bo.FrameParaInfo;
+import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.network.NettyUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
-import static com.xy.netdev.container.BaseInfoContainer.getDevInfo;
-import static com.xy.netdev.container.BaseInfoContainer.getInterLinkParaList;
+import javax.annotation.Resource;
 
 /**
  * 设备数据流程处理基类
@@ -23,12 +21,12 @@ import static com.xy.netdev.container.BaseInfoContainer.getInterLinkParaList;
 @Slf4j
 public abstract class AbsDeviceSocketHandler<R extends SocketEntity, T extends TransportEntity> extends DeviceSocketBaseHandler<T> implements ProtocolPackService<R, T> {
 
+    @Resource
+    protected IParaPrtclAnalysisService iParaPrtclAnalysisService;
+
     @Override
     public void socketRequest(T t, ProtocolRequestEnum requestEnum) {
         switch (requestEnum){
-            case QUERY:
-                doQuery(t);
-                break;
             case CONTROL:
                 doControl(t);
                 break;
@@ -39,7 +37,7 @@ public abstract class AbsDeviceSocketHandler<R extends SocketEntity, T extends T
                 doControlResult(t);
                 break;
             default:
-                log.warn("未知请求类型");
+                doQuery(t);
                 break;
         }
     }
@@ -49,7 +47,7 @@ public abstract class AbsDeviceSocketHandler<R extends SocketEntity, T extends T
         byte[] bytes = pack(t);
         BaseInfo devInfo = t.getDevInfo();
         int port = Integer.parseInt(devInfo.getDevPort());
-        NettyUtil.sendMsg(bytes, port, devInfo.getDevIpAddr(), port, 0);
+        NettyUtil.sendMsg(bytes, port, devInfo.getDevIpAddr(), port, Integer.parseInt(devInfo.getDevNetPtcl()));
     }
 
     @Override
@@ -78,10 +76,6 @@ public abstract class AbsDeviceSocketHandler<R extends SocketEntity, T extends T
      */
     public abstract void callback(T t);
 
-    public static List<FrameParaInfo> getParamByIp(String ip, String itfCode){
-        BaseInfo devInfo = getDevInfo(ip);
-        List<FrameParaInfo> interLinkParaList = getInterLinkParaList(devInfo.getDevType(), itfCode);
-        return null;
-    }
+
 
 }
