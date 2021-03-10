@@ -20,32 +20,12 @@ public abstract class DeviceSocketBaseHandler<R extends TransportEntity> impleme
     public <T extends TransportEntity> void doControl(T t) { }
 
     @Override
-    public Set<String> queryMark() {
-        return null;
-    }
-
-    @Override
-    public Set<String> controlMark() {
-        return null;
-    }
-
-    @Override
-    public Set<String> queryResultMark() {
-        return null;
-    }
-
-    @Override
-    public Set<String> controlResultMark() {
-        return null;
-    }
-
-    @Override
-    public <T extends TransportEntity> List<T> doQueryResult() {
+    public <T extends TransportEntity> List<T> doQueryResult(T t) {
         return Collections.emptyList();
     }
 
     @Override
-    public <T extends TransportEntity> List<T> doControlResult() {
+    public <T extends TransportEntity> List<T> doControlResult(T t) {
         return Collections.emptyList();
     }
 }

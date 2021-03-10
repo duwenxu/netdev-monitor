@@ -41,7 +41,7 @@ public class DeviceSocketSubscribe {
                 while (true){
                     SocketEntity socketEntity = SOCKET_QUEUE.take();
                     AbsDeviceSocketHandler<TransportEntity> deviceSocketHandler
-                            = getHandler(socketEntity.getRemoteAddress(), absSocketHandlerList);
+                            = getHandler(socketEntity.getRemoteAddress());
                     deviceSocketHandler.response(socketEntity);
                 }
             } catch (InterruptedException e) {
@@ -53,10 +53,9 @@ public class DeviceSocketSubscribe {
     /**
      * 根据key获取对应实体
      * @param key key
-     * @param list 目标list
      * @return 目标实体
      */
-    private AbsDeviceSocketHandler<TransportEntity> getHandler(String key, List<AbsDeviceSocketHandler<TransportEntity>> list){
+    private AbsDeviceSocketHandler<TransportEntity> getHandler(String key){
         AbsDeviceSocketHandler<TransportEntity> socketHandler = cache.get(key);
         if (socketHandler != null){
             return socketHandler;

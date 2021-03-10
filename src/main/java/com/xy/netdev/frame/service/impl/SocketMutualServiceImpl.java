@@ -3,6 +3,7 @@ package com.xy.netdev.frame.service.impl;
 import com.xy.netdev.common.util.BeanFactoryUtil;
 import com.xy.netdev.frame.base.AbsDeviceSocketHandler;
 import com.xy.netdev.frame.entity.TransportEntity;
+import com.xy.netdev.frame.enums.ProtocolRequestEnum;
 import com.xy.netdev.frame.service.SocketMutualService;
 import org.springframework.stereotype.Service;
 
@@ -17,13 +18,15 @@ public class SocketMutualServiceImpl implements SocketMutualService {
 
 
     @Override
-    public <T extends TransportEntity> void request(T t) {
+    public <T extends TransportEntity> void request(T t, ProtocolRequestEnum requestEnum) {
         AbsDeviceSocketHandler<T> socketHandler = BeanFactoryUtil.getBean("");
-        socketHandler.request(t);
+        socketHandler.request(t, requestEnum);
     }
 
     @Override
-    public <T extends TransportEntity> void callback(List<T> list) {
-
+    public <T extends TransportEntity> void callback(T t) {
+        return;
     }
+
+
 }

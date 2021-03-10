@@ -13,8 +13,8 @@ public interface ProtocolActionService {
     <T extends TransportEntity>void doControl(T t);
 
     //查询应答
-    <T extends TransportEntity> List<T> doQueryResult();
+    <T extends TransportEntity> List<T> doQueryResult(T t);
 
     //控制应答
-    <T extends TransportEntity> List<T> doControlResult();
+    <T extends TransportEntity> List<T> doControlResult(T t);
 }
