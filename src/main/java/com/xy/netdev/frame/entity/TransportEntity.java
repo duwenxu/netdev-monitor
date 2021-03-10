@@ -21,12 +21,4 @@ public class TransportEntity {
     private String paramMark;
 
     private byte[] paramBytes;
-
-    private List<FrameParaInfo> dataBodyParas;
-
-    public static<T extends TransportEntity> T setList(List<FrameParaInfo> dataBodyParas){
-        TransportEntity transportEntity = new TransportEntity();
-        transportEntity.setDataBodyParas(dataBodyParas);
-        return (T)transportEntity;
-    }
 }

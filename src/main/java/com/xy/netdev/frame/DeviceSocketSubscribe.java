@@ -7,6 +7,7 @@ import cn.hutool.core.thread.ThreadUtil;
 import com.xy.netdev.frame.base.AbsDeviceSocketHandler;
 import com.xy.netdev.frame.entity.SocketEntity;
 import com.xy.netdev.frame.entity.TransportEntity;
+import com.xy.netdev.monitor.entity.BaseInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -15,6 +16,7 @@ import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Objects;
 
+import static com.xy.netdev.container.BaseInfoContainer.getDevInfo;
 import static com.xy.netdev.network.NettyHandler.SOCKET_QUEUE;
 
 /**
@@ -53,19 +55,22 @@ public class DeviceSocketSubscribe {
 
     /**
      * 根据key获取对应实体
-     * @param key key
+     * @param ip ip
      * @return 目标实体
      */
-    private AbsDeviceSocketHandler<SocketEntity,TransportEntity> getHandler(String key){
-        AbsDeviceSocketHandler<SocketEntity,TransportEntity> socketHandler = cache.get(key);
+    private AbsDeviceSocketHandler<SocketEntity,TransportEntity> getHandler(String ip){
+        AbsDeviceSocketHandler<SocketEntity,TransportEntity> socketHandler = cache.get(ip);
         if (socketHandler != null){
             return socketHandler;
         }
+        //设备信息
+        BaseInfo devInfo = getDevInfo(ip);
+
         AbsDeviceSocketHandler<SocketEntity,TransportEntity> handler = absSocketHandlerList.stream()
                 .filter(Objects::nonNull)
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("未找到指定设备处理流程"));
-        cache.put(key, handler, DateUnit.MINUTE.getMillis());
+        cache.put(ip, handler, DateUnit.MINUTE.getMillis());
         return handler;
     }
 }

@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 import static com.xy.netdev.common.util.ByteUtils.bytesToNum;
 import static com.xy.netdev.common.util.ByteUtils.objectToByte;
 import static com.xy.netdev.container.BaseInfoContainer.getDevInfo;
-import static com.xy.netdev.frame.entity.TransportEntity.setList;
 
 /**
  * 2.4米卫通天线控制
@@ -26,10 +25,6 @@ import static com.xy.netdev.frame.entity.TransportEntity.setList;
 @Service
 public class AntennaControlImpl extends AbsDeviceSocketHandler<SocketEntity, TransportEntity> {
 
-    @Override
-    public String deviceMark() {
-        return null;
-    }
 
     @Override
     public TransportEntity unpack(SocketEntity socketEntity) {
@@ -50,17 +45,12 @@ public class AntennaControlImpl extends AbsDeviceSocketHandler<SocketEntity, Tra
 
     @Override
     public SocketEntity pack(TransportEntity transportEntity) {
-        List<FrameParaInfo> dataBodyParas = transportEntity.getDataBodyParas();
-        List<byte[]> list = dataBodyParas.stream()
-                .map(paraInfo -> objectToByte(paraInfo.getParaVal(), paraInfo.getParaStartPoint()))
-                .collect(Collectors.toList());
         //参数数据
-        byte[] paramByte = ByteUtils.listToBytes(list);
+        byte[] paramByte = transportEntity.getParamBytes();
         //数据长度
         int dataLength = paramByte.length + 6;
         return null;
     }
-
 
 
     @Override

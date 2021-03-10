@@ -18,10 +18,8 @@ public class SocketMutualServiceImpl implements SocketMutualService {
 
 
     @Override
-    public <T extends TransportEntity> void request(T t, ProtocolRequestEnum requestEnum) {
-        AbsDeviceSocketHandler<SocketEntity, T> socketHandler = BeanFactoryUtil.getBean("");
-        socketHandler.socketRequest(t, requestEnum);
+    public void request(TransportEntity transportEntity, ProtocolRequestEnum requestEnum) {
+        AbsDeviceSocketHandler<SocketEntity, TransportEntity> socketHandler = BeanFactoryUtil.getBean("");
+        socketHandler.socketRequest(transportEntity, requestEnum);
     }
-
-
 }

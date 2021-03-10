@@ -4,18 +4,14 @@ import com.xy.netdev.frame.base.service.ProtocolPackService;
 import com.xy.netdev.frame.entity.SocketEntity;
 import com.xy.netdev.frame.entity.TransportEntity;
 import com.xy.netdev.frame.enums.ProtocolRequestEnum;
-import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
+import com.xy.netdev.monitor.entity.ParaInfo;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Set;
 
-import static com.xy.netdev.common.util.ByteUtils.byteToNumber;
 import static com.xy.netdev.container.BaseInfoContainer.getDevInfo;
 import static com.xy.netdev.container.BaseInfoContainer.getInterLinkParaList;
 
@@ -48,36 +44,24 @@ public abstract class AbsDeviceSocketHandler<R extends SocketEntity, T extends T
         }
     }
 
-    /**
-     * 回调
-     * @param t
-     */
-    public abstract void callback(T t);
+
 
     @Override
     public void socketResponse(SocketEntity socketEntity) {
         this.callback(unpack((R)socketEntity));
     }
 
-
     /**
-     * 字节数组转中心参数
-     * @param list 参数信息
-     * @param bytes 原始字节数据
+     * 回调
+     * @param t
      */
-    protected List<FrameParaInfo> byteParamToFrameParaInfo(List<FrameParaInfo> list, byte[] bytes){
-        list.forEach(paraInfo -> {
-            int offset = paraInfo.getParaStartPoint();
-            int byteLen = Integer.parseInt(paraInfo.getParaByteLen());
-            String value = byteToNumber(bytes, offset, byteLen).toString();
-            paraInfo.setParaVal(value);
-        });
-        return list;
-    }
+    public abstract void callback(T t);
+
 
     public static List<FrameParaInfo> getParamByIp(String ip, String itfCode){
         BaseInfo devInfo = getDevInfo(ip);
-        return getInterLinkParaList(devInfo.getDevType(), itfCode);
+        List<ParaInfo> interLinkParaList = getInterLinkParaList(devInfo.getDevType(), itfCode);
+        return null;
     }
 
 

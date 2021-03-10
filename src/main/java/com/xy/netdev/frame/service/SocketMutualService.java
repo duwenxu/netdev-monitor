@@ -12,12 +12,6 @@ import java.util.List;
  */
 public interface SocketMutualService {
 
-   /**
-    * 执行
-    * @param <T> t
-    * @param t t
-    * @param requestEnum
-    */
-   <T extends TransportEntity> void request(T t, ProtocolRequestEnum requestEnum);
+    void request(TransportEntity transportEntity, ProtocolRequestEnum requestEnum);
 
 }
