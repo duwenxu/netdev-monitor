@@ -46,6 +46,11 @@ public class FrameParaInfo {
     @ApiModelProperty(value = "参数下标")
     private Integer paraStartPoint;
     /**
+     * 参数表中 0020
+     */
+    @ApiModelProperty(value = "设备类型")
+    private String devType;
+    /**
      * 参数表中 0020 中编码
      */
     @ApiModelProperty(value = "设备类型编码")
