@@ -122,10 +122,6 @@ public class ParaInfo extends Model<ParaInfo> {
     @TableField(value = "NDPA_ALERT_PARA")
     private String ndpaAlertPara;
 
-    @ApiModelProperty(value = "参数值")
-    @TableField(exist = false)
-    private String paraVal;
-
     @ApiModelProperty(value = "参数序号")
     @TableField(exist = false)
     private Integer paraSeq;
@@ -135,27 +131,7 @@ public class ParaInfo extends Model<ParaInfo> {
     @ApiModelProperty(value = "参数下标")
     @TableField(exist = false)
     private Integer paraStartPoint;
-    /**
-     * 参数表中 0020 中编码
-     */
-    @ApiModelProperty(value = "设备类型编码")
-    @TableField(exist = false)
-    private String devTypeCode;
-
-    @ApiModelProperty(value = "设备编号")
-    @TableField(exist = false)
-    private String devNo;
-
-    @ApiModelProperty(value = "告警级别")
-    @TableField(exist = false)
-    private String alertLevel;
-
-    /**
-     *  下拉框显示数据,当显示类型 是1  A下拉框时,需要赋值下拉框列表
-     */
-    //@ApiModelProperty(value = "下拉框显示数据")
-    //@TableField(exist = false)
-    //private List<ParaSpinnerInfo> spinnerInfoList = new ArrayList<>();
+   
 
 
     @Override

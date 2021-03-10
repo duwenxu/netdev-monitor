@@ -56,19 +56,19 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
      */
     private List<TransUiData> formatTransUiData(String id, boolean isBing,boolean isSelect){
         //分解设备接口绑定的参数code
-        List<String> paraCodes = Arrays.asList(this.baseMapper.selectById(id).getItfDataFormat().split(","));
+        List<String> paraIds = Arrays.asList(this.baseMapper.selectById(id).getItfDataFormat().split(","));
         //获取设备参数列表
         List<ParaInfo> paraInfos = paraInfoService.list();
         if(isBing){
-            paraInfos = paraInfos.stream().filter(paraInfo -> paraCodes.contains(paraInfo.getNdpaCode())).collect(Collectors.toList());
+            paraInfos = paraInfos.stream().filter(paraInfo -> paraIds.contains(paraInfo.getNdpaId().toString())).collect(Collectors.toList());
         }else{
-            paraInfos = paraInfos.stream().filter(paraInfo -> !paraCodes.contains(paraInfo.getNdpaCode())).collect(Collectors.toList());
+            paraInfos = paraInfos.stream().filter(paraInfo -> !paraIds.contains(paraInfo.getNdpaId().toString())).collect(Collectors.toList());
         }
         List<TransUiData> dataList = new ArrayList<>();
         //封装前端穿梭框数据
         paraInfos.forEach(paraInfo ->{
             TransUiData data = new TransUiData();
-            data.setId(paraInfo.getNdpaCode());
+            data.setId(paraInfo.getNdpaId().toString());
             data.setValue(paraInfo.getNdpaName());
             data.setValue2(id);
             data.setIsSelect(isSelect);

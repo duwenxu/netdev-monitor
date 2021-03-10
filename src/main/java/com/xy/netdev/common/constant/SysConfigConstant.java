@@ -140,7 +140,4 @@ public interface SysConfigConstant {
      * 公共参数--设备告警信息保存条数
      */
     String  DEV_ALERT_INFO_SZIE="0100005";
-
-
-
 }

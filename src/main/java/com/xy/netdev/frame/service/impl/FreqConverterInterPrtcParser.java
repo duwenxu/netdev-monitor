@@ -22,45 +22,21 @@ import java.util.List;
  */
 public class FreqConverterInterPrtcParser implements IQueryInterPrtclAnalysisService {
 
-
     @Autowired
     IInterfaceService interfaceService;
 
 
     @Override
     public void queryPara(BaseInfo devInfo, DevInterParam interParam) {
-        devInfo = BaseInfoContainer.getDevInfo(devInfo.getDevIpAddr());
-        Interface interInfo = getInterfaceDetail(devInfo,interParam.getDevInterface());
         StringBuilder sb = new StringBuilder();
         sb.append(FreqConverterPrtcParser.SEND_START_MARK).append(devInfo.getDevIpAddr()).append("/")
-                .append(interInfo.getItfCode());
+                .append(interParam.getDevInterface().getItfCode());
         String command = sb.toString();
     }
 
     @Override
-    public List<ParaInfo> queryParaResponse(BaseInfo devInfo, DevInterParam interInfo) {
-        /*devInfo = BaseInfoContainer.getDevInfo(devInfo.getDevIpAddr());
-
-        interInfo = getInterfaceDetail(devInfo,interInfo);
-        StringBuilder sb = new StringBuilder();
-        sb.append(FreqConverterPrtcParser.SEND_START_MARK).append(devInfo.getDevIpAddr()).append("/")
-                .append(interInfo.getItfCode()).append("_").append(FreqConverterPrtcParser.SEND_END_MARK);
-        String command = sb.toString();*/
+    public List<ParaInfo> queryParaResponse(BaseInfo devInfo, DevInterParam interInfo,byte[] dataByte) {
         return null;
     }
 
-    /**
-     * 获取接口详细信息
-     * @param devInfo
-     * @param interInfo
-     * @return
-     */
-    private Interface getInterfaceDetail(BaseInfo devInfo, Interface interInfo){
-        String devType = devInfo.getDevType();
-        Integer itfId = interInfo.getItfId();
-        QueryWrapper<Interface> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(Interface::getDevType,devType);
-        queryWrapper.lambda().eq(Interface::getItfId,itfId);
-        return interfaceService.getOne(queryWrapper);
-    }
 }

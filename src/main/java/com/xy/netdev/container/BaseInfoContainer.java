@@ -8,6 +8,7 @@ import com.xy.netdev.monitor.bo.DevInterParam;
 import com.xy.netdev.monitor.entity.PrtclFormat;
 import lombok.extern.slf4j.Slf4j;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -46,6 +47,16 @@ public class BaseInfoContainer {
     private static Map<String, ParaInfo> paramNoMap = new HashMap<>();
 
     /**
+     * 参数map K设备类型 V接口list
+     */
+    private static Map<String, List<Interface>> devTypeInterMap = new HashMap<>();
+
+    /**
+     * 参数map K设备类型 V参数list
+     */
+    private static Map<String, List<ParaInfo>> devTypeParamMap = new HashMap<>();
+
+    /**
      * @功能：添加设备MAP
      * @param devList    设备列表
      * @return
@@ -74,6 +85,32 @@ public class BaseInfoContainer {
             } catch (Exception e) {
                 log.error("参数["+paraInfo.getNdpaCode()+"]的设备类型或命令标识或参数编号存在异常，请检查:"+e.getMessage());
             }
+        });
+    }
+
+    /**
+     * @功能：添加设备类型对应的接口MAP
+     * @param interfaces  接口列表
+     * @return
+     */
+    public static void addDevTypeInterMap(List<Interface> interfaces) {
+        List<String> devTypes = interfaces.stream().map(Interface::getDevType).collect(Collectors.toList());
+        //循环设备类型
+        devTypes.forEach(devType->{
+            devTypeInterMap.put(devType,interfaces.stream().filter(anInterface -> anInterface.getDevType().equals(devType)).collect(Collectors.toList()));
+        });
+    }
+
+    /**
+     * @功能：添加设备类型对应的参数MAP
+     * @param paraList  参数列表
+     * @return
+     */
+    public static void addDevTypeParaMap(List<ParaInfo> paraList) {
+        List<String> devTypes = paraList.stream().map(ParaInfo::getDevType).collect(Collectors.toList());
+        //循环设备类型
+        devTypes.forEach(devType->{
+            devTypeParamMap.put(devType,paraList.stream().filter(paraInfo -> paraInfo.getDevType().equals(devType)).collect(Collectors.toList()));
         });
     }
 
@@ -110,6 +147,24 @@ public class BaseInfoContainer {
     }
 
     /**
+     * @功能：根据设备类型 获取接口list
+     * @param devType   设备类型
+     * @return  接口列表
+     */
+    public static List<Interface> getInterfacesByDevType(String devType){
+        return devTypeInterMap.get(devType);
+    }
+
+    /**
+     * @功能：根据设备类型 获取参数list
+     * @param devType   设备类型
+     * @return  参数列表
+     */
+    public static List<ParaInfo> getParasByDevType(String devType){
+        return devTypeParamMap.get(devType);
+    }
+
+    /**
      * @功能：根据设备编号 获取设备信息
      * @param devNo    设备编号
      * @return  设备对象
@@ -138,7 +193,7 @@ public class BaseInfoContainer {
     }
 
     /**
-     * @功能：根据设备类型  和  接口编码 获取接口解析参数列表
+     * @功能：根据设备类型  和  接口编码 获取参数列表
      * @param devType     设备类型
      * @param itfCode     接口编码
      * @return  接口解析参数列表
@@ -166,7 +221,7 @@ public class BaseInfoContainer {
     }
 
     /**
-     * @功能：根据设备类型  和  接口编码 获取接口信息
+     * @功能：根据设备类型  和  接口编码 获取协议信息
      * @param devType     设备类型
      * @param itfCode     接口编码
      * @return  接口解析参数列表

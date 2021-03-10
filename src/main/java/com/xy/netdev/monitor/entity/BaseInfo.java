@@ -82,7 +82,6 @@ public class BaseInfo extends Model<BaseInfo> {
     private DevStatusInfo devStatusInfo;
 
 
-
     @Override
     protected Serializable pkVal() {
         return this.devNo;

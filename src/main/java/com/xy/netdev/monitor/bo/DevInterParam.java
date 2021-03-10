@@ -30,7 +30,7 @@ public class DevInterParam {
     @ApiModelProperty(value = "设备接口")
     private Interface devInterface;
 
-    @ApiModelProperty(value = "接口协议")
+    @ApiModelProperty(value = "解析协议")
     private PrtclFormat interfacePrtcl;
 
     @ApiModelProperty(value = "参数列表")
