@@ -62,7 +62,7 @@ public class AntennaControlImpl extends AbsDeviceSocketHandler<TransportEntity> 
         List<byte[]> list = dataBodyParas.stream()
                 .map(paraInfo -> objectToByte(paraInfo.getParaVal(), Integer.parseInt(paraInfo.getNdpaByteLen())))
                 .collect(Collectors.toList());
-        dataBodyParas.get(0).get
+//        dataBodyParas.get(0).get
         //参数数据
         byte[] paramByte = ByteUtils.listToBytes(list);
         //数据长度
