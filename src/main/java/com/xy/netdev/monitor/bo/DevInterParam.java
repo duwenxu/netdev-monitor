@@ -33,6 +33,6 @@ public class DevInterParam {
     @ApiModelProperty(value = "解析协议")
     private PrtclFormat interfacePrtcl;
 
-    @ApiModelProperty(value = "参数列表")
-    private List<ParaInfo> devParamList;
+    @ApiModelProperty(value = "帧参数列表")
+    private List<FrameParaInfo> devParamList;
 }

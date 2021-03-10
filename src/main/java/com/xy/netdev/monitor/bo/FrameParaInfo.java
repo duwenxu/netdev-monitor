@@ -1,13 +1,13 @@
 package com.xy.netdev.monitor.bo;
 
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.xy.netdev.monitor.entity.PrtclFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
 
 /**
  * <p>
@@ -27,7 +27,7 @@ public class FrameParaInfo {
     private Integer paraId;
 
     @ApiModelProperty(value = "参数编号")
-    private Integer paraNo;
+    private String paraNo;
 
     @ApiModelProperty(value = "参数值")
     private String paraVal;
