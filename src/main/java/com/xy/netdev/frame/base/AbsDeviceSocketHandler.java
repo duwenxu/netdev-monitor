@@ -80,6 +80,9 @@ public abstract class AbsDeviceSocketHandler<R extends SocketEntity, T extends T
 
     public static List<FrameParaInfo> getParamByIp(String ip, String itfCode){
         BaseInfo devInfo = getDevInfo(ip);
-        return getInterLinkParaList(devInfo.getDevType(), itfCode);
+        List<FrameParaInfo> interLinkParaList = getInterLinkParaList(devInfo.getDevType(), itfCode);
+        return null;
+    }
+
     }
 }
