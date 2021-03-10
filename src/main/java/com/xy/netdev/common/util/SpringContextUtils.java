@@ -1,4 +1,4 @@
-package com.xy.netmgr.common.util;
+package com.xy.netdev.common.util;
 
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
