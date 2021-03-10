@@ -1,13 +1,12 @@
 package com.xy.netdev.container;
 
 import com.alibaba.fastjson.JSONArray;
-import com.xy.netdev.admin.service.ISysParamService;
+import com.xy.netdev.common.util.ParaHandlerUtil;
+import com.xy.netdev.frame.bo.FrameParaData;
+import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.monitor.bo.ParaSpinnerInfo;
 import com.xy.netdev.monitor.bo.ParaViewInfo;
 import com.xy.netdev.monitor.entity.ParaInfo;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -41,7 +40,7 @@ public class DevParaInfoContainer {
      * @param paraList  参数列表
      * @return
      */
-    public static void addDevParaMap(List<ParaInfo> paraList) {
+    public static void initData(List<ParaInfo> paraList) {
         Map<String,List<ParaInfo>> paraMapByDevType = paraList.stream().collect(Collectors.groupingBy(ParaInfo::getDevType));
         BaseInfoContainer.getDevNos().forEach(devNo->{
             String devType = BaseInfoContainer.getDevInfoByNo(devNo).getDevType();
@@ -58,7 +57,7 @@ public class DevParaInfoContainer {
         Map<String,ParaViewInfo>  paraViewMap = new HashMap<>();
         if(devTypeParaList!=null&&!devTypeParaList.isEmpty()){
             for(ParaInfo paraInfo:devTypeParaList){
-
+                paraViewMap.put(ParaHandlerUtil.genLinkKey(devNo,paraInfo.getNdpaNo()),genParaViewInfo(devNo,paraInfo));
             }
         }
         return paraViewMap;
@@ -84,24 +83,28 @@ public class DevParaInfoContainer {
 
 
     /**
-     * @功能：添加设备MAP
-     * @param devNo    设备编号
-     * @return
+     * @功能：根据设备显示参数列表
+     * @param devNo        设备编号
+     * @return  设备显示参数列表
      */
-    public static void addDevMap(String devNo) {
-
+    public static List<ParaViewInfo>   getDevParaViewList(String devNo){
+        return new ArrayList(devParaMap.get(devNo).values());
     }
-
 
     /**
-     * @功能：根据设备IP地址 获取设备信息
-     * @param devNo        设备编号
-     * @return  设备对象
+     * @功能：设置设备响应参数信息
+     * @param respData        协议解析响应数据
+     * @return
      */
-    public static String   getDevInfo(String devNo){
-        return "";
+    public static void   handlerRespDevPara(FrameRespData respData){
+        List<FrameParaData> frameParaList = respData.getFrameParaList();
+        if(frameParaList!=null&&!frameParaList.isEmpty()){
+            frameParaList.forEach(frameParaData -> {
+                String devNo = frameParaData.getDevNo();
+                String paraNo = frameParaData.getParaNo();
+                devParaMap.get(devNo).get(ParaHandlerUtil.genLinkKey(devNo,paraNo)).setParaVal(frameParaData.getParaVal());
+            });
+        }
     }
-
-
 
 }

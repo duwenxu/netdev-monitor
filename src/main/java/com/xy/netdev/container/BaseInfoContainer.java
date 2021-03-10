@@ -45,7 +45,7 @@ public class BaseInfoContainer {
     private static Map<String, BaseInfo> devNoMap = new HashMap<>();
 
     /**
-     * 接口关联参数MAP K设备类型+接口编码 V设备参数列表信息
+     * 接口关联参数MAP K设备类型+命令标识 V设备参数列表信息
      */
     private static Map<String, DevInterParam> InterLinkParaMap = new HashMap<>();
 
@@ -89,7 +89,7 @@ public class BaseInfoContainer {
         interfaces.forEach(anInterface -> {
             List<String> paraIds = Arrays.asList(anInterface.getItfDataFormat().split(","));
             DevInterParam devInterParam = new DevInterParam();
-            devInterParam.setId(ParaHandlerUtil.genLinkKey(anInterface.getDevType(),anInterface.getItfCode()));
+            devInterParam.setId(ParaHandlerUtil.genLinkKey(anInterface.getDevType(),anInterface.getItfCmdMark()));
             List<PrtclFormat> prtclFormats = prtclList.stream().filter(prtclFormat -> prtclFormat.getFmtId() == anInterface.getFmtId()).collect(Collectors.toList());
             if(prtclFormats.size()>0){
                 prtclFormats.get(0).setIsPrtclParam(1);
@@ -253,13 +253,13 @@ public class BaseInfoContainer {
     }
 
     /**
-     * @功能：根据设备类型  和  接口编码 获取接口信息
+     * @功能：根据设备类型  和  命令标识 获取接口信息
      * @param devType     设备类型
-     * @param itfCode     接口编码
+     * @param cmdMark     命令标识
      * @return  接口解析参数列表
      */
-    public static Interface getInterLinkInterface(String devType, String itfCode){
-        DevInterParam devInterParam = InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType,itfCode));
+    public static Interface getInterLinkInterface(String devType, String cmdMark){
+        DevInterParam devInterParam = InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType,cmdMark));
         if(devInterParam == null){
             return devInterParam.getDevInterface();
         }
@@ -267,13 +267,13 @@ public class BaseInfoContainer {
     }
 
     /**
-     * @功能：根据设备类型  和  接口编码 获取协议信息
+     * @功能：根据设备类型  和  命令标识 获取协议信息
      * @param devType     设备类型
-     * @param itfCode     接口编码
+     * @param cmdMark     命令标识
      * @return  接口解析参数列表
      */
-    public static PrtclFormat getInterLinkFmtFormat(String devType, String itfCode){
-        DevInterParam devInterParam = InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType,itfCode));
+    public static PrtclFormat getInterLinkFmtFormat(String devType, String cmdMark){
+        DevInterParam devInterParam = InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType,cmdMark));
         if(devInterParam == null){
             return devInterParam.getInterfacePrtcl();
         }
@@ -315,7 +315,9 @@ public class BaseInfoContainer {
         paraInfos.forEach(paraInfo -> {
             FrameParaInfo frameParaInfo = new FrameParaInfo();
             frameParaInfo.setParaId(paraInfo.getNdpaId());  //参数id
-            frameParaInfo.setParaNo(paraInfo.getNdpaNo());  //参数编
+            frameParaInfo.setParaNo(paraInfo.getNdpaNo());  //参数编号
+            frameParaInfo.setParaCode(paraInfo.getNdpaCode());  //参数编码
+            frameParaInfo.setParaName(paraInfo.getNdpaName());  //参数名称
             frameParaInfo.setCmdMark(paraInfo.getNdpaCmdMark()); //命令标识
             frameParaInfo.setParaByteLen(paraInfo.getNdpaByteLen());  // 字节长度
             frameParaInfo.setDevType(paraInfo.getDevType());      //设备类型
