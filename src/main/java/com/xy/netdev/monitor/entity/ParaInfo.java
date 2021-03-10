@@ -131,6 +131,7 @@ public class ParaInfo extends Model<ParaInfo> {
     @ApiModelProperty(value = "参数下标")
     @TableField(exist = false)
     private Integer paraStartPoint;
+   
 
 
     @Override
