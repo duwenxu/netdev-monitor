@@ -2,6 +2,7 @@ package com.xy.netdev.transit;
 
 
 import com.xy.netdev.frame.bo.FrameRespData;
+import org.springframework.stereotype.Component;
 
 /**
  * <p>
