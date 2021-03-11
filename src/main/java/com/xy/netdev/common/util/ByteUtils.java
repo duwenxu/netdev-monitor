@@ -113,8 +113,8 @@ public class ByteUtils {
         return byteToNumber(bytes, offset, length, false);
     }
 
-
-    public static Number bytesToNum(byte[] bytes, int offset, int length, Function<ByteBuf, Number> function, Function<ByteBuf, Number> function1, boolean isUnsigned){
+    public static Number bytesToNum(byte[] bytes, int offset, int length, Function<ByteBuf, Number> function,
+                                    Function<ByteBuf, Number> function1, boolean isUnsigned){
         if (!isUnsigned){
            return bytesToNum(bytes, offset, length, function);
         }

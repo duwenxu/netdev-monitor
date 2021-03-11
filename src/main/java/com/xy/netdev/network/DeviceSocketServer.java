@@ -47,26 +47,26 @@ public class DeviceSocketServer {
 
     @SneakyThrows
     private void run(Collection<BaseInfo> devInfos)  {
-        Optional<String> optional = devInfos.stream()
-                .map(BaseInfo::getDevIpAddr)
-                .filter(StrUtil::isNotBlank)
-                .findAny();
-        if (!optional.isPresent()){
-            int reTrySeconds = 10 * 6;
-            log.warn("设备通讯服务启动失败, 未查询到设备远程地址信息, {}秒后重试....", reTrySeconds);
-            TimeUnit.SECONDS.sleep(reTrySeconds);
-            this.run(devInfos);
-        }
+//        Optional<String> optional = devInfos.stream()
+//                .map(BaseInfo::getDevIpAddr)
+//                .filter(StrUtil::isNotBlank)
+//                .findAny();
+//        if (!optional.isPresent()){
+//            int reTrySeconds = 10 * 6;
+//            log.warn("设备通讯服务启动失败, 未查询到设备远程地址信息, {}秒后重试....", reTrySeconds);
+//            TimeUnit.SECONDS.sleep(reTrySeconds);
+//            this.run(devInfos);
+//        }
 
-        devInfos.forEach(baseInfo -> {
-            if (SysConfigConstant.UDP.equals(baseInfo.getDevNetPtcl())) {
-                udpPort.add(Integer.parseInt(baseInfo.getDevPort()));
-            }
-            if (SysConfigConstant.TCP.equalsIgnoreCase(baseInfo.getDevNetPtcl())) {
-                tcpList.add(baseInfo);
-            }
-        });
-
+//        devInfos.forEach(baseInfo -> {
+//            if (SysConfigConstant.UDP.equals(baseInfo.getDevNetPtcl())) {
+//                udpPort.add(Integer.parseInt(baseInfo.getDevPort()));
+//            }
+//            if (SysConfigConstant.TCP.equalsIgnoreCase(baseInfo.getDevNetPtcl())) {
+//                tcpList.add(baseInfo);
+//            }
+//        });
+        udpPort.add(9900);
         udpStart(udpPort);
         tcpStart(tcpList);
     }
@@ -75,7 +75,7 @@ public class DeviceSocketServer {
     private void udpStart(Set<Integer> setPort){
         //创建随机端口保活
         setPort.add(0);
-        ThreadUtil.execute(() -> new NettyUdp(setPort, new SimpleUdpMessage()));
+        ThreadUtil.execute(() -> new NettyUdp(setPort, new SimpleUdpMessage()).run());
     }
 
     private void tcpStart(List<BaseInfo> list){
@@ -84,7 +84,7 @@ public class DeviceSocketServer {
         }
         list.forEach(baseInfo -> {
             int port = Integer.parseInt(baseInfo.getDevPort());
-            ThreadUtil.execute(() -> new NettyTcpClient(baseInfo.getDevIpAddr(), port, port, new SimpleTcpMessage()));
+            ThreadUtil.execute(() -> new NettyTcpClient(baseInfo.getDevIpAddr(), port, port, new SimpleTcpMessage()).run());
         });
     }
 }
