@@ -1,5 +1,7 @@
 package com.xy.netdev.rpt.schedule;
 
+import com.xy.netdev.common.constant.SysConfigConstant;
+import com.xy.netdev.common.util.SpringContextUtils;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.factory.ParaPrtclFactory;
 import com.xy.netdev.frame.bo.FrameParaData;
@@ -10,7 +12,9 @@ import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.entity.PrtclFormat;
 import com.xy.netdev.rpt.bo.ScheduleReqBody;
+import com.xy.netdev.transit.IDataSendService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
@@ -28,8 +32,11 @@ import java.util.stream.Collectors;
  * @create 2021-03-10 11:39
  */
 @Slf4j
-//@Component
+@Component
 public class ScheduleReport implements ApplicationRunner {
+
+    @Autowired
+    private IDataSendService dataSendService;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -44,11 +51,11 @@ public class ScheduleReport implements ApplicationRunner {
     /**
      *  定时上报查询
      */
-    public static void doScheduleReportQuery() {
+    public void doScheduleReportQuery() {
         List<BaseInfo> baseInfos = ScheduleReportHelper.getAvailableBases();
         //单个设备所有查询对象的封装list映射
-        Map<BaseInfo, List<ScheduleReqBody>> scheduleReqBodyMap = new ConcurrentHashMap<>(20);
-        List<ScheduleReqBody> scheduleReqBodyList = new ArrayList<>();
+        Map<BaseInfo, List<FrameReqData>> scheduleReqBodyMap = new ConcurrentHashMap<>(20);
+        List<FrameReqData> scheduleReqBodyList = new ArrayList<>();
         baseInfos.forEach(base -> {
             //获取所有可读参数
             List<FrameParaInfo> parasByDevType = BaseInfoContainer.getParasByDevType(base.getDevType());
@@ -60,7 +67,6 @@ public class ScheduleReport implements ApplicationRunner {
                 //获取参数对应的格式协议及拼装查询类请求参数
                 PrtclFormat prtclFormat = frameParaInfo.getInterfacePrtcl();
                 if (prtclFormat == null){ continue; }
-                Object handler = ParaPrtclFactory.genHandler(prtclFormat.getFmtHandlerClass());
                 String cmdMark = frameParaInfo.getCmdMark();
                 FrameParaData paraData = FrameParaData.builder()
                         .devNo(base.getDevNo())
@@ -69,9 +75,9 @@ public class ScheduleReport implements ApplicationRunner {
                         .paraVal(frameParaInfo.getParaVal())
                         .build();
                 frameParaList.add(paraData);
-
-                ScheduleReqBody scheduleReqBody = scheduleReqBodyWrapper(base, handler, cmdMark, frameParaList);
-                scheduleReqBodyList.add(scheduleReqBody);
+                FrameReqData frameReqData = frameReqDataWrapper(base, cmdMark, frameParaList);
+                frameReqData.setAccessType(SysConfigConstant.ACCESS_TYPE_PARAM);
+                scheduleReqBodyList.add(frameReqData);
             }
 
             //获取所有查询接口
@@ -83,10 +89,9 @@ public class ScheduleReport implements ApplicationRunner {
                 String cmdMark = item.getItfCmdMark();
                 PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterface(base.getDevType(), cmdMark);
                 if (prtclFormat == null){continue;}
-                Object handler = ParaPrtclFactory.genHandler(prtclFormat.getFmtHandlerClass());
-
-                ScheduleReqBody scheduleReqBody = scheduleReqBodyWrapper(base, handler, cmdMark, new ArrayList<>());
-                scheduleReqBodyList.add(scheduleReqBody);
+                FrameReqData frameReqData = frameReqDataWrapper(base, cmdMark, new ArrayList<>());
+                frameReqData.setAccessType(SysConfigConstant.ACCESS_TYPE_INTERF);
+                scheduleReqBodyList.add(frameReqData);
             }
             scheduleReqBodyMap.put(base, scheduleReqBodyList);
         });
@@ -99,11 +104,11 @@ public class ScheduleReport implements ApplicationRunner {
      *
      * @param scheduleReqBodyMap 参数信息
      */
-    public static void execReportTask(Map<BaseInfo, List<ScheduleReqBody>> scheduleReqBodyMap) {
+    public void execReportTask(Map<BaseInfo, List<FrameReqData>> scheduleReqBodyMap) {
         Long commonInterval = ScheduleReportHelper.getCommonInterval();
         scheduleReqBodyMap.forEach((base, queryList) -> {
             long interval = Long.parseLong(base.getDevIntervalTime() + "");
-            ScheduleReportTask scheduleReportTask = new ScheduleReportTask(queryList, interval, commonInterval);
+            ScheduleReportTask scheduleReportTask = new ScheduleReportTask(queryList, interval, commonInterval,dataSendService);
             Thread thread = new Thread(scheduleReportTask, base.getDevName() + "-reportQuery-thread");
             thread.start();
         });
@@ -114,18 +119,14 @@ public class ScheduleReport implements ApplicationRunner {
      *
      * @return ScheduleReqBody
      */
-    private static ScheduleReqBody scheduleReqBodyWrapper(BaseInfo base, Object handlerClass, String cmdMark, List<FrameParaData> frameParaList) {
+    private static FrameReqData frameReqDataWrapper(BaseInfo base, String cmdMark, List<FrameParaData> frameParaList) {
         //组装定时查询结构类
-        return ScheduleReqBody.builder()
-                .handlerClass(handlerClass)
-                .frameReqData(
-                        FrameReqData.builder()
-                                .devType(base.getDevType())
-                                .devNo(base.getDevNo())
-                                .cmdMark(cmdMark)
-                                .frameParaList(frameParaList)
-                                .build()
-                ).build();
+        return FrameReqData.builder()
+                .devType(base.getDevType())
+                .devNo(base.getDevNo())
+                .cmdMark(cmdMark)
+                .frameParaList(frameParaList)
+                .build();
     }
 
 }

@@ -361,6 +361,8 @@ public class BaseInfoContainer {
                 prtclFormats.get(0).setIsPrtclParam(0);
                 frameParaInfo.setInterfacePrtcl(prtclFormats.get(0));      //解析协议
             }
+            frameParaInfo.setTransRule(paraInfo.getNdpaTransRule()); //内外转换值域
+            frameParaInfo.setAlertPara(paraInfo.getNdpaAlertPara()); //字段类型
             frameParaInfos.add(frameParaInfo);
         });
         return frameParaInfos;
