@@ -1,11 +1,15 @@
 package com.xy.netdev.frame.base;
 
+import cn.hutool.core.util.HexUtil;
+import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.base.service.ProtocolPackService;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.entity.SocketEntity;
 import com.xy.netdev.frame.enums.ProtocolRequestEnum;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
+import com.xy.netdev.monitor.entity.BaseInfo;
+import com.xy.netdev.network.NettyUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -69,11 +73,13 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
 
     @Override
     public void socketResponse(SocketEntity socketEntity) {
-        TransportEntity transportEntity = new TransportEntity();
-        transportEntity.setDevInfo(getDevInfo(socketEntity.getRemoteAddress()));
+        BaseInfo devInfo = getDevInfo(socketEntity.getRemoteAddress());
         FrameRespData frameRespData = new FrameRespData();
-
-        this.callback(unpack((Q)socketEntity, (R)frameRespData));
+        frameRespData.setDevType(devInfo.getDevType());
+        frameRespData.setDevNo(devInfo.getDevNo());
+        R unpack = unpack((Q) socketEntity, (R) frameRespData);
+        frameRespData.setReciveOrignData(HexUtil.encodeHexStr(frameRespData.getParamBytes()));
+        this.callback(unpack);
     }
 
     /**
@@ -84,9 +90,9 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
 
 
     protected void sendData(T t, byte[] bytes) {
-//        BaseInfo devInfo = t.getDevInfo();
-//        int port = Integer.parseInt(devInfo.getDevPort());
-//        NettyUtil.sendMsg(bytes, port, devInfo.getDevIpAddr(), port, Integer.parseInt(devInfo.getDevNetPtcl()));
+        BaseInfo devInfo = BaseInfoContainer.getDevInfoByNo(t.getDevNo());
+        int port = Integer.parseInt(devInfo.getDevPort());
+        NettyUtil.sendMsg(bytes, port, devInfo.getDevIpAddr(), port, Integer.parseInt(devInfo.getDevNetPtcl()));
     }
 
 
