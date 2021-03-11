@@ -29,7 +29,7 @@ import java.util.function.Function;
  */
 @Slf4j
 @Component
-public class NettyHandler {
+public class NettyUtil {
 
     /**
      * netty 数据缓存队列

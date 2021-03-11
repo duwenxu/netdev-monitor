@@ -1,13 +1,24 @@
 package com.xy.netdev.frame.base.service;
 
-import com.baomidou.mybatisplus.extension.api.R;
+import com.xy.netdev.frame.bo.FrameReqData;
+import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.entity.SocketEntity;
-import com.xy.netdev.frame.entity.TransportEntity;
 
-public interface ProtocolPackService <T extends SocketEntity, R extends TransportEntity>{
+public interface ProtocolPackService <Q extends SocketEntity, T extends FrameReqData, R extends FrameRespData>{
 
-    R unpack(T t);
+    /**
+     * 数据拆包
+     * @param q
+     * @param t
+     * @return
+     */
+    R unpack(Q q, R r);
 
-    byte[] pack(R r);
+    /**
+     * 数据装包
+     * @param t
+     * @return
+     */
+    byte[] pack(T t);
 
 }
