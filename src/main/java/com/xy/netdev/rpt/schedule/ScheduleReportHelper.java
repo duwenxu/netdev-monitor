@@ -5,12 +5,12 @@ import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.service.IBaseInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.xy.netdev.common.constant.SysConfigConstant.DEV_QUERY_INTERVAL;
@@ -22,6 +22,7 @@ import static com.xy.netdev.common.constant.SysConfigConstant.DEV_QUERY_INTERVAL
  * @create 2021-03-11 9:01
  */
 @Component
+@Order(100)
 public class ScheduleReportHelper {
 
     @Autowired

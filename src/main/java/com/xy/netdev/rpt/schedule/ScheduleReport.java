@@ -11,9 +11,10 @@ import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.entity.PrtclFormat;
 import com.xy.netdev.rpt.bo.ScheduleReqBody;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -27,12 +28,17 @@ import java.util.stream.Collectors;
  * @create 2021-03-10 11:39
  */
 @Slf4j
-@Component
-public class ScheduleReport {
+//@Component
+public class ScheduleReport implements ApplicationRunner {
 
-    @PostConstruct
-    public void scheduleReportQuery(){
-        doScheduleReportQuery();
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
+        log.info("-----设备状态上报查询开始...");
+        try {
+            doScheduleReportQuery();
+        } catch (Exception e) {
+            log.error("设备状态上报查询异常...",e);
+        }
     }
 
     /**
@@ -49,38 +55,40 @@ public class ScheduleReport {
             List<FrameParaInfo> readParasByDevType = parasByDevType.stream().parallel()
                     .filter(param -> MonitorConstants.READ_ONLY.equals(param.getNdpaAccessRight()) || MonitorConstants.READ_WRITE.equals(param.getNdpaAccessRight())).collect(Collectors.toList());
             //参数查询对象封装
-            readParasByDevType.forEach(item -> {
+            for (FrameParaInfo frameParaInfo : readParasByDevType) {
                 List<FrameParaData> frameParaList = new ArrayList<>();
                 //获取参数对应的格式协议及拼装查询类请求参数
-                PrtclFormat prtclFormat = item.getInterfacePrtcl();
+                PrtclFormat prtclFormat = frameParaInfo.getInterfacePrtcl();
+                if (prtclFormat == null){ continue; }
                 Object handler = ParaPrtclFactory.genHandler(prtclFormat.getFmtHandlerClass());
-                String cmdMark = item.getCmdMark();
+                String cmdMark = frameParaInfo.getCmdMark();
                 FrameParaData paraData = FrameParaData.builder()
                         .devNo(base.getDevNo())
                         .devType(base.getDevType())
-                        .paraNo(item.getParaNo())
-                        .paraVal(item.getParaVal())
+                        .paraNo(frameParaInfo.getParaNo())
+                        .paraVal(frameParaInfo.getParaVal())
                         .build();
                 frameParaList.add(paraData);
 
                 ScheduleReqBody scheduleReqBody = scheduleReqBodyWrapper(base, handler, cmdMark, frameParaList);
                 scheduleReqBodyList.add(scheduleReqBody);
-            });
+            }
 
             //获取所有查询接口
             List<Interface> interfacesByDevType = BaseInfoContainer.getInterfacesByDevType(base.getDevType());
             List<Interface> queryIntersByDevType = interfacesByDevType.stream().filter(inter -> MonitorConstants.QUERY.equals(inter.getItfType())).collect(Collectors.toList());
             //接口查询对象封装
-            queryIntersByDevType.forEach(item -> {
+            for (Interface item : queryIntersByDevType) {
                 //获取接口对应的格式协议及处理类
                 String itfCode = item.getItfCode();
                 PrtclFormat prtclFormat = BaseInfoContainer.getInterLinkFmtFormat(base.getDevType(), itfCode);
+                if (prtclFormat == null){continue;}
                 Object handler = ParaPrtclFactory.genHandler(prtclFormat.getFmtHandlerClass());
                 String cmdMark = item.getItfCmdMark();
 
                 ScheduleReqBody scheduleReqBody = scheduleReqBodyWrapper(base, handler, cmdMark, new ArrayList<>());
                 scheduleReqBodyList.add(scheduleReqBody);
-            });
+            }
             scheduleReqBodyMap.put(base, scheduleReqBodyList);
         });
         //执行查询任务
