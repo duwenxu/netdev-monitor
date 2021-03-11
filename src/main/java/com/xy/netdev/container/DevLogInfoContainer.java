@@ -137,7 +137,7 @@ public class DevLogInfoContainer {
      * @return 响应码加工信息
      */
     private static String genRespCodeInfo(FrameRespData respData){
-        PrtclFormat prtclFormat=BaseInfoContainer.getInterLinkFmtFormat(respData.getDevType(),respData.getCmdMark());
+        PrtclFormat prtclFormat=BaseInfoContainer.getPrtclByInterfaceOrPara(respData.getDevType(),respData.getCmdMark());
         ISysParamService sysParamService =BaseInfoContainer.getSysParamService();
         String respCodeParaCd = "";//响应码对应的参数编码
         if(respData.getOperType().equals(SysConfigConstant.OPREATE_QUERY_RESP)){
