@@ -1,5 +1,7 @@
 package com.xy.netdev.container;
 
+import com.xy.netdev.admin.entity.SysParam;
+import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.collection.FixedSizeMap;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.DateTools;
@@ -102,6 +104,18 @@ public class DevLogInfoContainer {
             logContent.append(paraName+"["+ frameParaData.getParaVal()+"]|");
         });
         return logContent.toString();
+    }
+    /**
+     * @功能：处理响应信息中的响应码
+     * @param respData        协议解析响应数据
+     * @param respCode             响应码
+     * @param devLog               日志对象
+     * @return
+     */
+    private static void setStatusInfo(FrameRespData respData,String respCode,OperLog devLog){
+        BaseInfoContainer.getInterLinkFmtFormat("","");
+        ISysParamService sysParamService =BaseInfoContainer.getSysParamService();
+        List<SysParam> paramList = sysParamService.queryParamsByParentId("");
     }
 
 }

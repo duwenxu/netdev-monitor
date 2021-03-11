@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>hello</title>
+</head>
+<body>
+    <div>
+        <row>
+            <div>接口编码</div>
+            <input type="text" id="ifeMark" name="ifeMark">
+        </row>
+        <row>
+            <div>设备代号</div>
+            <input type="text" id="devCode">
+        </row>
+        <row>
+            <input type="button" value="点我发送" onclick="CHAT.chat();">
+        </row>
+        <div>接收消息：</div>
+        <div id="receiveMsg" style="background-color: yellow;"></div>
+    </div>
+
+    <div style="margin-top: 100px">
+        <div>接收消息：</div>
+        <div id="receivePlan" style="background-color: yellow;"></div>
+    </div>
+
+<script type="text/javascript">
+    window.CHAT = {
+        socket: null,
+        socket1: null,
+        init1: function(meg) {
+            if (window.WebSocket) {
+                CHAT.socket = new WebSocket("ws://127.0.0.1:9000/ws");
+                CHAT.socket.onopen = function() {
+                    CHAT.socket.send(JSON.stringify(meg));
+                    console.log("connect success...");
+                },
+                CHAT.socket.onclose = function() {
+                    console.log("connect close...");
+                },
+                CHAT.socket.onerror = function() {
+                    console.log("connect error...");
+                },
+                CHAT.socket.onmessage = function(e) {
+                    console.log("receive msg: " + e.data);
+                    var receiveMsg = document.getElementById("receiveMsg");
+                    receiveMsg.innerHTML = e.data;
+                }
+            } else {
+                alert("do not support websocket..");
+            }
+        },
+        init2: function(meg) {
+            if (window.WebSocket) {
+                CHAT.socket1 = new WebSocket("ws://127.0.0.1:9000/ws");
+                CHAT.socket1.onopen = function() {
+                    CHAT.socket1.send(JSON.stringify(meg));
+                    console.log("connect success...");
+                },
+                    CHAT.socket1.onclose = function() {
+                        console.log("connect close...");
+                    },
+                    CHAT.socket1.onerror = function() {
+                        console.log("connect error...");
+                    },
+                    CHAT.socket1.onmessage = function(e) {
+                        console.log("receive msg: " + e.data);
+                        var receivePlan = document.getElementById("receivePlan");
+                        receivePlan.innerHTML = e.data;
+                    }
+            } else {
+                alert("do not support websocket..");
+            }
+        },
+        chat: function() {
+            var ifeMark = document.getElementById("ifeMark").value;
+            var devCode = document.getElementById("devCode").value;
+            var meg ={'interfaceMark':ifeMark,
+                'devNo':devCode};
+            CHAT.socket.send(JSON.stringify(meg));
+        },
+        //初始化页面时需要联通的通道
+        load:function(){
+            var meg1 ={'interfaceMark':"DevLogInfos",
+            'devNo':'DEV_Ku/L_change'};
+            CHAT.init1(meg1);
+            var meg2 ={'interfaceMark':"DevParaInfos",
+                'devNo':'DEV_Ku/L_change'};
+            CHAT.init2(meg2);
+
+        }
+    }
+    CHAT.load();
+</script>
+</body>
+</html>
