@@ -12,6 +12,7 @@ import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.transit.IDataReciveService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,7 @@ import java.util.List;
  * @author luo
  * @date 2021-03-05
  */
+@Component
 public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
 
     @Autowired
