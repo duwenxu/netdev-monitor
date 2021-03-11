@@ -1,6 +1,7 @@
 package com.xy.netdev.transit;
 
 
+import com.xy.netdev.frame.bo.FrameReqData;
 
 /**
  * <p>
@@ -13,24 +14,21 @@ package com.xy.netdev.transit;
 public interface IDataSendService {
     /**
      * 参数查询发送
-     * @param  devNo   设备编号
-     * @param  paraNo  参数编号
+     * @param  frameReqData   协议解析请求数据
      */
-    void paraQuerySend(String devNo,String paraNo);
+    void paraQuerySend(FrameReqData frameReqData);
 
     /**
      * 参数控制发送
-     * @param  devNo   设备编号
-     * @param  paraNo  参数编号
+     * @param  frameReqData   协议解析请求数据
      */
-    void paraCtrSend(String devNo,String paraNo);
+    void paraCtrSend(FrameReqData frameReqData);
 
     /**
      * 接口查询发送
-     * @param  devNo   设备编号
-     * @param  paraNo  参数编号
+     * @param  frameReqData   协议解析请求数据
      */
-    void interfaceQuerySend(String devNo,String paraNo);
+    void interfaceQuerySend(FrameReqData frameReqData);
 
 
 }
