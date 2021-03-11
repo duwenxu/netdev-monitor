@@ -1,6 +1,7 @@
 package com.xy.netdev.frame.service.gf;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
@@ -31,6 +32,9 @@ public class GfPrtcServiceImpl implements IParaPrtclAnalysisService {
     @Autowired
     SocketMutualService socketMutualService;
 
+    @Autowired
+    ISysParamService sysParamService;
+
     @Override
     public void queryPara(FrameReqData reqInfo) {
         socketMutualService.request(reqInfo, ProtocolRequestEnum.QUERY);
@@ -46,7 +50,7 @@ public class GfPrtcServiceImpl implements IParaPrtclAnalysisService {
                     FrameParaData paraInfo = new FrameParaData();
                     BeanUtil.copyProperties(frameParaInfo, paraInfo, true);
                     paraInfo.setParaVal(byteToNumber(bytes, frameParaInfo.getParaStartPoint(),
-                            Integer.parseInt(frameParaInfo.getParaByteLen())).toString());
+                            Integer.parseInt(frameParaInfo.getParaByteLen()), isUnsigned(sysParamService, frameParaInfo.getParaNo())).toString());
                     return paraInfo;
                 }).collect(Collectors.toList());
         respData.setFrameParaList(frameParaDataList);
@@ -61,5 +65,10 @@ public class GfPrtcServiceImpl implements IParaPrtclAnalysisService {
     @Override
     public FrameRespData ctrlParaResponse(FrameRespData respData) {
         return this.queryParaResponse(respData);
+    }
+
+    public static boolean isUnsigned(ISysParamService sysParamService, String paraNo){
+        String isUnsigned = sysParamService.getParaRemark1(paraNo);
+        return Integer.parseInt(isUnsigned) == 1;
     }
 }

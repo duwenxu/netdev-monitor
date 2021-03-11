@@ -100,6 +100,13 @@ public class OperLog extends Model<OperLog> {
     @TableField(value = "LOG_USER_ID")
     private Integer logUserId;
 
+    /**
+     * 前端显示
+     */
+    @ApiModelProperty(value = "原始数据")
+    @TableField(exist = false)
+    private String orignData;
+
 
     @Override
     protected Serializable pkVal() {

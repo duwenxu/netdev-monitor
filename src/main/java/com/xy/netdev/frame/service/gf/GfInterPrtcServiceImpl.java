@@ -1,6 +1,7 @@
 package com.xy.netdev.frame.service.gf;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
@@ -13,9 +14,9 @@ import com.xy.netdev.monitor.bo.FrameParaInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 
 import static com.xy.netdev.common.util.ByteUtils.byteToNumber;
+import static com.xy.netdev.frame.service.gf.GfPrtcServiceImpl.isUnsigned;
 
 /**
  * 40W功放接口协议解析
@@ -27,6 +28,8 @@ public class GfInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
     @Autowired
     SocketMutualService socketMutualService;
 
+    @Autowired
+    ISysParamService sysParamService;
 
     @Override
     public void queryPara(FrameReqData reqInfo) {
@@ -41,7 +44,7 @@ public class GfInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
         FrameParaData paraInfo = new FrameParaData();
         BeanUtil.copyProperties(frameParaInfo, paraInfo, true);
         paraInfo.setParaVal(byteToNumber(bytes, frameParaInfo.getParaStartPoint(),
-                Integer.parseInt(frameParaInfo.getParaByteLen())).toString());
+                Integer.parseInt(frameParaInfo.getParaByteLen()), isUnsigned(sysParamService, frameParaInfo.getParaNo())).toString());
         return respData;
     }
 }
