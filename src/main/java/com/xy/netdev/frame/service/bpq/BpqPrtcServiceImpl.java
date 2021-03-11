@@ -12,6 +12,7 @@ import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.ParaInfo;
+import com.xy.netdev.transit.IDataReciveService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -35,6 +36,8 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
 
     @Autowired
     SocketMutualService socketMutualService;
+    @Autowired
+    IDataReciveService dataReciveService;
 
 
     /**
@@ -83,6 +86,7 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
         frameParaData.setDevNo(frameParaDetail.getDevNo());
         frameParaDatas.add(frameParaData);
         respData.setFrameParaList(frameParaDatas);
+        dataReciveService.paraQueryRecive(respData);
         return respData;
     }
 
@@ -131,6 +135,7 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
         frameParaData.setDevNo(frameParaDetail.getDevNo());
         frameParaDatas.add(frameParaData);
         respData.setFrameParaList(frameParaDatas);
+        dataReciveService.paraCtrRecive(respData);
         return respData;
     }
 

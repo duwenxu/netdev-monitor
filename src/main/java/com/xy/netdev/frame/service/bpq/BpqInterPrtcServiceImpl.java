@@ -12,6 +12,7 @@ import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
+import com.xy.netdev.transit.IDataReciveService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -27,6 +28,8 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
 
     @Autowired
     SocketMutualService socketMutualService;
+    @Autowired
+    IDataReciveService dataReciveService;
 
     /**
      * 查询设备接口
@@ -77,6 +80,7 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
         respData.setDevType(transportEntity.getDevInfo().getDevType());
         respData.setOperType(SysConfigConstant.OPREATE_QUERY_RESP);
         respData.setAccessType(SysConfigConstant.ACCESS_TYPE_INTERF);
+        dataReciveService.paraQueryRecive(respData);
         return respData;
     }
 
