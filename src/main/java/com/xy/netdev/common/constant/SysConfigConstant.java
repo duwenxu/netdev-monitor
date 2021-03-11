@@ -193,4 +193,15 @@ public interface SysConfigConstant {
      */
     String ACCESS_TYPE_INTERF = "0025002";
 
+    /**
+     * 设备状态--中断
+     */
+    String DEV_STATUS_INTERRUPT = "";
+
+    /**
+     * 设备状态--告警
+     */
+    String DEV_STATUS_ALARM = "";
+
+    String DEV_STATUS_
 }
