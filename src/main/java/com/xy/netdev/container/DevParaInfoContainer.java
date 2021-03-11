@@ -94,17 +94,23 @@ public class DevParaInfoContainer {
     /**
      * @功能：设置设备响应参数信息
      * @param respData        协议解析响应数据
-     * @return
+     * @return 数据是否发生变化
      */
-    public static void   handlerRespDevPara(FrameRespData respData){
+    public static boolean   handlerRespDevPara(FrameRespData respData){
         List<FrameParaData> frameParaList = respData.getFrameParaList();
+        boolean isUpadte = false;
         if(frameParaList!=null&&!frameParaList.isEmpty()){
-            frameParaList.forEach(frameParaData -> {
+            for(FrameParaData frameParaData:frameParaList) {
                 String devNo = frameParaData.getDevNo();
                 String paraNo = frameParaData.getParaNo();
-                devParaMap.get(devNo).get(ParaHandlerUtil.genLinkKey(devNo,paraNo)).setParaVal(frameParaData.getParaVal());
-            });
+                ParaViewInfo paraViewInfo = devParaMap.get(devNo).get(ParaHandlerUtil.genLinkKey(devNo, paraNo));
+                if (!paraViewInfo.getParaVal().equals(frameParaData.getParaVal())) {
+                    paraViewInfo.setParaVal(frameParaData.getParaVal());
+                    isUpadte = true;
+                }
+            }
         }
+        return isUpadte;
     }
 
 }

@@ -4,6 +4,7 @@ import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.monitor.entity.*;
 import com.xy.netdev.monitor.service.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
  * @author sunchao
  * @since 2021-03-09
  */
+@Slf4j
 @Component
 public class BaseContainerLoader {
 
@@ -31,8 +33,6 @@ public class BaseContainerLoader {
     private IPrtclFormatService prtclFormatService;
     @Autowired
     private ISysParamService sysParamService;
-    @Autowired
-    private IAlertInfoService alertInfoService;
 
     /**
      * 初始化信息加载
@@ -54,7 +54,9 @@ public class BaseContainerLoader {
     /**
      * 加载基础信息容器
      */
-    private void initBaseInfo(){
+    public void initBaseInfo(){
+        log.info("开始更新基础信息容器！");
+        long time = System.currentTimeMillis();
         //查询有效的设备列表
         List<BaseInfo> devs = baseInfoService.list().stream().filter(baseInfo -> baseInfo.getDevStatus().equals(SysConfigConstant.DEV_STATUS_NEW)).collect(Collectors.toList());
         //查询有效的参数列表
@@ -68,6 +70,7 @@ public class BaseContainerLoader {
         List<PrtclFormat> prtclList = prtclFormatService.list();
         //初始化基础容器的数据
         BaseInfoContainer.init(devs,paraInfos,interfaces,prtclList);
+        log.info("基础信息容器更新完成，耗时:["+(System.currentTimeMillis()-time)+"ms]");
     }
 
 

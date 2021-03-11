@@ -1,7 +1,6 @@
-package com.xy.netdev.frame.service.gf;
+package com.xy.netdev.frame.service.modem;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
@@ -10,8 +9,10 @@ import com.xy.netdev.frame.enums.ProtocolRequestEnum;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
+import com.xy.netdev.transit.IDataReciveService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Objects;
@@ -20,20 +21,20 @@ import java.util.stream.Collectors;
 import static com.xy.netdev.common.util.ByteUtils.byteToNumber;
 
 /**
- * 40W 功放
- * @author cc
+ * 650型号 调制解调器
+ *
+ * @author duwenxu
+ * @create 2021-03-11 14:23
  */
-@Service
-public class GfPrtcServiceImpl implements IParaPrtclAnalysisService {
-
-    /**应答帧 分隔符*/
-    private static final String SPLIT ="5F";
+@Slf4j
+@Component
+public class Modem_650_PrtcServiceImpl implements IParaPrtclAnalysisService {
 
     @Autowired
-    SocketMutualService socketMutualService;
+    private SocketMutualService socketMutualService;
 
     @Autowired
-    ISysParamService sysParamService;
+    private IDataReciveService dataReciveService;
 
     @Override
     public void queryPara(FrameReqData reqInfo) {
@@ -50,7 +51,7 @@ public class GfPrtcServiceImpl implements IParaPrtclAnalysisService {
                     FrameParaData paraInfo = new FrameParaData();
                     BeanUtil.copyProperties(frameParaInfo, paraInfo, true);
                     paraInfo.setParaVal(byteToNumber(bytes, frameParaInfo.getParaStartPoint(),
-                            Integer.parseInt(frameParaInfo.getParaByteLen()), isUnsigned(sysParamService, frameParaInfo.getParaNo())).toString());
+                            Integer.parseInt(frameParaInfo.getParaByteLen())).toString());
                     return paraInfo;
                 }).collect(Collectors.toList());
         respData.setFrameParaList(frameParaDataList);
@@ -59,16 +60,11 @@ public class GfPrtcServiceImpl implements IParaPrtclAnalysisService {
 
     @Override
     public void ctrlPara(FrameReqData reqInfo) {
-        socketMutualService.request(reqInfo, ProtocolRequestEnum.CONTROL);
+
     }
 
     @Override
     public FrameRespData ctrlParaResponse(FrameRespData respData) {
-        return this.queryParaResponse(respData);
-    }
-
-    public static boolean isUnsigned(ISysParamService sysParamService, String paraNo){
-        String isUnsigned = sysParamService.getParaRemark1(paraNo);
-        return Integer.parseInt(isUnsigned) == 1;
+        return null;
     }
 }

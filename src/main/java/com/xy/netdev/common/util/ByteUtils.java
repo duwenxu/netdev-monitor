@@ -1,6 +1,5 @@
 package com.xy.netdev.common.util;
 
-import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.HexUtil;
 import com.google.common.primitives.Bytes;
 import io.netty.buffer.ByteBuf;
@@ -111,28 +110,39 @@ public class ByteUtils {
 
 
     public static Number byteToNumber(byte[] bytes, int offset, int length){
+        return byteToNumber(bytes, offset, length, false);
+    }
+
+    public static Number bytesToNum(byte[] bytes, int offset, int length, Function<ByteBuf, Number> function,
+                                    Function<ByteBuf, Number> function1, boolean isUnsigned){
+        if (!isUnsigned){
+           return bytesToNum(bytes, offset, length, function);
+        }
+        return bytesToNum(bytes, offset, length, function1);
+    }
+
+    public static Number byteToNumber(byte[] bytes, int offset, int length, boolean isUnsigned){
         Number num = null;
         switch (length){
             case 1:
                 num = bytesToNum(bytes, offset, length, ByteBuf::readByte);
                 break;
             case 2:
-                num = bytesToNum(bytes, offset, length, ByteBuf::readShort);
+                num = bytesToNum(bytes, offset, length, ByteBuf::readShort, ByteBuf::readUnsignedByte, isUnsigned);
                 break;
             case 3:
-                num = bytesToNum(bytes, offset, length, ByteBuf::readMedium);
+                num = bytesToNum(bytes, offset, length, ByteBuf::readMedium, ByteBuf::readUnsignedShort, isUnsigned);
                 break;
             case 4:
-                num = bytesToNum(bytes, offset, length, ByteBuf::readInt);
+                num = bytesToNum(bytes, offset, length, ByteBuf::readInt, ByteBuf::readUnsignedMedium, isUnsigned);
                 break;
             case 8:
-                num = bytesToNum(bytes, offset, length, ByteBuf::readLong);
+                num = bytesToNum(bytes, offset, length, ByteBuf::readLong, ByteBuf::readUnsignedInt, isUnsigned);
                 break;
             default:break;
         }
         return num;
     }
-
 
     public static int byteToUnsignedInt(byte[] bytes){
         String hexStr = HexUtil.encodeHexStr(bytes);
