@@ -1,8 +1,12 @@
 package com.xy.netdev.container;
 
 import com.xy.netdev.common.collection.FixedSizeMap;
+import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.DateTools;
-import com.xy.netdev.monitor.entity.BaseInfo;
+import com.xy.netdev.frame.bo.FrameParaData;
+import com.xy.netdev.frame.bo.FrameRespData;
+import com.xy.netdev.monitor.bo.FrameParaInfo;
+import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.entity.OperLog;
 import java.util.*;
 
@@ -47,4 +51,57 @@ public class DevLogInfoContainer {
     public static List<OperLog> getDevLogList(String devNo){
         return new ArrayList(devLogInfoMap.get(devNo).getMap().descendingMap().values());
     }
+    /**
+     * @功能：设置设备响应日志信息
+     * @param respData        协议解析响应数据
+     * @return
+     */
+    public static void   handlerRespDevPara(FrameRespData respData) {
+        OperLog devLog =new OperLog();
+        devLog.setDevType(respData.getDevType());
+        devLog.setDevNo(respData.getDevNo());
+        devLog.setLogAccessType(respData.getAccessType());
+        devLog.setLogOperType(respData.getOperType());
+        setLogOperObj(respData.getCmdMark(),devLog);
+        List<FrameParaData> frameParaList = respData.getFrameParaList();
+        if(frameParaList!=null&&!frameParaList.isEmpty()){
+
+        }
+        addDevLog(devLog);
+    }
+    /**
+     * @功能：设置设备响应日志信息中操作对象
+     * @param cmdMark              命令标识符
+     * @param devLog               日志对象
+     * @return
+     */
+    private static void setLogOperObj(String cmdMark,OperLog devLog){
+        devLog.setLogCmdMark(cmdMark);
+        if(SysConfigConstant.ACCESS_TYPE_PARAM.equals(devLog.getLogAccessType())){
+            FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(devLog.getDevType(),cmdMark);
+            devLog.setLogOperObjName(frameParaInfo.getParaName());
+            devLog.setLogOperObj(frameParaInfo.getParaId());
+        }
+        if(SysConfigConstant.ACCESS_TYPE_INTERF.equals(devLog.getLogAccessType())){
+            Interface devInterface = BaseInfoContainer.getInterLinkInterface(devLog.getDevType(),cmdMark);
+            devLog.setLogOperObjName(devInterface.getItfName());
+            devLog.setLogOperObj(devInterface.getItfId());
+        }
+    }
+
+    /**
+     * @功能：设置设备响应日志信息中操作对象
+     * @param frameParaList        数据帧参数列表
+     * @return
+     */
+    private static String setlogOperContent(List<FrameParaData> frameParaList){
+        StringBuilder  logContent = new StringBuilder();
+        logContent.append(" 传送参数为:");
+        frameParaList.forEach(frameParaData -> {
+            String paraName = BaseInfoContainer.getParaInfoByNo(frameParaData.getDevType(),frameParaData.getParaNo()).getParaName();
+            logContent.append(paraName+"["+ frameParaData.getParaVal()+"]|");
+        });
+        return logContent.toString();
+    }
+
 }

@@ -44,6 +44,12 @@ public class FrameRespData {
     @ApiModelProperty(value = "响应码")
     private String respCode;
 
+    @ApiModelProperty(value = "协议解析与收发层交互的数据体")
+    private byte[] paramBytes;
+
+    @ApiModelProperty(value = "接收到的原始数据")
+    private String reciveOrignData;
+
     @ApiModelProperty(value = "帧参数列表")
     private List<FrameParaData> frameParaList;
 

@@ -163,19 +163,28 @@ public interface SysConfigConstant {
 
 
     /**
-     * 访问类型--只写
+     * 参数访问限制--只写
      */
     String  ONLY_WRITE= "0022001";
 
     /**
-     * 访问类型--只读
+     * 参数访问限制--只读
      */
     String ONLY_READ = "0022002";
 
     /**
-     * 访问类型--读写
+     * 参数访问限制--读写
      */
     String READ_WRITE = "0022003";
 
+    /**
+     * 访问类型--参数
+     */
+    String ACCESS_TYPE_PARAM = "0025001";
+
+    /**
+     * 访问类型--接口
+     */
+    String ACCESS_TYPE_INTERF = "0025002";
 
 }
