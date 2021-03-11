@@ -285,7 +285,7 @@ public class BaseInfoContainer {
     }
 
     /**
-     * @功能：根据设备类型  和  命令标识 获取协议信息(协议中包含归属)
+     * @功能：根据设备类型  和  命令标识 获取参数的协议信息
      * @param devType     设备类型
      * @param cmdMark     命令标识
      * @return  接口解析协议
