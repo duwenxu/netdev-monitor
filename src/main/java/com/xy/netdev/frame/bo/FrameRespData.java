@@ -1,7 +1,9 @@
 package com.xy.netdev.frame.bo;
 
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -14,6 +16,8 @@ import java.util.List;
  * @since 2021-03-10
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class FrameRespData {
 
     @ApiModelProperty(value = "命令标识符")
@@ -43,6 +47,12 @@ public class FrameRespData {
      */
     @ApiModelProperty(value = "响应码")
     private String respCode;
+
+    @ApiModelProperty(value = "协议解析与收发层交互的数据体")
+    private byte[] paramBytes;
+
+    @ApiModelProperty(value = "接收到的原始数据")
+    private String reciveOrignData;
 
     @ApiModelProperty(value = "帧参数列表")
     private List<FrameParaData> frameParaList;
