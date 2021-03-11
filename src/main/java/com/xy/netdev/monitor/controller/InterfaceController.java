@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xy.common.helper.ControllerResultWrapper;
 import com.xy.common.model.Result;
 import com.xy.common.helper.ControllerHelper;
+import com.xy.netdev.container.BaseContainerLoader;
 import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.service.IInterfaceService;
 import com.xy.netdev.common.util.JwtUtil;
@@ -30,6 +31,8 @@ public class InterfaceController {
 
     @Autowired
     private IInterfaceService targetService;
+    @Autowired
+    private BaseContainerLoader BaseInfo;
 
     /**
     * 获取分页数据
@@ -108,6 +111,14 @@ public class InterfaceController {
     @RequestMapping(value = "/unlinked/{id}", method = RequestMethod.GET)
     public Result<List<TransUiData>> getMdlUnlinkedEvents(@PathVariable String id)  {
         return ControllerResultWrapper.genListResult(targetService.getUnlinkedParams(id));
+    }
+
+    @ApiOperation(value = "更新缓存信息", notes = "更新缓存信息")
+    @RequestMapping(value = "/updateCache", method = RequestMethod.GET)
+    public Result<List<TransUiData>> updateCache()  {
+        //目前暂时这样，后续有优化方案再继续
+        BaseInfo.initBaseInfo();
+        return ControllerResultWrapper.genOkResult();
     }
 
 }

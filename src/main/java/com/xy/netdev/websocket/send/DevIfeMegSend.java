@@ -24,7 +24,7 @@ public class DevIfeMegSend {
 
     /**
      * 给指定设备编号  发送日志列表
-     * @param devNo
+     * @param devNo 设备编号
      */
     public static void sendLogToDev(String devNo){
         ChannelGroup channels = ChannelCache.getInstance().getChannels("DevLogInfos",devNo);
@@ -37,12 +37,12 @@ public class DevIfeMegSend {
 
     /**
      * 给指定设备编号  发送所有参数信息
-     * @param devCode
+     * @param devNo 设备编号
      */
-    public static void sendParaToDev(String devCode){
-        ChannelGroup channels = ChannelCache.getInstance().getChannels("DevParaInfos",devCode);
+    public static void sendParaToDev(String devNo){
+        ChannelGroup channels = ChannelCache.getInstance().getChannels("DevParaInfos",devNo);
         if( channels != null){
-            String msg = JSONObject.toJSONString(DevParaInfoContainer.getDevParaViewList(devCode));
+            String msg = JSONObject.toJSONString(DevParaInfoContainer.getDevParaViewList(devNo));
             TextWebSocketFrame textWebSocketFrame = new TextWebSocketFrame(msg);
             channels.writeAndFlush(textWebSocketFrame);
         }
@@ -51,15 +51,15 @@ public class DevIfeMegSend {
     /**
      * 发送第一次数据方法
      * @param interfaceMark 接口mark
-     * @param devCd 设备代号
+     * @param devNo 设备编号
      */
-    public static void sendFirstData(Object interfaceMark,Object devCd){
+    public static void sendFirstData(Object interfaceMark,Object devNo){
         if(interfaceMark.toString().equals("DevLogInfos")){
             //发送日志信息
-            sendLogToDev(devCd.toString());
+            sendLogToDev(devNo.toString());
         }else if(interfaceMark.toString().equals("DevParaInfos")){
             //发送参数信息
-            sendParaToDev(devCd.toString());
+            sendParaToDev(devNo.toString());
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.xy.netdev.transit.impl;
 
+import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.DevLogInfoContainer;
 import com.xy.netdev.container.DevParaInfoContainer;
 import com.xy.netdev.frame.bo.FrameRespData;
@@ -24,6 +25,8 @@ public class DataReciveServiceImpl implements IDataReciveService {
      * @param  respData   协议解析响应数据
      */
     public void paraQueryRecive(FrameRespData respData) {
+        respData.setAccessType(SysConfigConstant.ACCESS_TYPE_PARAM);
+        respData.setOperType(SysConfigConstant.OPREATE_QUERY_RESP);
         if(DevParaInfoContainer.handlerRespDevPara(respData)){
             DevIfeMegSend.sendParaToDev(respData.getDevNo());//如果设备参数变化,websocet推前台
         }
@@ -37,6 +40,8 @@ public class DataReciveServiceImpl implements IDataReciveService {
      * @param  respData   协议解析响应数据
      */
     public void paraCtrRecive(FrameRespData respData) {
+        respData.setAccessType(SysConfigConstant.ACCESS_TYPE_PARAM);
+        respData.setOperType(SysConfigConstant.OPREATE_CONTROL_RESP);
         if(DevParaInfoContainer.handlerRespDevPara(respData)){
             DevIfeMegSend.sendParaToDev(respData.getDevNo());//如果设备参数变化,websocet推前台
         }
@@ -50,6 +55,8 @@ public class DataReciveServiceImpl implements IDataReciveService {
      * @param  respData   协议解析响应数据
      */
     public void interfaceQueryRecive(FrameRespData respData) {
+        respData.setAccessType(SysConfigConstant.ACCESS_TYPE_INTERF);
+        respData.setOperType(SysConfigConstant.OPREATE_QUERY_RESP);
         if(DevParaInfoContainer.handlerRespDevPara(respData)){
             DevIfeMegSend.sendParaToDev(respData.getDevNo());//如果设备参数变化,websocet推前台
         }
