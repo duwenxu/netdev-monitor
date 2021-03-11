@@ -3,7 +3,6 @@ package com.xy.netdev.frame.service;
 
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
-import com.xy.netdev.frame.entity.TransportEntity;
 
 /**
  * <p>
