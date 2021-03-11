@@ -7,7 +7,8 @@ import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.entity.SocketEntity;
 import com.xy.netdev.frame.entity.device.AntennaControlEntity;
-import com.xy.netdev.frame.service.bpq.BpqPrtcServiceImpl;
+import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
+import com.xy.netdev.frame.service.gf.GfPrtcServiceImpl;
 import io.netty.buffer.ByteBuf;
 import org.springframework.stereotype.Service;
 
@@ -25,12 +26,10 @@ import static com.xy.netdev.common.util.ByteUtils.listToBytes;
 @Service
 public class AntennaControlImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData> {
 
-    @Resource
-    protected BpqPrtcServiceImpl bpqPrtcService;
 
     @Override
-    public void callback(FrameRespData frameRespData) {
-        bpqPrtcService.ctrlParaResponse(frameRespData);
+    public void callback(FrameRespData frameRespData, IParaPrtclAnalysisService iParaPrtclAnalysisService) {
+        iParaPrtclAnalysisService.ctrlParaResponse(frameRespData);
     }
 
     @Override
