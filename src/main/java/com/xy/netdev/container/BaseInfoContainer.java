@@ -95,6 +95,7 @@ public class BaseInfoContainer {
             devInterParam.setId(ParaHandlerUtil.genLinkKey(anInterface.getDevType(),anInterface.getItfCmdMark()));
             List<PrtclFormat> prtclFormats = prtclList.stream().filter(prtclFormat -> prtclFormat.getFmtId() == anInterface.getFmtId()).collect(Collectors.toList());
             if(prtclFormats.size()>0){
+                //设置协议的归属
                 prtclFormats.get(0).setIsPrtclParam(1);
                 devInterParam.setInterfacePrtcl(prtclFormats.get(0));
             }
@@ -200,8 +201,8 @@ public class BaseInfoContainer {
      * @param devType   设备类型
      * @return  接口列表
      */
-    public static List<Interface> getInterfacesByDevType(String devType){
-        return devTypeInterMap.get(devType);
+    public static List<Interface> getInterfacesByDevType(String devType) {
+        return devTypeInterMap.get(devType) != null ? devTypeInterMap.get(devType) : new ArrayList<>();
     }
 
     /**
@@ -209,8 +210,8 @@ public class BaseInfoContainer {
      * @param devType   设备类型
      * @return  参数列表
      */
-    public static List<FrameParaInfo> getParasByDevType(String devType){
-        return devTypeParamMap.get(devType);
+    public static List<FrameParaInfo> getParasByDevType(String devType) {
+        return devTypeParamMap.get(devType) != null ? devTypeParamMap.get(devType) : new ArrayList<>();
     }
 
     /**
@@ -249,7 +250,7 @@ public class BaseInfoContainer {
      */
     public static List<FrameParaInfo> getInterLinkParaList(String devType,String itfCode){
         DevInterParam devInterParam = InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType,itfCode));
-        if(devInterParam == null){
+        if(devInterParam != null){
             return devInterParam.getDevParamList();
         }
         return null;
@@ -263,24 +264,52 @@ public class BaseInfoContainer {
      */
     public static Interface getInterLinkInterface(String devType, String cmdMark){
         DevInterParam devInterParam = InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType,cmdMark));
-        if(devInterParam == null){
+        if(devInterParam != null){
             return devInterParam.getDevInterface();
         }
         return null;
     }
 
     /**
-     * @功能：根据设备类型  和  命令标识 获取协议信息
+     * @功能：根据设备类型  和  命令标识 获取接口的协议信息
      * @param devType     设备类型
      * @param cmdMark     命令标识
-     * @return  接口解析参数列表
+     * @return  接口解析协议
      */
-    public static PrtclFormat getInterLinkFmtFormat(String devType, String cmdMark){
+    public static PrtclFormat getPrtclByInterface(String devType, String cmdMark){
         DevInterParam devInterParam = InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType,cmdMark));
-        if(devInterParam == null){
+        if(devInterParam != null){
             return devInterParam.getInterfacePrtcl();
         }
         return null;
+    }
+
+    /**
+     * @功能：根据设备类型  和  命令标识 获取参数的协议信息
+     * @param devType     设备类型
+     * @param cmdMark     命令标识
+     * @return  接口解析协议
+     */
+    public static PrtclFormat getPrtclByPara(String devType, String cmdMark){
+        FrameParaInfo frameParaInfo = paramCmdMap.get(ParaHandlerUtil.genLinkKey(devType,cmdMark));
+        if (frameParaInfo != null) {
+            frameParaInfo.getInterfacePrtcl();
+        }
+        return null;
+    }
+
+    /**
+     * @功能：根据设备类型  和  命令标识 获取协议信息(协议中包含归属)
+     * @param devType     设备类型
+     * @param cmdMark     命令标识
+     * @return  接口解析协议
+     */
+    public static PrtclFormat getPrtclByInterfaceOrPara(String devType, String cmdMark){
+        PrtclFormat prtclFormat = getPrtclByInterface(devType,cmdMark);
+        if(prtclFormat == null){
+            prtclFormat = getPrtclByPara(devType,cmdMark);
+        }
+        return prtclFormat;
     }
 
     /**
@@ -328,6 +357,7 @@ public class BaseInfoContainer {
             frameParaInfo.setNdpaAccessRight(paraInfo.getNdpaAccessRight()); //访问权限
             List<PrtclFormat> prtclFormats = prtclList.stream().filter(prtclFormat -> prtclFormat.getFmtId() == paraInfo.getFmtId()).collect(Collectors.toList());
             if(prtclFormats.size()>0){
+                //设置协议归属
                 prtclFormats.get(0).setIsPrtclParam(0);
                 frameParaInfo.setInterfacePrtcl(prtclFormats.get(0));      //解析协议
             }

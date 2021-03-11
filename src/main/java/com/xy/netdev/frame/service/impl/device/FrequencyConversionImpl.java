@@ -25,7 +25,13 @@ public class FrequencyConversionImpl extends AbsDeviceSocketHandler<SocketEntity
     @Override
     public FrameRespData unpack(SocketEntity socketEntity, FrameRespData frameRespData) {
         String data = new String(socketEntity.getBytes(), Charset.defaultCharset());
-        int beginOffset = StrUtil.indexOf( data, '/');
+        int beginOffset;
+        char errorMark = '?';
+        if (StrUtil.contains(data, errorMark)){
+            beginOffset = StrUtil.indexOf( data, errorMark);
+        }else {
+            beginOffset = StrUtil.indexOf( data, '/');
+        }
         int endOffset = StrUtil.indexOf(data, '_');
         String paramMark = StrUtil.sub(data, beginOffset, endOffset);
         frameRespData.setCmdMark(paramMark);

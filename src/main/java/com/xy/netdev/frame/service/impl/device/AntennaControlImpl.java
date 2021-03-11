@@ -23,6 +23,47 @@ import static com.xy.netdev.common.util.ByteUtils.listToBytes;
 @Service
 public class AntennaControlImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData> {
 
+    @Override
+    public void callback(FrameRespData frameRespData) {
+        iParaPrtclAnalysisService.ctrlParaResponse(frameRespData);
+    }
+
+    @Override
+    public FrameRespData unpack(SocketEntity socketEntity, FrameRespData frameRespData) {
+        byte[] originalReceiveBytes = socketEntity.getBytes();
+        //数据体长度
+        Byte length = bytesToNum(originalReceiveBytes, 1, 1, ByteBuf::readByte);
+        //命令
+        Byte cmd = bytesToNum(originalReceiveBytes, 3, 1, ByteBuf::readByte);
+        //数据体
+        byte[] paramData = ByteUtils.byteArrayCopy(originalReceiveBytes, 4, length);
+        frameRespData.setCmdMark(cmd.toString());
+        frameRespData.setParamBytes(paramData);
+        //数据体解析
+        return frameRespData;
+    }
+
+    @Override
+    public byte[] pack(FrameReqData frameReqData) {
+        //参数数据
+        byte[] paramBytes = frameReqData.getParamBytes();
+        //数据长度
+        int dataLength = paramBytes.length + 6;
+
+        AntennaControlEntity antennaControlEntity = AntennaControlEntity.builder()
+                .stx((byte) 0x7B)
+                .lc((byte) dataLength)
+                .sad((byte) 0)
+                .cmd(Byte.valueOf(frameReqData.getCmdMark()))
+                .data(frameReqData.getParamBytes())
+                .vs((byte) 0)
+                .etx((byte) 0x7D)
+                .build();
+        byte vs = xor(antennaControlEntity);
+        antennaControlEntity.setVs(vs);
+        return pack(antennaControlEntity);
+    }
+
 
     private byte xor(AntennaControlEntity entity){
         byte[] bytes = {entity.getLc(), entity.getSad(), entity.getCmd()};
@@ -43,44 +84,5 @@ public class AntennaControlImpl extends AbsDeviceSocketHandler<SocketEntity, Fra
 }
 
 
-    @Override
-    public void callback(FrameRespData frameRespData) {
-        iParaPrtclAnalysisService.ctrlParaResponse(frameRespData);
-    }
 
-    @Override
-    public FrameRespData unpack(SocketEntity socketEntity, FrameRespData frameRespData) {
-        byte[] originalReceiveBytes = socketEntity.getBytes();
-        //数据体长度
-        Byte length = bytesToNum(originalReceiveBytes, 1, 1, ByteBuf::readByte);
-        //命令
-        Byte cmd = bytesToNum(originalReceiveBytes, 3, 1, ByteBuf::readByte);
-        //数据体
-        byte[] paramData = ByteUtils.byteArrayCopy(originalReceiveBytes, 4, length);
-        transportEntity.setParamMark(cmd.toString());
-        transportEntity.setParamBytes(paramData);
-        //数据体解析
-        return transportEntity;
-    }
-
-    @Override
-    public byte[] pack(FrameReqData frameReqData) {
-        //参数数据
-        byte[] paramBytes = transportEntity.getParamBytes();
-        //数据长度
-        int dataLength = paramBytes.length + 6;
-
-        AntennaControlEntity antennaControlEntity = AntennaControlEntity.builder()
-                .stx((byte) 0x7B)
-                .lc((byte) dataLength)
-                .sad((byte) 0)
-                .cmd(Byte.valueOf(transportEntity.getParamMark()))
-                .data(transportEntity.getParamBytes())
-                .vs((byte) 0)
-                .etx((byte) 0x7D)
-                .build();
-        byte vs = xor(antennaControlEntity);
-        antennaControlEntity.setVs(vs);
-        return pack(antennaControlEntity);
-    }
 }
