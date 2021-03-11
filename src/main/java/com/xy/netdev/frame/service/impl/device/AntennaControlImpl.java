@@ -25,7 +25,7 @@ public class AntennaControlImpl extends AbsDeviceSocketHandler<SocketEntity, Tra
 
 
     @Override
-    public TransportEntity unpack(SocketEntity socketEntity) {
+    public TransportEntity unpack(SocketEntity socketEntity, TransportEntity transportEntity) {
         byte[] originalReceiveBytes = socketEntity.getBytes();
         //数据体长度
         Byte length = bytesToNum(originalReceiveBytes, 1, 1, ByteBuf::readByte);
@@ -33,10 +33,8 @@ public class AntennaControlImpl extends AbsDeviceSocketHandler<SocketEntity, Tra
         Byte cmd = bytesToNum(originalReceiveBytes, 3, 1, ByteBuf::readByte);
         //数据体
         byte[] paramData = ByteUtils.byteArrayCopy(originalReceiveBytes, 4, length);
-        TransportEntity transportEntity = new TransportEntity();
         transportEntity.setParamMark(cmd.toString());
         transportEntity.setParamBytes(paramData);
-        transportEntity.setDevInfo(getDevInfo(socketEntity.getRemoteAddress()));
         //数据体解析
         return transportEntity;
     }
@@ -68,7 +66,7 @@ public class AntennaControlImpl extends AbsDeviceSocketHandler<SocketEntity, Tra
         iParaPrtclAnalysisService.ctrlParaResponse(transportEntity);
     }
 
-    private byte xor( AntennaControlEntity entity){
+    private byte xor(AntennaControlEntity entity){
         byte[] bytes = {entity.getLc(), entity.getSad(), entity.getCmd()};
         byte[] xorBytes = ArrayUtil.addAll(bytes, entity.getData());
         return ByteUtils.xor(xorBytes, 0, xorBytes.length);

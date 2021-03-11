@@ -1,6 +1,5 @@
 package com.xy.netdev.frame.base.service;
 
-import com.baomidou.mybatisplus.extension.api.R;
 import com.xy.netdev.frame.entity.SocketEntity;
 import com.xy.netdev.frame.entity.TransportEntity;
 
@@ -9,9 +8,10 @@ public interface ProtocolPackService <T extends SocketEntity, R extends Transpor
     /**
      * 数据拆包
      * @param t
+     * @param transportEntity
      * @return
      */
-    R unpack(T t);
+    R unpack(T t, TransportEntity transportEntity);
 
     /**
      * 数据装包

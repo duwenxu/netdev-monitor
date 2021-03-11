@@ -13,4 +13,5 @@ import java.util.Collections;
 public abstract class DeviceSocketBaseHandler<R extends TransportEntity> implements DeviceSocketService<R>,
         ProtocolActionService<R> {
 
+
 }

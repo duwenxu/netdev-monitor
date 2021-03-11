@@ -133,4 +133,32 @@ public class ByteUtils {
         return num;
     }
 
+
+    public static int byteToUnsignedInt(byte[] bytes){
+        String hexStr = HexUtil.encodeHexStr(bytes);
+        return Integer.parseUnsignedInt(hexStr, 16);
+    }
+
+    public static int byteToInt(byte[] bytes){
+        String hexStr = HexUtil.encodeHexStr(bytes);
+        return Integer.parseInt(hexStr, 16);
+    }
+
+    public static int byteToInt(byte byte1){
+        return byteToInt(new byte[]{byte1});
+    }
+
+    public static long byteToLong(byte[] bytes){
+        String hexStr = HexUtil.encodeHexStr(bytes);
+        return Long.parseLong(hexStr, 16);
+    }
+
+    public static long byteToUnsignedLong(byte[] bytes){
+        String hexStr = HexUtil.encodeHexStr(bytes);
+        return Long.parseUnsignedLong(hexStr, 16);
+    }
+
+    public static long byteToLong(byte byte1){
+        return byteToLong(new byte[]{byte1});
+    }
 }

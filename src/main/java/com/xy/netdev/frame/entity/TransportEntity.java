@@ -21,4 +21,7 @@ public class TransportEntity {
     private String paramMark;
 
     private byte[] paramBytes;
+
+
+
 }

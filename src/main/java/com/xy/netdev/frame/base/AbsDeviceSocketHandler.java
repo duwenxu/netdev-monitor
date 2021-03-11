@@ -8,10 +8,11 @@ import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.network.NettyUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+
+import static com.xy.netdev.container.BaseInfoContainer.getDevInfo;
 
 /**
  * 设备数据流程处理基类
@@ -45,10 +46,9 @@ public abstract class AbsDeviceSocketHandler<R extends SocketEntity, T extends T
     @Override
     public void doQuery(T t) {
         byte[] bytes = pack(t);
-        BaseInfo devInfo = t.getDevInfo();
-        int port = Integer.parseInt(devInfo.getDevPort());
-        NettyUtil.sendMsg(bytes, port, devInfo.getDevIpAddr(), port, Integer.parseInt(devInfo.getDevNetPtcl()));
+        sendData(t, bytes);
     }
+
 
     @Override
     public void doControl(T t) {
@@ -65,9 +65,13 @@ public abstract class AbsDeviceSocketHandler<R extends SocketEntity, T extends T
         this.doQuery(t);
     }
 
+
+
     @Override
     public void socketResponse(SocketEntity socketEntity) {
-        this.callback(unpack((R)socketEntity));
+        TransportEntity transportEntity = new TransportEntity();
+        transportEntity.setDevInfo(getDevInfo(socketEntity.getRemoteAddress()));
+        this.callback(unpack((R)socketEntity, transportEntity));
     }
 
     /**
@@ -76,6 +80,12 @@ public abstract class AbsDeviceSocketHandler<R extends SocketEntity, T extends T
      */
     public abstract void callback(T t);
 
+
+    protected void sendData(T t, byte[] bytes) {
+        BaseInfo devInfo = t.getDevInfo();
+        int port = Integer.parseInt(devInfo.getDevPort());
+        NettyUtil.sendMsg(bytes, port, devInfo.getDevIpAddr(), port, Integer.parseInt(devInfo.getDevNetPtcl()));
+    }
 
 
 }
