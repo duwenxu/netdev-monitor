@@ -12,7 +12,9 @@ import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.entity.PrtclFormat;
 import com.xy.netdev.rpt.bo.ScheduleReqBody;
+import com.xy.netdev.transit.IDataSendService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
@@ -33,6 +35,9 @@ import java.util.stream.Collectors;
 @Component
 public class ScheduleReport implements ApplicationRunner {
 
+    @Autowired
+    private IDataSendService dataSendService;
+
     @Override
     public void run(ApplicationArguments args) throws Exception {
         log.info("-----设备状态上报查询开始...");
@@ -46,7 +51,7 @@ public class ScheduleReport implements ApplicationRunner {
     /**
      *  定时上报查询
      */
-    public static void doScheduleReportQuery() {
+    public void doScheduleReportQuery() {
         List<BaseInfo> baseInfos = ScheduleReportHelper.getAvailableBases();
         //单个设备所有查询对象的封装list映射
         Map<BaseInfo, List<FrameReqData>> scheduleReqBodyMap = new ConcurrentHashMap<>(20);
@@ -99,11 +104,11 @@ public class ScheduleReport implements ApplicationRunner {
      *
      * @param scheduleReqBodyMap 参数信息
      */
-    public static void execReportTask(Map<BaseInfo, List<FrameReqData>> scheduleReqBodyMap) {
+    public void execReportTask(Map<BaseInfo, List<FrameReqData>> scheduleReqBodyMap) {
         Long commonInterval = ScheduleReportHelper.getCommonInterval();
         scheduleReqBodyMap.forEach((base, queryList) -> {
             long interval = Long.parseLong(base.getDevIntervalTime() + "");
-            ScheduleReportTask scheduleReportTask = new ScheduleReportTask(queryList, interval, commonInterval);
+            ScheduleReportTask scheduleReportTask = new ScheduleReportTask(queryList, interval, commonInterval,dataSendService);
             Thread thread = new Thread(scheduleReportTask, base.getDevName() + "-reportQuery-thread");
             thread.start();
         });
@@ -122,7 +127,6 @@ public class ScheduleReport implements ApplicationRunner {
                 .cmdMark(cmdMark)
                 .frameParaList(frameParaList)
                 .build();
-
     }
 
 }
