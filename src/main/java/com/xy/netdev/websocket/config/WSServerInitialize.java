@@ -1,6 +1,5 @@
 package com.xy.netdev.websocket.config;
 
-import com.xy.netdev.network.NettyHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;

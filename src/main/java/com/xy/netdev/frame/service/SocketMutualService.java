@@ -1,6 +1,6 @@
 package com.xy.netdev.frame.service;
 
-import com.xy.netdev.frame.entity.TransportEntity;
+import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.enums.ProtocolRequestEnum;
 
 /**
@@ -9,6 +9,11 @@ import com.xy.netdev.frame.enums.ProtocolRequestEnum;
  */
 public interface SocketMutualService {
 
-    void request(TransportEntity transportEntity, ProtocolRequestEnum requestEnum);
+    /**
+     * 外发数据请求接口
+     * @param frameReqData
+     * @param requestEnum
+     */
+    void request(FrameReqData frameReqData, ProtocolRequestEnum requestEnum);
 
 }

@@ -1,19 +1,16 @@
-package com.xy.netdev.frame.service.impl;
+package com.xy.netdev.frame.service.bpq;
 
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
-import com.xy.netdev.frame.entity.TransportEntity;
 import com.xy.netdev.frame.enums.ProtocolRequestEnum;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.ParaInfo;
-import com.xy.netdev.monitor.service.IBaseInfoService;
-import com.xy.netdev.monitor.service.IParaInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -23,10 +20,10 @@ import java.util.List;
 /**
  * 39所Ku&L下变频器参数协议解析
  *
- * @author admin
+ * @author luo
  * @date 2021-03-05
  */
-public class FreqConverterPrtcServiceImpl implements IParaPrtclAnalysisService {
+public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
 
 
     /**用户命令起始标记*/
@@ -135,5 +132,6 @@ public class FreqConverterPrtcServiceImpl implements IParaPrtclAnalysisService {
         respData.setFrameParaList(frameParaDatas);
         return respData;
     }
+
 
 }

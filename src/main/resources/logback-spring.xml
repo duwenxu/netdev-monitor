@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+<!--    <include resource="org/springframework/boot/logging/logback/base.xml"/>-->
     <!-- 日志存储路径 -->
     <property name="log.filePath" value="logs"/>
     <!--单个日志文件限制-->
