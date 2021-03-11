@@ -1,4 +1,4 @@
-package com.xy.netdev.frame.service.impl;
+package com.xy.netdev.frame.service.bpq;
 
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
@@ -20,10 +20,10 @@ import java.util.List;
 /**
  * 39所Ku&L下变频器参数协议解析
  *
- * @author admin
+ * @author luo
  * @date 2021-03-05
  */
-public class FreqConverterPrtcServiceImpl implements IParaPrtclAnalysisService {
+public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
 
 
     /**用户命令起始标记*/
@@ -132,5 +132,6 @@ public class FreqConverterPrtcServiceImpl implements IParaPrtclAnalysisService {
         respData.setFrameParaList(frameParaDatas);
         return respData;
     }
+
 
 }
