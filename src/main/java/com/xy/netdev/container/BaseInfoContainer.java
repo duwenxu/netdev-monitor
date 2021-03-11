@@ -291,12 +291,9 @@ public class BaseInfoContainer {
      * @return  接口解析协议
      */
     public static PrtclFormat getPrtclByPara(String devType, String cmdMark){
-        DevInterParam devInterParam = InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType,cmdMark));
-        if (devInterParam != null) {
-            List<FrameParaInfo> frameParaInfos = devInterParam.getDevParamList().stream().filter(frameParaInfo -> frameParaInfo.getDevType().equals(devType) && frameParaInfo.getCmdMark().equals(cmdMark)).collect(Collectors.toList());
-            if (frameParaInfos.size() > 0) {
-                return frameParaInfos.get(0).getInterfacePrtcl();
-            }
+        FrameParaInfo frameParaInfo = paramCmdMap.get(ParaHandlerUtil.genLinkKey(devType,cmdMark));
+        if (frameParaInfo != null) {
+            frameParaInfo.getInterfacePrtcl();
         }
         return null;
     }
@@ -308,19 +305,11 @@ public class BaseInfoContainer {
      * @return  接口解析协议
      */
     public static PrtclFormat getPrtclByInterfaceOrPara(String devType, String cmdMark){
-        PrtclFormat prtclFormat = null;
-        DevInterParam devInterParam = InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType,cmdMark));
-        if(devInterParam != null){
-            prtclFormat = devInterParam.getInterfacePrtcl();
-            if(prtclFormat == null){
-                List<FrameParaInfo> frameParaInfos = devInterParam.getDevParamList().stream().filter(frameParaInfo -> frameParaInfo.getDevType().equals(devType)&& frameParaInfo.getCmdMark().equals(cmdMark)).collect(Collectors.toList());
-                if(frameParaInfos.size()>0){
-                    prtclFormat = frameParaInfos.get(0).getInterfacePrtcl();
-                }
-            }
-            return prtclFormat;
+        PrtclFormat prtclFormat = getPrtclByInterface(devType,cmdMark);
+        if(prtclFormat == null){
+            prtclFormat = getPrtclByPara(devType,cmdMark);
         }
-        return null;
+        return prtclFormat;
     }
 
     /**
