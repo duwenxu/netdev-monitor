@@ -1,9 +1,7 @@
 package com.xy.netdev.rpt.schedule;
 
 import com.xy.netdev.common.constant.SysConfigConstant;
-import com.xy.netdev.common.util.SpringContextUtils;
 import com.xy.netdev.container.BaseInfoContainer;
-import com.xy.netdev.factory.ParaPrtclFactory;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
@@ -11,7 +9,6 @@ import com.xy.netdev.monitor.constant.MonitorConstants;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.entity.PrtclFormat;
-import com.xy.netdev.rpt.bo.ScheduleReqBody;
 import com.xy.netdev.transit.IDataSendService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
