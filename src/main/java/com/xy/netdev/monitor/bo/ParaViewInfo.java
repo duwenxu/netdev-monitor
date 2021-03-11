@@ -29,6 +29,12 @@ public class ParaViewInfo {
     @ApiModelProperty(value = "参数编号")
     private String paraNo;
 
+    @ApiModelProperty(value = "参数编码")
+    private String paraCode;
+
+    @ApiModelProperty(value = "参数名称")
+    private String paraName;
+
     @ApiModelProperty(value = "参数值")
     private String paraVal;
 

@@ -23,7 +23,7 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static com.xy.netdev.network.NettyHandler.HOST_CHANNEL_MAP;
+import static com.xy.netdev.network.NettyUtil.HOST_CHANNEL_MAP;
 
 
 /**

@@ -34,6 +34,9 @@ public class BaseInfoContainer {
         this.sysParamService = sysParamService;
     }
 
+    public static ISysParamService getSysParamService(){
+        return sysParamService;
+    }
     /**
      * 设备MAP K设备IP地址 V设备信息
      */
