@@ -1,4 +1,4 @@
-package com.xy.netdev.frame.service.impl;
+package com.xy.netdev.frame.service.bpq;
 
 
 import com.xy.netdev.common.constant.SysConfigConstant;
@@ -12,8 +12,6 @@ import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
-import com.xy.netdev.monitor.entity.ParaInfo;
-import com.xy.netdev.monitor.service.IInterfaceService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -22,10 +20,10 @@ import java.util.List;
 /**
  * 39所Ku&L下变频器接口协议解析
  *
- * @author admin
+ * @author luo
  * @date 2021-03-05
  */
-public class FreqConverterInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
+public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
 
     @Autowired
     SocketMutualService socketMutualService;
@@ -37,7 +35,7 @@ public class FreqConverterInterPrtcServiceImpl implements IQueryInterPrtclAnalys
     @Override
     public void queryPara(FrameReqData reqInfo) {
         StringBuilder sb = new StringBuilder();
-        sb.append(FreqConverterPrtcServiceImpl.SEND_START_MARK).append(reqInfo.getDevNo()).append("/")
+        sb.append(BpqPrtcServiceImpl.SEND_START_MARK).append(reqInfo.getDevNo()).append("/")
                 .append(reqInfo.getCmdMark());
         String command = sb.toString();
         TransportEntity transportEntity = new TransportEntity();
