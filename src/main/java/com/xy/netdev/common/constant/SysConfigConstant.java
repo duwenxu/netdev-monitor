@@ -193,4 +193,13 @@ public interface SysConfigConstant {
      */
     String ACCESS_TYPE_INTERF = "0025002";
 
+    /**
+     *udp
+     */
+    String UDP = "0030001";
+
+    /**
+     * TCP
+     */
+    String TCP = "0030002";
 }

@@ -51,6 +51,7 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
     public void doQuery(T t) {
         byte[] bytes = pack(t);
         sendData(t, bytes);
+        t.setSendOrignData(HexUtil.encodeHexStr(bytes));
     }
 
 
