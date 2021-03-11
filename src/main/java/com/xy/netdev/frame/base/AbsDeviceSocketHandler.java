@@ -8,6 +8,7 @@ import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.entity.SocketEntity;
 import com.xy.netdev.frame.enums.ProtocolRequestEnum;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
+import com.xy.netdev.frame.service.bpq.BpqPrtcServiceImpl;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.network.NettyUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -26,8 +27,6 @@ import static com.xy.netdev.container.BaseInfoContainer.getDevInfo;
 public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends FrameReqData, R extends FrameRespData>
         extends DeviceSocketBaseHandler<T, R> implements ProtocolPackService<Q, T, R> {
 
-    @Resource
-    protected IParaPrtclAnalysisService iParaPrtclAnalysisService;
 
     @Override
     public void socketRequest(T t, ProtocolRequestEnum requestEnum) {
@@ -51,6 +50,7 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
     public void doQuery(T t) {
         byte[] bytes = pack(t);
         sendData(t, bytes);
+        t.setSendOrignData(HexUtil.encodeHexStr(bytes));
     }
 
 

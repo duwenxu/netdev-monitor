@@ -245,11 +245,11 @@ public class BaseInfoContainer {
     /**
      * @功能：根据设备类型  和  接口编码 获取参数列表
      * @param devType     设备类型
-     * @param itfCode     接口编码
+     * @param cmdMark     命令标识
      * @return  接口解析参数列表
      */
-    public static List<FrameParaInfo> getInterLinkParaList(String devType,String itfCode){
-        DevInterParam devInterParam = InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType,itfCode));
+    public static List<FrameParaInfo> getInterLinkParaList(String devType,String cmdMark){
+        DevInterParam devInterParam = InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType,cmdMark));
         if(devInterParam != null){
             return devInterParam.getDevParamList();
         }
@@ -361,6 +361,8 @@ public class BaseInfoContainer {
                 prtclFormats.get(0).setIsPrtclParam(0);
                 frameParaInfo.setInterfacePrtcl(prtclFormats.get(0));      //解析协议
             }
+            frameParaInfo.setTransRule(paraInfo.getNdpaTransRule()); //内外转换值域
+            frameParaInfo.setAlertPara(paraInfo.getNdpaAlertPara()); //字段类型
             frameParaInfos.add(frameParaInfo);
         });
         return frameParaInfos;

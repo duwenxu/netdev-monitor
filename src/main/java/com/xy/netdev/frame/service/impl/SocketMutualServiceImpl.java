@@ -1,5 +1,6 @@
 package com.xy.netdev.frame.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.xy.netdev.common.util.BeanFactoryUtil;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.base.AbsDeviceSocketHandler;
@@ -11,6 +12,8 @@ import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.entity.PrtclFormat;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 /**
  * 数据交互实现类
  * @author cc
@@ -21,6 +24,9 @@ public class SocketMutualServiceImpl implements SocketMutualService {
     @Override
     public void request(FrameReqData frameReqData, ProtocolRequestEnum requestEnum) {
         PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameReqData.getDevType(), frameReqData.getCmdMark());
+        if (StrUtil.isBlank(Objects.requireNonNull(prtclFormat).getFmtHandlerClass())){
+            return;
+        }
         AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData> socketHandler =
                 BeanFactoryUtil.getBean(prtclFormat.getFmtHandlerClass());
         socketHandler.socketRequest(frameReqData, requestEnum);

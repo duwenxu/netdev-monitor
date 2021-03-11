@@ -1,12 +1,14 @@
-package com.xy.netdev.frame.service.impl.device;
+package com.xy.netdev.frame.service.impl.head;
 
 import cn.hutool.core.util.StrUtil;
 import com.xy.netdev.frame.base.AbsDeviceSocketHandler;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.entity.SocketEntity;
+import com.xy.netdev.frame.service.bpq.BpqPrtcServiceImpl;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.nio.charset.Charset;
 
 /**
@@ -16,10 +18,12 @@ import java.nio.charset.Charset;
 @Service
 public class FrequencyConversionImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData> {
 
+    @Resource
+    protected BpqPrtcServiceImpl bpqPrtcService;
 
     @Override
     public void callback(FrameRespData frameRespData) {
-        iParaPrtclAnalysisService.ctrlParaResponse(frameRespData);
+        bpqPrtcService.ctrlParaResponse(frameRespData);
     }
 
     @Override
