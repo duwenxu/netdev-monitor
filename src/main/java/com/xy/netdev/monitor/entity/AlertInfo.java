@@ -46,7 +46,7 @@ public class AlertInfo extends Model<AlertInfo> {
 
     @ApiModelProperty(value = "告警个数")
     @TableField(value = "ALERT_NUM")
-    private String alertNum;
+    private Integer alertNum;
 
     @ApiModelProperty(value = "告警时间")
     @TableField(value = "ALERT_TIME")
