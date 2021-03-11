@@ -24,43 +24,6 @@ import static com.xy.netdev.common.util.ByteUtils.byteToInt;
 @Slf4j
 public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData>{
 
-
-
-    private byte[] pack(ModemEntity modemEntity){
-        List<byte[]> list = new ArrayList<>();
-        list.add(new byte[]{modemEntity.getBeginOffset()});
-        list.add(modemEntity.getNum());
-        list.add(new byte[]{modemEntity.getDeviceType()});
-        list.add(new byte[]{modemEntity.getDeviceAddress()});
-        list.add(new byte[]{modemEntity.getCmd()});
-        if (modemEntity.getParams() != null){
-            list.add(modemEntity.getParams());
-        }
-        list.add(new byte[]{modemEntity.getCheck()});
-        list.add(new byte[]{modemEntity.getEnd()});
-        return listToBytes(list);
-    }
-
-
-    public byte check(ModemEntity modemEntity){
-        return addDiv(
-                byteToInt(modemEntity.getNum())
-                , byteToInt(modemEntity.getDeviceType())
-                , byteToInt(modemEntity.getDeviceType())
-                , byteToInt(modemEntity.getDeviceAddress())
-                , byteToInt(modemEntity.getCmd())
-                , byteToInt(modemEntity.getParams())
-                );
-    }
-
-    private byte addDiv(int... values){
-        double div1 = NumberUtil.div(Arrays.stream(values).sum(), 256);
-        return (byte)Double.valueOf(div1).intValue();
-    }
-
-
-
-
     @Override
     public void callback(FrameRespData frameRespData) {
         switch (frameRespData.getCmdMark()){
@@ -76,6 +39,7 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
                 break;
         }
     }
+
 
     @Override
     public FrameRespData unpack(SocketEntity socketEntity, FrameRespData frameRespData) {
@@ -110,4 +74,37 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
         modemEntity.setCheck(check);
         return pack(modemEntity);
     }
+
+    private byte[] pack(ModemEntity modemEntity){
+        List<byte[]> list = new ArrayList<>();
+        list.add(new byte[]{modemEntity.getBeginOffset()});
+        list.add(modemEntity.getNum());
+        list.add(new byte[]{modemEntity.getDeviceType()});
+        list.add(new byte[]{modemEntity.getDeviceAddress()});
+        list.add(new byte[]{modemEntity.getCmd()});
+        if (modemEntity.getParams() != null){
+            list.add(modemEntity.getParams());
+        }
+        list.add(new byte[]{modemEntity.getCheck()});
+        list.add(new byte[]{modemEntity.getEnd()});
+        return listToBytes(list);
+    }
+
+
+    public byte check(ModemEntity modemEntity){
+        return addDiv(
+                byteToInt(modemEntity.getNum())
+                , byteToInt(modemEntity.getDeviceType())
+                , byteToInt(modemEntity.getDeviceType())
+                , byteToInt(modemEntity.getDeviceAddress())
+                , byteToInt(modemEntity.getCmd())
+                , byteToInt(modemEntity.getParams())
+                );
+    }
+
+    private byte addDiv(int... values){
+        double div = NumberUtil.div(Arrays.stream(values).sum(), 256);
+        return (byte)Double.valueOf(div).intValue();
+    }
+
 }
