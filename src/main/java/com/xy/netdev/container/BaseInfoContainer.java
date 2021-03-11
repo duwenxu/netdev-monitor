@@ -201,8 +201,8 @@ public class BaseInfoContainer {
      * @param devType   设备类型
      * @return  接口列表
      */
-    public static List<Interface> getInterfacesByDevType(String devType){
-        return devTypeInterMap.get(devType);
+    public static List<Interface> getInterfacesByDevType(String devType) {
+        return devTypeInterMap.get(devType) != null ? devTypeInterMap.get(devType) : new ArrayList<>();
     }
 
     /**
@@ -210,8 +210,8 @@ public class BaseInfoContainer {
      * @param devType   设备类型
      * @return  参数列表
      */
-    public static List<FrameParaInfo> getParasByDevType(String devType){
-        return devTypeParamMap.get(devType);
+    public static List<FrameParaInfo> getParasByDevType(String devType) {
+        return devTypeParamMap.get(devType) != null ? devTypeParamMap.get(devType) : new ArrayList<>();
     }
 
     /**

@@ -131,6 +131,12 @@ public interface SysConfigConstant {
      * 是否   0003002 FALSE
      */
      String  IS_DEFAULT_FALSE="0003002";
+
+    /***
+     * 公共参数--查询间隔时间
+     */
+    String  DEV_QUERY_INTERVAL="0100002";
+
     /***
      * 公共参数--设备日志信息显示条数
      */
