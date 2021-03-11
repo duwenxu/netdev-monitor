@@ -73,6 +73,7 @@ public class DevLogInfoContainer {
         devLog.setLogAccessTypeName(sysParamService.getParaName(respData.getAccessType()));
         setLogOperObj(respData.getCmdMark(),devLog);
         devLog.setLogOperContent(genRespCodeInfo(respData)+genFrameParaContent(respData.getFrameParaList()));
+        devLog.setOrignData(respData.getReciveOrignData());
         addDevLog(devLog);
     }
 
@@ -92,6 +93,7 @@ public class DevLogInfoContainer {
         devLog.setLogAccessTypeName(sysParamService.getParaName(reqData.getAccessType()));
         setLogOperObj(reqData.getCmdMark(),devLog);
         devLog.setLogOperContent(genIsOkInfo(reqData)+genFrameParaContent(reqData.getFrameParaList()));
+        devLog.setOrignData(reqData.getSendOrignData());
         addDevLog(devLog);
     }
     /**
