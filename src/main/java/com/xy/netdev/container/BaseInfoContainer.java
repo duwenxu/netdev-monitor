@@ -95,6 +95,7 @@ public class BaseInfoContainer {
             devInterParam.setId(ParaHandlerUtil.genLinkKey(anInterface.getDevType(),anInterface.getItfCmdMark()));
             List<PrtclFormat> prtclFormats = prtclList.stream().filter(prtclFormat -> prtclFormat.getFmtId() == anInterface.getFmtId()).collect(Collectors.toList());
             if(prtclFormats.size()>0){
+                //设置协议的归属
                 prtclFormats.get(0).setIsPrtclParam(1);
                 devInterParam.setInterfacePrtcl(prtclFormats.get(0));
             }
@@ -249,7 +250,7 @@ public class BaseInfoContainer {
      */
     public static List<FrameParaInfo> getInterLinkParaList(String devType,String itfCode){
         DevInterParam devInterParam = InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType,itfCode));
-        if(devInterParam == null){
+        if(devInterParam != null){
             return devInterParam.getDevParamList();
         }
         return null;
@@ -263,22 +264,30 @@ public class BaseInfoContainer {
      */
     public static Interface getInterLinkInterface(String devType, String cmdMark){
         DevInterParam devInterParam = InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType,cmdMark));
-        if(devInterParam == null){
+        if(devInterParam != null){
             return devInterParam.getDevInterface();
         }
         return null;
     }
 
     /**
-     * @功能：根据设备类型  和  命令标识 获取协议信息
+     * @功能：根据设备类型  和  命令标识 获取协议信息(协议中包含归属)
      * @param devType     设备类型
      * @param cmdMark     命令标识
-     * @return  接口解析参数列表
+     * @return  接口解析协议
      */
     public static PrtclFormat getInterLinkFmtFormat(String devType, String cmdMark){
+        PrtclFormat prtclFormat = null;
         DevInterParam devInterParam = InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType,cmdMark));
-        if(devInterParam == null){
-            return devInterParam.getInterfacePrtcl();
+        if(devInterParam != null){
+            prtclFormat = devInterParam.getInterfacePrtcl();
+            if(prtclFormat == null){
+                List<FrameParaInfo> frameParaInfos = devInterParam.getDevParamList().stream().filter(frameParaInfo -> frameParaInfo.getDevType().equals(devType)&& frameParaInfo.getCmdMark().equals(cmdMark)).collect(Collectors.toList());
+                if(frameParaInfos.size()>0){
+                    prtclFormat = frameParaInfos.get(0).getInterfacePrtcl();
+                }
+            }
+            return prtclFormat;
         }
         return null;
     }
@@ -328,6 +337,7 @@ public class BaseInfoContainer {
             frameParaInfo.setNdpaAccessRight(paraInfo.getNdpaAccessRight()); //访问权限
             List<PrtclFormat> prtclFormats = prtclList.stream().filter(prtclFormat -> prtclFormat.getFmtId() == paraInfo.getFmtId()).collect(Collectors.toList());
             if(prtclFormats.size()>0){
+                //设置协议归属
                 prtclFormats.get(0).setIsPrtclParam(0);
                 frameParaInfo.setInterfacePrtcl(prtclFormats.get(0));      //解析协议
             }
