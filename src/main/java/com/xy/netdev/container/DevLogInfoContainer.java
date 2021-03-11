@@ -6,7 +6,6 @@ import com.xy.netdev.common.util.DateTools;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
-import com.xy.netdev.monitor.constant.MonitorConstants;
 import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.entity.OperLog;
 import java.util.*;
@@ -66,9 +65,7 @@ public class DevLogInfoContainer {
         setLogOperObj(respData.getCmdMark(),devLog);
         List<FrameParaData> frameParaList = respData.getFrameParaList();
         if(frameParaList!=null&&!frameParaList.isEmpty()){
-            frameParaList.forEach(frameParaData -> {
 
-            });
         }
         addDevLog(devLog);
     }
@@ -92,5 +89,19 @@ public class DevLogInfoContainer {
         }
     }
 
+    /**
+     * @功能：设置设备响应日志信息中操作对象
+     * @param frameParaList        数据帧参数列表
+     * @return
+     */
+    private static String setlogOperContent(List<FrameParaData> frameParaList){
+        StringBuilder  logContent = new StringBuilder();
+        logContent.append(" 传送参数为:");
+        frameParaList.forEach(frameParaData -> {
+            String paraName = BaseInfoContainer.getParaInfoByNo(frameParaData.getDevType(),frameParaData.getParaNo()).getParaName();
+            logContent.append(paraName+"["+ frameParaData.getParaVal()+"]|");
+        });
+        return logContent.toString();
+    }
 
 }

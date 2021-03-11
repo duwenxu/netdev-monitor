@@ -39,6 +39,18 @@ public class FrameReqData {
     @ApiModelProperty(value = "操作类型")
     private String operType;
 
+    /**
+     * 0 成功  1 失败
+     */
+    @ApiModelProperty(value = "发送是否成功")
+    private String isOk;
+
+    @ApiModelProperty(value = "协议解析与收发层交互的数据体")
+    private byte[] paramBytes;
+
+    @ApiModelProperty(value = "发送的原始数据")
+    private String sendOrignData;
+
     @ApiModelProperty(value = "帧参数列表")
     private List<FrameParaData> frameParaList;
 }
