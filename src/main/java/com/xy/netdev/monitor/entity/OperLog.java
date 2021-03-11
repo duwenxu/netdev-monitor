@@ -39,7 +39,9 @@ public class OperLog extends Model<OperLog> {
     @ApiModelProperty(value = "设备编号")
     @TableField(value = "DEV_NO")
     private String devNo;
-
+    /**
+     * 前端显示
+     */
     @ApiModelProperty(value = "日志时间")
     @TableField(value = "LOG_TIME")
     private String logTime;
@@ -51,22 +53,45 @@ public class OperLog extends Model<OperLog> {
     @TableField(value = "LOG_ACCESS_TYPE")
     private String logAccessType;
 
+    /**
+     * 前端显示
+     */
+    @ApiModelProperty(value = "访问类型名称")
+    @TableField(exist = false)
+    private String logAccessTypeName;
+
     @ApiModelProperty(value = "操作类型")
     @TableField(value = "LOG_OPER_TYPE")
     private String logOperType;
+
+    /**
+     * 前端显示
+     */
+    @ApiModelProperty(value = "操作类型名称")
+    @TableField(exist = false)
+    private String logOperTypeName;
 
     @ApiModelProperty(value = "操作对象")
     @TableField(value = "LOG_OPER_OBJ")
     private Integer logOperObj;
 
+    /**
+     * 前端显示
+     */
     @ApiModelProperty(value = "命令标识符")
     @TableField(exist = false)
     private String logCmdMark;
 
+    /**
+     * 前端显示
+     */
     @ApiModelProperty(value = "操作对象名称")
     @TableField(exist = false)
     private String logOperObjName;
 
+    /**
+     * 前端显示
+     */
     @ApiModelProperty(value = "操作内容")
     @TableField(value = "LOG_OPER_CONTENT")
     private String logOperContent;
