@@ -1,12 +1,11 @@
 package com.xy.netdev.frame.base;
 
 import com.xy.netdev.frame.base.service.ProtocolPackService;
+import com.xy.netdev.frame.bo.FrameReqData;
+import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.entity.SocketEntity;
-import com.xy.netdev.frame.entity.TransportEntity;
 import com.xy.netdev.frame.enums.ProtocolRequestEnum;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
-import com.xy.netdev.monitor.entity.BaseInfo;
-import com.xy.netdev.network.NettyUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +19,8 @@ import static com.xy.netdev.container.BaseInfoContainer.getDevInfo;
  */
 @Component
 @Slf4j
-public abstract class AbsDeviceSocketHandler<R extends SocketEntity, T extends TransportEntity> extends DeviceSocketBaseHandler<T> implements ProtocolPackService<R, T> {
+public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends FrameReqData, R extends FrameRespData>
+        extends DeviceSocketBaseHandler<T, R> implements ProtocolPackService<Q, T, R> {
 
     @Resource
     protected IParaPrtclAnalysisService iParaPrtclAnalysisService;
@@ -71,20 +71,22 @@ public abstract class AbsDeviceSocketHandler<R extends SocketEntity, T extends T
     public void socketResponse(SocketEntity socketEntity) {
         TransportEntity transportEntity = new TransportEntity();
         transportEntity.setDevInfo(getDevInfo(socketEntity.getRemoteAddress()));
-        this.callback(unpack((R)socketEntity, transportEntity));
+        FrameRespData frameRespData = new FrameRespData();
+
+        this.callback(unpack((Q)socketEntity, (R)frameRespData));
     }
 
     /**
      * 回调
-     * @param t
+     * @param r
      */
-    public abstract void callback(T t);
+    public abstract void callback(R r);
 
 
     protected void sendData(T t, byte[] bytes) {
-        BaseInfo devInfo = t.getDevInfo();
-        int port = Integer.parseInt(devInfo.getDevPort());
-        NettyUtil.sendMsg(bytes, port, devInfo.getDevIpAddr(), port, Integer.parseInt(devInfo.getDevNetPtcl()));
+//        BaseInfo devInfo = t.getDevInfo();
+//        int port = Integer.parseInt(devInfo.getDevPort());
+//        NettyUtil.sendMsg(bytes, port, devInfo.getDevIpAddr(), port, Integer.parseInt(devInfo.getDevNetPtcl()));
     }
 
 

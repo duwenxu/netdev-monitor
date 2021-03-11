@@ -6,8 +6,9 @@ import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.thread.ThreadUtil;
 import com.xy.netdev.common.util.BeanFactoryUtil;
 import com.xy.netdev.frame.base.AbsDeviceSocketHandler;
+import com.xy.netdev.frame.bo.FrameReqData;
+import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.entity.SocketEntity;
-import com.xy.netdev.frame.entity.TransportEntity;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,12 +30,12 @@ import static com.xy.netdev.network.NettyUtil.SOCKET_QUEUE;
 public class DeviceSocketSubscribe {
 
     @Autowired
-    private List<AbsDeviceSocketHandler<SocketEntity,TransportEntity>> absSocketHandlerList;
+    private List<AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData>> absSocketHandlerList;
 
     /**
      * 带时效的先进先出队列
      */
-    private FIFOCache<String, AbsDeviceSocketHandler<SocketEntity,TransportEntity>> cache;
+    private FIFOCache<String, AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData>> cache;
 
     @PostConstruct
     public void init(){
@@ -58,8 +59,8 @@ public class DeviceSocketSubscribe {
      * @param ip ip
      * @return 目标实体
      */
-    private Optional<AbsDeviceSocketHandler<SocketEntity,TransportEntity>> getHandler(String ip){
-        AbsDeviceSocketHandler<SocketEntity,TransportEntity> socketHandler = cache.get(ip);
+    private Optional<AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData>> getHandler(String ip){
+        AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData> socketHandler = cache.get(ip);
         if (socketHandler != null){
             return Optional.of(socketHandler);
         }
@@ -72,7 +73,7 @@ public class DeviceSocketSubscribe {
         //TODO 设备回调方法
         //设备网络协议
         String devNetPtcl = devInfo.getDevNetPtcl();
-        AbsDeviceSocketHandler<SocketEntity,TransportEntity> handler = BeanFactoryUtil.getBean(devNetPtcl);
+        AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData> handler = BeanFactoryUtil.getBean(devNetPtcl);
         cache.put(ip, handler, DateUnit.MINUTE.getMillis());
         return Optional.of(handler);
     }
