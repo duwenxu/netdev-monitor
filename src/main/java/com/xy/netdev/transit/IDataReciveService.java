@@ -1,39 +1,34 @@
 package com.xy.netdev.transit;
 
 
-import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
-import com.xy.netdev.frame.entity.TransportEntity;
 
 /**
  * <p>
- * 数据发送接口
+ * [transit]中转层收[frame]协议解析层接口
  * </p>
  *
  * @author tangxl
  * @since 2021-03-11
  */
-public interface IDataSendService {
+public interface IDataReciveService {
     /**
-     * 参数查询发送
-     * @param  devNo   设备编号
-     * @param  paraNo  参数编号
+     * 参数查询接收
+     * @param  respData   协议解析响应数据
      */
-    void paraQuerySend(String devNo,String paraNo);
+    void paraQueryRecive(FrameRespData respData);
 
     /**
-     * 参数控制发送
-     * @param  devNo   设备编号
-     * @param  paraNo  参数编号
+     * 参数控制接收
+     * @param  respData   协议解析响应数据
      */
-    void paraCtrSend(String devNo,String paraNo);
+    void paraCtrRecive(FrameRespData respData);
 
     /**
-     * 接口查询发送
-     * @param  devNo   设备编号
-     * @param  paraNo  参数编号
+     * 接口查询接收
+     * @param  respData   协议解析响应数据
      */
-    void interfaceQuerySend(String devNo,String paraNo);
+    void interfaceQueryRecive(FrameRespData respData);
 
 
 }
