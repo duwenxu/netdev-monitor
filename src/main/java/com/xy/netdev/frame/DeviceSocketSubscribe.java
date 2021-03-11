@@ -5,6 +5,7 @@ import cn.hutool.cache.impl.FIFOCache;
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.thread.ThreadUtil;
 import com.xy.netdev.common.util.BeanFactoryUtil;
+import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.base.AbsDeviceSocketHandler;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
@@ -70,10 +71,9 @@ public class DeviceSocketSubscribe {
             log.error("位置设备数据, 设备ip:{}", ip);
             return Optional.empty();
         }
-        //TODO 设备回调方法
         //设备网络协议
-        String devNetPtcl = devInfo.getDevNetPtcl();
-        AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData> handler = BeanFactoryUtil.getBean(devNetPtcl);
+        String classByDevType = BaseInfoContainer.getClassByDevType(devInfo.getDevType());
+        AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData> handler = BeanFactoryUtil.getBean(classByDevType);
         cache.put(ip, handler, DateUnit.MINUTE.getMillis());
         return Optional.of(handler);
     }

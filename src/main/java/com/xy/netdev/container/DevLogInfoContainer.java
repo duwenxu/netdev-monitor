@@ -113,7 +113,7 @@ public class DevLogInfoContainer {
      * @return
      */
     private static void setStatusInfo(FrameRespData respData,String respCode,OperLog devLog){
-        BaseInfoContainer.getInterLinkFmtFormat("","");
+//        BaseInfoContainer.getInterLinkFmtFormat("","");
         ISysParamService sysParamService =BaseInfoContainer.getSysParamService();
         List<SysParam> paramList = sysParamService.queryParamsByParentId("");
     }

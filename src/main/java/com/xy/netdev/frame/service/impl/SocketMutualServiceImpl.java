@@ -20,7 +20,7 @@ public class SocketMutualServiceImpl implements SocketMutualService {
 
     @Override
     public void request(FrameReqData frameReqData, ProtocolRequestEnum requestEnum) {
-        PrtclFormat prtclFormat = BaseInfoContainer.getInterLinkFmtFormat(frameReqData.getDevType(), frameReqData.getCmdMark());
+        PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameReqData.getDevType(), frameReqData.getCmdMark());
         AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData> socketHandler =
                 BeanFactoryUtil.getBean(prtclFormat.getFmtHandlerClass());
         socketHandler.socketRequest(frameReqData, requestEnum);
