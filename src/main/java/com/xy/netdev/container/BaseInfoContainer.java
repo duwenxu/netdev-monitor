@@ -271,12 +271,43 @@ public class BaseInfoContainer {
     }
 
     /**
+     * @功能：根据设备类型  和  命令标识 获取接口的协议信息
+     * @param devType     设备类型
+     * @param cmdMark     命令标识
+     * @return  接口解析协议
+     */
+    public static PrtclFormat getPrtclByInterface(String devType, String cmdMark){
+        DevInterParam devInterParam = InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType,cmdMark));
+        if(devInterParam != null){
+            return devInterParam.getInterfacePrtcl();
+        }
+        return null;
+    }
+
+    /**
+     * @功能：根据设备类型  和  命令标识 获取参数的协议信息
+     * @param devType     设备类型
+     * @param cmdMark     命令标识
+     * @return  接口解析协议
+     */
+    public static PrtclFormat getPrtclByPara(String devType, String cmdMark){
+        DevInterParam devInterParam = InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType,cmdMark));
+        if (devInterParam != null) {
+            List<FrameParaInfo> frameParaInfos = devInterParam.getDevParamList().stream().filter(frameParaInfo -> frameParaInfo.getDevType().equals(devType) && frameParaInfo.getCmdMark().equals(cmdMark)).collect(Collectors.toList());
+            if (frameParaInfos.size() > 0) {
+                return frameParaInfos.get(0).getInterfacePrtcl();
+            }
+        }
+        return null;
+    }
+
+    /**
      * @功能：根据设备类型  和  命令标识 获取协议信息(协议中包含归属)
      * @param devType     设备类型
      * @param cmdMark     命令标识
      * @return  接口解析协议
      */
-    public static PrtclFormat getInterLinkFmtFormat(String devType, String cmdMark){
+    public static PrtclFormat getPrtclByInterfaceOrPara(String devType, String cmdMark){
         PrtclFormat prtclFormat = null;
         DevInterParam devInterParam = InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType,cmdMark));
         if(devInterParam != null){
