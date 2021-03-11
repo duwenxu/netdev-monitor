@@ -76,4 +76,16 @@ public class FrameParaInfo {
 
     @ApiModelProperty(value = "解析协议")
     private PrtclFormat interfacePrtcl;
+
+    @ApiModelProperty(value = "数据内外转换值域")
+    private String transRule;
+
+    @ApiModelProperty(value = "字段类型")
+    private String alertPara;
+
+
+
+
+
+
 }

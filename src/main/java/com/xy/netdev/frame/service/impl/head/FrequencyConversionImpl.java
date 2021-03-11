@@ -1,4 +1,4 @@
-package com.xy.netdev.frame.service.impl.device;
+package com.xy.netdev.frame.service.impl.head;
 
 import cn.hutool.core.util.StrUtil;
 import com.xy.netdev.frame.base.AbsDeviceSocketHandler;

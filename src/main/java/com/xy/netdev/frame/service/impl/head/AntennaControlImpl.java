@@ -1,4 +1,4 @@
-package com.xy.netdev.frame.service.impl.device;
+package com.xy.netdev.frame.service.impl.head;
 
 import cn.hutool.core.util.ArrayUtil;
 import com.xy.netdev.common.util.ByteUtils;
@@ -17,7 +17,7 @@ import static com.xy.netdev.common.util.ByteUtils.bytesToNum;
 import static com.xy.netdev.common.util.ByteUtils.listToBytes;
 
 /**
- * 2.4米卫通天线控制
+ * 40w功放
  * @author cc
  */
 @Service
@@ -72,17 +72,15 @@ public class AntennaControlImpl extends AbsDeviceSocketHandler<SocketEntity, Fra
     }
 
     private byte[] pack(AntennaControlEntity antennaControlEntity){
-    List<byte[]> list = new ArrayList<>();
-    list.add(new byte[]{antennaControlEntity.getStx()});
-    list.add(new byte[]{antennaControlEntity.getLc()});
-    list.add(new byte[]{antennaControlEntity.getSad()});
-    list.add(new byte[]{antennaControlEntity.getCmd()});
-    list.add(antennaControlEntity.getData());
-    list.add(new byte[]{antennaControlEntity.getVs()});
-    list.add(new byte[]{antennaControlEntity.getEtx()});
-    return listToBytes(list);
-}
-
-
+        List<byte[]> list = new ArrayList<>();
+        list.add(new byte[]{antennaControlEntity.getStx()});
+        list.add(new byte[]{antennaControlEntity.getLc()});
+        list.add(new byte[]{antennaControlEntity.getSad()});
+        list.add(new byte[]{antennaControlEntity.getCmd()});
+        list.add(antennaControlEntity.getData());
+        list.add(new byte[]{antennaControlEntity.getVs()});
+        list.add(new byte[]{antennaControlEntity.getEtx()});
+        return listToBytes(list);
+    }
 
 }

@@ -245,11 +245,11 @@ public class BaseInfoContainer {
     /**
      * @功能：根据设备类型  和  接口编码 获取参数列表
      * @param devType     设备类型
-     * @param itfCode     接口编码
+     * @param cmdMark     命令标识
      * @return  接口解析参数列表
      */
-    public static List<FrameParaInfo> getInterLinkParaList(String devType,String itfCode){
-        DevInterParam devInterParam = InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType,itfCode));
+    public static List<FrameParaInfo> getInterLinkParaList(String devType,String cmdMark){
+        DevInterParam devInterParam = InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType,cmdMark));
         if(devInterParam != null){
             return devInterParam.getDevParamList();
         }
@@ -291,12 +291,9 @@ public class BaseInfoContainer {
      * @return  接口解析协议
      */
     public static PrtclFormat getPrtclByPara(String devType, String cmdMark){
-        DevInterParam devInterParam = InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType,cmdMark));
-        if (devInterParam != null) {
-            List<FrameParaInfo> frameParaInfos = devInterParam.getDevParamList().stream().filter(frameParaInfo -> frameParaInfo.getDevType().equals(devType) && frameParaInfo.getCmdMark().equals(cmdMark)).collect(Collectors.toList());
-            if (frameParaInfos.size() > 0) {
-                return frameParaInfos.get(0).getInterfacePrtcl();
-            }
+        FrameParaInfo frameParaInfo = paramCmdMap.get(ParaHandlerUtil.genLinkKey(devType,cmdMark));
+        if (frameParaInfo != null) {
+            frameParaInfo.getInterfacePrtcl();
         }
         return null;
     }
@@ -308,19 +305,11 @@ public class BaseInfoContainer {
      * @return  接口解析协议
      */
     public static PrtclFormat getPrtclByInterfaceOrPara(String devType, String cmdMark){
-        PrtclFormat prtclFormat = null;
-        DevInterParam devInterParam = InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType,cmdMark));
-        if(devInterParam != null){
-            prtclFormat = devInterParam.getInterfacePrtcl();
-            if(prtclFormat == null){
-                List<FrameParaInfo> frameParaInfos = devInterParam.getDevParamList().stream().filter(frameParaInfo -> frameParaInfo.getDevType().equals(devType)&& frameParaInfo.getCmdMark().equals(cmdMark)).collect(Collectors.toList());
-                if(frameParaInfos.size()>0){
-                    prtclFormat = frameParaInfos.get(0).getInterfacePrtcl();
-                }
-            }
-            return prtclFormat;
+        PrtclFormat prtclFormat = getPrtclByInterface(devType,cmdMark);
+        if(prtclFormat == null){
+            prtclFormat = getPrtclByPara(devType,cmdMark);
         }
-        return null;
+        return prtclFormat;
     }
 
     /**
@@ -372,6 +361,8 @@ public class BaseInfoContainer {
                 prtclFormats.get(0).setIsPrtclParam(0);
                 frameParaInfo.setInterfacePrtcl(prtclFormats.get(0));      //解析协议
             }
+            frameParaInfo.setTransRule(paraInfo.getNdpaTransRule()); //内外转换值域
+            frameParaInfo.setAlertPara(paraInfo.getNdpaAlertPara()); //字段类型
             frameParaInfos.add(frameParaInfo);
         });
         return frameParaInfos;

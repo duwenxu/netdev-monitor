@@ -194,14 +194,43 @@ public interface SysConfigConstant {
     String ACCESS_TYPE_INTERF = "0025002";
 
     /**
+     * UDP
+     */
+    String UDP = "0030001";
+
+    /**
+     * TCP
+     */
+    String TCP = "0030002";
+
+    /**
      * 设备状态--中断
      */
-    String DEV_STATUS_INTERRUPT = "";
+    String DEV_STATUS_INTERRUPT = "0029001";
 
     /**
      * 设备状态--告警
      */
-    String DEV_STATUS_ALARM = "";
+    String DEV_STATUS_ALARM = "0029002";
 
-    String DEV_STATUS_
+    /**
+     * 设备状态--启用主备
+     */
+    String DEV_STATUS_SWITCH = "0029003";
+
+    /**
+     * 设备状态--主备
+     */
+    String DEV_STATUS_STANDBY = "0029004";
+
+    /**
+     * 设备状态--维修
+     */
+    String DEV_STATUS_MAINTAIN = "0029005";
+
+    /**
+     * 设备状态--默认
+     */
+    String DEV_STATUS_DEFAULT = "0029006";
+
 }

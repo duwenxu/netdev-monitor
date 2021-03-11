@@ -12,6 +12,7 @@ import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.ParaInfo;
 import com.xy.netdev.transit.IDataReciveService;
+import com.xy.netdev.transit.IDevAlarmReportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -39,6 +40,8 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
     SocketMutualService socketMutualService;
     @Autowired
     IDataReciveService dataReciveService;
+    @Autowired
+    IDevAlarmReportService devAlarmReportService;
 
 
     /**
@@ -83,6 +86,8 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
         frameParaDatas.add(frameParaData);
         respData.setFrameParaList(frameParaDatas);
         dataReciveService.paraQueryRecive(respData);
+        //生成报警信息
+        devAlarmReportService.generateAlarmInfo(respData);
         return respData;
     }
 
@@ -128,6 +133,8 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
         frameParaDatas.add(frameParaData);
         respData.setFrameParaList(frameParaDatas);
         dataReciveService.paraCtrRecive(respData);
+        //生成报警信息
+        devAlarmReportService.generateAlarmInfo(respData);
         return respData;
     }
 

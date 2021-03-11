@@ -15,11 +15,7 @@ public interface IDevAlarmReportService {
     /**
      * 生成报警信息
      */
-     AlertInfo generateAlarmInfo(FrameRespData respData);
+     void generateAlarmInfo(FrameRespData respData);
 
 
-    /**
-     * 事件上报
-     */
-    void eventReport(AlertInfo alertInfo);
 }
