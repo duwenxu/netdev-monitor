@@ -80,11 +80,10 @@ public class ScheduleReport implements ApplicationRunner {
             //接口查询对象封装
             for (Interface item : queryIntersByDevType) {
                 //获取接口对应的格式协议及处理类
-                String itfCode = item.getItfCode();
-                PrtclFormat prtclFormat = BaseInfoContainer.getInterLinkFmtFormat(base.getDevType(), itfCode);
+                String cmdMark = item.getItfCmdMark();
+                PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterface(base.getDevType(), cmdMark);
                 if (prtclFormat == null){continue;}
                 Object handler = ParaPrtclFactory.genHandler(prtclFormat.getFmtHandlerClass());
-                String cmdMark = item.getItfCmdMark();
 
                 ScheduleReqBody scheduleReqBody = scheduleReqBodyWrapper(base, handler, cmdMark, new ArrayList<>());
                 scheduleReqBodyList.add(scheduleReqBody);
