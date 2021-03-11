@@ -49,35 +49,30 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
         sb.append(SEND_START_MARK).append(reqInfo.getDevNo()).append("/")
                 .append(reqInfo.getCmdMark());
         String command = sb.toString();
-        TransportEntity transportEntity = new TransportEntity();
-        BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(reqInfo.getDevNo());
-        transportEntity.setDevInfo(baseInfo);
-        transportEntity.setParamMark(reqInfo.getCmdMark());
-        transportEntity.setParamBytes(command.getBytes());
-        socketMutualService.request(transportEntity, ProtocolRequestEnum.QUERY);
+        reqInfo.setParamBytes(command.getBytes());
+        socketMutualService.request(reqInfo, ProtocolRequestEnum.QUERY);
     }
 
     /**
      * 查询设备参数响应
-     * @param  transportEntity   数据传输对象
+     * @param  respData   数据传输对象
      * @return
      */
     @Override
-    public FrameRespData queryParaResponse(TransportEntity transportEntity) {
-        String respStr = new String(transportEntity.getParamBytes());
+    public FrameRespData queryParaResponse(FrameRespData respData) {
+        String respStr = new String(respData.getParamBytes());
         int beginIdx = respStr.indexOf("/");
         int endIdx = respStr.indexOf("_");
         String cmdMark = respStr.substring(beginIdx+1,endIdx);
         String value = respStr.substring(endIdx+1,respStr.indexOf("\\r"));
-        FrameRespData respData = new FrameRespData();
         ParaInfo paraDetil = null;
         respData.setCmdMark(cmdMark);
         respData.setAccessType(paraDetil.getNdpaAccessRight());
-        respData.setDevNo(transportEntity.getDevInfo().getDevNo());
-        respData.setDevType(transportEntity.getDevInfo().getDevType());
+        respData.setDevNo(respData.getDevNo());
+        respData.setDevType(respData.getDevType());
         respData.setOperType(SysConfigConstant.OPREATE_QUERY_RESP);
         List<FrameParaData> frameParaDatas = new ArrayList<>();
-        FrameParaInfo frameParaDetail = BaseInfoContainer.getParaInfoByCmd(transportEntity.getDevInfo().getDevType(),transportEntity.getParamMark());
+        FrameParaInfo frameParaDetail = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),respData.getCmdMark());
         FrameParaData frameParaData = new FrameParaData();
         frameParaData.setParaNo(frameParaDetail.getParaNo());
         frameParaData.setParaVal(value);
@@ -99,32 +94,28 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
         sb.append(SEND_START_MARK).append(reqInfo.getDevNo()).append("/").append(reqInfo.getCmdMark())
                 .append("_").append(reqInfo.getFrameParaList().get(0).getParaVal());
         String command = sb.toString();
-        TransportEntity transportEntity = new TransportEntity();
         BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(reqInfo.getDevNo());
-        transportEntity.setDevInfo(baseInfo);
-        transportEntity.setParamMark(reqInfo.getCmdMark());
-        transportEntity.setParamBytes(command.getBytes());
-        socketMutualService.request(transportEntity, ProtocolRequestEnum.CONTROL);
+        reqInfo.setParamBytes(command.getBytes());
+        socketMutualService.request(reqInfo, ProtocolRequestEnum.CONTROL);
     }
 
     /**
      * 设置设备参数响应
-     * @param  transportEntity   数据传输对象
+     * @param  respData   数据传输对象
      * @return
      */
     @Override
-    public FrameRespData ctrlParaResponse(TransportEntity transportEntity) {
-        String respStr = new String(transportEntity.getParamBytes());
+    public FrameRespData ctrlParaResponse(FrameRespData respData) {
+        String respStr = new String(respData.getParamBytes());
         int beginIdx = respStr.indexOf("/");
         int endIdx = respStr.indexOf("_");
         String cmdMark = respStr.substring(beginIdx+1,endIdx);
         String value = respStr.substring(endIdx+1,respStr.indexOf("\\r"));
-        FrameRespData respData = new FrameRespData();
-        FrameParaInfo frameParaDetail = BaseInfoContainer.getParaInfoByCmd(transportEntity.getDevInfo().getDevType(),transportEntity.getParamMark());
+        FrameParaInfo frameParaDetail = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),respData.getCmdMark());
         respData.setCmdMark(cmdMark);
         respData.setAccessType(SysConfigConstant.ACCESS_TYPE_PARAM);
-        respData.setDevNo(transportEntity.getDevInfo().getDevNo());
-        respData.setDevType(transportEntity.getDevInfo().getDevType());
+        respData.setDevNo(respData.getDevNo());
+        respData.setDevType(respData.getDevType());
         respData.setOperType(SysConfigConstant.OPREATE_QUERY_RESP);
         List<FrameParaData> frameParaDatas = new ArrayList<>();
         FrameParaData frameParaData = new FrameParaData();
