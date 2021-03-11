@@ -2,7 +2,6 @@ package com.xy.netdev.transit.impl;
 
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.DevLogInfoContainer;
-import com.xy.netdev.factory.ParaPrtclFactory;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.transit.IDataSendService;
 import com.xy.netdev.transit.util.DataHandlerHelper;
