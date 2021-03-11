@@ -21,9 +21,9 @@ public interface IQueryInterPrtclAnalysisService {
     void queryPara(FrameReqData reqInfo);
     /**
      * 查询响应协议
-     * @param  transportEntity   数据传输对象
+     * @param  respData   协议解析响应数据
      * @return  协议解析响应数据
      */
-    FrameRespData queryParaResponse(TransportEntity transportEntity);
+    FrameRespData queryParaResponse(FrameRespData respData);
 
 }
