@@ -243,7 +243,7 @@ public class BaseInfoContainer {
     }
 
     /**
-     * @功能：根据设备类型  和  接口编码 获取参数列表
+     * @功能：根据设备类型  和  命令标识 获取参数列表
      * @param devType     设备类型
      * @param cmdMark     命令标识
      * @return  接口解析参数列表
