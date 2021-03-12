@@ -91,7 +91,7 @@ public class DevParaInfoContainer {
      * @param respData        协议解析响应数据
      * @return 数据是否发生变化
      */
-    public static boolean   handlerRespDevPara(FrameRespData respData){
+    public synchronized static boolean   handlerRespDevPara(FrameRespData respData){
         List<FrameParaData> frameParaList = respData.getFrameParaList();
         boolean isUpadte = false;
         if(frameParaList!=null&&!frameParaList.isEmpty()){

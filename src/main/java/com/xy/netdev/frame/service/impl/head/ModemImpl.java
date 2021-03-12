@@ -1,6 +1,7 @@
 package com.xy.netdev.frame.service.impl.head;
 
 import cn.hutool.core.util.NumberUtil;
+import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.frame.base.AbsDeviceSocketHandler;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
@@ -17,7 +18,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.xy.netdev.common.util.ByteUtils.*;
-import static com.xy.netdev.common.util.ByteUtils.byteToInt;
 
 /**
  * 调制解调器
@@ -47,12 +47,12 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
     public FrameRespData unpack(SocketEntity socketEntity, FrameRespData frameRespData) {
         byte[] bytes = socketEntity.getBytes();
         //数据体长度
-        int len = bytesToNum(bytes, 1, 2, ByteBuf::readShort) ;
+        int len = bytesToNum(bytes, 1, 2, ByteBuf::readShort) - 4;
         //参数
         Byte cmd = bytesToNum(bytes, 5, 1, ByteBuf::readByte);
         //数据体
-        byte[] paramBytes = byteArrayCopy(bytes, 6, len - 4);
-        frameRespData.setCmdMark(Integer.toHexString(cmd));
+        byte[] paramBytes = byteArrayCopy(bytes, 6, len);
+        frameRespData.setCmdMark(Integer.toString(cmd));
         frameRespData.setParamBytes(paramBytes);
         return frameRespData;
     }
@@ -64,7 +64,7 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
 
         ModemEntity modemEntity = ModemEntity.builder()
                 .beginOffset((byte)0x02)
-                .num(NumToBytes(len, 2))
+                .num(ByteUtils.objToBytes(len, 2))
                 .deviceType((byte)0x65)
                 .deviceAddress((byte)0x01)
                 .cmd(Byte.valueOf(frameReqData.getCmdMark()))

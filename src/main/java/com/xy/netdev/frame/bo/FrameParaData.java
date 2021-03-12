@@ -33,4 +33,7 @@ public class FrameParaData {
 
     @ApiModelProperty(value = "设备编号")
     private String devNo;
+
+    @ApiModelProperty(value = "参数长度")
+    private Integer len;
 }

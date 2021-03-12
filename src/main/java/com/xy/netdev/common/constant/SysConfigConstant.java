@@ -304,4 +304,16 @@ public interface SysConfigConstant {
      * 站控-设备状态上报--工作状态-正常
      */
     String RPT_DEV_STATUS_WORKSTATUS_YES = "0";
+
+    /**
+     * 调制解调器控制成功响应--code
+     */
+    String CONTROL_SUCCESS = "0061000";
+
+    /**
+     * 调制解调器控制失败响应--code
+     */
+    String CONTROL_FAIL = "0061001";
+
+
 }

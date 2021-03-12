@@ -79,6 +79,7 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
         frameRespData.setDevType(devInfo.getDevType());
         frameRespData.setDevNo(devInfo.getDevNo());
         R unpack = unpack((Q) socketEntity, (R) frameRespData);
+        String hexCmdmark = Integer.toHexString(Integer.parseInt(frameRespData.getCmdMark()));
         PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameRespData.getDevType(), frameRespData.getCmdMark());
         IParaPrtclAnalysisService iParaPrtclAnalysisService = null;
         IQueryInterPrtclAnalysisService IQueryInterPrtclAnalysisService = null;
@@ -94,7 +95,7 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
             return;
         }
         frameRespData.setReciveOrignData(HexUtil.encodeHexStr(frameRespData.getParamBytes()));
-        frameRespData.setCmdMark(HexUtil.encodeHexStr(frameRespData.getCmdMark()));
+        frameRespData.setCmdMark(hexCmdmark);
         this.callback(unpack, iParaPrtclAnalysisService, IQueryInterPrtclAnalysisService);
     }
 
