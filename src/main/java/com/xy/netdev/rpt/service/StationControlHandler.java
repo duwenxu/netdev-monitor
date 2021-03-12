@@ -49,10 +49,9 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
     /**
      * 上报外部协议
      * @param socketEntity 数据体
-     * @param devInfo 设备信息
      */
-    public void queryParaResponse(SocketEntity socketEntity, BaseInfo devInfo){
-        unpackHead(socketEntity, devInfo)
+    public void stationControlReceive(SocketEntity socketEntity){
+        unpackHead(socketEntity, BaseInfoContainer.getDevInfo(socketEntity.getRemoteAddress()))
                 .ifPresent(this::receiverSocket);
     }
 
@@ -94,7 +93,7 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
         RptHeadDev rptHeadDev = new RptHeadDev();
         rptHeadDev.setDevNo(stationControlHeadEntity.getBaseInfo().getDevNo());
         rptHeadDev.setCmdMark(stationControlHeadEntity.getCmdMark());
-        rptHeadDev.setRptBodyDevs(rptBodyDevs);
+        rptHeadDev.setObject(rptBodyDevs);
         responseService.answer(rptHeadDev);
         //调用应答
         ThreadUtil.execute(() -> {
@@ -106,7 +105,6 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
                 e.printStackTrace();
             }
         });
-
     }
 
 
@@ -115,7 +113,7 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
         BaseInfo stationInfo = BaseInfoContainer.getDevInfoByNo(headDev.getDevNo());
         PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(stationInfo.getDevType(), headDev.getCmdMark());
         RequestService requestService = BeanFactoryUtil.getBean(prtclFormat.getFmtHandlerClass());
-        byte[] bodyBytes = requestService.pack(headDev.getRptBodyDevs());
+        byte[] bodyBytes = requestService.pack(headDev.getObject());
         int port = Integer.parseInt(stationInfo.getDevPort());
         //拼数据头
         int cmd = Integer.parseInt(headDev.getCmdMark(), 16);
@@ -133,4 +131,6 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
 
         NettyUtil.sendMsg(bytes, port, stationInfo.getDevIpAddr(), port, Integer.parseInt(stationInfo.getDevNetPtcl()));
     }
+
+
 }

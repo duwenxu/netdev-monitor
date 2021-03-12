@@ -4,7 +4,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
 
 @Setter
 @Getter
@@ -17,5 +16,5 @@ public class RptHeadDev {
     private String cmdMark;
 
     @ApiModelProperty(value = "数据体")
-    private List<RptBodyDev> rptBodyDevs;
+    private Object object;
 }
