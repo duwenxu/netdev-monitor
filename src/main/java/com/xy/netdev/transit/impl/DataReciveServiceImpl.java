@@ -1,12 +1,22 @@
 package com.xy.netdev.transit.impl;
 
+import com.alibaba.fastjson.JSONArray;
+import com.xy.common.util.DateUtils;
 import com.xy.netdev.common.constant.SysConfigConstant;
+import com.xy.netdev.container.BaseInfoContainer;
+import com.xy.netdev.container.DevAlertInfoContainer;
 import com.xy.netdev.container.DevLogInfoContainer;
 import com.xy.netdev.container.DevParaInfoContainer;
+import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameRespData;
+import com.xy.netdev.monitor.bo.FrameParaInfo;
+import com.xy.netdev.monitor.bo.TransRule;
+import com.xy.netdev.monitor.entity.AlertInfo;
 import com.xy.netdev.transit.IDataReciveService;
 import com.xy.netdev.websocket.send.DevIfeMegSend;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 
 /**
@@ -70,6 +80,31 @@ public class DataReciveServiceImpl implements IDataReciveService {
      * @param  respData   协议解析响应数据
      */
     private void handlerAlertInfo(FrameRespData respData){
-
+        List<FrameParaData> params =  respData.getFrameParaList();
+        params.forEach(param->{
+            FrameParaInfo paraInfo = BaseInfoContainer.getParaInfoByCmd(param.getDevType(),param.getParaNo());
+            String ruleStr =  paraInfo.getTransRule();
+            //读取参数配置的状态转换规则
+            List<TransRule> rules = JSONArray.parseArray(ruleStr, TransRule.class);
+            String status = paraInfo.getAlertPara();
+            if(status.equals(SysConfigConstant.DEV_STATUS_ALARM)){
+                rules.forEach(rule->{
+                    if(rule.getInner().equals(param.getParaVal())){
+                        String outerStatus = rule.getOuter();
+                        //参数返回值是否产生告警
+                        if(outerStatus.equals(SysConfigConstant.RPT_DEV_STATUS_ISALARM_YES)){
+                            AlertInfo alertInfo = new AlertInfo().builder()
+                                    .devType(respData.getDevType())
+                                    .alertLevel(paraInfo.getAlertLevel())
+                                    .devNo(respData.getDevNo())
+                                    .alertTime(DateUtils.now())
+                                    .ndpaNo(paraInfo.getParaNo())
+                                    .alertDesc("").build();
+                            DevAlertInfoContainer.addAlertInfo(alertInfo);
+                        }
+                    }
+                });
+            }
+        });
     }
 }
