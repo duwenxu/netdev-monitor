@@ -14,6 +14,7 @@ import java.util.List;
 
 import static com.xy.netdev.common.util.ByteUtils.listToBytes;
 import static com.xy.netdev.common.util.ByteUtils.placeholderByte;
+import static com.xy.netdev.rpt.service.StationControlHandler.queryHead;
 
 /**
  * 参数查询命令
@@ -89,14 +90,7 @@ public class ParamQueryImpl implements RequestService, ResponseService {
 
         List<RptBodyDev> rptBodyDevs = (List<RptBodyDev>) rptHeadDev.getParam();
         List<byte[]> tempList = new ArrayList<>();
-        //保留
-        tempList.add(placeholderByte(4));
-        //查询标志
-        tempList.add(ByteUtils.objToBytes(Integer.parseInt(rptHeadDev.getCmdMarkHexStr(), 16), 1));
-        //站号
-        tempList.add(ByteUtils.objToBytes(rptHeadDev.getStationNo(), 1));
-        //设备数量
-        tempList.add(ByteUtils.objToBytes(rptHeadDev.getDevNum(), 1));
+        queryHead(rptHeadDev, tempList);
 
         rptBodyDevs.forEach(rptBodyDev -> {
             //设备型号
@@ -118,5 +112,6 @@ public class ParamQueryImpl implements RequestService, ResponseService {
         });
         return listToBytes(tempList);
     }
+
 
 }
