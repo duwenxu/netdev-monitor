@@ -10,6 +10,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import java.util.Map;
+
 
 /**
  * <p>
@@ -83,8 +85,11 @@ public class FrameParaInfo {
     @ApiModelProperty(value = "字段类型")
     private String alertPara;
 
-
-
+    /**
+     *  下拉框显示数据,当显示模式 是0024002 需要赋值下拉框列表
+     */
+    @ApiModelProperty(value = "下拉值域")
+    private Map<String,Object> selectMap;
 
 
 
