@@ -11,7 +11,7 @@ public interface ResponseService {
      * @param stationControlHeadEntity 站控对象
      * @return 中心数据格式
      */
-    List<RptBodyDev> unpackBody(StationControlHandler.StationControlHeadEntity stationControlHeadEntity);
+    Object unpackBody(StationControlHandler.StationControlHeadEntity stationControlHeadEntity);
 
     /**
      * 调用系统方法

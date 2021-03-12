@@ -88,12 +88,12 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
     private void receiverSocket(StationControlHeadEntity stationControlHeadEntity){
         ResponseService responseService = BeanFactoryUtil.getBean(stationControlHeadEntity.getClassName());
         //数据解析
-        List<RptBodyDev> rptBodyDevs = responseService.unpackBody(stationControlHeadEntity);
+        Object param = responseService.unpackBody(stationControlHeadEntity);
         //数据发送中心
         RptHeadDev rptHeadDev = new RptHeadDev();
         rptHeadDev.setDevNo(stationControlHeadEntity.getBaseInfo().getDevNo());
         rptHeadDev.setCmdMark(stationControlHeadEntity.getCmdMark());
-        rptHeadDev.setObject(rptBodyDevs);
+        rptHeadDev.setParam(param);
         responseService.answer(rptHeadDev);
         //调用应答
         ThreadUtil.execute(() -> {
@@ -113,7 +113,7 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
         BaseInfo stationInfo = BaseInfoContainer.getDevInfoByNo(headDev.getDevNo());
         PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(stationInfo.getDevType(), headDev.getCmdMark());
         RequestService requestService = BeanFactoryUtil.getBean(prtclFormat.getFmtHandlerClass());
-        byte[] bodyBytes = requestService.pack(headDev.getObject());
+        byte[] bodyBytes = requestService.pack(headDev.getParam());
         int port = Integer.parseInt(stationInfo.getDevPort());
         //拼数据头
         int cmd = Integer.parseInt(headDev.getCmdMark(), 16);

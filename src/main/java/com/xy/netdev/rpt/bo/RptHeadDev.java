@@ -16,5 +16,5 @@ public class RptHeadDev {
     private String cmdMark;
 
     @ApiModelProperty(value = "数据体")
-    private Object object;
+    private Object param;
 }
