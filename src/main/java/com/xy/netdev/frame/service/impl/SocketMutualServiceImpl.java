@@ -23,12 +23,8 @@ public class SocketMutualServiceImpl implements SocketMutualService {
 
     @Override
     public void request(FrameReqData frameReqData, ProtocolRequestEnum requestEnum) {
-        PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameReqData.getDevType(), frameReqData.getCmdMark());
-        if (StrUtil.isBlank(Objects.requireNonNull(prtclFormat).getFmtHandlerClass())){
-            return;
-        }
-        AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData> socketHandler =
-                BeanFactoryUtil.getBean(prtclFormat.getFmtHandlerClass());
+        String classByDevType = BaseInfoContainer.getClassByDevType(frameReqData.getDevType());
+        AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData> socketHandler = BeanFactoryUtil.getBean(classByDevType);
         socketHandler.socketRequest(frameReqData, requestEnum);
     }
 }
