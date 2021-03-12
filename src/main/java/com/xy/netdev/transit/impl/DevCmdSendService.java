@@ -14,7 +14,7 @@ import java.util.List;
 
 /**
  * <p>
- * 设备命令发往服务
+ * 设备命令发送服务
  * </p>
  *
  * @author tangxl
@@ -55,7 +55,6 @@ public class DevCmdSendService implements IDevCmdSendService {
         frameReqData.setFrameParaList(paraDataList);
         dataSendService.paraCtrSend(frameReqData);
     }
-
     /**
      * 接口查询发送
      * @param  devNo   设备编号
