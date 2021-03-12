@@ -45,13 +45,18 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
     public FrameRespData unpack(SocketEntity socketEntity, FrameRespData frameRespData) {
         byte[] bytes = socketEntity.getBytes();
         //数据体长度
-        int len = bytesToNum(bytes, 1, 2, ByteBuf::readShort) - 4;
+        int len = bytesToNum(bytes, 1, 2, ByteBuf::readShort) ;
         //参数
         Byte cmd = bytesToNum(bytes, 5, 1, ByteBuf::readByte);
         String hexCmdmark = Integer.toHexString(cmd);
         //数据体
+<<<<<<< HEAD
         byte[] paramBytes = byteArrayCopy(bytes, 6, len);
         frameRespData.setCmdMark(hexCmdmark);
+=======
+        byte[] paramBytes = byteArrayCopy(bytes, 6, len - 4);
+        frameRespData.setCmdMark(Integer.toHexString(cmd));
+>>>>>>> origin/dev
         frameRespData.setParamBytes(paramBytes);
         return frameRespData;
     }
@@ -63,7 +68,7 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
 
         ModemEntity modemEntity = ModemEntity.builder()
                 .beginOffset((byte)0x02)
-                .num(objectToByte(len, 2))
+                .num(objectToBytes(len, 2))
                 .deviceType((byte)0x65)
                 .deviceAddress((byte)0x01)
                 .cmd(Byte.valueOf(frameReqData.getCmdMark()))

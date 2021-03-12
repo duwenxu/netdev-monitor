@@ -40,8 +40,8 @@ public class AntennaControlImpl extends AbsDeviceSocketHandler<SocketEntity, Fra
         //命令
         Byte cmd = bytesToNum(originalReceiveBytes, 3, 1, ByteBuf::readByte);
         //数据体
-        byte[] paramData = ByteUtils.byteArrayCopy(originalReceiveBytes, 4, length);
-        frameRespData.setCmdMark(cmd.toString());
+        byte[] paramData = ByteUtils.byteArrayCopy(originalReceiveBytes, 4, length  - 6);
+        frameRespData.setCmdMark(Integer.toHexString(cmd));
         frameRespData.setParamBytes(paramData);
         //数据体解析
         return frameRespData;

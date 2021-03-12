@@ -58,6 +58,9 @@ public class DevParaInfoContainer {
         ParaViewInfo  viewInfo = new ParaViewInfo();
         viewInfo.setParaId(paraInfo.getNdpaId());
         viewInfo.setParaNo(paraInfo.getNdpaNo());
+        viewInfo.setParaCode(paraInfo.getNdpaCode());
+        viewInfo.setParaName(paraInfo.getNdpaName());
+        viewInfo.setParaCmdMark(paraInfo.getNdpaCmdMark());
         viewInfo.setAccessRight(paraInfo.getNdpaAccessRight());
         viewInfo.setParaUnit(paraInfo.getNdpaUnit());
         viewInfo.setParaDatatype(paraInfo.getNdpaDatatype());
@@ -68,6 +71,7 @@ public class DevParaInfoContainer {
         viewInfo.setParaValStep(paraInfo.getNdpaValStep());
         viewInfo.setDevNo(devNo);
         viewInfo.setDevType(paraInfo.getDevType());
+        viewInfo.setParaCmdMark(paraInfo.getNdpaCmdMark());
         viewInfo.setSpinnerInfoList(JSONArray.parseArray(paraInfo.getNdpaSelectData(),ParaSpinnerInfo.class));
         return viewInfo;
     }
@@ -95,7 +99,7 @@ public class DevParaInfoContainer {
                 String devNo = frameParaData.getDevNo();
                 String paraNo = frameParaData.getParaNo();
                 ParaViewInfo paraViewInfo = devParaMap.get(devNo).get(ParaHandlerUtil.genLinkKey(devNo, paraNo));
-                if (!paraViewInfo.getParaVal().equals(frameParaData.getParaVal())) {
+                if (!frameParaData.getParaVal().equals(paraViewInfo.getParaVal())) {
                     paraViewInfo.setParaVal(frameParaData.getParaVal());
                     isUpadte = true;
                 }

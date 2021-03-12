@@ -3,10 +3,13 @@ package com.xy.netdev.monitor.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xy.common.helper.ControllerHelper;
+import com.xy.common.helper.ControllerResultWrapper;
 import com.xy.common.model.Result;
 import com.xy.netdev.common.util.JwtUtil;
+import com.xy.netdev.monitor.bo.ParaViewInfo;
 import com.xy.netdev.monitor.entity.ParaInfo;
 import com.xy.netdev.monitor.service.IParaInfoService;
+import com.xy.netdev.transit.IDevCmdSendService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +32,8 @@ public class ParaInfoController {
     @Autowired
     private IParaInfoService targetService;
 
+    @Autowired
+    private IDevCmdSendService devCmdSendService;
     /**
     * 获取分页数据
     *
@@ -96,4 +101,13 @@ public class ParaInfoController {
         return ControllerHelper.delete(id,targetService);
     }
 
+    /**
+     * 设置设备参数     *
+     */
+    @ApiOperation(value = "设置设备参数", notes = "设置设备参数")
+    @PostMapping(value = "/paraCtrl")
+    public Result<ParaInfo> paraCtrl(ParaViewInfo data) {
+        devCmdSendService.paraCtrSend(data.getDevNo(),data.getParaCmdMark(), data.getParaVal());
+        return ControllerResultWrapper.genUpdateResult();
+    }
 }

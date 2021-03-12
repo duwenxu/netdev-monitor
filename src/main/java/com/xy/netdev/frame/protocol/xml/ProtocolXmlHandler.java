@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.xy.netdev.common.util.ByteUtils.listToBytes;
-import static com.xy.netdev.common.util.ByteUtils.objectToByte;
+import static com.xy.netdev.common.util.ByteUtils.objectToBytes;
 
 @Deprecated
 public final class ProtocolXmlHandler {
@@ -20,7 +20,7 @@ public final class ProtocolXmlHandler {
     public static byte[] pack(List<ProtocolXmlEntity.ParamEntity> paramEntities){
        List<byte[]> list = new ArrayList<>(paramEntities.size());
         paramEntities.forEach(paramEntity -> {
-            list.add(objectToByte(paramEntity.getValue(), paramEntity.getLength()));
+            list.add(objectToBytes(paramEntity.getValue(), paramEntity.getLength()));
         });
         return listToBytes(list);
     }

@@ -15,6 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 import static com.xy.netdev.common.util.ByteUtils.byteToNumber;
 import static com.xy.netdev.frame.service.gf.GfPrtcServiceImpl.isUnsigned;
 
@@ -39,12 +43,18 @@ public class GfInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
 
     @Override
     public FrameRespData queryParaResponse(FrameRespData respData) {
-        FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),respData.getCmdMark());
+        List<FrameParaInfo> frameParaInfos = BaseInfoContainer
+                .getInterLinkParaList(respData.getDevType(), respData.getCmdMark());
         byte[] bytes = respData.getParamBytes();
-        FrameParaData paraInfo = new FrameParaData();
-        BeanUtil.copyProperties(frameParaInfo, paraInfo, true);
-        paraInfo.setParaVal(byteToNumber(bytes, frameParaInfo.getParaStartPoint(),
-                Integer.parseInt(frameParaInfo.getParaByteLen()), isUnsigned(sysParamService, frameParaInfo.getParaNo())).toString());
+        List<FrameParaData> frameParaDataList = Objects.requireNonNull(frameParaInfos).stream()
+                .map(frameParaInfo -> {
+                    FrameParaData paraInfo = new FrameParaData();
+                    BeanUtil.copyProperties(frameParaInfo, paraInfo, true);
+                    paraInfo.setParaVal(byteToNumber(bytes, frameParaInfo.getParaStartPoint(),
+                            Integer.parseInt(frameParaInfo.getParaByteLen()), isUnsigned(sysParamService, frameParaInfo.getParaNo())).toString());
+                    return paraInfo;
+                }).collect(Collectors.toList());
+        respData.setFrameParaList(frameParaDataList);
         return respData;
     }
 }

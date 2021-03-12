@@ -55,4 +55,10 @@ public class DevStatusInfo extends Model<DevStatusInfo>  {
     @ApiModelProperty(value = "工作状态")
     private String workStatus;
 
+    /**
+     * 测站编号
+     */
+    @ApiModelProperty(value = "测站编号")
+    private String stationId;
+
 }

@@ -1,6 +1,7 @@
 package com.xy.netdev.rpt.bo;
 
 
+import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.monitor.entity.ParaInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -25,6 +26,13 @@ import java.util.List;
 public class RptBodyDev {
     private static final long serialVersionUID = 1L;
 
+
+    @ApiModelProperty(value = "信息类别")
+    private String cmdMark;
+
+    @ApiModelProperty(value = "站号")
+    private String stationNo;
+
     @ApiModelProperty(value = "设备类型编码")
     private String devTypeCode;
 
@@ -35,7 +43,7 @@ public class RptBodyDev {
     private String devParaTotal;
 
     @ApiModelProperty(value = "设备参数列表")
-    private List<ParaInfo> devParaList;
+    private List<FrameParaData> devParaList;
 
 
 
