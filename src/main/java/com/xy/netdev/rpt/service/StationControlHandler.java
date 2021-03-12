@@ -9,14 +9,12 @@ import com.xy.netdev.frame.entity.SocketEntity;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.PrtclFormat;
 import com.xy.netdev.network.NettyUtil;
-import com.xy.netdev.rpt.bo.RptBodyDev;
 import com.xy.netdev.rpt.bo.RptHeadDev;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -92,9 +90,9 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
         //数据发送中心
         RptHeadDev rptHeadDev = new RptHeadDev();
         rptHeadDev.setDevNo(stationControlHeadEntity.getBaseInfo().getDevNo());
-        rptHeadDev.setCmdMark(stationControlHeadEntity.getCmdMark());
+        rptHeadDev.setCmdMarkHexStr(stationControlHeadEntity.getCmdMark());
         rptHeadDev.setParam(param);
-        responseService.answer(rptHeadDev);
+        responseService.callback(rptHeadDev);
         //调用应答
         ThreadUtil.execute(() -> {
             try {
@@ -111,21 +109,21 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
     @Override
     public void queryParaResponse(RptHeadDev headDev) {
         BaseInfo stationInfo = BaseInfoContainer.getDevInfoByNo(headDev.getDevNo());
-        PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(stationInfo.getDevType(), headDev.getCmdMark());
+        PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(stationInfo.getDevType(), headDev.getCmdMarkHexStr());
         RequestService requestService = BeanFactoryUtil.getBean(prtclFormat.getFmtHandlerClass());
-        byte[] bodyBytes = requestService.pack(headDev.getParam());
+        byte[] bodyBytes = requestService.pack(headDev);
         int port = Integer.parseInt(stationInfo.getDevPort());
         //拼数据头
-        int cmd = Integer.parseInt(headDev.getCmdMark(), 16);
+        int cmd = Integer.parseInt(headDev.getCmdMarkHexStr(), 16);
 
         //拼成完整帧格式
         byte[] bytes = ArrayUtil.addAll(
                 //信息类别
-                  objectToBytes(cmd, 2)
+                  NumToBytes(cmd, 2)
                 //数据字段长度
-                , objectToBytes(bodyBytes.length, 2)
+                , NumToBytes(bodyBytes.length, 2)
                 //预留
-                , objectToBytes(0, 4)
+                , NumToBytes(0, 4)
                 //数据字段
                 , bodyBytes);
 

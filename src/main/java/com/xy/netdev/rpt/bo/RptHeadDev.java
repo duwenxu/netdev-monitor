@@ -13,8 +13,12 @@ public class RptHeadDev {
     private String devNo;
 
     @ApiModelProperty(value = "信息类别")
-    private String cmdMark;
+    private String cmdMarkHexStr;
 
     @ApiModelProperty(value = "数据体")
     private Object param;
+
+
+    @ApiModelProperty(value = "站号")
+    private String stationNo;
 }

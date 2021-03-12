@@ -52,9 +52,9 @@ public class DevIfeMegSend {
     public static void sendDevStatusToDev(){
         ChannelGroup channels = ChannelCache.getInstance().getChannelsByIfe("DevStatusInfos");
         if( channels != null){
-            String msg = JSONObject.toJSONString(DevStatusContainer.getDevAlertInfoList());
-            TextWebSocketFrame textWebSocketFrame = new TextWebSocketFrame(msg);
-            channels.writeAndFlush(textWebSocketFrame);
+//            String msg = JSONObject.toJSONString(DevStatusContainer.getDevAlertInfoList());
+//            TextWebSocketFrame textWebSocketFrame = new TextWebSocketFrame(msg);
+//            channels.writeAndFlush(textWebSocketFrame);
         }
     }
 

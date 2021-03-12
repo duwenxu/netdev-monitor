@@ -6,11 +6,10 @@ import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.entity.SocketEntity;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
-import com.xy.netdev.frame.service.bpq.BpqPrtcServiceImpl;
+import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.nio.charset.Charset;
 
 /**
@@ -23,7 +22,7 @@ public class FrequencyConversionImpl extends AbsDeviceSocketHandler<SocketEntity
 
 
     @Override
-    public void callback(FrameRespData frameRespData, IParaPrtclAnalysisService iParaPrtclAnalysisService) {
+    public void callback(FrameRespData frameRespData, IParaPrtclAnalysisService iParaPrtclAnalysisService, IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService) {
         iParaPrtclAnalysisService.ctrlParaResponse(frameRespData);
     }
 

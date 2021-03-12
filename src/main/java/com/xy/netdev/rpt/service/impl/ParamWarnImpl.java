@@ -2,7 +2,6 @@ package com.xy.netdev.rpt.service.impl;
 
 import com.xy.netdev.rpt.bo.RptBodyDev;
 import com.xy.netdev.rpt.bo.RptHeadDev;
-import com.xy.netdev.rpt.service.IDownRptPrtclAnalysisService;
 import com.xy.netdev.rpt.service.RequestService;
 import com.xy.netdev.rpt.service.ResponseService;
 import com.xy.netdev.rpt.service.StationControlHandler;
@@ -21,12 +20,12 @@ public class ParamWarnImpl implements RequestService, ResponseService {
     }
 
     @Override
-    public void answer(RptHeadDev headDev) {
+    public void callback(RptHeadDev headDev) {
 
     }
 
     @Override
-    public byte[] pack(Object obj) {
+    public byte[] pack(RptHeadDev rptHeadDev) {
         return new byte[0];
     }
 }

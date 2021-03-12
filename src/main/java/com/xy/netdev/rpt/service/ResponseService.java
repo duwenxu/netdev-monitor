@@ -15,7 +15,7 @@ public interface ResponseService {
 
     /**
      * 调用系统方法
-     * @param list 参数
+     * @param headDev
      */
-    void answer(RptHeadDev headDev);
+    void callback(RptHeadDev headDev);
 }

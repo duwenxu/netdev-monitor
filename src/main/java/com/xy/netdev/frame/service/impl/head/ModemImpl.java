@@ -7,6 +7,7 @@ import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.entity.SocketEntity;
 import com.xy.netdev.frame.entity.device.ModemEntity;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
+import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,7 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
 
 
     @Override
-    public void callback(FrameRespData frameRespData, IParaPrtclAnalysisService iParaPrtclAnalysisService) {
+    public void callback(FrameRespData frameRespData, IParaPrtclAnalysisService iParaPrtclAnalysisService, IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService) {
         switch (frameRespData.getCmdMark()){
             case "53":
                 iParaPrtclAnalysisService.queryParaResponse(frameRespData);
@@ -63,7 +64,7 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
 
         ModemEntity modemEntity = ModemEntity.builder()
                 .beginOffset((byte)0x02)
-                .num(objectToBytes(len, 2))
+                .num(NumToBytes(len, 2))
                 .deviceType((byte)0x65)
                 .deviceAddress((byte)0x01)
                 .cmd(Byte.valueOf(frameReqData.getCmdMark()))
