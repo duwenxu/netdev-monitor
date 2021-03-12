@@ -2,7 +2,9 @@ package com.xy.netdev.transit.impl;
 
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.DevLogInfoContainer;
+import com.xy.netdev.container.DevStatusContainer;
 import com.xy.netdev.frame.bo.FrameReqData;
+import com.xy.netdev.monitor.bo.DevStatusInfo;
 import com.xy.netdev.transit.IDataSendService;
 import com.xy.netdev.transit.util.DataHandlerHelper;
 import com.xy.netdev.websocket.send.DevIfeMegSend;
@@ -62,6 +64,12 @@ public class DataSendServiceImpl implements IDataSendService {
      * @param  frameReqData   协议解析请求数据
      */
     private void handlerAlertInfo(FrameReqData frameReqData){
-
+        String status = frameReqData.getIsOk();
+        DevStatusInfo devStatusInfo = new DevStatusInfo();
+        if(status.equals("1")){
+            DevStatusContainer.setInterrupt(frameReqData.getDevNo(),SysConfigConstant.RPT_DEV_STATUS_ISINTERRUPT_NO);
+        }else{
+            DevStatusContainer.setInterrupt(frameReqData.getDevNo(),SysConfigConstant.RPT_DEV_STATUS_ISINTERRUPT_YES);
+        }
     }
 }

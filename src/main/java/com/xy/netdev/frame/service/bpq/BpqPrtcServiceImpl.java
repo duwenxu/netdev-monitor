@@ -1,7 +1,6 @@
 package com.xy.netdev.frame.service.bpq;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
@@ -10,19 +9,12 @@ import com.xy.netdev.frame.enums.ProtocolRequestEnum;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
-import com.xy.netdev.monitor.entity.BaseInfo;
-import com.xy.netdev.monitor.entity.ParaInfo;
 import com.xy.netdev.transit.IDataReciveService;
-import com.xy.netdev.transit.IDevInfoReportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import static com.xy.netdev.common.util.ByteUtils.byteToNumber;
 
 
 /**
@@ -45,8 +37,6 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
     SocketMutualService socketMutualService;
     @Autowired
     IDataReciveService dataReciveService;
-    @Autowired
-    IDevInfoReportService devAlarmReportService;
 
 
     /**
@@ -83,8 +73,6 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
         frameParas.add(frameParaData);
         respData.setFrameParaList(frameParas);
         dataReciveService.paraQueryRecive(respData);
-        //生成报警信息
-        devAlarmReportService.generateAlarmInfo(respData);
         return respData;
     }
 
@@ -121,8 +109,6 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
         frameParaDatas.add(frameParaData);
         respData.setFrameParaList(frameParaDatas);
         dataReciveService.paraCtrRecive(respData);
-        //生成报警信息
-        devAlarmReportService.generateAlarmInfo(respData);
         return respData;
     }
 
