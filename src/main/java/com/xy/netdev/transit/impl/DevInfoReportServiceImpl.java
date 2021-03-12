@@ -12,6 +12,7 @@ import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.bo.TransRule;
 import com.xy.netdev.monitor.entity.AlertInfo;
 import com.xy.netdev.transit.IDevInfoReportService;
+import io.netty.buffer.Unpooled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,12 +32,12 @@ public class DevInfoReportServiceImpl implements IDevInfoReportService {
     public static final String ERROR = "1";
 
 
-    @Override
+    /*@Override
     public void generateStatusInfo(FrameRespData respData) {
         List<FrameParaData> params =  respData.getFrameParaList();
-        DevStatusInfo statusInfo = new DevStatusInfo();
+
         //statusInfo.set
-    }
+    }*/
 
     /**
      * 生成告警信息
@@ -69,6 +70,22 @@ public class DevInfoReportServiceImpl implements IDevInfoReportService {
                         }
                     }
                 });
+            }
+
+            switch(status){
+                case SysConfigConstant.DEV_STATUS_ALARM:
+                    data = numToBytes((short)obj, byteOrder, Unpooled::copyShort);
+                    break;
+                case 3:
+                    data = numToBytes((int)obj, byteOrder, Unpooled::copyMedium);
+                    break;
+                case 4:
+                    data = numToBytes((int)obj, byteOrder, Unpooled::copyInt);
+                    break;
+                case 8:
+                    data = numToBytes((long)obj, byteOrder, Unpooled::copyLong);
+                    break;
+                default:break;
             }
         });
     }
