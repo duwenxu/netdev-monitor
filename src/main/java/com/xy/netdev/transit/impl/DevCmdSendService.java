@@ -1,5 +1,6 @@
 package com.xy.netdev.transit.impl;
 
+import com.xy.common.exception.BaseException;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
@@ -7,6 +8,7 @@ import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.transit.IDataSendService;
 import com.xy.netdev.transit.IDevCmdSendService;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
@@ -32,6 +34,7 @@ public class DevCmdSendService implements IDevCmdSendService {
      * @param  cmdMark 命令标识
      */
     public void paraQuerySend(String devNo,String cmdMark) {
+        validateInputPara(devNo,cmdMark);
         FrameReqData frameReqData = genFrameReqData(devNo,cmdMark);
         dataSendService.paraQuerySend(frameReqData);
     }
@@ -43,6 +46,10 @@ public class DevCmdSendService implements IDevCmdSendService {
      * @param  paraVal 参数值
      */
     public void paraCtrSend(String devNo,String cmdMark,String paraVal) {
+        validateInputPara(devNo,cmdMark);
+        if(StringUtils.isEmpty(paraVal)){
+            throw new BaseException("传入的paraVal为空!");
+        }
         FrameReqData frameReqData = genFrameReqData(devNo,cmdMark);
         FrameParaInfo paraInfo = BaseInfoContainer.getParaInfoByCmd(frameReqData.getDevType(),cmdMark);
         List<FrameParaData>  paraDataList = new ArrayList<>();
@@ -61,6 +68,7 @@ public class DevCmdSendService implements IDevCmdSendService {
      * @param  cmdMark 命令标识
      */
     public void interfaceQuerySend(String devNo,String cmdMark) {
+        validateInputPara(devNo,cmdMark);
         FrameReqData frameReqData = genFrameReqData(devNo,cmdMark);
         dataSendService.interfaceQuerySend(frameReqData);
     }
@@ -79,5 +87,13 @@ public class DevCmdSendService implements IDevCmdSendService {
         return frameReqData;
     }
 
+    private void validateInputPara(String devNo,String cmdMark){
+        if(StringUtils.isEmpty(devNo)){
+            throw new BaseException("传入的devNo为空!");
+        }
+        if(StringUtils.isEmpty(cmdMark)){
+            throw new BaseException("传入的cmdMark为空!");
+        }
+    }
 
 }
