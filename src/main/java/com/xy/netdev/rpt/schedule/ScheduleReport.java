@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
  * @create 2021-03-10 11:39
  */
 @Slf4j
-@Component
+//@Component
 public class ScheduleReport implements ApplicationRunner {
 
     @Autowired

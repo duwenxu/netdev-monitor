@@ -1,25 +1,15 @@
 package com.xy.netdev.frame.service.modem;
 
-import cn.hutool.core.bean.BeanUtil;
 import com.xy.netdev.admin.service.ISysParamService;
-import com.xy.netdev.container.BaseInfoContainer;
-import com.xy.netdev.frame.bo.FrameParaData;
+import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.enums.ProtocolRequestEnum;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
-import com.xy.netdev.monitor.bo.FrameParaInfo;
-import com.xy.netdev.transit.IDataReciveService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import static com.xy.netdev.common.util.ByteUtils.byteToNumber;
 
 /**
  * 650型号 调制解调器
@@ -31,25 +21,12 @@ import static com.xy.netdev.common.util.ByteUtils.byteToNumber;
 @Component
 public class ModemPrtcServiceImpl implements IParaPrtclAnalysisService {
 
-    /**
-     * 应答帧 分隔符
-     */
-    private static final String SPLIT = "5F";
-
-    /**
-     * 控制应答结果帧数据
-     */
-    private static final String CONTROL_SUCCESS = "20";
-    private static final String CONTROL_FAIL = "21";
-
     @Autowired
     private SocketMutualService socketMutualService;
-
-    @Autowired
-    private IDataReciveService dataReciveService;
-
     @Autowired
     ISysParamService sysParamService;
+    @Autowired
+    private ModemInterPrtcServiceImpl modemInterPrtcService;
 
     @Override
     public void queryPara(FrameReqData reqInfo) {
@@ -58,21 +35,7 @@ public class ModemPrtcServiceImpl implements IParaPrtclAnalysisService {
 
     @Override
     public FrameRespData queryParaResponse(FrameRespData respData) {
-        List<FrameParaInfo> frameParaInfos = BaseInfoContainer
-                .getInterLinkParaList(respData.getDevType(), respData.getCmdMark());
-        byte[] bytes = respData.getParamBytes();
-        List<FrameParaData> frameParaDataList = Objects.requireNonNull(frameParaInfos).stream()
-                .map(frameParaInfo -> {
-                    FrameParaData paraInfo = new FrameParaData();
-                    BeanUtil.copyProperties(frameParaInfo, paraInfo, true);
-                    //todo 此处参数帧之前存在分隔符，此处的方法可能不适用
-                    paraInfo.setParaVal(byteToNumber(bytes, frameParaInfo.getParaStartPoint(),
-                            Integer.parseInt(frameParaInfo.getParaByteLen()), isUnsigned(sysParamService, frameParaInfo.getParaNo())).toString());
-                    return paraInfo;
-                }).collect(Collectors.toList());
-        respData.setFrameParaList(frameParaDataList);
-        dataReciveService.paraQueryRecive(respData);
-        return respData;
+        return modemInterPrtcService.queryParaResponse(respData);
     }
 
     @Override
@@ -80,13 +43,23 @@ public class ModemPrtcServiceImpl implements IParaPrtclAnalysisService {
         socketMutualService.request(reqInfo, ProtocolRequestEnum.CONTROL);
     }
 
+    /**
+     * 调制解调器参数控制响应
+     * @param  respData   协议解析响应数据
+     * @return 响应结果数据
+     */
     @Override
     public FrameRespData ctrlParaResponse(FrameRespData respData) {
-        return this.queryParaResponse(respData);
-    }
-
-    public static boolean isUnsigned(ISysParamService sysParamService, String paraNo) {
-        String isUnsigned = sysParamService.getParaRemark1(paraNo);
-        return Integer.parseInt(isUnsigned) == 1;
+        String orignData = respData.getReciveOrignData();
+        String controlSuccessCode = sysParamService.getParaRemark1(SysConfigConstant.CONTROL_SUCCESS);
+        String controlFailCode = sysParamService.getParaRemark1(SysConfigConstant.CONTROL_FAIL);
+        if (controlSuccessCode.equals(orignData)) {
+            respData.setRespCode("控制成功");
+        } else if (controlFailCode.equals(orignData)) {
+            respData.setRespCode("控制失败");
+        } else {
+            throw new IllegalStateException("调制解调器控制响应异常，数据字节：" + orignData);
+        }
+        return respData;
     }
 }

@@ -1,6 +1,5 @@
 package com.xy.netdev.frame.service.modem;
 
-import cn.hutool.core.bean.BeanUtil;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
@@ -11,12 +10,13 @@ import com.xy.netdev.frame.enums.ProtocolRequestEnum;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
+import com.xy.netdev.transit.IDataReciveService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import static com.xy.netdev.common.util.ByteUtils.byteToNumber;
-import static com.xy.netdev.frame.service.gf.GfPrtcServiceImpl.isUnsigned;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author duwenxu
@@ -28,9 +28,12 @@ public class ModemInterPrtcServiceImpl implements IQueryInterPrtclAnalysisServic
 
     @Autowired
     SocketMutualService socketMutualService;
-
     @Autowired
     ISysParamService sysParamService;
+    @Autowired
+    private IDataReciveService dataReciveService;
+    /**查询应答帧 分隔符*/
+    private static final String SPLIT = "5f";
 
     @Override
     public void queryPara(FrameReqData reqInfo) {
@@ -38,14 +41,34 @@ public class ModemInterPrtcServiceImpl implements IQueryInterPrtclAnalysisServic
         socketMutualService.request(reqInfo, ProtocolRequestEnum.QUERY);
     }
 
+    /**
+     * 接口查询响应协议
+     * @param  respData   协议解析响应数据
+     * @return 协议相应解析数据
+     */
     @Override
     public FrameRespData queryParaResponse(FrameRespData respData) {
-        FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),respData.getCmdMark());
-        byte[] bytes = respData.getParamBytes();
-        FrameParaData paraInfo = new FrameParaData();
-        BeanUtil.copyProperties(frameParaInfo, paraInfo, true);
-        paraInfo.setParaVal(byteToNumber(bytes, frameParaInfo.getParaStartPoint(),
-                Integer.parseInt(frameParaInfo.getParaByteLen()), isUnsigned(sysParamService, frameParaInfo.getParaNo())).toString());
+        String orignData = respData.getReciveOrignData();
+        String[] dataList = orignData.toLowerCase().split(SPLIT.toLowerCase());
+        String devType = respData.getDevType();
+        //拆分后根据关键字获取参数
+        List<FrameParaData> frameParaDataList = new ArrayList<>();
+        for (String data : dataList) {
+            String paraCmk = data.substring(0, 2);
+            String paraValue = data.substring(2);
+            FrameParaInfo paraInfoByCmd = BaseInfoContainer.getParaInfoByCmd(devType, paraCmk);
+            if (paraInfoByCmd == null){ continue;}
+            FrameParaData frameParaData = FrameParaData.builder()
+                    .devType(devType)
+                    .devNo(respData.getDevNo())
+                    .paraVal(paraValue)
+                    .paraNo(paraInfoByCmd.getParaNo())
+                    .build();
+            frameParaDataList.add(frameParaData);
+        }
+        respData.setFrameParaList(frameParaDataList);
+        //参数查询响应结果接收
+        dataReciveService.paraQueryRecive(respData);
         return respData;
     }
 }
