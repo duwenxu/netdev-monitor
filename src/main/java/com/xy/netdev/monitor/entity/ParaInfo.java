@@ -122,6 +122,11 @@ public class ParaInfo extends Model<ParaInfo> {
     @TableField(value = "NDPA_ALERT_PARA")
     private String ndpaAlertPara;
 
+    @ApiModelProperty(value = "报警级别")
+    @Param
+    @TableField(value = "NDPA_ALERT_LEVEL")
+    private String ndpaAlertLevel;
+
     @ApiModelProperty(value = "设备类型编码")
     @TableField(exist = false)
     private String devTypeCode;

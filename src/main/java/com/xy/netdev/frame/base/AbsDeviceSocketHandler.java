@@ -2,19 +2,20 @@ package com.xy.netdev.frame.base;
 
 import cn.hutool.core.util.HexUtil;
 import com.xy.netdev.container.BaseInfoContainer;
+import com.xy.netdev.factory.ParaPrtclFactory;
 import com.xy.netdev.frame.base.service.ProtocolPackService;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.entity.SocketEntity;
 import com.xy.netdev.frame.enums.ProtocolRequestEnum;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
-import com.xy.netdev.frame.service.bpq.BpqPrtcServiceImpl;
 import com.xy.netdev.monitor.entity.BaseInfo;
+import com.xy.netdev.monitor.entity.PrtclFormat;
 import com.xy.netdev.network.NettyUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
 
 import static com.xy.netdev.container.BaseInfoContainer.getDevInfo;
 
@@ -27,6 +28,8 @@ import static com.xy.netdev.container.BaseInfoContainer.getDevInfo;
 public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends FrameReqData, R extends FrameRespData>
         extends DeviceSocketBaseHandler<T, R> implements ProtocolPackService<Q, T, R> {
 
+    @Autowired
+    private ApplicationContext applicationContext;
 
     @Override
     public void socketRequest(T t, ProtocolRequestEnum requestEnum) {
@@ -78,15 +81,18 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
         frameRespData.setDevType(devInfo.getDevType());
         frameRespData.setDevNo(devInfo.getDevNo());
         R unpack = unpack((Q) socketEntity, (R) frameRespData);
+        PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameRespData.getDevType(), frameRespData.getCmdMark());
+        IParaPrtclAnalysisService iParaPrtclAnalysisService = ParaPrtclFactory.genHandler(prtclFormat.getFmtHandlerClass());
         frameRespData.setReciveOrignData(HexUtil.encodeHexStr(frameRespData.getParamBytes()));
-        this.callback(unpack);
+        this.callback(unpack, iParaPrtclAnalysisService);
     }
 
     /**
      * 回调
      * @param r
+     * @param iParaPrtclAnalysisService
      */
-    public abstract void callback(R r);
+    public abstract void callback(R r, IParaPrtclAnalysisService iParaPrtclAnalysisService);
 
 
     protected void sendData(T t, byte[] bytes) {
