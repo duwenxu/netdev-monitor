@@ -12,7 +12,6 @@ import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.transit.IDataReciveService;
-import com.xy.netdev.transit.IDevInfoReportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -32,8 +31,6 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
     SocketMutualService socketMutualService;
     @Autowired
     IDataReciveService dataReciveService;
-    @Autowired
-    IDevInfoReportService devAlarmReportService;
 
     /**
      * 查询设备接口
@@ -74,8 +71,6 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
         }
         respData.setFrameParaList(frameParaList);
         dataReciveService.paraQueryRecive(respData);
-        //生成报警信息
-        devAlarmReportService.generateAlarmInfo(respData);
         return respData;
     }
 

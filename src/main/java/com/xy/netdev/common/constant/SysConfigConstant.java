@@ -233,4 +233,61 @@ public interface SysConfigConstant {
      */
     String DEV_STATUS_DEFAULT = "0029006";
 
+    /**
+     * 站控-设备状态上报--中断状态-中断
+     */
+    String RPT_DEV_STATUS_ISINTERRUPT_YES = "1";
+
+
+    /**
+     * 站控-设备状态上报--中断状态-未中断
+     */
+    String RPT_DEV_STATUS_ISINTERRUPT_NO = "0";
+
+
+    /**
+     * 站控-设备状态上报--告警状态-告警
+     */
+    String RPT_DEV_STATUS_ISALARM_YES = "1";
+
+
+    /**
+     * 站控-设备状态上报--告警状态-未告警
+     */
+    String RPT_DEV_STATUS_ISALARM_NO = "0";
+
+
+    /**
+     * 站控-设备状态上报--启用主备状态-启用主备
+     */
+    String RPT_DEV_STATUS_USESTANDBY_YES = "1";
+
+
+    /**
+     * 站控-设备状态上报--启用主备状态-未启用主备
+     */
+    String RPT_DEV_STATUS_USESTANDBY_NO = "0";
+
+
+    /**
+     * 站控-设备状态上报--主备状态-备
+     */
+    String RPT_DEV_STATUS_MASTERORSLAVE_SLAVE = "1";
+
+
+    /**
+     * 站控-设备状态上报--主备状态-主
+     */
+    String RPT_DEV_STATUS_MASTERORSLAVE_MASTER = "0";
+
+    /**
+     * 站控-设备状态上报--工作状态-维修
+     */
+    String RPT_DEV_STATUS_WORKSTATUS_NO = "1";
+
+
+    /**
+     * 站控-设备状态上报--工作状态-正常
+     */
+    String RPT_DEV_STATUS_WORKSTATUS_YES = "0";
 }
