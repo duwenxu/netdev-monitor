@@ -33,11 +33,11 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
         boolean isParam = frameRespData.getAccessType().equals(SysConfigConstant.ACCESS_TYPE_PARAM);
         switch (frameRespData.getCmdMark()){
             case "53":
-                if (isParam){
+                if (iParaPrtclAnalysisService != null){
                     iParaPrtclAnalysisService.queryParaResponse(frameRespData);
-                }else {
-                    iQueryInterPrtclAnalysisService.queryParaResponse(frameRespData);
+                    return;
                 }
+                iQueryInterPrtclAnalysisService.queryParaResponse(frameRespData);
                 break;
             case "41":
                 iParaPrtclAnalysisService.ctrlParaResponse(frameRespData);
