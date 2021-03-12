@@ -114,7 +114,7 @@ public class SysUserController {
      * @return
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public Result<SysUser> getSchRegItem(@PathVariable String id) {
+    public Result<SysUser> getUserItem(@PathVariable String id) {
         return ControllerHelper.getResultByPk(id,sysUserService);
     }
 
