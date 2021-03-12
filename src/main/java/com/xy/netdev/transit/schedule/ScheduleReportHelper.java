@@ -1,4 +1,4 @@
-package com.xy.netdev.rpt.schedule;
+package com.xy.netdev.transit.schedule;
 
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;

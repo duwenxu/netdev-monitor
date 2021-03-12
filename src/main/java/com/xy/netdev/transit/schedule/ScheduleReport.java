@@ -1,4 +1,4 @@
-package com.xy.netdev.rpt.schedule;
+package com.xy.netdev.transit.schedule;
 
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
@@ -9,12 +9,11 @@ import com.xy.netdev.monitor.constant.MonitorConstants;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.entity.PrtclFormat;
-import com.xy.netdev.transit.IDataSendService;
+import com.xy.netdev.transit.IDevCmdSendService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +32,7 @@ import java.util.stream.Collectors;
 public class ScheduleReport implements ApplicationRunner {
 
     @Autowired
-    private IDataSendService dataSendService;
+    private IDevCmdSendService devCmdSendService;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -105,7 +104,7 @@ public class ScheduleReport implements ApplicationRunner {
         Long commonInterval = ScheduleReportHelper.getCommonInterval();
         scheduleReqBodyMap.forEach((base, queryList) -> {
             long interval = Long.parseLong(base.getDevIntervalTime() + "");
-            ScheduleReportTask scheduleReportTask = new ScheduleReportTask(queryList, interval, commonInterval,dataSendService);
+            ScheduleReportTask scheduleReportTask = new ScheduleReportTask(queryList, interval, commonInterval,devCmdSendService);
             Thread thread = new Thread(scheduleReportTask, base.getDevName() + "-reportQuery-thread");
             thread.start();
         });

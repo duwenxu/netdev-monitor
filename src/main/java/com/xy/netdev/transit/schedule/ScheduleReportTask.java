@@ -1,8 +1,8 @@
-package com.xy.netdev.rpt.schedule;
+package com.xy.netdev.transit.schedule;
 
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.frame.bo.FrameReqData;
-import com.xy.netdev.transit.IDataSendService;
+import com.xy.netdev.transit.IDevCmdSendService;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -16,16 +16,16 @@ import java.util.List;
 @Slf4j
 public class ScheduleReportTask implements Runnable {
 
-    private final IDataSendService dataSendService;
+    private final IDevCmdSendService devCmdSendService;
     private final List<FrameReqData> frameReqDataList;
     private final Long interval;
     private final Long commonInterval;
 
-    public ScheduleReportTask(List<FrameReqData> frameReqDataList, Long interval, Long commonInterval, IDataSendService dataSendService) {
+    public ScheduleReportTask(List<FrameReqData> frameReqDataList, Long interval, Long commonInterval, IDevCmdSendService devCmdSendService) {
         this.frameReqDataList = frameReqDataList;
         this.interval = interval;
         this.commonInterval = commonInterval;
-        this.dataSendService = dataSendService;
+        this.devCmdSendService = devCmdSendService;
     }
 
     @Override
@@ -42,10 +42,10 @@ public class ScheduleReportTask implements Runnable {
                 //分别调用接口或参数查询方法
                 if (SysConfigConstant.ACCESS_TYPE_PARAM.equals(accessType)) {
                     log.info("baseInfo query:设备编号：{}...参数指令:{}....",data.getDevNo(),data.getCmdMark());
-                    dataSendService.paraQuerySend(data);
+                    devCmdSendService.paraQuerySend(data.getDevNo(),data.getCmdMark());
                 } else if (SysConfigConstant.ACCESS_TYPE_INTERF.equals(accessType)) {
                     log.info("baseInfo query:设备编号：{}...接口指令:{}....",data.getDevNo(),data.getCmdMark());
-                    dataSendService.interfaceQuerySend(data);
+                    devCmdSendService.interfaceQuerySend(data.getDevNo(),data.getCmdMark());
                 }
                 //根据不同设备指定间隔查询
                 try {
