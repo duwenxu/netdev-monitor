@@ -13,7 +13,7 @@ import java.util.List;
  * @author cc
  */
 @Service
-public class ParamQueryServiceImpl implements RequestService, ResponseService {
+public class ParamQueryImpl implements RequestService, ResponseService {
 
 
     @Override

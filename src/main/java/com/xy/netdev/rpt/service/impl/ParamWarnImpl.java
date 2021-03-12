@@ -12,7 +12,7 @@ import java.util.List;
  * 参数警告命令
  * @author cc
  */
-public class ParamWarnServiceImpl implements RequestService, ResponseService {
+public class ParamWarnImpl implements RequestService, ResponseService {
     @Override
     public byte[] pack(List<RptBodyDev> list) {
         return new byte[0];

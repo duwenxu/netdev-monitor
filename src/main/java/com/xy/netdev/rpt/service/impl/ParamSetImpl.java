@@ -14,7 +14,7 @@ import java.util.List;
  * @author cc
  */
 @Service
-public class ParamSetServiceImpl implements RequestService, ResponseService {
+public class ParamSetImpl implements RequestService, ResponseService {
 
     @Override
     public byte[] pack(List<RptBodyDev> list) {
