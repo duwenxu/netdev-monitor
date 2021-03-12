@@ -45,18 +45,12 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
     public FrameRespData unpack(SocketEntity socketEntity, FrameRespData frameRespData) {
         byte[] bytes = socketEntity.getBytes();
         //数据体长度
-        int len = bytesToNum(bytes, 1, 2, ByteBuf::readShort) ;
+        int len = bytesToNum(bytes, 1, 2, ByteBuf::readShort) - 4;
         //参数
         Byte cmd = bytesToNum(bytes, 5, 1, ByteBuf::readByte);
-        String hexCmdmark = Integer.toHexString(cmd);
         //数据体
-<<<<<<< HEAD
         byte[] paramBytes = byteArrayCopy(bytes, 6, len);
-        frameRespData.setCmdMark(hexCmdmark);
-=======
-        byte[] paramBytes = byteArrayCopy(bytes, 6, len - 4);
-        frameRespData.setCmdMark(Integer.toHexString(cmd));
->>>>>>> origin/dev
+        frameRespData.setCmdMark(Integer.toString(cmd));
         frameRespData.setParamBytes(paramBytes);
         return frameRespData;
     }
