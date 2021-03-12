@@ -85,12 +85,13 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
         PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameRespData.getDevType(), frameRespData.getCmdMark());
         IParaPrtclAnalysisService iParaPrtclAnalysisService;
         try {
-            iParaPrtclAnalysisService = BeanFactoryUtil.getBean(prtclFormat.getFmtHandlerClass());
+            iParaPrtclAnalysisService = ParaPrtclFactory.genHandler(prtclFormat.getFmtHandlerClass());
         } catch (Exception e) {
             log.error("设备:{}, 未找到数据体处理类", frameRespData.getDevNo());
             return;
         }
         frameRespData.setReciveOrignData(HexUtil.encodeHexStr(frameRespData.getParamBytes()));
+        frameRespData.setCmdMark(HexUtil.encodeHexStr(frameRespData.getCmdMark()));
         this.callback(unpack, iParaPrtclAnalysisService);
     }
 

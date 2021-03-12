@@ -20,4 +20,7 @@ public interface IDownRptPrtclAnalysisService {
      */
     List<RptBodyDev>  queryParaResponse();
 
+
+    void answer(List<RptBodyDev> list);
+
 }

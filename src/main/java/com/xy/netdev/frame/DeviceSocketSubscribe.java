@@ -46,9 +46,12 @@ public class DeviceSocketSubscribe {
             try {
                 while (true){
                     SocketEntity socketEntity = SOCKET_QUEUE.take();
-                    //执行数据响应
+                    //执行设备数据响应
                     getHandler(socketEntity.getRemoteAddress())
                             .ifPresent(handler -> handler.socketResponse(socketEntity));
+
+                    //站控响应
+
                 }
             } catch (InterruptedException e) {
                 log.error("数据存储队列异常:", e);
@@ -75,7 +78,7 @@ public class DeviceSocketSubscribe {
         }
         //设备网络协议
         String classByDevType = BaseInfoContainer.getClassByDevType(devInfo.getDevType());
-        AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData> handler  = BeanFactoryUtil.getBean(classByDevType);
+        AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData> handler = BeanFactoryUtil.getBean(classByDevType);
         cache.put(ip, handler, DateUnit.MINUTE.getMillis());
         return Optional.of(handler);
     }
