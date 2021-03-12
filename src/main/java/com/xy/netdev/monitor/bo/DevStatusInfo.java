@@ -24,6 +24,11 @@ public class DevStatusInfo extends Model<DevStatusInfo>  {
 
     private static final long serialVersionUID = 1L;
 
+    @ApiModelProperty(value = "设备类型编码")
+    private String devTypeCode;
+
+    @ApiModelProperty(value = "设备编号")
+    private String devNo;
     /**
      * 0:正常|1:中断
      */

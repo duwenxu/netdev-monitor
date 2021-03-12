@@ -117,7 +117,7 @@ public class BaseInfoContainer {
                 devMap.put(baseInfo.getDevIpAddr(),baseInfo);
                 devNoMap.put(baseInfo.getDevNo(),baseInfo);
             } catch (Exception e) {
-                log.error("设备["+JSONObject.toJSONString(baseInfo)+"]ip地址或设备编号存在异常，请检查:"+e.getMessage());
+                log.error("设备["+baseInfo.getDevName()+"]ip地址或设备编号存在异常，请检查:"+e.getMessage());
             }
         });
     }
@@ -133,7 +133,7 @@ public class BaseInfoContainer {
                 paramCmdMap.put(ParaHandlerUtil.genLinkKey(paraInfo.getDevType(),paraInfo.getCmdMark()),paraInfo);
                 paramNoMap.put(ParaHandlerUtil.genLinkKey(paraInfo.getDevType(),paraInfo.getParaNo()),paraInfo);
             } catch (Exception e) {
-                log.error("参数["+ JSONObject.toJSONString(paraInfo)+"]的设备类型或命令标识或参数编号存在异常，请检查:"+e.getMessage());
+                log.error("参数["+ paraInfo.getParaName()+"]的设备类型或命令标识或参数编号存在异常，请检查:"+e.getMessage());
             }
         });
     }
@@ -180,7 +180,7 @@ public class BaseInfoContainer {
                     point = point+Integer.valueOf(paraInfo.getParaByteLen());
                     paraInfo.setParaStartPoint(point);
                 } catch (NumberFormatException e) {
-                    log.error("参数["+JSONObject.toJSONString(paraInfo)+"]的字节长度存在异常，请检查："+e.getMessage());
+                    log.error("参数["+paraInfo.getParaName()+"]的字节长度存在异常，请检查："+e.getMessage());
                 }
             }
             InterLinkParaMap.put(devInterParam.getId(),devInterParam);
@@ -293,7 +293,7 @@ public class BaseInfoContainer {
     public static PrtclFormat getPrtclByPara(String devType, String cmdMark){
         FrameParaInfo frameParaInfo = paramCmdMap.get(ParaHandlerUtil.genLinkKey(devType,cmdMark));
         if (frameParaInfo != null) {
-            frameParaInfo.getInterfacePrtcl();
+            return frameParaInfo.getInterfacePrtcl();
         }
         return null;
     }
@@ -334,7 +334,7 @@ public class BaseInfoContainer {
      * @return  设备对象
      */
     public static Set<String> getDevNos(){
-        return devMap.keySet();
+        return devNoMap.keySet();
     }
 
     /**

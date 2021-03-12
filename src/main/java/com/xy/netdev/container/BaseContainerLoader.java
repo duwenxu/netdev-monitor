@@ -48,7 +48,9 @@ public class BaseContainerLoader {
         //初始化告警信息
         initDevAlert();
         //初始化设备参数容器
-        DevParaInfoContainer.init();
+        initDevParam();
+        //初始化设备状态容器
+        DevStatusContainer.init();
     }
 
     /**
@@ -73,7 +75,14 @@ public class BaseContainerLoader {
         log.info("基础信息容器更新完成，耗时:["+(System.currentTimeMillis()-time)+"ms]");
     }
 
-
+    /**
+     * 加载设备参数信息
+     */
+    private void initDevParam(){
+//查询有效的参数列表
+        List<ParaInfo> paraInfos = paraInfoService.list().stream().filter(paraInfo -> paraInfo.getNdpaStatus().equals(SysConfigConstant.STATUS_OK)).collect(Collectors.toList());
+        DevParaInfoContainer.initData(paraInfos);
+    }
 
     /**
      * 加载设备日志容器
@@ -92,6 +101,4 @@ public class BaseContainerLoader {
         //初始化各设备日志
         DevAlertInfoContainer.init(devAlertInfoSize);
     }
-
-
 }
