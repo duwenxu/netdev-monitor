@@ -293,7 +293,7 @@ public class BaseInfoContainer {
     public static PrtclFormat getPrtclByPara(String devType, String cmdMark){
         FrameParaInfo frameParaInfo = paramCmdMap.get(ParaHandlerUtil.genLinkKey(devType,cmdMark));
         if (frameParaInfo != null) {
-            frameParaInfo.getInterfacePrtcl();
+            return frameParaInfo.getInterfacePrtcl();
         }
         return null;
     }
