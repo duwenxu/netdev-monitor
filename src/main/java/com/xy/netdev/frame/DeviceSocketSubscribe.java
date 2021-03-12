@@ -32,9 +32,6 @@ import static com.xy.netdev.network.NettyUtil.SOCKET_QUEUE;
 public class DeviceSocketSubscribe {
 
     @Autowired
-    private ApplicationContext applicationContext;
-
-    @Autowired
     private List<AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData>> absSocketHandlerList;
 
     /**
@@ -64,6 +61,7 @@ public class DeviceSocketSubscribe {
      * @param ip ip
      * @return 目标实体
      */
+
     private Optional<AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData>> getHandler(String ip){
         AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData> socketHandler = cache.get(ip);
         if (socketHandler != null){
@@ -77,8 +75,7 @@ public class DeviceSocketSubscribe {
         }
         //设备网络协议
         String classByDevType = BaseInfoContainer.getClassByDevType(devInfo.getDevType());
-        AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData> handler =
-                (AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData>)applicationContext.getBean(classByDevType);
+        AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData> handler  = BeanFactoryUtil.getBean(classByDevType);
         cache.put(ip, handler, DateUnit.MINUTE.getMillis());
         return Optional.of(handler);
     }

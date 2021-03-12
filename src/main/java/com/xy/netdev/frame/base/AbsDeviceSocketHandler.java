@@ -1,6 +1,8 @@
 package com.xy.netdev.frame.base;
 
 import cn.hutool.core.util.HexUtil;
+import cn.hutool.core.util.ObjectUtil;
+import com.xy.netdev.common.util.BeanFactoryUtil;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.factory.ParaPrtclFactory;
 import com.xy.netdev.frame.base.service.ProtocolPackService;
@@ -9,6 +11,7 @@ import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.entity.SocketEntity;
 import com.xy.netdev.frame.enums.ProtocolRequestEnum;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
+import com.xy.netdev.frame.service.gf.GfPrtcServiceImpl;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.PrtclFormat;
 import com.xy.netdev.network.NettyUtil;
@@ -27,9 +30,6 @@ import static com.xy.netdev.container.BaseInfoContainer.getDevInfo;
 @Slf4j
 public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends FrameReqData, R extends FrameRespData>
         extends DeviceSocketBaseHandler<T, R> implements ProtocolPackService<Q, T, R> {
-
-    @Autowired
-    private ApplicationContext applicationContext;
 
     @Override
     public void socketRequest(T t, ProtocolRequestEnum requestEnum) {
@@ -75,6 +75,7 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
 
 
     @Override
+    @SuppressWarnings("unchecked")
     public void socketResponse(SocketEntity socketEntity) {
         BaseInfo devInfo = getDevInfo(socketEntity.getRemoteAddress());
         FrameRespData frameRespData = new FrameRespData();
@@ -82,7 +83,13 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
         frameRespData.setDevNo(devInfo.getDevNo());
         R unpack = unpack((Q) socketEntity, (R) frameRespData);
         PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameRespData.getDevType(), frameRespData.getCmdMark());
-        IParaPrtclAnalysisService iParaPrtclAnalysisService = ParaPrtclFactory.genHandler(prtclFormat.getFmtHandlerClass());
+        IParaPrtclAnalysisService iParaPrtclAnalysisService;
+        try {
+            iParaPrtclAnalysisService = BeanFactoryUtil.getBean(prtclFormat.getFmtHandlerClass());
+        } catch (Exception e) {
+            log.error("设备:{}, 未找到数据体处理类", frameRespData.getDevNo());
+            return;
+        }
         frameRespData.setReciveOrignData(HexUtil.encodeHexStr(frameRespData.getParamBytes()));
         this.callback(unpack, iParaPrtclAnalysisService);
     }
