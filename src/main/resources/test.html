@@ -32,7 +32,7 @@
         socket1: null,
         init1: function(meg) {
             if (window.WebSocket) {
-                CHAT.socket = new WebSocket("ws://127.0.0.1:9000/ws");
+                CHAT.socket = new WebSocket("ws://172.21.5.226:9000/ws");
                 CHAT.socket.onopen = function() {
                     CHAT.socket.send(JSON.stringify(meg));
                     console.log("connect success...");
@@ -54,7 +54,7 @@
         },
         init2: function(meg) {
             if (window.WebSocket) {
-                CHAT.socket1 = new WebSocket("ws://127.0.0.1:9000/ws");
+                CHAT.socket1 = new WebSocket("ws://172.21.5.226:9000/ws");
                 CHAT.socket1.onopen = function() {
                     CHAT.socket1.send(JSON.stringify(meg));
                     console.log("connect success...");
