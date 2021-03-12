@@ -4,6 +4,7 @@ import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import com.xy.netdev.common.util.BeanFactoryUtil;
+import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.entity.SocketEntity;
 import com.xy.netdev.monitor.entity.BaseInfo;
@@ -119,11 +120,11 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
         //拼成完整帧格式
         byte[] bytes = ArrayUtil.addAll(
                 //信息类别
-                  NumToBytes(cmd, 2)
+                  ByteUtils.objToBytes(cmd, 2)
                 //数据字段长度
-                , NumToBytes(bodyBytes.length, 2)
+                , ByteUtils.objToBytes(bodyBytes.length, 2)
                 //预留
-                , NumToBytes(0, 4)
+                , ByteUtils.objToBytes(0, 4)
                 //数据字段
                 , bodyBytes);
 
