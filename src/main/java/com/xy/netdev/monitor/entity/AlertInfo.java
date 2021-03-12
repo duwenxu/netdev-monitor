@@ -7,9 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.io.Serializable;
 
@@ -22,7 +20,9 @@ import java.io.Serializable;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
+@AllArgsConstructor
 @TableName("NTDV_ALERT_INFO")
+@Builder
 @ApiModel(value="AlertInfo对象", description="告警信息")
 public class AlertInfo extends Model<AlertInfo> {
 
@@ -46,7 +46,7 @@ public class AlertInfo extends Model<AlertInfo> {
 
     @ApiModelProperty(value = "告警个数")
     @TableField(value = "ALERT_NUM")
-    private String alertNum;
+    private Integer alertNum;
 
     @ApiModelProperty(value = "告警时间")
     @TableField(value = "ALERT_TIME")

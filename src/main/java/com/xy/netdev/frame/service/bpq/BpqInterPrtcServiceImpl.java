@@ -1,6 +1,7 @@
 package com.xy.netdev.frame.service.bpq;
 
 
+import cn.hutool.core.bean.BeanUtil;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
@@ -11,6 +12,7 @@ import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.transit.IDataReciveService;
+import com.xy.netdev.transit.IDevInfoReportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,6 +32,8 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
     SocketMutualService socketMutualService;
     @Autowired
     IDataReciveService dataReciveService;
+    @Autowired
+    IDevInfoReportService devAlarmReportService;
 
     /**
      * 查询设备接口
@@ -64,19 +68,14 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
             String value = param.split("_")[1];
             FrameParaData paraInfo = new FrameParaData();
             FrameParaInfo frameParaDetail = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),respData.getCmdMark());
-            paraInfo.setParaNo(frameParaDetail.getParaNo());
-            paraInfo.setDevType(frameParaDetail.getDevType());
-            paraInfo.setDevNo(frameParaDetail.getDevNo());
+            BeanUtil.copyProperties(frameParaDetail, paraInfo, true);
             paraInfo.setParaVal(value);
             frameParaList.add(paraInfo);
         }
         respData.setFrameParaList(frameParaList);
-        respData.setCmdMark(respData.getCmdMark());
-        respData.setDevNo(respData.getDevNo());
-        respData.setDevType(respData.getDevType());
-        respData.setOperType(SysConfigConstant.OPREATE_QUERY_RESP);
-        respData.setAccessType(SysConfigConstant.ACCESS_TYPE_INTERF);
         dataReciveService.paraQueryRecive(respData);
+        //生成报警信息
+        devAlarmReportService.generateAlarmInfo(respData);
         return respData;
     }
 

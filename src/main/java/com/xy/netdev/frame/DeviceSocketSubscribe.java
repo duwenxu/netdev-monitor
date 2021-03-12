@@ -13,6 +13,7 @@ import com.xy.netdev.frame.entity.SocketEntity;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -29,6 +30,9 @@ import static com.xy.netdev.network.NettyUtil.SOCKET_QUEUE;
 @Component
 @Slf4j
 public class DeviceSocketSubscribe {
+
+    @Autowired
+    private ApplicationContext applicationContext;
 
     @Autowired
     private List<AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData>> absSocketHandlerList;
@@ -68,12 +72,13 @@ public class DeviceSocketSubscribe {
         //设备信息
         BaseInfo devInfo = getDevInfo(ip);
         if (devInfo == null){
-            log.error("位置设备数据, 设备ip:{}", ip);
+            log.error("未知设备数据, 设备ip:{}", ip);
             return Optional.empty();
         }
         //设备网络协议
         String classByDevType = BaseInfoContainer.getClassByDevType(devInfo.getDevType());
-        AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData> handler = BeanFactoryUtil.getBean(classByDevType);
+        AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData> handler =
+                (AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData>)applicationContext.getBean(classByDevType);
         cache.put(ip, handler, DateUnit.MINUTE.getMillis());
         return Optional.of(handler);
     }

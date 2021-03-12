@@ -26,6 +26,9 @@ import static com.xy.netdev.common.util.ByteUtils.byteToNumber;
 @Service
 public class GfPrtcServiceImpl implements IParaPrtclAnalysisService {
 
+    /**应答帧 分隔符*/
+    private static final String SPLIT ="5F";
+
     @Autowired
     SocketMutualService socketMutualService;
 
