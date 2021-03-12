@@ -1,12 +1,12 @@
 package com.xy.netdev.container;
 
-import com.alibaba.fastjson.JSONObject;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.util.ParaHandlerUtil;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.entity.*;
 import com.xy.netdev.monitor.bo.DevInterParam;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -90,7 +90,7 @@ public class BaseInfoContainer {
         List<DevInterParam> devInterParams = new ArrayList<>();
         //封装设备接口参数实体类list
         interfaces.forEach(anInterface -> {
-            List<String> paraIds = Arrays.asList(anInterface.getItfDataFormat().split(","));
+            List<String> paraIds = StringUtils.isBlank(anInterface.getItfDataFormat())? new ArrayList<>():Arrays.asList(anInterface.getItfDataFormat().split(","));
             DevInterParam devInterParam = new DevInterParam();
             devInterParam.setId(ParaHandlerUtil.genLinkKey(anInterface.getDevType(),anInterface.getItfCmdMark()));
             List<PrtclFormat> prtclFormats = prtclList.stream().filter(prtclFormat -> prtclFormat.getFmtId() == anInterface.getFmtId()).collect(Collectors.toList());
