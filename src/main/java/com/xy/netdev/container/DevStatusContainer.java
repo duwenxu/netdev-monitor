@@ -1,7 +1,11 @@
 package com.xy.netdev.container;
 
 
+import com.xy.netdev.admin.service.ISysParamService;
+import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.monitor.bo.DevStatusInfo;
+import com.xy.netdev.monitor.entity.BaseInfo;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +21,8 @@ import java.util.Map;
  */
 public class DevStatusContainer {
 
+    private static ISysParamService sysParamServiceLocal;
+
     /**
      * 设备日志信息MAP K设备编号 V设备状态信息
      */
@@ -25,10 +31,26 @@ public class DevStatusContainer {
     /**
      * @功能：当系统启动时,进行初始化各设备报警信息
      */
-    public static void init(){
+    public static void init(ISysParamService sysParamService){
+        sysParamServiceLocal = sysParamService;
         BaseInfoContainer.getDevNos().forEach(devNo -> {
-            devStatusMap.put(devNo,new DevStatusInfo());
+            DevStatusInfo devStatusInfo = new DevStatusInfo();
+            BaseInfo devInfo = BaseInfoContainer.getDevInfoByNo(devNo);
+            devStatusInfo.setDevNo(devNo);
+            devStatusInfo.setDevTypeCode(sysParamService.getParaRemark1(devInfo.getDevType()));
+            devStatusInfo.setWorkStatus(sysParamService.getParaRemark1(devInfo.getDevStatus()));
+            devStatusInfo.setIsInterrupt(SysConfigConstant.RPT_DEV_STATUS_ISINTERRUPT_NO);
+            devStatusInfo.setIsAlarm(SysConfigConstant.RPT_DEV_STATUS_ISALARM_NO);
+            devStatusMap.put(devNo,devStatusInfo);
         });
+    }
+
+    /**
+     * @功能：清空当前状态
+     * @return
+     */
+    public static void clear(){
+        init(sysParamServiceLocal);
     }
 
     /**
@@ -78,13 +100,6 @@ public class DevStatusContainer {
         devStatusMap.get(devNo).setWorkStatus(workStatus);
     }
 
-    /**
-     * @功能：清空当前状态
-     * @return
-     */
-    public static void clear(){
-         init();
-    }
 
     /**
      * @功能：获取设备状态上报信息
