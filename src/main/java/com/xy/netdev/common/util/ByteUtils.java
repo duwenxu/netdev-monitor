@@ -1,6 +1,5 @@
 package com.xy.netdev.common.util;
 
-import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.HexUtil;
 import com.google.common.primitives.Bytes;
 import io.netty.buffer.ByteBuf;
@@ -10,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.DigestUtils;
 
 import java.nio.ByteOrder;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -38,7 +38,7 @@ public class ByteUtils {
         return t;
     }
 
-    public static <T extends Number> byte[] numToBytes(T t, ByteOrder order, Function<T, ByteBuf> function){
+    public static <T extends Number> byte[] objToBytes(T t, ByteOrder order, Function<T, ByteBuf> function){
         ByteBuf apply = function.apply(t);
         byte[] array = apply.array();
         if (order == Unpooled.LITTLE_ENDIAN){
@@ -81,10 +81,10 @@ public class ByteUtils {
     }
 
 
-    public static byte[] NumToBytes(Number number, int len){
+    public static byte[] objToBytes(Object obj, int len){
         byte [] data = {};
         if (len == 1){
-            return new byte[]{(byte)number};
+            return new byte[]{(byte)obj};
         }
         ByteOrder byteOrder = Unpooled.BIG_ENDIAN;
 //        if (order != 1) {
@@ -94,18 +94,20 @@ public class ByteUtils {
 //        }
         switch(len){
             case 2:
-                data = numToBytes(number.shortValue(), byteOrder, Unpooled::copyShort);
+                data = objToBytes(Short.parseShort(obj.toString()), byteOrder, Unpooled::copyShort);
                 break;
             case 3:
-                data = numToBytes(number.intValue(), byteOrder, Unpooled::copyMedium);
+                data = objToBytes(Integer.parseInt(obj.toString()), byteOrder, Unpooled::copyMedium);
                 break;
             case 4:
-                data = numToBytes(number.intValue(), byteOrder, Unpooled::copyInt);
+                data = objToBytes(Integer.parseInt(obj.toString()), byteOrder, Unpooled::copyInt);
                 break;
             case 8:
-                data = numToBytes(number.longValue(), byteOrder, Unpooled::copyLong);
+                data = objToBytes(Long.parseLong(obj.toString()), byteOrder, Unpooled::copyLong);
                 break;
-            default:break;
+            default:
+                data = obj.toString().getBytes(Charset.forName("GB2312"));
+                break;
         }
         return data;
     }

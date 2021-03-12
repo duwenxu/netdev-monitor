@@ -2,6 +2,7 @@ package com.xy.netdev.frame.service.impl.head;
 
 import cn.hutool.core.util.NumberUtil;
 import com.xy.netdev.common.constant.SysConfigConstant;
+import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.frame.base.AbsDeviceSocketHandler;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
@@ -69,7 +70,7 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
 
         ModemEntity modemEntity = ModemEntity.builder()
                 .beginOffset((byte)0x02)
-                .num(NumToBytes(len, 2))
+                .num(ByteUtils.objToBytes(len, 2))
                 .deviceType((byte)0x65)
                 .deviceAddress((byte)0x01)
                 .cmd(Byte.valueOf(frameReqData.getCmdMark()))

@@ -41,6 +41,7 @@ public class ParamQueryImpl implements RequestService, ResponseService {
         rptHeadDev.setStationNo(String.valueOf(stationNo));
         rptHeadDev.setCmdMarkHexStr(Integer.toHexString(cmdMark));
         rptHeadDev.setParam(rptBodyDevs);
+        rptHeadDev.setDevNum(devNum);
         rptHeadDev.setDevNo(stationControlHeadEntity.getBaseInfo().getDevNo());
         return rptHeadDev;
     }
@@ -91,9 +92,30 @@ public class ParamQueryImpl implements RequestService, ResponseService {
         //保留
         tempList.add(placeholderByte(4));
         //查询标志
-        tempList.add(ByteUtils.NumToBytes(Integer.parseInt(rptHeadDev.getCmdMarkHexStr(), 16), 1));
+        tempList.add(ByteUtils.objToBytes(Integer.parseInt(rptHeadDev.getCmdMarkHexStr(), 16), 1));
         //站号
-        tempList.add(ByteUtils.NumToBytes(Integer.parseInt(rptHeadDev.getStationNo()), 1));
+        tempList.add(ByteUtils.objToBytes(rptHeadDev.getStationNo(), 1));
+        //设备数量
+        tempList.add(ByteUtils.objToBytes(rptHeadDev.getDevNum(), 1));
+
+        rptBodyDevs.forEach(rptBodyDev -> {
+            //设备型号
+            tempList.add(ByteUtils.objToBytes(rptBodyDev.getDevTypeCode(), 1));
+            //设备编号
+            tempList.add(ByteUtils.objToBytes(rptBodyDev.getDevNo(), 1));
+            List<FrameParaData> devParaList = rptBodyDev.getDevParaList();
+            int parmaSize = devParaList.size();
+            //设备参数数量
+            tempList.add(ByteUtils.objToBytes(parmaSize, 1));
+            devParaList.forEach(frameParaData -> {
+                //参数编号
+                tempList.add(ByteUtils.objToBytes(frameParaData.getParaNo(), 1));
+                //数据长度
+                tempList.add(ByteUtils.objToBytes(frameParaData.getLen(), 2));
+                //数据体内容
+                tempList.add(ByteUtils.objToBytes(frameParaData.getParaVal(), frameParaData.getLen()));
+            });
+        });
         return listToBytes(tempList);
     }
 

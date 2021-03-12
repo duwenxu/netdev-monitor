@@ -1,5 +1,7 @@
 package com.xy.netdev.container;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.util.ParaHandlerUtil;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
@@ -352,6 +354,7 @@ public class BaseInfoContainer {
             frameParaInfo.setParaName(paraInfo.getNdpaName());  //参数名称
             frameParaInfo.setCmdMark(paraInfo.getNdpaCmdMark()); //命令标识
             frameParaInfo.setParaByteLen(paraInfo.getNdpaByteLen());  // 字节长度
+            frameParaInfo.setSelectMap(JSONArray.parseObject(paraInfo.getNdpaSelectData()));//下拉值域
             frameParaInfo.setDevType(paraInfo.getDevType());      //设备类型
             frameParaInfo.setDevTypeCode(paraInfo.getDevTypeCode());      //设备类型编码
             frameParaInfo.setNdpaAccessRight(paraInfo.getNdpaAccessRight()); //访问权限

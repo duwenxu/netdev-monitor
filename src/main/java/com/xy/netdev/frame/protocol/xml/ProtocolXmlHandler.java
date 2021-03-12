@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.xy.netdev.common.util.ByteUtils.listToBytes;
-import static com.xy.netdev.common.util.ByteUtils.NumToBytes;
+import static com.xy.netdev.common.util.ByteUtils.objToBytes;
 
 @Deprecated
 public final class ProtocolXmlHandler {
