@@ -137,7 +137,7 @@ public class ScheduleReport implements ApplicationRunner {
         //单个设备所有查询对象的封装list映射
         Map<BaseInfo, List<FrameReqData>> scheduleReqBodyMap = new ConcurrentHashMap<>(20);
         baseInfos.forEach(base -> {
-            
+
         });
     }
 
