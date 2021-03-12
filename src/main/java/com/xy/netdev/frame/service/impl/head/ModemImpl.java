@@ -31,7 +31,11 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
     public void callback(FrameRespData frameRespData, IParaPrtclAnalysisService iParaPrtclAnalysisService, IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService) {
         switch (frameRespData.getCmdMark()){
             case "53":
-                iParaPrtclAnalysisService.queryParaResponse(frameRespData);
+                if (iParaPrtclAnalysisService != null){
+                    iParaPrtclAnalysisService.queryParaResponse(frameRespData);
+                    return;
+                }
+                iQueryInterPrtclAnalysisService.queryParaResponse(frameRespData);
                 break;
             case "41":
                 iParaPrtclAnalysisService.ctrlParaResponse(frameRespData);
