@@ -1,6 +1,7 @@
 package com.xy.netdev.websocket.send;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.xy.netdev.container.DevLogInfoContainer;
 import com.xy.netdev.container.DevParaInfoContainer;
 import com.xy.netdev.websocket.config.ChannelCache;
@@ -26,7 +27,7 @@ public class DevIfeMegSend {
     public static void sendLogToDev(String devNo){
         ChannelGroup channels = ChannelCache.getInstance().getChannels("DevLogInfos",devNo);
         if( channels != null){
-            String msg = JSONObject.toJSONString(DevLogInfoContainer.getDevLogList(devNo));
+            String msg = JSONObject.toJSONString(DevLogInfoContainer.getDevLogList(devNo),SerializerFeature.WriteMapNullValue);
             TextWebSocketFrame textWebSocketFrame = new TextWebSocketFrame(msg);
             channels.writeAndFlush(textWebSocketFrame);
         }
@@ -39,7 +40,7 @@ public class DevIfeMegSend {
     public static void sendParaToDev(String devNo){
         ChannelGroup channels = ChannelCache.getInstance().getChannels("DevParaInfos",devNo);
         if( channels != null){
-            String msg = JSONObject.toJSONString(DevParaInfoContainer.getDevParaViewList(devNo));
+            String msg = JSONObject.toJSONString(DevParaInfoContainer.getDevParaViewList(devNo), SerializerFeature.WriteMapNullValue);
             TextWebSocketFrame textWebSocketFrame = new TextWebSocketFrame(msg);
             channels.writeAndFlush(textWebSocketFrame);
         }
@@ -51,7 +52,7 @@ public class DevIfeMegSend {
     public static void sendDevStatusToDev(){
         ChannelGroup channels = ChannelCache.getInstance().getChannelsByIfe("DevStatusInfos");
         if( channels != null){
-            String msg = JSONObject.toJSONString(DevStatusContainergetDevAlertInfoList().);
+            String msg = JSONObject.toJSONString(DevStatusContainer.getAllDevStatusInfoList(),SerializerFeature.WriteMapNullValue);
             TextWebSocketFrame textWebSocketFrame = new TextWebSocketFrame(msg);
             channels.writeAndFlush(textWebSocketFrame);
         }

@@ -1,5 +1,6 @@
 package com.xy.netdev.common.util;
 
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.HexUtil;
 import com.google.common.primitives.Bytes;
 import io.netty.buffer.ByteBuf;
@@ -80,10 +81,10 @@ public class ByteUtils {
     }
 
 
-    public static byte[] objectToBytes(Object obj, int len){
+    public static byte[] NumToBytes(Number number, int len){
         byte [] data = {};
         if (len == 1){
-            return new byte[]{(byte)obj};
+            return new byte[]{(byte)number};
         }
         ByteOrder byteOrder = Unpooled.BIG_ENDIAN;
 //        if (order != 1) {
@@ -93,16 +94,16 @@ public class ByteUtils {
 //        }
         switch(len){
             case 2:
-                data = numToBytes(Short.parseShort(obj.toString()), byteOrder, Unpooled::copyShort);
+                data = numToBytes(number.shortValue(), byteOrder, Unpooled::copyShort);
                 break;
             case 3:
-                data = numToBytes(Integer.parseInt(obj.toString()), byteOrder, Unpooled::copyMedium);
+                data = numToBytes(number.intValue(), byteOrder, Unpooled::copyMedium);
                 break;
             case 4:
-                data = numToBytes(Integer.parseInt(obj.toString()), byteOrder, Unpooled::copyInt);
+                data = numToBytes(number.intValue(), byteOrder, Unpooled::copyInt);
                 break;
             case 8:
-                data = numToBytes(Long.parseLong(obj.toString()), byteOrder, Unpooled::copyLong);
+                data = numToBytes(number.longValue(), byteOrder, Unpooled::copyLong);
                 break;
             default:break;
         }
@@ -180,4 +181,5 @@ public class ByteUtils {
         }
         return Bytes.toArray(list);
     }
+
 }
