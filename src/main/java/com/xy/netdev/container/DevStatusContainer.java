@@ -21,6 +21,8 @@ import java.util.Map;
  */
 public class DevStatusContainer {
 
+    private static ISysParamService sysParamServiceLocal;
+
     /**
      * 设备日志信息MAP K设备编号 V设备状态信息
      */
@@ -29,9 +31,9 @@ public class DevStatusContainer {
     /**
      * @功能：当系统启动时,进行初始化各设备报警信息
      */
-    public static void init(){
+    public static void init(ISysParamService sysParamService){
+        sysParamServiceLocal = sysParamService;
         BaseInfoContainer.getDevNos().forEach(devNo -> {
-            ISysParamService sysParamService =BaseInfoContainer.getSysParamService();
             DevStatusInfo devStatusInfo = new DevStatusInfo();
             BaseInfo devInfo = BaseInfoContainer.getDevInfoByNo(devNo);
             devStatusInfo.setDevNo(devNo);
@@ -48,7 +50,7 @@ public class DevStatusContainer {
      * @return
      */
     public static void clear(){
-        init();
+        init(sysParamServiceLocal);
     }
 
     /**

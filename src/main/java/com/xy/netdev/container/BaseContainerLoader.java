@@ -50,7 +50,7 @@ public class BaseContainerLoader {
         //初始化设备参数容器
         initDevParam();
         //初始化设备状态容器
-        DevStatusContainer.init();
+        DevStatusContainer.init(sysParamService);
     }
 
     /**
