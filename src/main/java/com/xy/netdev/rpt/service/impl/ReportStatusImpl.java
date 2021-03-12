@@ -11,7 +11,7 @@ import java.util.List;
  * @author cc
  */
 @Service
-public class ReportStatusServiceImpl implements RequestService {
+public class ReportStatusImpl implements RequestService {
     @Override
     public byte[] pack(List<RptBodyDev> list) {
         return new byte[0];

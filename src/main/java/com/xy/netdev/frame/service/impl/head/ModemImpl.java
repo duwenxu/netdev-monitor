@@ -7,12 +7,10 @@ import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.entity.SocketEntity;
 import com.xy.netdev.frame.entity.device.ModemEntity;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
-import com.xy.netdev.frame.service.modem.Modem_650_PrtcServiceImpl;
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -65,7 +63,7 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
 
         ModemEntity modemEntity = ModemEntity.builder()
                 .beginOffset((byte)0x02)
-                .num(objectToByte(len, 2))
+                .num(objectToBytes(len, 2))
                 .deviceType((byte)0x65)
                 .deviceAddress((byte)0x01)
                 .cmd(Byte.valueOf(frameReqData.getCmdMark()))
