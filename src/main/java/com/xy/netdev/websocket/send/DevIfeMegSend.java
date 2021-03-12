@@ -3,7 +3,6 @@ package com.xy.netdev.websocket.send;
 import com.alibaba.fastjson.JSONObject;
 import com.xy.netdev.container.DevLogInfoContainer;
 import com.xy.netdev.container.DevParaInfoContainer;
-import com.xy.netdev.container.DevStatusContainer;
 import com.xy.netdev.websocket.config.ChannelCache;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
@@ -52,7 +51,7 @@ public class DevIfeMegSend {
     public static void sendDevStatusToDev(){
         ChannelGroup channels = ChannelCache.getInstance().getChannelsByIfe("DevStatusInfos");
         if( channels != null){
-            String msg = JSONObject.toJSONString(DevStatusContainer.getDevAlertInfoList());
+            String msg = JSONObject.toJSONString(DevStatusContainergetDevAlertInfoList().);
             TextWebSocketFrame textWebSocketFrame = new TextWebSocketFrame(msg);
             channels.writeAndFlush(textWebSocketFrame);
         }
