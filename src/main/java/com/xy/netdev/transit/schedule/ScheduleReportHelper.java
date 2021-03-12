@@ -1,11 +1,10 @@
-package com.xy.netdev.rpt.schedule;
+package com.xy.netdev.transit.schedule;
 
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.service.IBaseInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.xy.netdev.common.constant.SysConfigConstant.DEV_QUERY_INTERVAL;
+import static com.xy.netdev.common.constant.SysConfigConstant.DEV_REPORT_INTERVAL;
 
 /**
  * 状态上报查询辅助类
@@ -33,7 +33,8 @@ public class ScheduleReportHelper {
     private ISysParamService sysParamService;
 
     private static final List<BaseInfo> availableBases = new ArrayList<>();
-    private static Long commonInterval = 1000L;
+    private static Long queryInterval = 1000L;
+    private static Long reportInterval = 1000L;
 
     @PostConstruct
     public void init(){
@@ -58,10 +59,15 @@ public class ScheduleReportHelper {
      * 初始化加载参数
      */
     private void initCommonInterval(){
-        commonInterval = Long.parseLong(sysParamService.getParaRemark1(DEV_QUERY_INTERVAL));
+        queryInterval = Long.parseLong(sysParamService.getParaRemark1(DEV_QUERY_INTERVAL));
+        reportInterval = Long.parseLong(sysParamService.getParaRemark1(DEV_REPORT_INTERVAL));
     }
 
-    public static Long getCommonInterval() {
-        return commonInterval;
+    public static Long getQueryInterval() {
+        return queryInterval;
+    }
+
+    public static Long getReportInterval() {
+        return reportInterval;
     }
 }

@@ -138,6 +138,11 @@ public interface SysConfigConstant {
     String  DEV_QUERY_INTERVAL="0100002";
 
     /***
+     * 公共参数--上报间隔时间
+     */
+    String  DEV_REPORT_INTERVAL="0100003";
+
+    /***
      * 公共参数--设备日志信息显示条数
      */
     String  DEV_LOG_VIEW_SZIE="0100004";
@@ -299,4 +304,16 @@ public interface SysConfigConstant {
      * 站控-设备状态上报--工作状态-正常
      */
     String RPT_DEV_STATUS_WORKSTATUS_YES = "0";
+
+    /**
+     * 调制解调器控制成功响应--code
+     */
+    String CONTROL_SUCCESS = "0061000";
+
+    /**
+     * 调制解调器控制失败响应--code
+     */
+    String CONTROL_FAIL = "0061001";
+
+
 }

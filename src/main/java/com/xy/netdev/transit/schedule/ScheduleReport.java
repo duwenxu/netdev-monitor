@@ -1,4 +1,4 @@
-package com.xy.netdev.rpt.schedule;
+package com.xy.netdev.transit.schedule;
 
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
@@ -9,12 +9,11 @@ import com.xy.netdev.monitor.constant.MonitorConstants;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.entity.PrtclFormat;
-import com.xy.netdev.transit.IDataSendService;
+import com.xy.netdev.transit.IDevCmdSendService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,26 +28,28 @@ import java.util.stream.Collectors;
  * @create 2021-03-10 11:39
  */
 @Slf4j
-@Component
+//@Component
 public class ScheduleReport implements ApplicationRunner {
 
     @Autowired
-    private IDataSendService dataSendService;
+    private IDevCmdSendService devCmdSendService;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
         log.info("-----设备状态上报查询开始...");
         try {
-            doScheduleReportQuery();
+            doScheduleQuery();
+            doScheduleReport();
+
         } catch (Exception e) {
             log.error("设备状态上报查询异常...",e);
         }
     }
 
     /**
-     *  定时上报查询
+     *  设备参数定时查询
      */
-    public void doScheduleReportQuery() {
+    public void doScheduleQuery() {
         List<BaseInfo> baseInfos = ScheduleReportHelper.getAvailableBases();
         //单个设备所有查询对象的封装list映射
         Map<BaseInfo, List<FrameReqData>> scheduleReqBodyMap = new ConcurrentHashMap<>(20);
@@ -93,19 +94,19 @@ public class ScheduleReport implements ApplicationRunner {
             scheduleReqBodyMap.put(base, scheduleReqBodyList);
         });
         //执行查询任务
-        execReportTask(scheduleReqBodyMap);
+        execQueryTask(scheduleReqBodyMap);
     }
 
     /**
-     * 查询执行
+     * 查询参数执行
      *
      * @param scheduleReqBodyMap 参数信息
      */
-    public void execReportTask(Map<BaseInfo, List<FrameReqData>> scheduleReqBodyMap) {
-        Long commonInterval = ScheduleReportHelper.getCommonInterval();
+    public void execQueryTask(Map<BaseInfo, List<FrameReqData>> scheduleReqBodyMap) {
+        Long commonInterval = ScheduleReportHelper.getQueryInterval();
         scheduleReqBodyMap.forEach((base, queryList) -> {
             long interval = Long.parseLong(base.getDevIntervalTime() + "");
-            ScheduleReportTask scheduleReportTask = new ScheduleReportTask(queryList, interval, commonInterval,dataSendService);
+            ScheduleReportTask scheduleReportTask = new ScheduleReportTask(queryList, interval, commonInterval,devCmdSendService);
             Thread thread = new Thread(scheduleReportTask, base.getDevName() + "-reportQuery-thread");
             thread.start();
         });
@@ -125,5 +126,19 @@ public class ScheduleReport implements ApplicationRunner {
                 .frameParaList(frameParaList)
                 .build();
     }
+
+
+    /**
+     *  设备参数定时上报
+     */
+    public void doScheduleReport(){
+        List<BaseInfo> baseInfos = ScheduleReportHelper.getAvailableBases();
+        //单个设备所有查询对象的封装list映射
+        Map<BaseInfo, List<FrameReqData>> scheduleReqBodyMap = new ConcurrentHashMap<>(20);
+        baseInfos.forEach(base -> {
+
+        });
+    }
+
 
 }
