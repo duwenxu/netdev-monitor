@@ -18,9 +18,5 @@ public interface IDownRptPrtclAnalysisService {
      * 外部下发协议
      * @return  下发的设备数据列表
      */
-    List<RptBodyDev>  queryParaResponse();
-
-
-    void answer(List<RptBodyDev> list);
-
+    List<RptBodyDev> queryParaResponse();
 }

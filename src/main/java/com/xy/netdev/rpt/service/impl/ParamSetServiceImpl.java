@@ -2,6 +2,9 @@ package com.xy.netdev.rpt.service.impl;
 
 import com.xy.netdev.rpt.bo.RptBodyDev;
 import com.xy.netdev.rpt.service.IDownRptPrtclAnalysisService;
+import com.xy.netdev.rpt.service.RequestService;
+import com.xy.netdev.rpt.service.ResponseService;
+import com.xy.netdev.rpt.service.StationControlHandler;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,9 +14,15 @@ import java.util.List;
  * @author cc
  */
 @Service
-public class ParamSetServiceImpl implements IDownRptPrtclAnalysisService {
+public class ParamSetServiceImpl implements RequestService, ResponseService {
+
     @Override
-    public List<RptBodyDev> queryParaResponse() {
+    public byte[] pack(List<RptBodyDev> list) {
+        return new byte[0];
+    }
+
+    @Override
+    public List<RptBodyDev> unpackBody(StationControlHandler.StationControlHeadEntity stationControlHeadEntity) {
         return null;
     }
 

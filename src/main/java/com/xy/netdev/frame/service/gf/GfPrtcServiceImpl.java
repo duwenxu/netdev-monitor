@@ -26,9 +26,6 @@ import static com.xy.netdev.common.util.ByteUtils.byteToNumber;
 @Service
 public class GfPrtcServiceImpl implements IParaPrtclAnalysisService {
 
-    /**应答帧 分隔符*/
-    private static final String SPLIT ="5F";
-
     @Autowired
     SocketMutualService socketMutualService;
 
@@ -42,18 +39,12 @@ public class GfPrtcServiceImpl implements IParaPrtclAnalysisService {
 
     @Override
     public FrameRespData queryParaResponse(FrameRespData respData) {
-        List<FrameParaInfo> frameParaInfos = BaseInfoContainer
-                .getInterLinkParaList(respData.getDevType(), respData.getCmdMark());
+        FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),respData.getCmdMark());
         byte[] bytes = respData.getParamBytes();
-        List<FrameParaData> frameParaDataList = Objects.requireNonNull(frameParaInfos).stream()
-                .map(frameParaInfo -> {
-                    FrameParaData paraInfo = new FrameParaData();
-                    BeanUtil.copyProperties(frameParaInfo, paraInfo, true);
-                    paraInfo.setParaVal(byteToNumber(bytes, frameParaInfo.getParaStartPoint(),
-                            Integer.parseInt(frameParaInfo.getParaByteLen()), isUnsigned(sysParamService, frameParaInfo.getParaNo())).toString());
-                    return paraInfo;
-                }).collect(Collectors.toList());
-        respData.setFrameParaList(frameParaDataList);
+        FrameParaData paraInfo = new FrameParaData();
+        BeanUtil.copyProperties(frameParaInfo, paraInfo, true);
+        paraInfo.setParaVal(byteToNumber(bytes, frameParaInfo.getParaStartPoint(),
+                Integer.parseInt(frameParaInfo.getParaByteLen()), isUnsigned(sysParamService, frameParaInfo.getParaNo())).toString());
         return respData;
     }
 

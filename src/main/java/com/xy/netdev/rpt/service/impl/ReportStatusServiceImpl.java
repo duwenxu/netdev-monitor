@@ -1,4 +1,19 @@
 package com.xy.netdev.rpt.service.impl;
 
-public class ReportStatusServiceImpl {
+import com.xy.netdev.rpt.bo.RptBodyDev;
+import com.xy.netdev.rpt.service.RequestService;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+/**
+ * 状态上报
+ * @author cc
+ */
+@Service
+public class ReportStatusServiceImpl implements RequestService {
+    @Override
+    public byte[] pack(List<RptBodyDev> list) {
+        return new byte[0];
+    }
 }
