@@ -138,6 +138,11 @@ public interface SysConfigConstant {
     String  DEV_QUERY_INTERVAL="0100002";
 
     /***
+     * 公共参数--上报间隔时间
+     */
+    String  DEV_REPORT_INTERVAL="0100003";
+
+    /***
      * 公共参数--设备日志信息显示条数
      */
     String  DEV_LOG_VIEW_SZIE="0100004";

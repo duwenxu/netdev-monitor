@@ -38,16 +38,18 @@ public class ScheduleReport implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
         log.info("-----设备状态上报查询开始...");
         try {
-            doScheduleReportQuery();
+            doScheduleQuery();
+            doScheduleReport();
+
         } catch (Exception e) {
             log.error("设备状态上报查询异常...",e);
         }
     }
 
     /**
-     *  定时上报查询
+     *  设备参数定时查询
      */
-    public void doScheduleReportQuery() {
+    public void doScheduleQuery() {
         List<BaseInfo> baseInfos = ScheduleReportHelper.getAvailableBases();
         //单个设备所有查询对象的封装list映射
         Map<BaseInfo, List<FrameReqData>> scheduleReqBodyMap = new ConcurrentHashMap<>(20);
@@ -92,16 +94,16 @@ public class ScheduleReport implements ApplicationRunner {
             scheduleReqBodyMap.put(base, scheduleReqBodyList);
         });
         //执行查询任务
-        execReportTask(scheduleReqBodyMap);
+        execQueryTask(scheduleReqBodyMap);
     }
 
     /**
-     * 查询执行
+     * 查询参数执行
      *
      * @param scheduleReqBodyMap 参数信息
      */
-    public void execReportTask(Map<BaseInfo, List<FrameReqData>> scheduleReqBodyMap) {
-        Long commonInterval = ScheduleReportHelper.getCommonInterval();
+    public void execQueryTask(Map<BaseInfo, List<FrameReqData>> scheduleReqBodyMap) {
+        Long commonInterval = ScheduleReportHelper.getQueryInterval();
         scheduleReqBodyMap.forEach((base, queryList) -> {
             long interval = Long.parseLong(base.getDevIntervalTime() + "");
             ScheduleReportTask scheduleReportTask = new ScheduleReportTask(queryList, interval, commonInterval,devCmdSendService);
@@ -124,5 +126,19 @@ public class ScheduleReport implements ApplicationRunner {
                 .frameParaList(frameParaList)
                 .build();
     }
+
+
+    /**
+     *  设备参数定时上报
+     */
+    public void doScheduleReport(){
+        List<BaseInfo> baseInfos = ScheduleReportHelper.getAvailableBases();
+        //单个设备所有查询对象的封装list映射
+        Map<BaseInfo, List<FrameReqData>> scheduleReqBodyMap = new ConcurrentHashMap<>(20);
+        baseInfos.forEach(base -> {
+
+        });
+    }
+
 
 }

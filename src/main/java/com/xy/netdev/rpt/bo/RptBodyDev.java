@@ -2,7 +2,6 @@ package com.xy.netdev.rpt.bo;
 
 
 import com.xy.netdev.frame.bo.FrameParaData;
-import com.xy.netdev.monitor.entity.ParaInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
