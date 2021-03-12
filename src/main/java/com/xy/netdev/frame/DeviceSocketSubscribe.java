@@ -32,9 +32,6 @@ import static com.xy.netdev.network.NettyUtil.SOCKET_QUEUE;
 public class DeviceSocketSubscribe {
 
     @Autowired
-    private ApplicationContext applicationContext;
-
-    @Autowired
     private List<AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData>> absSocketHandlerList;
 
     /**
@@ -49,9 +46,12 @@ public class DeviceSocketSubscribe {
             try {
                 while (true){
                     SocketEntity socketEntity = SOCKET_QUEUE.take();
-                    //执行数据响应
+                    //执行设备数据响应
                     getHandler(socketEntity.getRemoteAddress())
                             .ifPresent(handler -> handler.socketResponse(socketEntity));
+
+                    //站控响应
+
                 }
             } catch (InterruptedException e) {
                 log.error("数据存储队列异常:", e);
@@ -64,6 +64,7 @@ public class DeviceSocketSubscribe {
      * @param ip ip
      * @return 目标实体
      */
+
     private Optional<AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData>> getHandler(String ip){
         AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData> socketHandler = cache.get(ip);
         if (socketHandler != null){
@@ -77,8 +78,7 @@ public class DeviceSocketSubscribe {
         }
         //设备网络协议
         String classByDevType = BaseInfoContainer.getClassByDevType(devInfo.getDevType());
-        AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData> handler =
-                (AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData>)applicationContext.getBean(classByDevType);
+        AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData> handler = BeanFactoryUtil.getBean(classByDevType);
         cache.put(ip, handler, DateUnit.MINUTE.getMillis());
         return Optional.of(handler);
     }
