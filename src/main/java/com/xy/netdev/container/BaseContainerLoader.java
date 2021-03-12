@@ -49,6 +49,8 @@ public class BaseContainerLoader {
         initDevAlert();
         //初始化设备参数容器
         DevParaInfoContainer.init();
+        //初始化设备状态容器
+        DevStatusContainer.init();
     }
 
     /**

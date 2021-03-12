@@ -1,7 +1,11 @@
 package com.xy.netdev.container;
 
 
+import com.xy.netdev.admin.service.ISysParamService;
+import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.monitor.bo.DevStatusInfo;
+import com.xy.netdev.monitor.entity.BaseInfo;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,8 +31,24 @@ public class DevStatusContainer {
      */
     public static void init(){
         BaseInfoContainer.getDevNos().forEach(devNo -> {
-            devStatusMap.put(devNo,new DevStatusInfo());
+            ISysParamService sysParamService =BaseInfoContainer.getSysParamService();
+            DevStatusInfo devStatusInfo = new DevStatusInfo();
+            BaseInfo devInfo = BaseInfoContainer.getDevInfoByNo(devNo);
+            devStatusInfo.setDevNo(devNo);
+            devStatusInfo.setDevTypeCode(sysParamService.getParaRemark1(devInfo.getDevType()));
+            devStatusInfo.setWorkStatus(sysParamService.getParaRemark1(devInfo.getDevStatus()));
+            devStatusInfo.setIsInterrupt(SysConfigConstant.RPT_DEV_STATUS_ISINTERRUPT_NO);
+            devStatusInfo.setIsAlarm(SysConfigConstant.RPT_DEV_STATUS_ISALARM_NO);
+            devStatusMap.put(devNo,devStatusInfo);
         });
+    }
+
+    /**
+     * @功能：清空当前状态
+     * @return
+     */
+    public static void clear(){
+        init();
     }
 
     /**
@@ -78,13 +98,6 @@ public class DevStatusContainer {
         devStatusMap.get(devNo).setWorkStatus(workStatus);
     }
 
-    /**
-     * @功能：清空当前状态
-     * @return
-     */
-    public static void clear(){
-         init();
-    }
 
     /**
      * @功能：获取设备状态上报信息
