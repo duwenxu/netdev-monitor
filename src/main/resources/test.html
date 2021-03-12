@@ -17,13 +17,18 @@
         <row>
             <input type="button" value="点我发送" onclick="CHAT.chat();">
         </row>
-        <div>接收消息：</div>
+        <div>接收设备日志消息：</div>
         <div id="receiveMsg" style="background-color: yellow;"></div>
     </div>
 
     <div style="margin-top: 100px">
-        <div>接收消息：</div>
+        <div>接收设备参数消息：</div>
         <div id="receivePlan" style="background-color: yellow;"></div>
+    </div>
+
+    <div style="margin-top: 100px">
+        <div>接收设备状态息：</div>
+        <div id="receiveStatus" style="background-color: yellow;"></div>
     </div>
 
 <script type="text/javascript">
@@ -74,6 +79,28 @@
                 alert("do not support websocket..");
             }
         },
+        init3: function(meg) {
+            if (window.WebSocket) {
+                CHAT.socket1 = new WebSocket("ws://172.21.5.226:9000/ws");
+                CHAT.socket1.onopen = function() {
+                    CHAT.socket1.send(JSON.stringify(meg));
+                    console.log("connect success...");
+                },
+                    CHAT.socket1.onclose = function() {
+                        console.log("connect close...");
+                    },
+                    CHAT.socket1.onerror = function() {
+                        console.log("connect error...");
+                    },
+                    CHAT.socket1.onmessage = function(e) {
+                        console.log("receive msg: " + e.data);
+                        var receivePlan = document.getElementById("receiveStatus");
+                        receivePlan.innerHTML = e.data;
+                    }
+            } else {
+                alert("do not support websocket..");
+            }
+        },
         chat: function() {
             var ifeMark = document.getElementById("ifeMark").value;
             var devCode = document.getElementById("devCode").value;
@@ -89,7 +116,8 @@
             var meg2 ={'interfaceMark':"DevParaInfos",
                 'devNo':'DEV_Ku/L_change'};
             CHAT.init2(meg2);
-
+            var meg3 ={'interfaceMark':"DevStatusInfos"};
+            CHAT.init3(meg3);
         }
     }
     CHAT.load();

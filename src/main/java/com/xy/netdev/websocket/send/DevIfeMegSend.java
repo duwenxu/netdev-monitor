@@ -1,15 +1,13 @@
 package com.xy.netdev.websocket.send;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.xy.netdev.container.DevLogInfoContainer;
 import com.xy.netdev.container.DevParaInfoContainer;
+import com.xy.netdev.container.DevStatusContainer;
 import com.xy.netdev.websocket.config.ChannelCache;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.*;
 
 /**
  * <p>
@@ -49,12 +47,27 @@ public class DevIfeMegSend {
     }
 
     /**
+     * 推送所有设备状态
+     */
+    public static void sendDevStatusToDev(){
+        ChannelGroup channels = ChannelCache.getInstance().getChannelsByIfe("DevStatusInfos");
+        if( channels != null){
+            String msg = JSONObject.toJSONString(DevStatusContainer.getDevAlertInfoList());
+            TextWebSocketFrame textWebSocketFrame = new TextWebSocketFrame(msg);
+            channels.writeAndFlush(textWebSocketFrame);
+        }
+    }
+
+    /**
      * 发送第一次数据方法
      * @param interfaceMark 接口mark
      * @param devNo 设备编号
      */
     public static void sendFirstData(Object interfaceMark,Object devNo){
-        if(interfaceMark.toString().equals("DevLogInfos")){
+        if(devNo == null){
+            sendDevStatusToDev();
+            //推送所有设备的状态
+        }else if(interfaceMark.toString().equals("DevLogInfos")){
             //发送日志信息
             sendLogToDev(devNo.toString());
         }else if(interfaceMark.toString().equals("DevParaInfos")){
