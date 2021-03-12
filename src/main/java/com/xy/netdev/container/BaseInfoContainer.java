@@ -334,7 +334,7 @@ public class BaseInfoContainer {
      * @return  设备对象
      */
     public static Set<String> getDevNos(){
-        return devMap.keySet();
+        return devNoMap.keySet();
     }
 
     /**
