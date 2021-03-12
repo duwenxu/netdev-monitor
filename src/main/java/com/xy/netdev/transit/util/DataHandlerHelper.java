@@ -23,7 +23,10 @@ public class DataHandlerHelper {
      */
     public static IParaPrtclAnalysisService getParaPrtclAnalysisService(FrameReqData frameReqData){
         PrtclFormat  prtclFormat =BaseInfoContainer.getPrtclByPara(frameReqData.getDevType(),frameReqData.getCmdMark());
-        return ParaPrtclFactory.genHandler(prtclFormat.getFmtHandlerClass());
+        if (prtclFormat != null) {
+            return ParaPrtclFactory.genHandler(prtclFormat.getFmtHandlerClass());
+        }
+        return null;
     }
 
     /**

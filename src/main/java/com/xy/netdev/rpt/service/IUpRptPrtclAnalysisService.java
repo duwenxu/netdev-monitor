@@ -2,6 +2,7 @@ package com.xy.netdev.rpt.service;
 
 
 import com.xy.netdev.rpt.bo.RptBodyDev;
+import com.xy.netdev.rpt.bo.RptHeadDev;
 
 import java.util.List;
 
@@ -16,8 +17,8 @@ import java.util.List;
 public interface IUpRptPrtclAnalysisService {
     /**
      * 上报外部协议
-     * @param  paraList  上报的设备数据列表
+     * @param  headDev
      */
-    void queryParaResponse(List<RptBodyDev> paraList);
+    void queryParaResponse(RptHeadDev headDev);
 
 }

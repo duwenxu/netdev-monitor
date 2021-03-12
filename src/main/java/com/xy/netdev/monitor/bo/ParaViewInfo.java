@@ -35,6 +35,9 @@ public class ParaViewInfo {
     @ApiModelProperty(value = "参数名称")
     private String paraName;
 
+    @ApiModelProperty(value = "参数命令标识符")
+    private String paraCmdMark;
+
     @ApiModelProperty(value = "参数值")
     private String paraVal;
 
