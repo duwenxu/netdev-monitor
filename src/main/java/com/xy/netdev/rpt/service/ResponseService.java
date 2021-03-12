@@ -1,6 +1,7 @@
 package com.xy.netdev.rpt.service;
 
 import com.xy.netdev.rpt.bo.RptBodyDev;
+import com.xy.netdev.rpt.bo.RptHeadDev;
 
 import java.util.List;
 
@@ -16,5 +17,5 @@ public interface ResponseService {
      * 调用系统方法
      * @param list 参数
      */
-    void answer(List<RptBodyDev> list);
+    void answer(RptHeadDev headDev);
 }

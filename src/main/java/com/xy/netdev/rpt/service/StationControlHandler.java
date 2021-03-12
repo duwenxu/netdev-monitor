@@ -1,5 +1,6 @@
 package com.xy.netdev.rpt.service;
 
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import com.xy.netdev.common.util.BeanFactoryUtil;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import static com.xy.netdev.common.util.ByteUtils.*;
 
@@ -28,14 +30,13 @@ import static com.xy.netdev.common.util.ByteUtils.*;
 public class StationControlHandler implements IUpRptPrtclAnalysisService{
 
 
-
     @Setter
     @Getter
    public static class StationControlHeadEntity {
 
         private BaseInfo baseInfo;
 
-        private String cmdMarkHexStr;
+        private String cmdMark;
 
         private Integer length;
 
@@ -73,7 +74,7 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
 
         StationControlHeadEntity stationControlHeadEntity = new StationControlHeadEntity();
         stationControlHeadEntity.setBaseInfo(devInfo);
-        stationControlHeadEntity.setCmdMarkHexStr(Integer.toHexString(cmdMark));
+        stationControlHeadEntity.setCmdMark(Integer.toHexString(cmdMark));
         stationControlHeadEntity.setLength(len);
         stationControlHeadEntity.setParamData(paramData);
         stationControlHeadEntity.setClassName(prtclFormat.getFmtHandlerClass());
@@ -90,7 +91,22 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
         //数据解析
         List<RptBodyDev> rptBodyDevs = responseService.unpackBody(stationControlHeadEntity);
         //数据发送中心
-        responseService.answer(rptBodyDevs);
+        RptHeadDev rptHeadDev = new RptHeadDev();
+        rptHeadDev.setDevNo(stationControlHeadEntity.getBaseInfo().getDevNo());
+        rptHeadDev.setCmdMark(stationControlHeadEntity.getCmdMark());
+        rptHeadDev.setRptBodyDevs(rptBodyDevs);
+        responseService.answer(rptHeadDev);
+        //调用应答
+        ThreadUtil.execute(() -> {
+            try {
+                TimeUnit.SECONDS.sleep(1);
+                //数据发送
+                this.queryParaResponse(rptHeadDev);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+
     }
 
 
