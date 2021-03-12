@@ -6,7 +6,7 @@ import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.entity.SocketEntity;
 import com.xy.netdev.frame.entity.device.ModemEntity;
-import com.xy.netdev.frame.service.modem.Modem_650_PrtcServiceImpl;
+import com.xy.netdev.frame.service.modem.ModemPrtcServiceImpl;
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,7 +27,7 @@ import static com.xy.netdev.common.util.ByteUtils.byteToInt;
 public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData>{
 
     @Resource
-    protected Modem_650_PrtcServiceImpl modem650PprtcService;
+    protected ModemPrtcServiceImpl modem650PprtcService;
 
     @Override
     public void callback(FrameRespData frameRespData) {

@@ -1,6 +1,7 @@
 package com.xy.netdev.frame.service.modem;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
@@ -28,13 +29,27 @@ import static com.xy.netdev.common.util.ByteUtils.byteToNumber;
  */
 @Slf4j
 @Component
-public class Modem_650_PrtcServiceImpl implements IParaPrtclAnalysisService {
+public class ModemPrtcServiceImpl implements IParaPrtclAnalysisService {
+
+    /**
+     * 应答帧 分隔符
+     */
+    private static final String SPLIT = "5F";
+
+    /**
+     * 控制应答结果帧数据
+     */
+    private static final String CONTROL_SUCCESS = "20";
+    private static final String CONTROL_FAIL = "21";
 
     @Autowired
     private SocketMutualService socketMutualService;
 
     @Autowired
     private IDataReciveService dataReciveService;
+
+    @Autowired
+    ISysParamService sysParamService;
 
     @Override
     public void queryPara(FrameReqData reqInfo) {
@@ -50,21 +65,28 @@ public class Modem_650_PrtcServiceImpl implements IParaPrtclAnalysisService {
                 .map(frameParaInfo -> {
                     FrameParaData paraInfo = new FrameParaData();
                     BeanUtil.copyProperties(frameParaInfo, paraInfo, true);
+                    //todo 此处参数帧之前存在分隔符，此处的方法可能不适用
                     paraInfo.setParaVal(byteToNumber(bytes, frameParaInfo.getParaStartPoint(),
-                            Integer.parseInt(frameParaInfo.getParaByteLen())).toString());
+                            Integer.parseInt(frameParaInfo.getParaByteLen()), isUnsigned(sysParamService, frameParaInfo.getParaNo())).toString());
                     return paraInfo;
                 }).collect(Collectors.toList());
         respData.setFrameParaList(frameParaDataList);
+        dataReciveService.paraQueryRecive(respData);
         return respData;
     }
 
     @Override
     public void ctrlPara(FrameReqData reqInfo) {
-
+        socketMutualService.request(reqInfo, ProtocolRequestEnum.CONTROL);
     }
 
     @Override
     public FrameRespData ctrlParaResponse(FrameRespData respData) {
-        return null;
+        return this.queryParaResponse(respData);
+    }
+
+    public static boolean isUnsigned(ISysParamService sysParamService, String paraNo) {
+        String isUnsigned = sysParamService.getParaRemark1(paraNo);
+        return Integer.parseInt(isUnsigned) == 1;
     }
 }
