@@ -167,6 +167,10 @@ public interface SysConfigConstant {
      */
     String OPREATE_CONTROL_RESP = "0026004";
 
+    /**
+     * 告警级别--正常
+     */
+    String ALERT_LEVEL_OK = "0021006";
 
     /**
      * 参数访问限制--只写
@@ -232,6 +236,11 @@ public interface SysConfigConstant {
      * 设备状态--默认
      */
     String DEV_STATUS_DEFAULT = "0029006";
+
+    /**
+     * 公共参数--测站编号
+     */
+    String PUBLIC_PARA_STATION_NO = "0100001";
 
     /**
      * 站控-设备状态上报--中断状态-中断

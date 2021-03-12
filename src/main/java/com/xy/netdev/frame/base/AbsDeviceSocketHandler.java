@@ -1,23 +1,20 @@
 package com.xy.netdev.frame.base;
 
 import cn.hutool.core.util.HexUtil;
-import cn.hutool.core.util.ObjectUtil;
-import com.xy.netdev.common.util.BeanFactoryUtil;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.factory.ParaPrtclFactory;
+import com.xy.netdev.factory.QueryInterPrtcllFactory;
 import com.xy.netdev.frame.base.service.ProtocolPackService;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.entity.SocketEntity;
 import com.xy.netdev.frame.enums.ProtocolRequestEnum;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
-import com.xy.netdev.frame.service.gf.GfPrtcServiceImpl;
+import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.PrtclFormat;
 import com.xy.netdev.network.NettyUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import static com.xy.netdev.container.BaseInfoContainer.getDevInfo;
@@ -83,25 +80,32 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
         frameRespData.setDevNo(devInfo.getDevNo());
         R unpack = unpack((Q) socketEntity, (R) frameRespData);
         String hexCmdmark = Integer.toHexString(Integer.parseInt(frameRespData.getCmdMark()));
-        PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameRespData.getDevType(),hexCmdmark );
-        IParaPrtclAnalysisService iParaPrtclAnalysisService;
+        PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameRespData.getDevType(), frameRespData.getCmdMark());
+        IParaPrtclAnalysisService iParaPrtclAnalysisService = null;
+        IQueryInterPrtclAnalysisService IQueryInterPrtclAnalysisService = null;
         try {
-            iParaPrtclAnalysisService = ParaPrtclFactory.genHandler(prtclFormat.getFmtHandlerClass());
+            //参数
+            if (prtclFormat.getIsPrtclParam() == 0){
+                iParaPrtclAnalysisService = ParaPrtclFactory.genHandler(prtclFormat.getFmtHandlerClass());
+            }else {
+                IQueryInterPrtclAnalysisService = QueryInterPrtcllFactory.genHandler(prtclFormat.getFmtHandlerClass());
+            }
         } catch (Exception e) {
             log.error("设备:{}, 未找到数据体处理类", frameRespData.getDevNo());
             return;
         }
         frameRespData.setReciveOrignData(HexUtil.encodeHexStr(frameRespData.getParamBytes()));
         frameRespData.setCmdMark(hexCmdmark);
-        this.callback(unpack, iParaPrtclAnalysisService);
+        this.callback(unpack, iParaPrtclAnalysisService, IQueryInterPrtclAnalysisService);
     }
 
     /**
      * 回调
      * @param r
      * @param iParaPrtclAnalysisService
+     * @param iQueryInterPrtclAnalysisService
      */
-    public abstract void callback(R r, IParaPrtclAnalysisService iParaPrtclAnalysisService);
+    public abstract void callback(R r, IParaPrtclAnalysisService iParaPrtclAnalysisService, IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService);
 
 
     protected void sendData(T t, byte[] bytes) {

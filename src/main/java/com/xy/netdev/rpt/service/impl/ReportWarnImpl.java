@@ -1,8 +1,6 @@
 package com.xy.netdev.rpt.service.impl;
 
-import com.xy.netdev.common.util.ByteUtils;
-import com.xy.netdev.frame.util.pack.Packer;
-import com.xy.netdev.rpt.bo.RptBodyDev;
+import com.xy.netdev.rpt.bo.RptHeadDev;
 import com.xy.netdev.rpt.service.RequestService;
 
 import java.util.ArrayList;
@@ -22,7 +20,7 @@ public class ReportWarnImpl implements RequestService {
     }
 
     @Override
-    public byte[] pack(Object obj) {
+    public byte[] pack(RptHeadDev rptHeadDev) {
         List<byte[]> tempList = new ArrayList<>();
         //保留
         tempList.add(placeholderByte(5));

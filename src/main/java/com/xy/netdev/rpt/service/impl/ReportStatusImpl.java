@@ -1,10 +1,8 @@
 package com.xy.netdev.rpt.service.impl;
 
-import com.xy.netdev.rpt.bo.RptBodyDev;
+import com.xy.netdev.rpt.bo.RptHeadDev;
 import com.xy.netdev.rpt.service.RequestService;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
  * 状态上报
@@ -13,7 +11,7 @@ import java.util.List;
 @Service
 public class ReportStatusImpl implements RequestService {
     @Override
-    public byte[] pack(Object obj) {
+    public byte[] pack(RptHeadDev rptHeadDev) {
         return new byte[0];
     }
 }

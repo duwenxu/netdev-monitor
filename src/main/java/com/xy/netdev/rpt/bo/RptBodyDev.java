@@ -26,13 +26,6 @@ import java.util.List;
 public class RptBodyDev {
     private static final long serialVersionUID = 1L;
 
-
-    @ApiModelProperty(value = "信息类别")
-    private String cmdMark;
-
-    @ApiModelProperty(value = "站号")
-    private String stationNo;
-
     @ApiModelProperty(value = "设备类型编码")
     private String devTypeCode;
 
