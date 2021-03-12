@@ -14,10 +14,6 @@ import java.util.List;
  * @author cc
  */
 public class ParamWarnImpl implements RequestService, ResponseService {
-    @Override
-    public byte[] pack(List<RptBodyDev> list) {
-        return new byte[0];
-    }
 
     @Override
     public List<RptBodyDev> unpackBody(StationControlHandler.StationControlHeadEntity stationControlHeadEntity) {
@@ -29,4 +25,8 @@ public class ParamWarnImpl implements RequestService, ResponseService {
 
     }
 
+    @Override
+    public byte[] pack(Object obj) {
+        return new byte[0];
+    }
 }

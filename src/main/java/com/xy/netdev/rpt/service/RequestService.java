@@ -8,8 +8,7 @@ public interface RequestService{
 
     /**
      * 数据封包
-     * @param list 各设备参数
      * @return 封包
      */
-    byte[] pack(List<RptBodyDev> list);
+    byte[] pack(Object obj);
 }

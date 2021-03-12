@@ -11,6 +11,8 @@ import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.entity.SocketEntity;
 import com.xy.netdev.monitor.entity.BaseInfo;
+import com.xy.netdev.rpt.service.IUpRptPrtclAnalysisService;
+import com.xy.netdev.rpt.service.StationControlHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -32,6 +34,9 @@ import static com.xy.netdev.network.NettyUtil.SOCKET_QUEUE;
 public class DeviceSocketSubscribe {
 
     @Autowired
+    private StationControlHandler stationControlHandler;
+
+    @Autowired
     private List<AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData>> absSocketHandlerList;
 
     /**
@@ -51,7 +56,7 @@ public class DeviceSocketSubscribe {
                             .ifPresent(handler -> handler.socketResponse(socketEntity));
 
                     //站控响应
-
+                    stationControlHandler.stationControlReceive(socketEntity);
                 }
             } catch (InterruptedException e) {
                 log.error("数据存储队列异常:", e);

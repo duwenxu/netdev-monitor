@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.DigestUtils;
 
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
@@ -170,5 +171,13 @@ public class ByteUtils {
 
     public static long byteToLong(byte byte1){
         return byteToLong(new byte[]{byte1});
+    }
+
+    public static byte[] placeholderByte(int size){
+        List<Integer> list = new ArrayList<>(size);
+        for (int i = 0; i < size; i++) {
+            list.add(0);
+        }
+        return Bytes.toArray(list);
     }
 }

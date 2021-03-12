@@ -13,7 +13,7 @@ import java.util.List;
 @Service
 public class ReportStatusImpl implements RequestService {
     @Override
-    public byte[] pack(List<RptBodyDev> list) {
+    public byte[] pack(Object obj) {
         return new byte[0];
     }
 }
