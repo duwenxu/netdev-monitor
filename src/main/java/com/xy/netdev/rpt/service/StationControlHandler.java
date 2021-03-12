@@ -1,6 +1,6 @@
 package com.xy.netdev.rpt.service;
 
-import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import com.xy.netdev.common.util.BeanFactoryUtil;
 import com.xy.netdev.container.BaseInfoContainer;
@@ -13,14 +13,12 @@ import com.xy.netdev.rpt.bo.RptHeadDev;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
 
-import static com.xy.netdev.common.util.ByteUtils.byteArrayCopy;
-import static com.xy.netdev.common.util.ByteUtils.bytesToNum;
+import static com.xy.netdev.common.util.ByteUtils.*;
 
 /**
  * 站控支持
@@ -101,8 +99,22 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
         BaseInfo stationInfo = BaseInfoContainer.getDevInfoByNo(headDev.getDevNo());
         PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(stationInfo.getDevType(), headDev.getCmdMark());
         RequestService requestService = BeanFactoryUtil.getBean(prtclFormat.getFmtHandlerClass());
-        byte[] bytes = requestService.pack(headDev.getRptBodyDevs());
+        byte[] bodyBytes = requestService.pack(headDev.getRptBodyDevs());
         int port = Integer.parseInt(stationInfo.getDevPort());
+        //拼数据头
+        int cmd = Integer.parseInt(headDev.getCmdMark(), 16);
+
+        //拼成完整帧格式
+        byte[] bytes = ArrayUtil.addAll(
+                //信息类别
+                  objectToBytes(cmd, 2)
+                //数据字段长度
+                , objectToBytes(bodyBytes.length, 2)
+                //预留
+                , objectToBytes(0, 4)
+                //数据字段
+                , bodyBytes);
+
         NettyUtil.sendMsg(bytes, port, stationInfo.getDevIpAddr(), port, Integer.parseInt(stationInfo.getDevNetPtcl()));
     }
 }

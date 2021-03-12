@@ -79,7 +79,7 @@ public class ByteUtils {
     }
 
 
-    public static byte[] objectToByte(Object obj, int len){
+    public static byte[] objectToBytes(Object obj, int len){
         byte [] data = {};
         if (len == 1){
             return new byte[]{(byte)obj};
@@ -92,16 +92,16 @@ public class ByteUtils {
 //        }
         switch(len){
             case 2:
-                data = numToBytes((short)obj, byteOrder, Unpooled::copyShort);
+                data = numToBytes(Short.parseShort(obj.toString()), byteOrder, Unpooled::copyShort);
                 break;
             case 3:
-                data = numToBytes((int)obj, byteOrder, Unpooled::copyMedium);
+                data = numToBytes(Integer.parseInt(obj.toString()), byteOrder, Unpooled::copyMedium);
                 break;
             case 4:
-                data = numToBytes((int)obj, byteOrder, Unpooled::copyInt);
+                data = numToBytes(Integer.parseInt(obj.toString()), byteOrder, Unpooled::copyInt);
                 break;
             case 8:
-                data = numToBytes((long)obj, byteOrder, Unpooled::copyLong);
+                data = numToBytes(Long.parseLong(obj.toString()), byteOrder, Unpooled::copyLong);
                 break;
             default:break;
         }
