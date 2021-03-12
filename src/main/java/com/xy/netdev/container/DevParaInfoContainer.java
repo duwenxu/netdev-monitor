@@ -69,6 +69,7 @@ public class DevParaInfoContainer {
         viewInfo.setParaValStep(paraInfo.getNdpaValStep());
         viewInfo.setDevNo(devNo);
         viewInfo.setDevType(paraInfo.getDevType());
+        viewInfo.setParaCmdMark(paraInfo.getNdpaCmdMark());
         viewInfo.setSpinnerInfoList(JSONArray.parseArray(paraInfo.getNdpaSelectData(),ParaSpinnerInfo.class));
         return viewInfo;
     }
@@ -96,7 +97,7 @@ public class DevParaInfoContainer {
                 String devNo = frameParaData.getDevNo();
                 String paraNo = frameParaData.getParaNo();
                 ParaViewInfo paraViewInfo = devParaMap.get(devNo).get(ParaHandlerUtil.genLinkKey(devNo, paraNo));
-                if (!paraViewInfo.getParaVal().equals(frameParaData.getParaVal())) {
+                if (!frameParaData.getParaVal().equals(paraViewInfo.getParaVal())) {
                     paraViewInfo.setParaVal(frameParaData.getParaVal());
                     isUpadte = true;
                 }
