@@ -16,6 +16,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -132,4 +133,19 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
     }
 
 
+    /**
+     * 参数被动查询头
+     * @param rptHeadDev 结构化数据
+     * @param tempList 存储list
+     */
+    public static void queryHead(RptHeadDev rptHeadDev, List<byte[]> tempList) {
+        //保留
+        tempList.add(placeholderByte(4));
+        //查询标志
+        tempList.add(ByteUtils.objToBytes(Integer.parseInt(rptHeadDev.getCmdMarkHexStr(), 16), 1));
+        //站号
+        tempList.add(ByteUtils.objToBytes(rptHeadDev.getStationNo(), 1));
+        //设备数量
+        tempList.add(ByteUtils.objToBytes(rptHeadDev.getDevNum(), 1));
+    }
 }

@@ -15,9 +15,6 @@ import static com.xy.netdev.common.util.ByteUtils.*;
  */
 public class ReportWarnImpl implements RequestService {
 
-    public static void main(String[] args) {
-        System.out.println(Arrays.toString(placeholderByte(5)));
-    }
 
     @Override
     public byte[] pack(RptHeadDev rptHeadDev) {

@@ -1,6 +1,7 @@
 package com.xy.netdev.frame.service.impl.head;
 
 import cn.hutool.core.util.NumberUtil;
+import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.frame.base.AbsDeviceSocketHandler;
 import com.xy.netdev.frame.bo.FrameReqData;
@@ -29,9 +30,14 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
 
     @Override
     public void callback(FrameRespData frameRespData, IParaPrtclAnalysisService iParaPrtclAnalysisService, IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService) {
+        boolean isParam = frameRespData.getAccessType().equals(SysConfigConstant.ACCESS_TYPE_PARAM);
         switch (frameRespData.getCmdMark()){
             case "53":
-                iParaPrtclAnalysisService.queryParaResponse(frameRespData);
+                if (iParaPrtclAnalysisService != null){
+                    iParaPrtclAnalysisService.queryParaResponse(frameRespData);
+                    return;
+                }
+                iQueryInterPrtclAnalysisService.queryParaResponse(frameRespData);
                 break;
             case "41":
                 iParaPrtclAnalysisService.ctrlParaResponse(frameRespData);

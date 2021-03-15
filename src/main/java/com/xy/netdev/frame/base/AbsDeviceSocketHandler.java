@@ -1,6 +1,7 @@
 package com.xy.netdev.frame.base;
 
 import cn.hutool.core.util.HexUtil;
+import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.factory.ParaPrtclFactory;
 import com.xy.netdev.factory.QueryInterPrtcllFactory;
@@ -79,16 +80,19 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
         frameRespData.setDevType(devInfo.getDevType());
         frameRespData.setDevNo(devInfo.getDevNo());
         R unpack = unpack((Q) socketEntity, (R) frameRespData);
+        //转16进制，用来获取协议解析类
         String hexCmdmark = Integer.toHexString(Integer.parseInt(frameRespData.getCmdMark()));
-        PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameRespData.getDevType(), frameRespData.getCmdMark());
+        PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameRespData.getDevType(), hexCmdmark);
         IParaPrtclAnalysisService iParaPrtclAnalysisService = null;
-        IQueryInterPrtclAnalysisService IQueryInterPrtclAnalysisService = null;
+        IQueryInterPrtclAnalysisService queryInterPrtclAnalysisService = null;
         try {
             //参数
             if (prtclFormat.getIsPrtclParam() == 0){
                 iParaPrtclAnalysisService = ParaPrtclFactory.genHandler(prtclFormat.getFmtHandlerClass());
+                frameRespData.setAccessType(SysConfigConstant.ACCESS_TYPE_PARAM);
             }else {
-                IQueryInterPrtclAnalysisService = QueryInterPrtcllFactory.genHandler(prtclFormat.getFmtHandlerClass());
+                queryInterPrtclAnalysisService = QueryInterPrtcllFactory.genHandler(prtclFormat.getFmtHandlerClass());
+                frameRespData.setAccessType(SysConfigConstant.ACCESS_TYPE_INTERF);
             }
         } catch (Exception e) {
             log.error("设备:{}, 未找到数据体处理类", frameRespData.getDevNo());
@@ -96,7 +100,7 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
         }
         frameRespData.setReciveOrignData(HexUtil.encodeHexStr(frameRespData.getParamBytes()));
         frameRespData.setCmdMark(hexCmdmark);
-        this.callback(unpack, iParaPrtclAnalysisService, IQueryInterPrtclAnalysisService);
+        this.callback(unpack, iParaPrtclAnalysisService, queryInterPrtclAnalysisService);
     }
 
     /**
