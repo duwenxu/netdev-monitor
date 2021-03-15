@@ -202,12 +202,24 @@ public class BaseInfoContainer {
         }else{
             String rptIpAddr = sysParamService.getParaRemark1(SysConfigConstant.RPT_IP_ADDR);
             if(rptIpAddr.equals(devIPAddr)){
-                return null;
+                return genRptBaseInfo();
             }
         }
         throw new BaseException("接收到的IP地址有误,IP地址为:"+devIPAddr+",请检查!");
     }
 
+    /**
+     * @功能：获取上报54所 网络连通信息
+     * @return  网络连通信息
+     */
+    public static BaseInfo genRptBaseInfo(){
+        BaseInfo rptBaseInfo = new BaseInfo();
+        rptBaseInfo.setDevIpAddr(sysParamService.getParaRemark1(SysConfigConstant.RPT_IP_ADDR));
+        rptBaseInfo.setDevPort(sysParamService.getParaRemark2(SysConfigConstant.RPT_IP_ADDR));
+        rptBaseInfo.setDevNetPtcl(SysConfigConstant.UDP);
+        rptBaseInfo.setIsRptIp("0");
+        return rptBaseInfo;
+    }
     /**
      * @功能：根据设备类型 获取接口list
      * @param devType   设备类型
