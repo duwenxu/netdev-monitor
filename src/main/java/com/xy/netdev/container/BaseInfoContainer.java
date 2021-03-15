@@ -1,10 +1,10 @@
 package com.xy.netdev.container;
 
 import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.util.ParaHandlerUtil;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
+import com.xy.netdev.monitor.bo.ParaSpinnerInfo;
 import com.xy.netdev.monitor.entity.*;
 import com.xy.netdev.monitor.bo.DevInterParam;
 import lombok.extern.slf4j.Slf4j;
@@ -356,7 +356,7 @@ public class BaseInfoContainer {
             frameParaInfo.setParaByteLen(paraInfo.getNdpaByteLen());  // 字节长度
             Map map = new HashMap();
             if(!StringUtils.isBlank(paraInfo.getNdpaSelectData())){
-                JSONArray.parseArray(paraInfo.getNdpaSelectData(),Map.class).forEach(map::putAll);
+                JSONArray.parseArray(paraInfo.getNdpaSelectData(), ParaSpinnerInfo.class).forEach(paraSpinnerInfo -> map.put(paraSpinnerInfo.getCode(),paraSpinnerInfo.getName()));
             }
             frameParaInfo.setSelectMap(map);//下拉值域
             frameParaInfo.setDevType(paraInfo.getDevType());      //设备类型
