@@ -37,7 +37,7 @@ import static com.xy.netdev.common.util.ByteUtils.*;
 public class StationControlHandler implements IUpRptPrtclAnalysisService{
 
     @Autowired
-//    @Qualifier()
+    @Qualifier("IDownRptPrtclAnalysisServiceImpl")
     private IDownRptPrtclAnalysisService iDownRptPrtclAnalysisService;
 
     @Setter
