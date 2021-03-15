@@ -15,6 +15,7 @@ import com.xy.netdev.rpt.bo.RptHeadDev;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -31,6 +32,8 @@ import static com.xy.netdev.common.util.ByteUtils.*;
 @Component
 public class StationControlHandler implements IUpRptPrtclAnalysisService{
 
+    @Autowired
+    private IDownRptPrtclAnalysisService iDownRptPrtclAnalysisService;
 
     @Setter
     @Getter
@@ -49,7 +52,7 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
     }
 
     /**
-     * 上报外部协议
+     * 收站控数据
      * @param socketEntity 数据体
      */
     public void stationControlReceive(SocketEntity socketEntity){
@@ -96,12 +99,15 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
         rptHeadDev.setDevNo(stationControlHeadEntity.getBaseInfo().getDevNo());
         rptHeadDev.setCmdMarkHexStr(stationControlHeadEntity.getCmdMark());
         rptHeadDev.setParam(param);
-        responseService.callback(rptHeadDev);
-        //调用应答
+        //执行设备查询/设置流程
+        iDownRptPrtclAnalysisService.doAction(rptHeadDev);
+        //等待一秒获取缓存更新结果
         ThreadUtil.execute(() -> {
             try {
                 TimeUnit.SECONDS.sleep(1);
-                //数据发送
+                //重新获取缓存
+                iDownRptPrtclAnalysisService.queryNewCache(rptHeadDev);
+                //调用数据外发
                 this.queryParaResponse(rptHeadDev);
             } catch (InterruptedException e) {
                 e.printStackTrace();

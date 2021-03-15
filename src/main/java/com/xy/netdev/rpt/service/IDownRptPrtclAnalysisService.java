@@ -2,6 +2,7 @@ package com.xy.netdev.rpt.service;
 
 
 import com.xy.netdev.rpt.bo.RptBodyDev;
+import com.xy.netdev.rpt.bo.RptHeadDev;
 
 import java.util.List;
 
@@ -15,8 +16,16 @@ import java.util.List;
  */
 public interface IDownRptPrtclAnalysisService {
     /**
-     * 外部下发协议
-     * @return  下发的设备数据列表
+     * 查询新的缓存状态
+     * @param rptHeadDev
+     * @return
      */
-    List<RptBodyDev> queryParaResponse();
+    RptHeadDev queryNewCache(RptHeadDev rptHeadDev);
+
+    /**
+     * 执行设备查询/设置命令
+      * @param headDev
+     */
+    void doAction(RptHeadDev headDev);
+
 }

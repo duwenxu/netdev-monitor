@@ -36,10 +36,6 @@ public class ParamSetImpl implements RequestService, ResponseService {
         return list;
     }
 
-    @Override
-    public void callback(RptHeadDev headDev) {
-
-    }
 
     @Override
     public byte[] pack(RptHeadDev rptHeadDev) {

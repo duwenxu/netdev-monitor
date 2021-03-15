@@ -66,11 +66,6 @@ public class ParamQueryImpl implements RequestService, ResponseService {
     }
 
     @Override
-    public void callback(RptHeadDev headDev) {
-
-    }
-
-    @Override
     @SuppressWarnings("unchecked")
     public byte[] pack(RptHeadDev rptHeadDev) {
 
