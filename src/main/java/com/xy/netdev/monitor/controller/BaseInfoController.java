@@ -3,6 +3,7 @@ package com.xy.netdev.monitor.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xy.common.helper.ControllerHelper;
+import com.xy.common.helper.ControllerResultWrapper;
 import com.xy.common.model.Result;
 import com.xy.netdev.common.util.JwtUtil;
 import com.xy.netdev.monitor.entity.BaseInfo;
@@ -11,8 +12,10 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -108,6 +111,31 @@ public class BaseInfoController {
         Result<Object> result = new Result<>();
         result.setResult(map);
         return result;
+    }
+
+    /**
+     * 设备模型文件下载
+     * @return
+     */
+    @ApiOperation(value = "设备模型文件下载", notes = "设备模型文件下载")
+    @PostMapping("/downDevFile")
+    public Result<Object> downDevFile(HttpServletResponse response) {
+        Map<String, Object> map = baseInfoService.downDevFile();
+        //浏览器下载excel
+        response.addHeader("fileName",map.get("fileName").toString());
+        //解决前端拿不到存放的文件参数:将新增的两个参数暴露出来
+        response.setHeader("Access-Control-Expose-Headers","fileName");
+        response.setContentType("application/octet-stream");
+        try {
+            response.flushBuffer();
+            OutputStream outputStream = response.getOutputStream();
+            outputStream.write((byte[])map.get("fileContext"));
+            outputStream.flush();
+            outputStream.close();
+        } catch (IOException e) {
+            return new Result<>().error500(e.getMessage());
+        }
+        return ControllerResultWrapper.genOkResult();
     }
 
 }

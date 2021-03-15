@@ -19,4 +19,9 @@ public interface IBaseInfoService extends IService<BaseInfo> {
    */
     Map<String,Object> baseInfoMenuMap();
 
+    /**
+     * 下载设备模型文件
+     * @return
+     */
+    Map<String, Object> downDevFile();
 }

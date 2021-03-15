@@ -1,11 +1,13 @@
 package com.xy.netdev.rpt.service.impl;
 
 import com.xy.netdev.common.constant.SysConfigConstant;
+import com.xy.netdev.container.DevAlertInfoContainer;
 import com.xy.netdev.container.DevParaInfoContainer;
 import com.xy.netdev.container.DevStatusContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.monitor.bo.DevStatusInfo;
 import com.xy.netdev.monitor.bo.ParaViewInfo;
+import com.xy.netdev.monitor.entity.AlertInfo;
 import com.xy.netdev.rpt.bo.RptBodyDev;
 import com.xy.netdev.rpt.bo.RptHeadDev;
 import com.xy.netdev.rpt.service.IDownRptPrtclAnalysisService;
@@ -46,6 +48,10 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
             case "0005":
 //                resBody = doParaSetAction(headDev);
                 break;
+            case "0007":
+                resBody = doParaWarnQueryAction((headDev));
+            case "0008":
+//              resBody = doParaSetAction(headDev);
             default:
                 break;
         }
@@ -100,6 +106,53 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
                 .devNo(paraView.getDevNo())
                 .len(Integer.parseInt(paraView.getParaStrLen()))
                 .build();
+    }
+
+    private FrameParaData frameParaDataWrapper(AlertInfo alertInfo) {
+        return FrameParaData.builder()
+                .paraNo(alertInfo.getNdpaNo())
+                .devType(alertInfo.getDevType())
+                .devNo(alertInfo.getDevNo())
+                .build();
+    }
+
+
+    /**
+     * 站控 参数告警查询
+     *
+     * @param headDev 参数查询结构体
+     * @return 参数查询响应结果
+     */
+    private RptHeadDev doParaWarnQueryAction(RptHeadDev headDev) {
+        List<RptBodyDev> rptBodyDev = (List<RptBodyDev>) headDev.getParam();
+        rptBodyDev.forEach(rptBody -> {
+            String devNo = rptBody.getDevNo();
+            //获取指定设备当前可读的参数列表
+            List<AlertInfo> alertInfoList = DevAlertInfoContainer.getDevAlertInfoList(devNo);
+            //当前设备的查询响应参数列表
+            List<FrameParaData> resFrameParaList = new ArrayList<>();
+            for (FrameParaData para : rptBody.getDevParaList()) {
+                String paraNo = para.getParaNo();
+                //参数编号为0,查询所有
+                if (ALL_PARAS_QUERY.equals(paraNo)) {
+                    alertInfoList.forEach(alertInfo -> {
+                        FrameParaData frameParaData = frameParaDataWrapper(alertInfo);
+                        resFrameParaList.add(frameParaData);
+                    });
+                    break;
+                }
+                //获取单个参数信息
+                alertInfoList.stream()
+                        .filter(alertInfo -> paraNo.equals(alertInfo.getNdpaNo())).findFirst()
+                        .ifPresent(alertInfo -> {
+                            FrameParaData frameParaData = frameParaDataWrapper(alertInfo);
+                            resFrameParaList.add(frameParaData);
+                        });
+            }
+            rptBody.setDevParaList(resFrameParaList);
+        });
+        headDev.setParam(rptBodyDev);
+        return headDev;
     }
 
 }
