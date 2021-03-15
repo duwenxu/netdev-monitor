@@ -74,32 +74,32 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
 
     @Override
     @SuppressWarnings("unchecked")
-    public void socketResponse(SocketEntity socketEntity) {
+    public void socketResponse(SocketEntity socketEntity) throws Exception {
         BaseInfo devInfo = getDevInfo(socketEntity.getRemoteAddress());
         FrameRespData frameRespData = new FrameRespData();
         frameRespData.setDevType(devInfo.getDevType());
         frameRespData.setDevNo(devInfo.getDevNo());
         R unpack = unpack((Q) socketEntity, (R) frameRespData);
         //转16进制，用来获取协议解析类
-        String hexCmdmark = Integer.toHexString(Integer.parseInt(frameRespData.getCmdMark()));
-        PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameRespData.getDevType(), hexCmdmark);
+        String cmdHexStr = Integer.toHexString(Integer.parseInt(frameRespData.getCmdMark(), 16));
+        PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameRespData.getDevType(), cmdHexStr);
         IParaPrtclAnalysisService iParaPrtclAnalysisService = null;
         IQueryInterPrtclAnalysisService queryInterPrtclAnalysisService = null;
         try {
             //参数
             if (prtclFormat.getIsPrtclParam() == 0){
-                iParaPrtclAnalysisService = ParaPrtclFactory.genHandler(prtclFormat.getFmtHandlerClass());
                 frameRespData.setAccessType(SysConfigConstant.ACCESS_TYPE_PARAM);
-            }else {
                 queryInterPrtclAnalysisService = QueryInterPrtcllFactory.genHandler(prtclFormat.getFmtHandlerClass());
+            }else {
                 frameRespData.setAccessType(SysConfigConstant.ACCESS_TYPE_INTERF);
+                iParaPrtclAnalysisService = ParaPrtclFactory.genHandler(prtclFormat.getFmtHandlerClass());
             }
         } catch (Exception e) {
-            log.error("设备:{}, 未找到数据体处理类", frameRespData.getDevNo());
+            log.error("设备:{}, 未找到数据体处理类", frameRespData.getDevNo(), e);
             return;
         }
         frameRespData.setReciveOrignData(HexUtil.encodeHexStr(frameRespData.getParamBytes()));
-        frameRespData.setCmdMark(hexCmdmark);
+        frameRespData.setCmdMark(cmdHexStr);
         this.callback(unpack, iParaPrtclAnalysisService, queryInterPrtclAnalysisService);
     }
 
@@ -109,7 +109,8 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
      * @param iParaPrtclAnalysisService
      * @param iQueryInterPrtclAnalysisService
      */
-    public abstract void callback(R r, IParaPrtclAnalysisService iParaPrtclAnalysisService, IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService);
+    public abstract void callback(R r, IParaPrtclAnalysisService iParaPrtclAnalysisService,
+                                  IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService);
 
 
     protected void sendData(T t, byte[] bytes) {
