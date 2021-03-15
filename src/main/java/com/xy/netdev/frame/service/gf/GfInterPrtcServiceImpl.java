@@ -50,8 +50,11 @@ public class GfInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
                 .map(frameParaInfo -> {
                     FrameParaData paraInfo = new FrameParaData();
                     BeanUtil.copyProperties(frameParaInfo, paraInfo, true);
-                    paraInfo.setParaVal(byteToNumber(bytes, frameParaInfo.getParaStartPoint(),
-                            Integer.parseInt(frameParaInfo.getParaByteLen()), isUnsigned(sysParamService, frameParaInfo.getParaNo())).toString());
+                    BeanUtil.copyProperties(respData, paraInfo, true);
+                    paraInfo.setLen(Integer.parseInt(frameParaInfo.getParaByteLen()));
+                    paraInfo.setParaVal(byteToNumber(bytes, frameParaInfo.getParaStartPoint() - 1,
+                            Integer.parseInt(frameParaInfo.getParaByteLen()), isUnsigned(sysParamService,
+                                    frameParaInfo.getAlertPara())).toString());
                     return paraInfo;
                 }).collect(Collectors.toList());
         respData.setFrameParaList(frameParaDataList);
