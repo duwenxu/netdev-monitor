@@ -51,9 +51,8 @@ public class DataHandlerHelper {
      * 生成报警描述信息
      * @param  devInfo    设备信息
      * @param  paraInfo   参数信息
-     * @param  alertInfo  报警信息
      */
-    public static String genAlertDesc(BaseInfo devInfo, FrameParaInfo paraInfo, AlertInfo alertInfo){
+    public static String genAlertDesc(BaseInfo devInfo, FrameParaInfo paraInfo){
         String alertStatusInfo = "error";
         Map<String,Object> selectMap = paraInfo.getSelectMap();
         if(selectMap!=null&&!selectMap.isEmpty()){

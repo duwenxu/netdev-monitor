@@ -88,7 +88,7 @@ public class DevAlertInfoContainer {
         alertInfo.setAlertTime(DateTools.getDateTime());
         alertInfo.setAlertStationNo(sysParamService.getParaRemark1(SysConfigConstant.PUBLIC_PARA_STATION_NO));
         alertInfo.setAlertLevel(sysParamService.getParaRemark1(SysConfigConstant.ALERT_LEVEL_OK));
-        alertInfo.setAlertDesc(DataHandlerHelper.genAlertDesc(devInfo,paraInfo,alertInfo));
+        alertInfo.setAlertDesc(DataHandlerHelper.genAlertDesc(devInfo,paraInfo));
         return alertInfo;
     }
     /**
