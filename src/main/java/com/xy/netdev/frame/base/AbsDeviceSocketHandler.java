@@ -109,7 +109,8 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
      * @param iParaPrtclAnalysisService
      * @param iQueryInterPrtclAnalysisService
      */
-    public abstract void callback(R r, IParaPrtclAnalysisService iParaPrtclAnalysisService, IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService) throws Exception;
+    public abstract void callback(R r, IParaPrtclAnalysisService iParaPrtclAnalysisService,
+                                  IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService);
 
 
     protected void sendData(T t, byte[] bytes) {

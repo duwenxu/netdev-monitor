@@ -23,7 +23,8 @@ public class FrequencyConversionImpl extends AbsDeviceSocketHandler<SocketEntity
 
 
     @Override
-    public void callback(FrameRespData frameRespData, IParaPrtclAnalysisService iParaPrtclAnalysisService, IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService) throws Exception {
+    public void callback(FrameRespData frameRespData, IParaPrtclAnalysisService iParaPrtclAnalysisService,
+                         IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService) {
         iParaPrtclAnalysisService.ctrlParaResponse(frameRespData);
     }
 
