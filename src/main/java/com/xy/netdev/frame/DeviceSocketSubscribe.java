@@ -54,7 +54,7 @@ public class DeviceSocketSubscribe {
                     //执行设备数据响应
                     getHandler(socketEntity.getRemoteAddress())
                             .ifPresent(handler -> handler.socketResponse(socketEntity));
-
+                    //todo 还未判断站控和设备
                     //站控响应
                     stationControlHandler.stationControlReceive(socketEntity);
                 }
