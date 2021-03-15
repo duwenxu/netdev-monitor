@@ -1,10 +1,12 @@
 package com.xy.netdev.container;
 
 import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.xy.common.exception.BaseException;
 import com.xy.netdev.admin.service.ISysParamService;
+import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.ParaHandlerUtil;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
+import com.xy.netdev.monitor.bo.ParaSpinnerInfo;
 import com.xy.netdev.monitor.entity.*;
 import com.xy.netdev.monitor.bo.DevInterParam;
 import lombok.extern.slf4j.Slf4j;
@@ -195,9 +197,29 @@ public class BaseInfoContainer {
      * @return  设备对象
      */
     public static BaseInfo getDevInfo(String devIPAddr){
-        return devMap.get(devIPAddr);
+        if(devMap.containsKey(devIPAddr)){
+            return devMap.get(devIPAddr);
+        }else{
+            String rptIpAddr = sysParamService.getParaRemark1(SysConfigConstant.RPT_IP_ADDR);
+            if(rptIpAddr.equals(devIPAddr)){
+                return genRptBaseInfo();
+            }
+        }
+        throw new BaseException("接收到的IP地址有误,IP地址为:"+devIPAddr+",请检查!");
     }
 
+    /**
+     * @功能：获取上报54所 网络连通信息
+     * @return  网络连通信息
+     */
+    public static BaseInfo genRptBaseInfo(){
+        BaseInfo rptBaseInfo = new BaseInfo();
+        rptBaseInfo.setDevIpAddr(sysParamService.getParaRemark1(SysConfigConstant.RPT_IP_ADDR));
+        rptBaseInfo.setDevPort(sysParamService.getParaRemark2(SysConfigConstant.RPT_IP_ADDR));
+        rptBaseInfo.setDevNetPtcl(sysParamService.getParaRemark3(SysConfigConstant.RPT_IP_ADDR));
+        rptBaseInfo.setIsRptIp("0");
+        return rptBaseInfo;
+    }
     /**
      * @功能：根据设备类型 获取接口list
      * @param devType   设备类型
@@ -354,7 +376,11 @@ public class BaseInfoContainer {
             frameParaInfo.setParaName(paraInfo.getNdpaName());  //参数名称
             frameParaInfo.setCmdMark(paraInfo.getNdpaCmdMark()); //命令标识
             frameParaInfo.setParaByteLen(paraInfo.getNdpaByteLen());  // 字节长度
-            frameParaInfo.setSelectMap(JSONArray.parseObject(paraInfo.getNdpaSelectData()));//下拉值域
+            Map map = new HashMap();
+            if(!StringUtils.isBlank(paraInfo.getNdpaSelectData())){
+                JSONArray.parseArray(paraInfo.getNdpaSelectData(), ParaSpinnerInfo.class).forEach(paraSpinnerInfo -> map.put(paraSpinnerInfo.getCode(),paraSpinnerInfo.getName()));
+            }
+            frameParaInfo.setSelectMap(map);//下拉值域
             frameParaInfo.setDevType(paraInfo.getDevType());      //设备类型
             frameParaInfo.setDevTypeCode(paraInfo.getDevTypeCode());      //设备类型编码
             frameParaInfo.setNdpaAccessRight(paraInfo.getNdpaAccessRight()); //访问权限

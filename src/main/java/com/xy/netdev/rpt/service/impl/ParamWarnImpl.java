@@ -19,10 +19,6 @@ public class ParamWarnImpl implements RequestService, ResponseService {
         return null;
     }
 
-    @Override
-    public void callback(RptHeadDev headDev) {
-
-    }
 
     @Override
     public byte[] pack(RptHeadDev rptHeadDev) {

@@ -83,6 +83,13 @@ public class BaseInfo extends Model<BaseInfo> {
     @Param
     private String devNetPtcl;
 
+    /**
+     * 0 代表  上报54所IP
+     */
+    @ApiModelProperty(value = "是否上报IP")
+    @TableField(exist = false)
+    private String isRptIp;
+
     @Override
     protected Serializable pkVal() {
         return this.devNo;

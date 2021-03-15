@@ -10,15 +10,18 @@ import com.xy.netdev.frame.entity.SocketEntity;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.PrtclFormat;
 import com.xy.netdev.network.NettyUtil;
+import com.xy.netdev.rpt.bo.RptBodyDev;
 import com.xy.netdev.rpt.bo.RptHeadDev;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 import static com.xy.netdev.common.util.ByteUtils.*;
 
@@ -29,6 +32,8 @@ import static com.xy.netdev.common.util.ByteUtils.*;
 @Component
 public class StationControlHandler implements IUpRptPrtclAnalysisService{
 
+    @Autowired
+    private IDownRptPrtclAnalysisService iDownRptPrtclAnalysisService;
 
     @Setter
     @Getter
@@ -47,7 +52,7 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
     }
 
     /**
-     * 上报外部协议
+     * 收站控数据
      * @param socketEntity 数据体
      */
     public void stationControlReceive(SocketEntity socketEntity){
@@ -94,12 +99,15 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
         rptHeadDev.setDevNo(stationControlHeadEntity.getBaseInfo().getDevNo());
         rptHeadDev.setCmdMarkHexStr(stationControlHeadEntity.getCmdMark());
         rptHeadDev.setParam(param);
-        responseService.callback(rptHeadDev);
-        //调用应答
+        //执行设备查询/设置流程
+        iDownRptPrtclAnalysisService.doAction(rptHeadDev);
+        //等待一秒获取缓存更新结果
         ThreadUtil.execute(() -> {
             try {
                 TimeUnit.SECONDS.sleep(1);
-                //数据发送
+                //重新获取缓存
+                iDownRptPrtclAnalysisService.queryNewCache(rptHeadDev);
+                //调用数据外发
                 this.queryParaResponse(rptHeadDev);
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -134,7 +142,7 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
 
 
     /**
-     * 参数被动查询头
+     * 被动查询 参数头拼装
      * @param rptHeadDev 结构化数据
      * @param tempList 存储list
      */
@@ -147,5 +155,44 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
         tempList.add(ByteUtils.objToBytes(rptHeadDev.getStationNo(), 1));
         //设备数量
         tempList.add(ByteUtils.objToBytes(rptHeadDev.getDevNum(), 1));
+    }
+
+    /**
+     * 被动查询 参数头拼装下一步
+     * @param tempList
+     * @param rptBodyDev
+     */
+    public static void queryHeadNext(List<byte[]> tempList, RptBodyDev rptBodyDev) {
+        //设备型号
+        tempList.add(ByteUtils.objToBytes(rptBodyDev.getDevTypeCode(), 1));
+        //设备编号
+        tempList.add(ByteUtils.objToBytes(rptBodyDev.getDevNo(), 1));
+    }
+
+    /**
+     * 查询/设置 公共解析头
+     * @param stationControlHeadEntity
+     * @param function
+     * @return
+     */
+    public static RptHeadDev unpackCommonHead(StationControlHandler.StationControlHeadEntity stationControlHeadEntity,
+                                              Function<byte[],  List<RptBodyDev>> function) {
+        byte[] paramData = stationControlHeadEntity.getParamData();
+        //查询标识
+        int cmdMark = ByteUtils.byteToNumber(paramData, 4, 1).intValue();
+        //站号
+        int stationNo = ByteUtils.byteToNumber(paramData, 5, 1).intValue();
+        //设备数量
+        int devNum = ByteUtils.byteToNumber(paramData, 6, 1).intValue();
+        //参数
+        byte[] dataBytes = ByteUtils.byteArrayCopy(paramData, 7, paramData.length - 7);
+        List<RptBodyDev> rptBodyDevs = function.apply(dataBytes);
+        RptHeadDev rptHeadDev = new RptHeadDev();
+        rptHeadDev.setStationNo(String.valueOf(stationNo));
+        rptHeadDev.setCmdMarkHexStr(Integer.toHexString(cmdMark));
+        rptHeadDev.setParam(rptBodyDevs);
+        rptHeadDev.setDevNum(devNum);
+        rptHeadDev.setDevNo(stationControlHeadEntity.getBaseInfo().getDevNo());
+        return rptHeadDev;
     }
 }

@@ -248,6 +248,11 @@ public interface SysConfigConstant {
     String PUBLIC_PARA_STATION_NO = "0100001";
 
     /**
+     * 公共参数--54所ID地址
+     */
+    String RPT_IP_ADDR = "0100006";
+
+    /**
      * 站控-设备状态上报--中断状态-中断
      */
     String RPT_DEV_STATUS_ISINTERRUPT_YES = "1";

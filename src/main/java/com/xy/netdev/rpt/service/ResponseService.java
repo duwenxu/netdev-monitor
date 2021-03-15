@@ -13,9 +13,4 @@ public interface ResponseService {
      */
     Object unpackBody(StationControlHandler.StationControlHeadEntity stationControlHeadEntity);
 
-    /**
-     * 调用系统方法
-     * @param headDev
-     */
-    void callback(RptHeadDev headDev);
 }
