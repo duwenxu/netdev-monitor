@@ -29,7 +29,8 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
 
 
     @Override
-    public void callback(FrameRespData frameRespData, IParaPrtclAnalysisService iParaPrtclAnalysisService, IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService) {
+    public void callback(FrameRespData frameRespData, IParaPrtclAnalysisService iParaPrtclAnalysisService,
+                         IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService) {
         boolean isParam = frameRespData.getAccessType().equals(SysConfigConstant.ACCESS_TYPE_PARAM);
         switch (frameRespData.getCmdMark()){
             case "53":

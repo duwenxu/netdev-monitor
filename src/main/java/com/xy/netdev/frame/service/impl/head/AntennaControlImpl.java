@@ -27,7 +27,8 @@ public class AntennaControlImpl extends AbsDeviceSocketHandler<SocketEntity, Fra
 
 
     @Override
-    public void callback(FrameRespData frameRespData, IParaPrtclAnalysisService iParaPrtclAnalysisService, IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService) {
+    public void callback(FrameRespData frameRespData, IParaPrtclAnalysisService iParaPrtclAnalysisService,
+                         IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService) {
         iParaPrtclAnalysisService.ctrlParaResponse(frameRespData);
     }
 
@@ -38,10 +39,14 @@ public class AntennaControlImpl extends AbsDeviceSocketHandler<SocketEntity, Fra
         Byte length = bytesToNum(originalReceiveBytes, 1, 1, ByteBuf::readByte);
         //命令
         Byte cmd = bytesToNum(originalReceiveBytes, 3, 1, ByteBuf::readByte);
+
+        Byte respCode = bytesToNum(originalReceiveBytes, 4, 1, ByteBuf::readByte);
         //数据体
         byte[] paramData = ByteUtils.byteArrayCopy(originalReceiveBytes, 4, length  - 6);
         frameRespData.setCmdMark(Integer.toHexString(cmd));
         frameRespData.setParamBytes(paramData);
+        frameRespData.setRespCode(respCode.toString());
+        bytesToNum(originalReceiveBytes, 4, 1, ByteBuf::readByte);
         //数据体解析
         return frameRespData;
     }

@@ -47,21 +47,27 @@ public class DeviceSocketSubscribe {
     @PostConstruct
     public void init(){
         cache = CacheUtil.newFIFOCache(absSocketHandlerList.size());
-        ThreadUtil.execute(() -> {
-            try {
+        ThreadUtil.execAsync(() -> {
                 while (true){
-                    SocketEntity socketEntity = SOCKET_QUEUE.take();
-                    //执行设备数据响应
-                    getHandler(socketEntity.getRemoteAddress())
-                            .ifPresent(handler -> handler.socketResponse(socketEntity));
-
-                    //站控响应
-                    stationControlHandler.stationControlReceive(socketEntity);
+                    try {
+                        SocketEntity socketEntity = SOCKET_QUEUE.take();
+                        BaseInfo devInfo = getDevInfo(socketEntity.getRemoteAddress());
+                        //站控响应
+                        if (devInfo.getIsRptIp()!= null && Integer.parseInt(devInfo.getIsRptIp()) == 0){
+                            stationControlHandler.stationControlReceive(socketEntity);
+                            return;
+                        }
+                        //执行设备数据响应
+                        Optional<AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData>> socketHandler
+                                = getHandler(socketEntity.getRemoteAddress());
+                        if (socketHandler.isPresent()){
+                            socketHandler.get().socketResponse(socketEntity);
+                        }
+                    } catch (Exception e) {
+                        log.error("Socket数据解析流程异常", e);
+                    }
                 }
-            } catch (InterruptedException e) {
-                log.error("数据存储队列异常:", e);
-            }
-        });
+        }, true);
     }
 
     /**

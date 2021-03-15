@@ -6,7 +6,7 @@ import com.xy.netdev.frame.bo.FrameRespData;
 
 /**
  * <p>
- * 查询接口协议解析接口
+ * 查询接口协议解析接口 多参数
  * </p>
  *
  * @author tangxl

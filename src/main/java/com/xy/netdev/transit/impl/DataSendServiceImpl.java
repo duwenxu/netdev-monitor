@@ -5,9 +5,11 @@ import com.xy.netdev.container.DevLogInfoContainer;
 import com.xy.netdev.container.DevStatusContainer;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.monitor.bo.DevStatusInfo;
+import com.xy.netdev.rpt.service.IDevStatusReportService;
 import com.xy.netdev.transit.IDataSendService;
 import com.xy.netdev.transit.util.DataHandlerHelper;
 import com.xy.netdev.websocket.send.DevIfeMegSend;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -20,6 +22,9 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class DataSendServiceImpl implements IDataSendService {
+
+    @Autowired
+    private IDevStatusReportService devStatusReportService;
 
     /**
      * 参数查询发送
@@ -65,10 +70,10 @@ public class DataSendServiceImpl implements IDataSendService {
      */
     private void handlerAlertInfo(FrameReqData frameReqData){
         String status = frameReqData.getIsOk();
-        if(status.equals("1")){
-            DevStatusContainer.setInterrupt(frameReqData.getDevNo(),SysConfigConstant.RPT_DEV_STATUS_ISINTERRUPT_NO);
-        }else{
-            DevStatusContainer.setInterrupt(frameReqData.getDevNo(),SysConfigConstant.RPT_DEV_STATUS_ISINTERRUPT_YES);
+        //参数返回值是否产生中断
+        if(status.equals(SysConfigConstant.RPT_DEV_STATUS_ISINTERRUPT_YES)
+                && DevStatusContainer.setInterrupt(frameReqData.getDevNo(),status)){
+            devStatusReportService.rptInterrupted(frameReqData,status);
         }
     }
 }

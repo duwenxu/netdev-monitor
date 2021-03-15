@@ -34,6 +34,9 @@ public class RptBodyDev {
     @ApiModelProperty(value = "设备参数数量")
     private String devParaTotal;
 
+    @ApiModelProperty(value = "设备参数长度")
+    private Integer devParamLen;
+
     @ApiModelProperty(value = "设备参数列表")
     private List<FrameParaData> devParaList;
 

@@ -96,7 +96,7 @@ public class WSHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        log.error("channel捕获到异常了，关闭了");
+        log.error("channel捕获到异常了，关闭了:"+cause.getMessage());
         //移除通道
         cache.removeChannel(ctx.channel());
     }

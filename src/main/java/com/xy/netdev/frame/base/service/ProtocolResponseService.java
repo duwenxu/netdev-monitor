@@ -9,5 +9,5 @@ import com.xy.netdev.frame.entity.SocketEntity;
  */
 public interface ProtocolResponseService<T extends FrameRespData> {
 
-    void socketResponse(SocketEntity socketEntity);
+    void socketResponse(SocketEntity socketEntity) throws Exception;
 }
