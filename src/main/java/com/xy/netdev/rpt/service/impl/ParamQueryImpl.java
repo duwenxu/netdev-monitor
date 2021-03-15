@@ -15,6 +15,7 @@ import java.util.List;
 import static com.xy.netdev.common.util.ByteUtils.listToBytes;
 import static com.xy.netdev.common.util.ByteUtils.placeholderByte;
 import static com.xy.netdev.rpt.service.StationControlHandler.queryHead;
+import static com.xy.netdev.rpt.service.StationControlHandler.queryHeadNext;
 
 /**
  * 参数查询命令
@@ -93,10 +94,7 @@ public class ParamQueryImpl implements RequestService, ResponseService {
         queryHead(rptHeadDev, tempList);
 
         rptBodyDevs.forEach(rptBodyDev -> {
-            //设备型号
-            tempList.add(ByteUtils.objToBytes(rptBodyDev.getDevTypeCode(), 1));
-            //设备编号
-            tempList.add(ByteUtils.objToBytes(rptBodyDev.getDevNo(), 1));
+            queryHeadNext(tempList, rptBodyDev);
             List<FrameParaData> devParaList = rptBodyDev.getDevParaList();
             int parmaSize = devParaList.size();
             //设备参数数量
@@ -112,6 +110,4 @@ public class ParamQueryImpl implements RequestService, ResponseService {
         });
         return listToBytes(tempList);
     }
-
-
 }

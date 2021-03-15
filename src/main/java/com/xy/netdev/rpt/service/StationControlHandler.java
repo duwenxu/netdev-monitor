@@ -10,6 +10,7 @@ import com.xy.netdev.frame.entity.SocketEntity;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.PrtclFormat;
 import com.xy.netdev.network.NettyUtil;
+import com.xy.netdev.rpt.bo.RptBodyDev;
 import com.xy.netdev.rpt.bo.RptHeadDev;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
@@ -134,7 +135,7 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
 
 
     /**
-     * 参数被动查询头
+     * 被动查询 参数头拼装
      * @param rptHeadDev 结构化数据
      * @param tempList 存储list
      */
@@ -147,5 +148,17 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
         tempList.add(ByteUtils.objToBytes(rptHeadDev.getStationNo(), 1));
         //设备数量
         tempList.add(ByteUtils.objToBytes(rptHeadDev.getDevNum(), 1));
+    }
+
+    /**
+     * 被动查询 参数头拼装下一步
+     * @param tempList
+     * @param rptBodyDev
+     */
+    public static void queryHeadNext(List<byte[]> tempList, RptBodyDev rptBodyDev) {
+        //设备型号
+        tempList.add(ByteUtils.objToBytes(rptBodyDev.getDevTypeCode(), 1));
+        //设备编号
+        tempList.add(ByteUtils.objToBytes(rptBodyDev.getDevNo(), 1));
     }
 }
