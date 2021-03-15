@@ -1,13 +1,23 @@
 package com.xy.netdev.rpt.service.impl;
 
+import com.xy.common.util.DateUtils;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
+import com.xy.netdev.container.BaseInfoContainer;
+import com.xy.netdev.container.DevAlertInfoContainer;
+import com.xy.netdev.container.DevStatusContainer;
+import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.monitor.bo.DevStatusInfo;
+import com.xy.netdev.monitor.bo.FrameParaInfo;
+import com.xy.netdev.monitor.bo.TransRule;
+import com.xy.netdev.monitor.entity.AlertInfo;
+import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.rpt.bo.RptHeadDev;
 import com.xy.netdev.rpt.service.IDevStatusReportService;
 import com.xy.netdev.rpt.service.IUpRptPrtclAnalysisService;
+import com.xy.netdev.transit.util.DataHandlerHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -151,4 +161,100 @@ public class DevStatusReportService implements IDevStatusReportService {
         rptHeadDev.setDevNo(devStatusInfo.getDevNo());
         return rptHeadDev;
     }
+
+
+    /**
+     * 上报设备状态信息
+     * @param respData
+     * @param rules
+     * @param param
+     */
+    public void reportWarningAndStaus(FrameRespData respData, List<TransRule> rules, FrameParaData param){
+        //根据参数对应设备状态类型结合参数值上报设备状态或告警信息
+        FrameParaInfo paraInfo = BaseInfoContainer.getParaInfoByCmd(param.getDevType(),param.getParaNo());
+        String type = paraInfo.getAlertPara();
+        rules.forEach(rule->{
+            if(rule.getInner().equals(param.getParaVal()) || respData.getRespCode().equals("1")) {
+                String outerStatus = rule.getOuter();
+                switch(type) {
+                    case SysConfigConstant.DEV_STATUS_ALARM:
+                        if(DevStatusContainer.setAlarm(respData.getDevNo(),outerStatus)){
+                            rptWarning(respData,outerStatus);
+                        }
+                        //上报告警信息
+                        reportDevAlertInfo(respData,paraInfo,outerStatus);
+                    break;
+                    case SysConfigConstant.DEV_STATUS_INTERRUPT:
+                        //参数返回值是否恢复中断
+                        if(DevStatusContainer.setInterrupt(respData.getDevNo(),outerStatus)){
+                            rptUnInterrupted(respData,outerStatus);
+                        }
+                        break;
+                    case SysConfigConstant.DEV_STATUS_SWITCH:
+                        //参数返回值是否启用主备
+                        if(DevStatusContainer.setUseStandby(respData.getDevNo(),outerStatus)){
+                            rptUseStandby(respData,outerStatus);
+                        }
+                        break;
+                    case SysConfigConstant.DEV_STATUS_STANDBY:
+                        //参数返回主备状态
+                        if(DevStatusContainer.setMasterOrSlave(respData.getDevNo(),outerStatus)){
+                            rptMasterOrSlave(respData,outerStatus);
+                        }
+                        break;
+                    case SysConfigConstant.DEV_STATUS_MAINTAIN:
+                        //参数返回设备工作状态
+                        if(DevStatusContainer.setWorkStatus(respData.getDevNo(),outerStatus)){
+                            rptWorkStatus(respData,outerStatus);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+    }
+
+    /**
+     * 上报设备告警信息
+     * @param respData
+     * @param paraInfo
+     * @param status
+     */
+    private void reportDevAlertInfo(FrameRespData respData,FrameParaInfo paraInfo, String status){
+        //参数返回值是否产生告警
+        if (status.equals(SysConfigConstant.RPT_DEV_STATUS_ISALARM_YES)) {
+            BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(respData.getDevNo());
+            FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),respData.getCmdMark());
+            String alertDesc = DataHandlerHelper.genAlertDesc(baseInfo,frameParaInfo);
+            AlertInfo alertInfo = new AlertInfo().builder()
+                    .devType(respData.getDevType())
+                    .alertLevel(paraInfo.getAlertLevel())
+                    .devNo(respData.getDevNo())
+                    .alertTime(DateUtils.now())
+                    .ndpaNo(paraInfo.getParaNo())
+                    .alertDesc(alertDesc).build();
+            DevAlertInfoContainer.addAlertInfo(alertInfo);
+            RptHeadDev rptHeadDev = crateRptHeadDev(alertInfo);
+            upRptPrtclAnalysisService.queryParaResponse(rptHeadDev);
+        }
+    }
+
+
+    /**
+     * 创建上报数据体
+     * @param alertInfo
+     * @return
+     */
+    private RptHeadDev crateRptHeadDev(AlertInfo alertInfo){
+        RptHeadDev rptHeadDev = new RptHeadDev();
+        rptHeadDev.setStationNo(sysParamService.getParaRemark1(SysConfigConstant.PUBLIC_PARA_STATION_NO));
+        List<AlertInfo> alertInfos = new ArrayList<>();
+        alertInfos.add(alertInfo);
+        rptHeadDev.setParam(alertInfos);
+        rptHeadDev.setDevNum(1);
+        rptHeadDev.setDevNo(alertInfo.getDevNo());
+        return rptHeadDev;
+    }
+
 }
