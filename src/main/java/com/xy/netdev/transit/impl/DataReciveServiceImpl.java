@@ -1,6 +1,7 @@
 package com.xy.netdev.transit.impl;
 
 import com.alibaba.fastjson.JSONArray;
+import com.xy.common.exception.BaseException;
 import com.xy.common.util.DateUtils;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
@@ -84,8 +85,13 @@ public class DataReciveServiceImpl implements IDataReciveService {
         params.forEach(param->{
             FrameParaInfo paraInfo = BaseInfoContainer.getParaInfoByCmd(param.getDevType(),param.getParaNo());
             String ruleStr =  paraInfo.getTransRule();
+            List<TransRule> rules = null;
             //读取参数配置的状态转换规则
-            List<TransRule> rules = JSONArray.parseArray(ruleStr, TransRule.class);
+            try {
+                rules = JSONArray.parseArray(ruleStr, TransRule.class);
+            }catch(Exception e) {
+                throw new BaseException("参数状态转换规则有误");
+            }
             String status = paraInfo.getAlertPara();
             if(status.equals(SysConfigConstant.DEV_STATUS_ALARM)){
                 rules.forEach(rule->{
