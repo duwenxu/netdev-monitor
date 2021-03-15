@@ -1,4 +1,7 @@
 package com.xy.netdev.common.util;
+
+import org.apache.commons.lang.StringUtils;
+
 /**
  * <p>
  *参数处理工具类
@@ -21,6 +24,15 @@ public class ParaHandlerUtil {
      */
     public static String genLinkKey(String mark1,String mark2){
         return mark1 + LINK_MARK + mark2;
+    }
+
+    /**
+     * @功能：当字符串为null时直接返回“”
+     * @param str
+     * @return
+     */
+    public static String generateEmptyStr(String str){
+        return StringUtils.isBlank(str)? "" : str ;
     }
 
 }

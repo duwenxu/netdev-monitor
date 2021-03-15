@@ -101,62 +101,13 @@ public class DataReciveServiceImpl implements IDataReciveService {
             }catch(Exception e) {
                 throw new BaseException("参数状态转换规则有误");
             }
-            //根据参数对应设备状态类型结合参数值上报设备状态或告警信息
-            String type = paraInfo.getAlertPara();
-                rules.forEach(rule->{
-                    if(rule.getInner().equals(param.getParaVal())) {
-                        String outerStatus = rule.getOuter();
-                        switch(type) {
-                            case SysConfigConstant.DEV_STATUS_ALARM:
-                                //参数返回值是否产生告警
-                                if (outerStatus.equals(SysConfigConstant.RPT_DEV_STATUS_ISALARM_YES)) {
-                                    BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(respData.getDevNo());
-                                    FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),respData.getCmdMark());
-                                    String alertDesc = DataHandlerHelper.genAlertDesc(baseInfo,frameParaInfo);
-                                    AlertInfo alertInfo = new AlertInfo().builder()
-                                            .devType(respData.getDevType())
-                                            .alertLevel(paraInfo.getAlertLevel())
-                                            .devNo(respData.getDevNo())
-                                            .alertTime(DateUtils.now())
-                                            .ndpaNo(paraInfo.getParaNo())
-                                            .alertDesc(alertDesc).build();
-                                    DevAlertInfoContainer.addAlertInfo(alertInfo);
-                                }
-                                if(DevStatusContainer.setAlarm(respData.getDevNo(),outerStatus)){
-                                    devStatusReportService.rptWarning(respData,outerStatus);
-                                }
-                                break;
-                            case SysConfigConstant.DEV_STATUS_INTERRUPT:
-                                //参数返回值是否恢复中断
-                                if(DevStatusContainer.setInterrupt(respData.getDevNo(),outerStatus)){
-                                    devStatusReportService.rptUnInterrupted(respData,outerStatus);
-                                }
-                                break;
-                            case SysConfigConstant.DEV_STATUS_SWITCH:
-                                //参数返回值是否启用主备
-                                if(DevStatusContainer.setUseStandby(respData.getDevNo(),outerStatus)){
-                                    devStatusReportService.rptUseStandby(respData,outerStatus);
-                                }
-                                break;
-                            case SysConfigConstant.DEV_STATUS_STANDBY:
-                                //参数返回主备状态
-                                if(DevStatusContainer.setMasterOrSlave(respData.getDevNo(),outerStatus)){
-                                    devStatusReportService.rptMasterOrSlave(respData,outerStatus);
-                                }
-                                break;
-                            case SysConfigConstant.DEV_STATUS_MAINTAIN:
-                                //参数返回设备工作状态
-                                if(DevStatusContainer.setWorkStatus(respData.getDevNo(),outerStatus)){
-                                    devStatusReportService.rptWorkStatus(respData,outerStatus);
-                                }
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                });
+            devStatusReportService.reportWarningAndStaus(respData,rules,param);
         });
     }
+
+
+
+
 
 
 }

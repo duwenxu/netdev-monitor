@@ -81,18 +81,18 @@
         },
         init3: function(meg) {
             if (window.WebSocket) {
-                CHAT.socket1 = new WebSocket("ws://172.21.5.226:9000/ws");
-                CHAT.socket1.onopen = function() {
-                    CHAT.socket1.send(JSON.stringify(meg));
+                CHAT.socket2 = new WebSocket("ws://172.21.5.226:9000/ws");
+                CHAT.socket2.onopen = function() {
+                    CHAT.socket2.send(JSON.stringify(meg));
                     console.log("connect success...");
                 },
-                    CHAT.socket1.onclose = function() {
+                    CHAT.socket2.onclose = function() {
                         console.log("connect close...");
                     },
-                    CHAT.socket1.onerror = function() {
+                    CHAT.socket2.onerror = function() {
                         console.log("connect error...");
                     },
-                    CHAT.socket1.onmessage = function(e) {
+                    CHAT.socket2.onmessage = function(e) {
                         console.log("receive msg: " + e.data);
                         var receivePlan = document.getElementById("receiveStatus");
                         receivePlan.innerHTML = e.data;
@@ -111,10 +111,11 @@
         //初始化页面时需要联通的通道
         load:function(){
             var meg1 ={'interfaceMark':"DevLogInfos",
-            'devNo':'DEV_Ku/L_change'};
+            'devNo':'3101'};
             CHAT.init1(meg1);
             var meg2 ={'interfaceMark':"DevParaInfos",
-                'devNo':'DEV_Ku/L_change'};
+                /*'devNo':'DEV_Ku/L_A'};*/
+                'devNo':'3301'};
             CHAT.init2(meg2);
             var meg3 ={'interfaceMark':"DevStatusInfos"};
             CHAT.init3(meg3);
