@@ -13,8 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.xy.netdev.common.util.ByteUtils.listToBytes;
-import static com.xy.netdev.common.util.ByteUtils.placeholderByte;
-import static com.xy.netdev.rpt.service.StationControlHandler.queryHead;
+import static com.xy.netdev.rpt.service.StationControlHandler.*;
 
 /**
  * 参数查询命令
@@ -26,26 +25,13 @@ public class ParamQueryImpl implements RequestService, ResponseService {
 
     @Override
     public RptHeadDev unpackBody(StationControlHandler.StationControlHeadEntity stationControlHeadEntity) {
-        byte[] paramData = stationControlHeadEntity.getParamData();
-        //查询标识
-        int cmdMark = ByteUtils.byteToNumber(paramData, 4, 1).intValue();
-        //站号
-        int stationNo = ByteUtils.byteToNumber(paramData, 5, 1).intValue();
-        //设备数量
-        int devNum = ByteUtils.byteToNumber(paramData, 6, 1).intValue();
-        //参数
-        byte[] dataBytes = ByteUtils.byteArrayCopy(paramData, 7, paramData.length - 7);
-
-        List<RptBodyDev> rptBodyDevs = paramBuilder(dataBytes, new ArrayList<>(devNum));
-
-        RptHeadDev rptHeadDev = new RptHeadDev();
-        rptHeadDev.setStationNo(String.valueOf(stationNo));
-        rptHeadDev.setCmdMarkHexStr(Integer.toHexString(cmdMark));
-        rptHeadDev.setParam(rptBodyDevs);
-        rptHeadDev.setDevNum(devNum);
-        rptHeadDev.setDevNo(stationControlHeadEntity.getBaseInfo().getDevNo());
-        return rptHeadDev;
+        return unpack(stationControlHeadEntity);
     }
+
+    private RptHeadDev unpack(StationControlHandler.StationControlHeadEntity stationControlHeadEntity) {
+        return unpackCommonHead(stationControlHeadEntity, bytes ->  paramBuilder(bytes, new ArrayList<>()));
+    }
+
 
     private List<RptBodyDev> paramBuilder(byte[] dataBytes, List<RptBodyDev> list) {
         if (dataBytes.length == 0){
@@ -93,10 +79,7 @@ public class ParamQueryImpl implements RequestService, ResponseService {
         queryHead(rptHeadDev, tempList);
 
         rptBodyDevs.forEach(rptBodyDev -> {
-            //设备型号
-            tempList.add(ByteUtils.objToBytes(rptBodyDev.getDevTypeCode(), 1));
-            //设备编号
-            tempList.add(ByteUtils.objToBytes(rptBodyDev.getDevNo(), 1));
+            queryHeadNext(tempList, rptBodyDev);
             List<FrameParaData> devParaList = rptBodyDev.getDevParaList();
             int parmaSize = devParaList.size();
             //设备参数数量
@@ -112,6 +95,4 @@ public class ParamQueryImpl implements RequestService, ResponseService {
         });
         return listToBytes(tempList);
     }
-
-
 }
