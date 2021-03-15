@@ -26,6 +26,6 @@ public interface IDownRptPrtclAnalysisService {
      * 执行设备查询/设置命令
       * @param headDev
      */
-    void doAction(RptHeadDev headDev);
+    RptHeadDev doAction(RptHeadDev headDev);
 
 }
