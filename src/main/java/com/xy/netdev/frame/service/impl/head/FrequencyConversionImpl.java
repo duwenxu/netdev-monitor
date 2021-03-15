@@ -1,6 +1,7 @@
 package com.xy.netdev.frame.service.impl.head;
 
 import cn.hutool.core.util.StrUtil;
+import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.frame.base.AbsDeviceSocketHandler;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
@@ -33,8 +34,10 @@ public class FrequencyConversionImpl extends AbsDeviceSocketHandler<SocketEntity
         char errorMark = '?';
         if (StrUtil.contains(data, errorMark)){
             beginOffset = StrUtil.indexOf( data, errorMark);
+            frameRespData.setRespCode(SysConfigConstant.RPT_DEV_STATUS_ISALARM_YES);
         }else {
             beginOffset = StrUtil.indexOf( data, '/');
+            frameRespData.setRespCode(SysConfigConstant.RPT_DEV_STATUS_ISALARM_NO);
         }
         int endOffset = StrUtil.indexOf(data, '_');
         String paramMark = StrUtil.sub(data, beginOffset, endOffset);

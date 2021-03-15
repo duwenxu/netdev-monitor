@@ -21,4 +21,6 @@ public interface IUpRptPrtclAnalysisService {
      */
     void queryParaResponse(RptHeadDev headDev);
 
+
+
 }

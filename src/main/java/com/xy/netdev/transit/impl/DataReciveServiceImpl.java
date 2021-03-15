@@ -7,16 +7,19 @@ import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.*;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameRespData;
+import com.xy.netdev.monitor.bo.DevStatusInfo;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.bo.TransRule;
 import com.xy.netdev.monitor.entity.AlertInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.rpt.bo.RptBodyDev;
 import com.xy.netdev.rpt.bo.RptHeadDev;
+import com.xy.netdev.rpt.service.IDevStatusReportService;
 import com.xy.netdev.transit.IDataReciveService;
 import com.xy.netdev.transit.util.DataHandlerHelper;
 import com.xy.netdev.websocket.send.DevIfeMegSend;
 import io.netty.buffer.Unpooled;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.Charset;
@@ -33,6 +36,9 @@ import java.util.List;
  */
 @Service
 public class DataReciveServiceImpl implements IDataReciveService {
+
+    @Autowired
+    IDevStatusReportService devStatusReportService;
 
     /**
      * 参数查询接收
@@ -95,6 +101,7 @@ public class DataReciveServiceImpl implements IDataReciveService {
             }catch(Exception e) {
                 throw new BaseException("参数状态转换规则有误");
             }
+            //根据参数对应设备状态类型结合参数值上报设备状态或告警信息
             String type = paraInfo.getAlertPara();
                 rules.forEach(rule->{
                     if(rule.getInner().equals(param.getParaVal())) {
@@ -115,19 +122,33 @@ public class DataReciveServiceImpl implements IDataReciveService {
                                             .alertDesc(alertDesc).build();
                                     DevAlertInfoContainer.addAlertInfo(alertInfo);
                                 }
-                                boolean flag = DevStatusContainer.setAlarm(respData.getDevNo(),outerStatus);
-                                if(flag){
-                                    genDevStatusRptInfo(respData);
+                                if(DevStatusContainer.setAlarm(respData.getDevNo(),outerStatus)){
+                                    devStatusReportService.rptWarning(respData,outerStatus);
+                                }
+                                break;
+                            case SysConfigConstant.DEV_STATUS_INTERRUPT:
+                                //参数返回值是否恢复中断
+                                if(DevStatusContainer.setInterrupt(respData.getDevNo(),outerStatus)){
+                                    devStatusReportService.rptUnInterrupted(respData,outerStatus);
                                 }
                                 break;
                             case SysConfigConstant.DEV_STATUS_SWITCH:
-                                DevStatusContainer.setUseStandby(respData.getDevNo(),outerStatus);
+                                //参数返回值是否启用主备
+                                if(DevStatusContainer.setUseStandby(respData.getDevNo(),outerStatus)){
+                                    devStatusReportService.rptUseStandby(respData,outerStatus);
+                                }
                                 break;
                             case SysConfigConstant.DEV_STATUS_STANDBY:
-                                DevStatusContainer.setMasterOrSlave(respData.getDevNo(),outerStatus);
+                                //参数返回主备状态
+                                if(DevStatusContainer.setMasterOrSlave(respData.getDevNo(),outerStatus)){
+                                    devStatusReportService.rptMasterOrSlave(respData,outerStatus);
+                                }
                                 break;
                             case SysConfigConstant.DEV_STATUS_MAINTAIN:
-                                DevStatusContainer.setWorkStatus(respData.getDevNo(),outerStatus);
+                                //参数返回设备工作状态
+                                if(DevStatusContainer.setWorkStatus(respData.getDevNo(),outerStatus)){
+                                    devStatusReportService.rptWorkStatus(respData,outerStatus);
+                                }
                                 break;
                             default:
                                 break;
@@ -137,13 +158,5 @@ public class DataReciveServiceImpl implements IDataReciveService {
         });
     }
 
-    private RptBodyDev genDevStatusRptInfo(FrameRespData respData){
-        RptBodyDev rptInfo = new RptBodyDev();
-        rptInfo.setDevNo(respData.getDevNo());
-        rptInfo.setDevParaList(respData.getFrameParaList());
-        rptInfo.setDevTypeCode(respData.getDevType());
-        //rptInfo.setDevParaTotal();
-        return rptInfo;
 
-    }
 }
