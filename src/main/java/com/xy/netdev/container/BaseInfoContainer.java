@@ -1,7 +1,9 @@
 package com.xy.netdev.container;
 
 import com.alibaba.fastjson.JSONArray;
+import com.xy.common.exception.BaseException;
 import com.xy.netdev.admin.service.ISysParamService;
+import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.ParaHandlerUtil;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.bo.ParaSpinnerInfo;
@@ -195,7 +197,15 @@ public class BaseInfoContainer {
      * @return  设备对象
      */
     public static BaseInfo getDevInfo(String devIPAddr){
-        return devMap.get(devIPAddr);
+        if(devMap.containsKey(devIPAddr)){
+            return devMap.get(devIPAddr);
+        }else{
+            String rptIpAddr = sysParamService.getParaRemark1(SysConfigConstant.RPT_IP_ADDR);
+            if(rptIpAddr.equals(devIPAddr)){
+                return null;
+            }
+        }
+        throw new BaseException("接收到的IP地址有误,IP地址为:"+devIPAddr+",请检查!");
     }
 
     /**
