@@ -4,19 +4,25 @@ import com.alibaba.fastjson.JSONArray;
 import com.xy.common.exception.BaseException;
 import com.xy.common.util.DateUtils;
 import com.xy.netdev.common.constant.SysConfigConstant;
-import com.xy.netdev.container.BaseInfoContainer;
-import com.xy.netdev.container.DevAlertInfoContainer;
-import com.xy.netdev.container.DevLogInfoContainer;
-import com.xy.netdev.container.DevParaInfoContainer;
+import com.xy.netdev.container.*;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameRespData;
+import com.xy.netdev.monitor.bo.DevStatusInfo;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.bo.TransRule;
 import com.xy.netdev.monitor.entity.AlertInfo;
+import com.xy.netdev.monitor.entity.BaseInfo;
+import com.xy.netdev.rpt.bo.RptBodyDev;
+import com.xy.netdev.rpt.bo.RptHeadDev;
+import com.xy.netdev.rpt.service.IDevStatusReportService;
 import com.xy.netdev.transit.IDataReciveService;
+import com.xy.netdev.transit.util.DataHandlerHelper;
 import com.xy.netdev.websocket.send.DevIfeMegSend;
+import io.netty.buffer.Unpooled;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.Charset;
 import java.util.List;
 
 
@@ -30,6 +36,9 @@ import java.util.List;
  */
 @Service
 public class DataReciveServiceImpl implements IDataReciveService {
+
+    @Autowired
+    IDevStatusReportService devStatusReportService;
 
     /**
      * 参数查询接收
@@ -92,25 +101,62 @@ public class DataReciveServiceImpl implements IDataReciveService {
             }catch(Exception e) {
                 throw new BaseException("参数状态转换规则有误");
             }
-            String status = paraInfo.getAlertPara();
-            if(status.equals(SysConfigConstant.DEV_STATUS_ALARM)){
+            //根据参数对应设备状态类型结合参数值上报设备状态或告警信息
+            String type = paraInfo.getAlertPara();
                 rules.forEach(rule->{
-                    if(rule.getInner().equals(param.getParaVal())){
+                    if(rule.getInner().equals(param.getParaVal())) {
                         String outerStatus = rule.getOuter();
-                        //参数返回值是否产生告警
-                        if(outerStatus.equals(SysConfigConstant.RPT_DEV_STATUS_ISALARM_YES)){
-                            AlertInfo alertInfo = new AlertInfo().builder()
-                                    .devType(respData.getDevType())
-                                    .alertLevel(paraInfo.getAlertLevel())
-                                    .devNo(respData.getDevNo())
-                                    .alertTime(DateUtils.now())
-                                    .ndpaNo(paraInfo.getParaNo())
-                                    .alertDesc("").build();
-                            DevAlertInfoContainer.addAlertInfo(alertInfo);
+                        switch(type) {
+                            case SysConfigConstant.DEV_STATUS_ALARM:
+                                //参数返回值是否产生告警
+                                if (outerStatus.equals(SysConfigConstant.RPT_DEV_STATUS_ISALARM_YES)) {
+                                    BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(respData.getDevNo());
+                                    FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),respData.getCmdMark());
+                                    String alertDesc = DataHandlerHelper.genAlertDesc(baseInfo,frameParaInfo);
+                                    AlertInfo alertInfo = new AlertInfo().builder()
+                                            .devType(respData.getDevType())
+                                            .alertLevel(paraInfo.getAlertLevel())
+                                            .devNo(respData.getDevNo())
+                                            .alertTime(DateUtils.now())
+                                            .ndpaNo(paraInfo.getParaNo())
+                                            .alertDesc(alertDesc).build();
+                                    DevAlertInfoContainer.addAlertInfo(alertInfo);
+                                }
+                                if(DevStatusContainer.setAlarm(respData.getDevNo(),outerStatus)){
+                                    devStatusReportService.rptWarning(respData,outerStatus);
+                                }
+                                break;
+                            case SysConfigConstant.DEV_STATUS_INTERRUPT:
+                                //参数返回值是否恢复中断
+                                if(DevStatusContainer.setInterrupt(respData.getDevNo(),outerStatus)){
+                                    devStatusReportService.rptUnInterrupted(respData,outerStatus);
+                                }
+                                break;
+                            case SysConfigConstant.DEV_STATUS_SWITCH:
+                                //参数返回值是否启用主备
+                                if(DevStatusContainer.setUseStandby(respData.getDevNo(),outerStatus)){
+                                    devStatusReportService.rptUseStandby(respData,outerStatus);
+                                }
+                                break;
+                            case SysConfigConstant.DEV_STATUS_STANDBY:
+                                //参数返回主备状态
+                                if(DevStatusContainer.setMasterOrSlave(respData.getDevNo(),outerStatus)){
+                                    devStatusReportService.rptMasterOrSlave(respData,outerStatus);
+                                }
+                                break;
+                            case SysConfigConstant.DEV_STATUS_MAINTAIN:
+                                //参数返回设备工作状态
+                                if(DevStatusContainer.setWorkStatus(respData.getDevNo(),outerStatus)){
+                                    devStatusReportService.rptWorkStatus(respData,outerStatus);
+                                }
+                                break;
+                            default:
+                                break;
                         }
                     }
                 });
-            }
         });
     }
+
+
 }
