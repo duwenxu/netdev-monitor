@@ -119,5 +119,12 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
         NettyUtil.sendMsg(bytes, port, devInfo.getDevIpAddr(), port, Integer.parseInt(devInfo.getDevNetPtcl()));
     }
 
+    public static void main(String[] args) {
+//        7F310010010103000400000101010402BC02020120002F01E10101010101000002BC01010217000601E001010101013F7D
+//        7F07001201147D
+        String str = "7F 07 00 12 01 14 7D";
+        String s = str.replaceAll(" ", "");
+        System.out.println(s);
+    }
 
 }
