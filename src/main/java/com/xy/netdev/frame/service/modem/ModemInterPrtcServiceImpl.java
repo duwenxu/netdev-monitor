@@ -48,8 +48,9 @@ public class ModemInterPrtcServiceImpl implements IQueryInterPrtclAnalysisServic
      */
     @Override
     public FrameRespData queryParaResponse(FrameRespData respData) {
-        String orignData = respData.getReciveOrignData();
-        String[] dataList = orignData.toLowerCase().split(SPLIT.toLowerCase());
+//        String orignData = respData.getReciveOrignData();
+        String bytesData = new String(respData.getParamBytes());
+        String[] dataList = bytesData.toLowerCase().split(SPLIT.toLowerCase());
         String devType = respData.getDevType();
         //拆分后根据关键字获取参数
         List<FrameParaData> frameParaDataList = new ArrayList<>();

@@ -106,7 +106,7 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
     private String generateDevModelFileMap(){
         List list = new ArrayList();
         Map<String,Object> map = new HashMap<>();
-        Map<String,Object> fileMap = new HashMap<>();
+        /***********************增加dev节点********************************/
         BaseInfoContainer.getDevInfos().forEach(baseInfo -> {
             Map<String,Object> devMap = new LinkedHashMap<>();
             //给dev节点增加属性值
@@ -123,6 +123,7 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
                 paraMap.put("-name",ParaHandlerUtil.generateEmptyStr(parainfo.getParaName()));
                 paraMap.put("-access",ParaHandlerUtil.generateEmptyStr(sysParamService.getParaRemark1(parainfo.getAccessRight())));
                 paraMap.put("-unit", ParaHandlerUtil.generateEmptyStr(parainfo.getParaUnit()));
+                /***********************增加type节点********************************/
                 Map<String,Object> typeMap = new LinkedHashMap<>();
                 //给type节点增加属性值
                 typeMap.put("-name",sysParamService.getParaName(parainfo.getParaDatatype()));
@@ -131,6 +132,7 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
                     typeMap.put("-len",parainfo.getParaStrLen());
                 }
                 paraMap.put("type",typeMap);
+                /***********************增加showModel节点****************************/
                 Map<String,Object> showMap = new LinkedHashMap<>();
                 showMap.put("-name",ParaHandlerUtil.generateEmptyStr(sysParamService.getParaRemark1(parainfo.getParahowMode())));
                 if("0024002".equals(parainfo.getParahowMode())){
@@ -145,14 +147,22 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
                     showMap.put("option",modelList);
                 }
                 paraMap.put("showMode",showMap);
-                paraMap.put("range","");
+                /***********************增加range节点********************************/
+                String iRange = sysParamService.getParaRemark2(parainfo.getParaDatatype());
+                if(!StringUtils.isBlank(iRange)){
+                    Map<String,Object> rangeMap = new LinkedHashMap<>();
+                    rangeMap.put("-name",iRange);
+                    rangeMap.put("-down",ParaHandlerUtil.generateEmptyStr(parainfo.getParaValMax()));
+                    rangeMap.put("-up",ParaHandlerUtil.generateEmptyStr(parainfo.getParaValMin()));
+                    rangeMap.put("-step",parainfo.getParaValStep());
+                    paraMap.put("range",new LinkedHashMap(){{put("IRange",rangeMap);}});
+                }
                 paraList.add(paraMap);
             });
             devMap.put("param",paraList);
             list.add(devMap);
         });
-        fileMap.put("dev",list);
-        map.put("devList",fileMap);
+        map.put("devList",new LinkedHashMap(){{put("dev",list);}});
         return XmlUtil.convertToXml(map);
     }
 }
