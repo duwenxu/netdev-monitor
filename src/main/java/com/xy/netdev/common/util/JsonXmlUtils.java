@@ -139,6 +139,7 @@ public class JsonXmlUtils {
             } else if (child instanceof JSONArray) {
                 addJsonArrayElement(json.getJSONArray(key), key, root);
             }else if(key.contains("-")){
+                //当key中包含-号则为上一节点增加属性值
                 root.addAttribute(key.replace("-",""), (String) child);
             }else {
                 node.setText(json.getString(key));
