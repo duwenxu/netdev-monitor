@@ -354,7 +354,11 @@ public class BaseInfoContainer {
             frameParaInfo.setParaName(paraInfo.getNdpaName());  //参数名称
             frameParaInfo.setCmdMark(paraInfo.getNdpaCmdMark()); //命令标识
             frameParaInfo.setParaByteLen(paraInfo.getNdpaByteLen());  // 字节长度
-            frameParaInfo.setSelectMap(JSONArray.parseObject(paraInfo.getNdpaSelectData()));//下拉值域
+            Map map = new HashMap();
+            if(!StringUtils.isBlank(paraInfo.getNdpaSelectData())){
+                JSONArray.parseArray(paraInfo.getNdpaSelectData(),Map.class).forEach(map::putAll);
+            }
+            frameParaInfo.setSelectMap(map);//下拉值域
             frameParaInfo.setDevType(paraInfo.getDevType());      //设备类型
             frameParaInfo.setDevTypeCode(paraInfo.getDevTypeCode());      //设备类型编码
             frameParaInfo.setNdpaAccessRight(paraInfo.getNdpaAccessRight()); //访问权限
