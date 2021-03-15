@@ -8,7 +8,7 @@ import java.util.List;
 
 /**
  * <p>
- * 外部下发协议解析接口
+ * 站控 参数查询/设置 接口类
  * </p>
  *
  * @author tangxl
