@@ -216,7 +216,7 @@ public class BaseInfoContainer {
         BaseInfo rptBaseInfo = new BaseInfo();
         rptBaseInfo.setDevIpAddr(sysParamService.getParaRemark1(SysConfigConstant.RPT_IP_ADDR));
         rptBaseInfo.setDevPort(sysParamService.getParaRemark2(SysConfigConstant.RPT_IP_ADDR));
-        rptBaseInfo.setDevNetPtcl(SysConfigConstant.UDP);
+        rptBaseInfo.setDevNetPtcl(sysParamService.getParaRemark3(SysConfigConstant.RPT_IP_ADDR));
         rptBaseInfo.setIsRptIp("0");
         return rptBaseInfo;
     }
