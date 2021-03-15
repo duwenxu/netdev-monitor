@@ -6,6 +6,7 @@ import cn.hutool.core.util.StrUtil;
 import com.xy.netdev.common.util.BeanFactoryUtil;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
+import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.entity.SocketEntity;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.PrtclFormat;
@@ -16,11 +17,14 @@ import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import static com.xy.netdev.common.util.ByteUtils.*;
@@ -33,6 +37,7 @@ import static com.xy.netdev.common.util.ByteUtils.*;
 public class StationControlHandler implements IUpRptPrtclAnalysisService{
 
     @Autowired
+    @Qualifier("IDownRptPrtclAnalysisServiceImpl")
     private IDownRptPrtclAnalysisService iDownRptPrtclAnalysisService;
 
     @Setter
@@ -123,10 +128,8 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
         RequestService requestService = BeanFactoryUtil.getBean(prtclFormat.getFmtHandlerClass());
         byte[] bodyBytes = requestService.pack(headDev);
         int port = Integer.parseInt(stationInfo.getDevPort());
-        //拼数据头
         int cmd = Integer.parseInt(headDev.getCmdMarkHexStr(), 16);
-
-        //拼成完整帧格式
+        //拼数据头
         byte[] bytes = ArrayUtil.addAll(
                 //信息类别
                   ByteUtils.objToBytes(cmd, 2)
@@ -142,11 +145,11 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
 
 
     /**
-     * 被动查询 参数头拼装
+     * 响应头设置
      * @param rptHeadDev 结构化数据
      * @param tempList 存储list
      */
-    public static void queryHead(RptHeadDev rptHeadDev, List<byte[]> tempList) {
+    public static void setQueryResponseHead(RptHeadDev rptHeadDev, List<byte[]> tempList) {
         //保留
         tempList.add(placeholderByte(4));
         //查询标志
@@ -194,5 +197,45 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
         rptHeadDev.setDevNum(devNum);
         rptHeadDev.setDevNo(stationControlHeadEntity.getBaseInfo().getDevNo());
         return rptHeadDev;
+    }
+
+
+    /**
+     * 参数赋值并获取下一个起始位下标
+     * @param list
+     * @param rptBodyDev
+     * @param paramBytes
+     * @param length
+     * @param offset
+     * @return
+     */
+    public static int getIndex(List<RptBodyDev> list, RptBodyDev rptBodyDev, byte[] paramBytes, int length, int offset) {
+        //参数解析
+        List<FrameParaData> devParaList = new ArrayList<>(length);
+        for (byte paramByte : paramBytes) {
+            FrameParaData frameParaData = new FrameParaData();
+            frameParaData.setParaNo(String.valueOf(paramByte));
+            devParaList.add(frameParaData);
+        }
+        rptBodyDev.setDevParaList(devParaList);
+        list.add(rptBodyDev);
+        return length + offset;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static byte[] commonPack(RptHeadDev rptHeadDev, BiConsumer<List<FrameParaData>, List<byte[]>> consumer){
+        List<RptBodyDev> rptBodyDevs = (List<RptBodyDev>) rptHeadDev.getParam();
+        List<byte[]> tempList = new ArrayList<>();
+        setQueryResponseHead(rptHeadDev, tempList);
+        rptBodyDevs.forEach(rptBodyDev -> {
+            queryHeadNext(tempList, rptBodyDev);
+            List<FrameParaData> devParaList = rptBodyDev.getDevParaList();
+            int parmaSize = devParaList.size();
+            //设备参数数量
+            tempList.add(ByteUtils.objToBytes(parmaSize, 1));
+            //s
+            consumer.accept(devParaList, tempList);
+        });
+        return listToBytes(tempList);
     }
 }

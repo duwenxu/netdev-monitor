@@ -43,7 +43,7 @@ public class FrameRespData {
     private String operType;
 
     /**
-     * 响应标注 成功  失败 等信息时 填写
+     * 若协议中未定义响应码 则 0为成功  1为失败,协议中定义响应码  则协议格式中需要配置 查询响应类型/控制响应类型
      */
     @ApiModelProperty(value = "响应码")
     private String respCode;

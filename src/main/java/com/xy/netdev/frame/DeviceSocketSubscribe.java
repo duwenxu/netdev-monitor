@@ -51,12 +51,16 @@ public class DeviceSocketSubscribe {
             try {
                 while (true){
                     SocketEntity socketEntity = SOCKET_QUEUE.take();
+                    BaseInfo devInfo = getDevInfo(socketEntity.getRemoteAddress());
+                    //站控响应
+                    if (Integer.parseInt(devInfo.getIsRptIp()) == 0){
+                        stationControlHandler.stationControlReceive(socketEntity);
+                        return;
+                    }
                     //执行设备数据响应
                     getHandler(socketEntity.getRemoteAddress())
                             .ifPresent(handler -> handler.socketResponse(socketEntity));
 
-                    //站控响应
-                    stationControlHandler.stationControlReceive(socketEntity);
                 }
             } catch (InterruptedException e) {
                 log.error("数据存储队列异常:", e);

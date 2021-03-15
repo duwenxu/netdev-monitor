@@ -1,7 +1,6 @@
 package com.xy.netdev.rpt.service.impl;
 
 import com.xy.netdev.common.util.ByteUtils;
-import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.rpt.bo.RptBodyDev;
 import com.xy.netdev.rpt.bo.RptHeadDev;
 import com.xy.netdev.rpt.service.RequestService;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.xy.netdev.common.util.ByteUtils.listToBytes;
 import static com.xy.netdev.rpt.service.StationControlHandler.*;
 
 /**
@@ -25,10 +23,6 @@ public class ParamQueryImpl implements RequestService, ResponseService {
 
     @Override
     public RptHeadDev unpackBody(StationControlHandler.StationControlHeadEntity stationControlHeadEntity) {
-        return unpack(stationControlHeadEntity);
-    }
-
-    private RptHeadDev unpack(StationControlHandler.StationControlHeadEntity stationControlHeadEntity) {
         return unpackCommonHead(stationControlHeadEntity, bytes ->  paramBuilder(bytes, new ArrayList<>()));
     }
 
@@ -49,36 +43,15 @@ public class ParamQueryImpl implements RequestService, ResponseService {
         rptBodyDev.setDevNo(String.valueOf(devNo));
         rptBodyDev.setDevParaTotal(String.valueOf(paramNum));
         rptBodyDev.setDevTypeCode(String.valueOf(devTypeCode));
+        //参数都是一字节, 数量==长度
         byte[] paramBytes = ByteUtils.byteArrayCopy(dataBytes, 4, paramNum);
-        int length = paramBytes.length;
-        
-        //参数解析
-        List<FrameParaData> devParaList = new ArrayList<>(length);
-        for (byte paramByte : paramBytes) {
-            FrameParaData frameParaData = new FrameParaData();
-            frameParaData.setParaNo(String.valueOf(paramByte));
-            devParaList.add(frameParaData);
-        }
-        rptBodyDev.setDevParaList(devParaList);
-        list.add(rptBodyDev);
-        int index = length + 4;
+        int index = getIndex(list, rptBodyDev, paramBytes, paramBytes.length, 4);
         return paramBuilder(ByteUtils.byteArrayCopy(dataBytes, index, dataBytes.length - index), list);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public byte[] pack(RptHeadDev rptHeadDev) {
-
-        List<RptBodyDev> rptBodyDevs = (List<RptBodyDev>) rptHeadDev.getParam();
-        List<byte[]> tempList = new ArrayList<>();
-        queryHead(rptHeadDev, tempList);
-
-        rptBodyDevs.forEach(rptBodyDev -> {
-            queryHeadNext(tempList, rptBodyDev);
-            List<FrameParaData> devParaList = rptBodyDev.getDevParaList();
-            int parmaSize = devParaList.size();
-            //设备参数数量
-            tempList.add(ByteUtils.objToBytes(parmaSize, 1));
+        return commonPack(rptHeadDev, (devParaList, tempList) -> {
             devParaList.forEach(frameParaData -> {
                 //参数编号
                 tempList.add(ByteUtils.objToBytes(frameParaData.getParaNo(), 1));
@@ -88,6 +61,8 @@ public class ParamQueryImpl implements RequestService, ResponseService {
                 tempList.add(ByteUtils.objToBytes(frameParaData.getParaVal(), frameParaData.getLen()));
             });
         });
-        return listToBytes(tempList);
     }
+
+
+
 }

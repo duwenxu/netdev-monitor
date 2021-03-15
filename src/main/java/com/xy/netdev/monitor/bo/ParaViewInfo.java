@@ -2,6 +2,7 @@ package com.xy.netdev.monitor.bo;
 
 
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -83,6 +84,25 @@ public class ParaViewInfo {
      */
     @ApiModelProperty(value = "步进")
     private String paraValStep;
+
+    /**
+     * 当拼装样式不为空时,需要对参数值进行解析,按照显示样式展示,
+     * 参数修改提交时按照拼装样式进行拼装提交
+     * 参数 []
+     * 分割符{}
+     *
+     * 例一:xxx_yyy
+     * 数据拼装样式 [A]{-}[B]
+     * 数据显示样式 A[A]-B[B]
+     * 例二:Xxxx.xxYxxx.xxZxxx.xx
+     * 数据拼装样式 {X}[A]{Y}[B]{Z}[C]
+     * 数据显示样式 X[A]-Y[B]-Z[C]
+     */
+    @ApiModelProperty(value = "拼装样式")
+    private String paraSpellFmt;
+
+    @ApiModelProperty(value = "显示样式")
+    private String paraViewFmt;
     /**
      * 参数表中 0020
      */
