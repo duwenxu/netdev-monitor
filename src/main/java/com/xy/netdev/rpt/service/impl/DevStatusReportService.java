@@ -32,6 +32,7 @@ public class DevStatusReportService implements IDevStatusReportService {
     @Autowired
     IUpRptPrtclAnalysisService upRptPrtclAnalysisService;
 
+
     /**
      * 上报设备告警
      * @param respData
@@ -41,7 +42,7 @@ public class DevStatusReportService implements IDevStatusReportService {
     public void rptWarning(FrameRespData respData, String status) {
         DevStatusInfo devStatusInfo = createDevStatusInfo(respData);
         devStatusInfo.setIsAlarm(status);
-        reportDevStatus(devStatusInfo,respData);
+        reportDevStatus(devStatusInfo);
     }
 
     /**
@@ -53,7 +54,7 @@ public class DevStatusReportService implements IDevStatusReportService {
     public void rptUnInterrupted(FrameRespData respData, String status) {
         DevStatusInfo devStatusInfo = createDevStatusInfo(respData);
         devStatusInfo.setIsInterrupt(status);
-        reportDevStatus(devStatusInfo,respData);
+        reportDevStatus(devStatusInfo);
     }
 
     /**
@@ -65,7 +66,7 @@ public class DevStatusReportService implements IDevStatusReportService {
     public void rptInterrupted(FrameReqData reqData, String status) {
         DevStatusInfo devStatusInfo = createDevStatusInfo(reqData);
         devStatusInfo.setIsInterrupt(status);
-        reportDevStatus(devStatusInfo,reqData);
+        reportDevStatus(devStatusInfo);
     }
 
     /**
@@ -75,7 +76,7 @@ public class DevStatusReportService implements IDevStatusReportService {
     public void rptUseStandby(FrameRespData respData, String status) {
         DevStatusInfo devStatusInfo = createDevStatusInfo(respData);
         devStatusInfo.setIsUseStandby(status);
-        reportDevStatus(devStatusInfo,respData);
+        reportDevStatus(devStatusInfo);
     }
 
     /**
@@ -87,7 +88,7 @@ public class DevStatusReportService implements IDevStatusReportService {
     public void rptMasterOrSlave(FrameRespData respData, String status) {
         DevStatusInfo devStatusInfo = createDevStatusInfo(respData);
         devStatusInfo.setMasterOrSlave(status);
-        reportDevStatus(devStatusInfo,respData);
+        reportDevStatus(devStatusInfo);
     }
 
     /**
@@ -99,7 +100,7 @@ public class DevStatusReportService implements IDevStatusReportService {
     public void rptWorkStatus(FrameRespData respData, String status) {
         DevStatusInfo devStatusInfo = createDevStatusInfo(respData);
         devStatusInfo.setWorkStatus(status);
-        reportDevStatus(devStatusInfo,respData);
+        reportDevStatus(devStatusInfo);
     }
 
     /**
@@ -131,24 +132,13 @@ public class DevStatusReportService implements IDevStatusReportService {
     /**
      * 上报设备状态
      * @param devStatusInfo
-     * @param respData
      */
-    private void reportDevStatus(DevStatusInfo devStatusInfo,FrameRespData respData){
+    private void reportDevStatus(DevStatusInfo devStatusInfo){
         RptHeadDev rptHeadDev = crateRptHeadDev(devStatusInfo);
-        rptHeadDev.setCmdMarkHexStr(respData.getCmdMark());
         upRptPrtclAnalysisService.queryParaResponse(rptHeadDev);
     }
 
-    /**
-     * 上报设备状态
-     * @param devStatusInfo
-     * @param reqData
-     */
-    private void reportDevStatus(DevStatusInfo devStatusInfo,FrameReqData reqData){
-        RptHeadDev rptHeadDev = crateRptHeadDev(devStatusInfo);
-        rptHeadDev.setCmdMarkHexStr(reqData.getCmdMark());
-        upRptPrtclAnalysisService.queryParaResponse(rptHeadDev);
-    }
+
 
     /**
      * 创建上报数据体
@@ -162,6 +152,7 @@ public class DevStatusReportService implements IDevStatusReportService {
         devStatusInfos.add(devStatusInfo);
         rptHeadDev.setParam(devStatusInfos);
         rptHeadDev.setDevNum(1);
+        rptHeadDev.setCmdMarkHexStr(Integer.toHexString(SysConfigConstant.DEV_STATUS_REPORT));
         rptHeadDev.setDevNo(devStatusInfo.getDevNo());
         return rptHeadDev;
     }
@@ -257,6 +248,7 @@ public class DevStatusReportService implements IDevStatusReportService {
         alertInfos.add(alertInfo);
         rptHeadDev.setParam(alertInfos);
         rptHeadDev.setDevNum(1);
+        rptHeadDev.setCmdMarkHexStr(Integer.toHexString(SysConfigConstant.PARA_ALARM_REPORT));
         rptHeadDev.setDevNo(alertInfo.getDevNo());
         return rptHeadDev;
     }

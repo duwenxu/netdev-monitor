@@ -325,4 +325,48 @@ public interface SysConfigConstant {
      */
     String PARA_ALERT_TYPE_NULL = "0029006";
 
+    /**
+     * 站控信息类别--设备状态上报
+     */
+    int DEV_STATUS_REPORT = 1;
+
+    /**
+     * 站控信息类别--设备告警上报
+     */
+    int PARA_ALARM_REPORT = 2;
+
+    /**
+     * 站控信息类别--参数查询命令
+     */
+    int PARA_QUERY = 3;
+
+    /**
+     * 站控信息类别--参数查询响应
+     */
+    int PARA_QUERY_RESP = 4;
+
+    /**
+     * 站控信息类别--参数设置命令
+     */
+    int PARA_SET = 5;
+
+    /**
+     * 站控信息类别--参数设置响应
+     */
+    int PARA_SET_RESP = 6;
+
+    /**
+     * 站控信息类别--参数告警查询命令
+     */
+    int PARA_WARNING_QUERY = 7;
+
+    /**
+     * 站控信息类别--参数告警查询响应
+     */
+    int PARA_WARNING_QUERY_RESP = 8;
+
+
+
+
+
 }
