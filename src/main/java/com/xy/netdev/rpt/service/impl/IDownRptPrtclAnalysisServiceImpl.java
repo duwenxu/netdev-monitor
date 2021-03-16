@@ -49,7 +49,6 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
             switch (cmdMarkHexStr) {
                 case "0003":
                     //此处直接从缓存中获取结果；结果将在调用获取缓存时返回，此处不做处理
-                    doParaQueryAction(headDev);
                     break;
                 case "0005":
                     doParaSetAction(headDev);
@@ -74,10 +73,10 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
         RptHeadDev resBody = new RptHeadDev();
         try {
             switch (cmdMarkHexStr) {
-                case "0004":
+                case "0003":
                     resBody = doQuerySetCache(headDev);
                     break;
-                case "0006":
+                case "0005":
                     resBody = doQueryNewCache(headDev);
                     break;
                 default:
@@ -105,14 +104,8 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
                 para.setParaSetRes(respStatus);
             });
         });
+        rptHeadDev.setCmdMarkHexStr(StationCtlRequestEnums.PARA_SET_RESPONSE.getCmdCode());
         return rptHeadDev;
-    }
-
-    /**
-     * 站控 参数查询
-     * @param headDev 参数查询结构体
-     */
-    private void doParaQueryAction(RptHeadDev headDev) {
     }
 
     /**
