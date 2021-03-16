@@ -92,16 +92,21 @@ public class DataReciveServiceImpl implements IDataReciveService {
     private void handlerAlertInfo(FrameRespData respData){
         List<FrameParaData> params =  respData.getFrameParaList();
         params.forEach(param->{
-            FrameParaInfo paraInfo = BaseInfoContainer.getParaInfoByCmd(param.getDevType(),param.getParaNo());
-            String ruleStr =  paraInfo.getTransRule();
-            List<TransRule> rules = null;
-            //读取参数配置的状态转换规则
-            try {
-                rules = JSONArray.parseArray(ruleStr, TransRule.class);
-            }catch(Exception e) {
-                throw new BaseException("参数状态转换规则有误");
+            FrameParaInfo paraInfo = BaseInfoContainer.getParaInfoByNo(param.getDevType(),param.getParaNo());
+            if(!paraInfo.getAlertPara().equals(SysConfigConstant.PARA_ALERT_TYPE_NULL)){
+                String ruleStr =  paraInfo.getTransRule();
+                List<TransRule> rules = null;
+                //读取参数配置的状态转换规则
+                try {
+                    rules = JSONArray.parseArray(ruleStr, TransRule.class);
+                }catch(Exception e) {
+                    throw new BaseException("参数状态转换规则有误");
+                }
+                if(rules!=null){
+                    devStatusReportService.reportWarningAndStaus(respData,rules,param);
+                }
             }
-            devStatusReportService.reportWarningAndStaus(respData,rules,param);
+
         });
     }
 

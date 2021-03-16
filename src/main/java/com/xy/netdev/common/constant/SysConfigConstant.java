@@ -320,5 +320,9 @@ public interface SysConfigConstant {
      */
     String CONTROL_FAIL = "0061001";
 
+    /**
+     * 参数上报设备状态类型--无
+     */
+    String PARA_ALERT_TYPE_NULL = "0029006";
 
 }

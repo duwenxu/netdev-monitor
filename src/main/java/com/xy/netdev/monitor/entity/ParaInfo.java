@@ -77,6 +77,7 @@ public class ParaInfo extends Model<ParaInfo> {
 
     @ApiModelProperty(value = "显示模式")
     @TableField(value = "NDPA_SHOW_MODE")
+    @Param
     private String ndpaShowMode;
 
     @ApiModelProperty(value = "最大值")

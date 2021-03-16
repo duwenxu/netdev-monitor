@@ -41,7 +41,7 @@ public class FrequencyConversionImpl extends AbsDeviceSocketHandler<SocketEntity
             frameRespData.setRespCode(SysConfigConstant.RPT_DEV_STATUS_ISALARM_NO);
         }
         int endOffset = StrUtil.indexOf(data, '_');
-        String paramMark = StrUtil.sub(data, beginOffset, endOffset);
+        String paramMark = StrUtil.sub(data, beginOffset+1, endOffset);
         frameRespData.setCmdMark(paramMark);
         frameRespData.setParamBytes(socketEntity.getBytes());
         return frameRespData;
