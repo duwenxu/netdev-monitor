@@ -11,6 +11,7 @@ import com.xy.netdev.frame.enums.ProtocolRequestEnum;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
+import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.util.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ import static com.xy.netdev.common.util.ByteUtils.byteToNumber;
  * @author cc
  */
 @Service
+@Slf4j
 public class GfPrtcServiceImpl implements IParaPrtclAnalysisService {
 
     @Autowired
@@ -42,6 +44,11 @@ public class GfPrtcServiceImpl implements IParaPrtclAnalysisService {
     @Override
     public FrameRespData queryParaResponse(FrameRespData respData) {
         FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),respData.getCmdMark());
+        if (frameParaInfo == null){
+            log.warn("40W功放数据解析失败,未获取到设备信息 设备类型:{}, cmd:{}, 调用方法BaseInfoContainer.getParaInfoByCmd(devType, cmd), " +
+                            "返回值为:{}", respData.getDevType(), respData.getCmdMark(), null);
+            return null;
+        }
         byte[] bytes = respData.getParamBytes();
         FrameParaData paraInfo = new FrameParaData();
         BeanUtil.copyProperties(frameParaInfo, paraInfo, true);

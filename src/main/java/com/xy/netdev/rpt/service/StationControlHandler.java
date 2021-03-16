@@ -16,6 +16,7 @@ import com.xy.netdev.rpt.bo.RptHeadDev;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -34,6 +35,7 @@ import static com.xy.netdev.common.util.ByteUtils.*;
  * @author cc
  */
 @Component
+@Slf4j
 public class StationControlHandler implements IUpRptPrtclAnalysisService{
 
     @Autowired
@@ -115,7 +117,7 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
                 //调用数据外发
                 this.queryParaResponse(rptHeadDev);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                log.error("站控等待返回缓存结果异常中断, 中断原因:{}", e.getMessage(), e);
             }
         });
     }
@@ -233,7 +235,6 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
             int parmaSize = devParaList.size();
             //设备参数数量
             tempList.add(ByteUtils.objToBytes(parmaSize, 1));
-            //s
             consumer.accept(devParaList, tempList);
         });
         return listToBytes(tempList);

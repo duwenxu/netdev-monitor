@@ -83,6 +83,11 @@ public class BaseInfo extends Model<BaseInfo> {
     @Param
     private String devNetPtcl;
 
+    @ApiModelProperty(value = "设备部署类型")
+    @TableField(value = "DEV_DEPLOY_TYPE")
+    @Param
+    private String devDeployType;
+
     /**
      * 0 代表  上报54所IP
      */

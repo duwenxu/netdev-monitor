@@ -1,6 +1,7 @@
 package com.xy.netdev.frame.base;
 
 import cn.hutool.core.util.HexUtil;
+import com.alibaba.fastjson.JSON;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.factory.ParaPrtclFactory;
@@ -15,8 +16,12 @@ import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.PrtclFormat;
 import com.xy.netdev.network.NettyUtil;
+import io.netty.channel.ChannelFuture;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.xy.netdev.container.BaseInfoContainer.getDevInfo;
 
@@ -50,8 +55,14 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
     @Override
     public void doQuery(T t) {
         byte[] bytes = pack(t);
-        sendData(t, bytes);
-        t.setSendOrignData(HexUtil.encodeHexStr(bytes));
+        //是否发送成功
+        if (sendData(t, bytes)){
+            t.setIsOk("0");
+        }else {
+            t.setIsOk("1");
+        }
+        //设置发送数据
+        t.setSendOrignData(HexUtil.encodeHexStr(bytes).toUpperCase());
     }
 
 
@@ -74,7 +85,7 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
 
     @Override
     @SuppressWarnings("unchecked")
-    public void socketResponse(SocketEntity socketEntity) throws Exception {
+    public void socketResponse(SocketEntity socketEntity) {
         BaseInfo devInfo = getDevInfo(socketEntity.getRemoteAddress());
         FrameRespData frameRespData = new FrameRespData();
         frameRespData.setDevType(devInfo.getDevType());
@@ -101,10 +112,11 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
         frameRespData.setReciveOrignData(HexUtil.encodeHexStr(frameRespData.getParamBytes()));
         frameRespData.setCmdMark(cmdHexStr);
         this.callback(unpack, iParaPrtclAnalysisService, queryInterPrtclAnalysisService);
+        log.info("数据已发送至对应模块, 数据体:{}", JSON.toJSONString(unpack));
     }
 
     /**
-     * 回调
+     * 回调别的模块数据
      * @param r
      * @param iParaPrtclAnalysisService
      * @param iQueryInterPrtclAnalysisService
@@ -113,11 +125,23 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
                                   IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService);
 
 
-    protected void sendData(T t, byte[] bytes) {
+    /**
+     * 数据发送
+     * @param t
+     * @param bytes
+     * @return
+     */
+    protected boolean sendData(T t, byte[] bytes) {
+        AtomicBoolean isOk = new AtomicBoolean(false);
         BaseInfo devInfo = BaseInfoContainer.getDevInfoByNo(t.getDevNo());
         int port = Integer.parseInt(devInfo.getDevPort());
-        NettyUtil.sendMsg(bytes, port, devInfo.getDevIpAddr(), port, Integer.parseInt(devInfo.getDevNetPtcl()));
+        Optional<ChannelFuture> optional =
+                NettyUtil.sendMsg(bytes, port, devInfo.getDevIpAddr(), port, Integer.parseInt(devInfo.getDevNetPtcl()));
+        if (optional.isPresent()){
+            ChannelFuture channelFuture = optional.get();
+            channelFuture.addListener(future -> isOk.set(future.isSuccess()));
+        }
+        return isOk.get();
     }
-
 
 }
