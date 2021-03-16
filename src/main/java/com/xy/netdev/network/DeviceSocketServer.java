@@ -66,7 +66,7 @@ public class DeviceSocketServer {
 //                tcpList.add(baseInfo);
 //            }
 //        });
-        udpPort.add(9988);
+        udpPort.add(9900);
         udpPort.add(9901);
         udpStart(udpPort);
         tcpStart(tcpList);
