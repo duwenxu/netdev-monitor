@@ -36,13 +36,66 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
     private DevCmdSendService devCmdSendService;
 
     /**
+     * 标识：查询所有参数
+     */
+    private static final String ALL_PARAS_QUERY = "0";
+
+    @Override
+    public RptHeadDev doAction(RptHeadDev headDev) {
+        //站控命令标识
+        String cmdMarkHexStr = headDev.getCmdMarkHexStr();
+        RptHeadDev resBody = new RptHeadDev();
+        try {
+            switch (cmdMarkHexStr) {
+                case "0003":
+                    //此处直接从缓存中获取结果；结果将在调用获取缓存时返回，此处不做处理
+                    doParaQueryAction(headDev);
+                    break;
+                case "0005":
+                    doParaSetAction(headDev);
+                    break;
+                case "0007":
+                    resBody = doParaWarnQueryAction((headDev));
+                case "0008":
+//              resBody = doParaSetAction(headDev);
+                default:
+                    break;
+            }
+        } catch (Exception e) {
+            log.error("站控指令请求执行异常...devNo={},cmdMark={}", headDev.getDevNo(), headDev.getCmdMarkHexStr());
+        }
+        return resBody;
+    }
+
+
+    @Override
+    public RptHeadDev queryNewCache(RptHeadDev headDev) {
+        String cmdMarkHexStr = headDev.getCmdMarkHexStr();
+        RptHeadDev resBody = new RptHeadDev();
+        try {
+            switch (cmdMarkHexStr) {
+                case "0004":
+                    resBody = doQuerySetCache(headDev);
+                    break;
+                case "0006":
+                    resBody = doQueryNewCache(headDev);
+                    break;
+                default:
+                    break;
+            }
+        } catch (Exception e) {
+            log.error("站控指令响应查询异常...devNo={},cmdMark={}", headDev.getDevNo(), headDev.getCmdMarkHexStr());
+        }
+        return resBody;
+    }
+
+
+    /**
      * 查询控制响应结果
-     *
      * @param rptHeadDev 参数设置结构体
      * @return 控制响应结果
      */
-    @Override
-    public RptHeadDev queryNewCache(RptHeadDev rptHeadDev) {
+    private RptHeadDev doQuerySetCache(RptHeadDev rptHeadDev) {
         List<RptBodyDev> rptBodyDev = (List<RptBodyDev>) rptHeadDev.getParam();
         String devNo = rptHeadDev.getDevNo();
         //遍历参数设置值
@@ -56,34 +109,10 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
     }
 
     /**
-     * 标识：查询所有参数
+     * 站控 参数查询
+     * @param headDev 参数查询结构体
      */
-    private static final String ALL_PARAS_QUERY = "0";
-
-    @Override
-    public RptHeadDev doAction(RptHeadDev headDev) {
-        //站控命令标识
-        String cmdMarkHexStr = headDev.getCmdMarkHexStr();
-        RptHeadDev resBody = new RptHeadDev();
-        try {
-            switch (cmdMarkHexStr) {
-                case "0003":
-                    resBody = doParaQueryAction(headDev);
-                    break;
-                case "0005":
-                    doParaSetAction(headDev);
-                    break;
-                case "0007":
-                    resBody = doParaWarnQueryAction((headDev));
-                case "0008":
-//              resBody = doParaSetAction(headDev);
-                default:
-                    break;
-            }
-        } catch (Exception e) {
-            log.error("站控指令执行异常...devNo={},cmdMark={}", headDev.getDevNo(), headDev.getCmdMarkHexStr());
-        }
-        return resBody;
+    private void doParaQueryAction(RptHeadDev headDev) {
     }
 
     /**
@@ -145,7 +174,7 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
      * @param headDev 参数查询结构体
      * @return 参数查询响应结果
      */
-    private RptHeadDev doParaQueryAction(RptHeadDev headDev) {
+    private RptHeadDev doQueryNewCache(RptHeadDev headDev) {
         List<RptBodyDev> rptBodyDev = (List<RptBodyDev>) headDev.getParam();
         rptBodyDev.forEach(rptBody -> {
             String devNo = rptBody.getDevNo();
