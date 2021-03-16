@@ -56,7 +56,11 @@ public class DevStatusReportService implements IDevStatusReportService {
         reportDevStatus(devStatusInfo,respData);
     }
 
-
+    /**
+     * 上报设备中断
+     * @param reqData
+     * @param status
+     */
     @Override
     public void rptInterrupted(FrameReqData reqData, String status) {
         DevStatusInfo devStatusInfo = createDevStatusInfo(reqData);
