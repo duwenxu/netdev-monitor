@@ -2,17 +2,16 @@ package com.xy.netdev.rpt.service;
 
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.ArrayUtil;
-import cn.hutool.core.util.StrUtil;
 import com.xy.netdev.common.util.BeanFactoryUtil;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.entity.SocketEntity;
 import com.xy.netdev.monitor.entity.BaseInfo;
-import com.xy.netdev.monitor.entity.PrtclFormat;
 import com.xy.netdev.network.NettyUtil;
 import com.xy.netdev.rpt.bo.RptBodyDev;
 import com.xy.netdev.rpt.bo.RptHeadDev;
+import com.xy.netdev.rpt.enums.AchieveClassNameEnum;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import lombok.Setter;
@@ -76,19 +75,13 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
     private Optional<StationControlHeadEntity> unpackHead(SocketEntity socketEntity, BaseInfo devInfo){
         byte[] bytes = socketEntity.getBytes();
         int cmdMark = bytesToNum(bytes, 0, 2, ByteBuf::readShort);
-        PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(devInfo.getDevType(), Integer.toHexString(cmdMark));
-        if (StrUtil.isBlank(prtclFormat.getFmtHandlerClass())){
-            return Optional.empty();
-        }
         int len = bytesToNum(bytes, 2, 2, ByteBuf::readShort);
         byte[] paramData = byteArrayCopy(bytes, 8, len - 8);
-
         StationControlHeadEntity stationControlHeadEntity = new StationControlHeadEntity();
         stationControlHeadEntity.setBaseInfo(devInfo);
         stationControlHeadEntity.setCmdMark(Integer.toHexString(cmdMark));
         stationControlHeadEntity.setLength(len);
         stationControlHeadEntity.setParamData(paramData);
-        stationControlHeadEntity.setClassName(prtclFormat.getFmtHandlerClass());
         return Optional.of(stationControlHeadEntity);
     }
 
@@ -98,14 +91,16 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
      * @param stationControlHeadEntity 站控对象
      */
     private void receiverSocket(StationControlHeadEntity stationControlHeadEntity){
-        ResponseService responseService = BeanFactoryUtil.getBean(stationControlHeadEntity.getClassName());
-        //数据解析
-        Object param = responseService.unpackBody(stationControlHeadEntity);
-        //数据发送中心
         RptHeadDev rptHeadDev = new RptHeadDev();
         rptHeadDev.setDevNo(stationControlHeadEntity.getBaseInfo().getDevNo());
         rptHeadDev.setCmdMarkHexStr(stationControlHeadEntity.getCmdMark());
+        setAchieveClass(rptHeadDev);
+        ResponseService responseService = BeanFactoryUtil.getBean(rptHeadDev.getAchieveClassNameEnum().getClassName());
+        //数据解析
+        Object param = responseService.unpackBody(stationControlHeadEntity);
+        //数据发送中心
         rptHeadDev.setParam(param);
+
         //执行设备查询/设置流程
         iDownRptPrtclAnalysisService.doAction(rptHeadDev);
         //等待一秒获取缓存更新结果
@@ -125,6 +120,7 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
 
     @Override
     public void queryParaResponse(RptHeadDev headDev) {
+        setAchieveClass(headDev);
         BaseInfo stationInfo = BaseInfoContainer.getDevInfoByNo(headDev.getDevNo());
         RequestService requestService = BeanFactoryUtil.getBean(headDev.getAchieveClassNameEnum().getClassName());
         byte[] bodyBytes = requestService.pack(headDev);
@@ -237,5 +233,37 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
             consumer.accept(devParaList, tempList);
         });
         return listToBytes(tempList);
+    }
+
+
+    /**
+     * 设置站控class
+     * @param rptHeadDev
+     */
+    private static void setAchieveClass(RptHeadDev rptHeadDev){
+        int cmd = Integer.parseInt(rptHeadDev.getCmdMarkHexStr(), 16);
+        AchieveClassNameEnum achieveClassNameEnum = null;
+        switch (cmd){
+            case 1:
+                achieveClassNameEnum = AchieveClassNameEnum.REPORT_STATUS;
+                break;
+            case 2:
+                achieveClassNameEnum = AchieveClassNameEnum.REPORT_WARN;
+                break;
+            case 3:
+            case 4:
+                achieveClassNameEnum = AchieveClassNameEnum.PARAM_QUERY;
+                break;
+            case 5:
+            case 6:
+                achieveClassNameEnum = AchieveClassNameEnum.PARAM_SET;
+                break;
+            case 7:
+            case 8:
+                achieveClassNameEnum = AchieveClassNameEnum.PARAM_WARN;
+                break;
+            default:break;
+        }
+        rptHeadDev.setAchieveClassNameEnum(achieveClassNameEnum);
     }
 }
