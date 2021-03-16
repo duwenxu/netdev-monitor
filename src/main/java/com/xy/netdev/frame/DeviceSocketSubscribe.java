@@ -4,6 +4,7 @@ import cn.hutool.cache.CacheUtil;
 import cn.hutool.cache.impl.FIFOCache;
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.thread.ThreadUtil;
+import cn.hutool.core.util.HexUtil;
 import com.xy.netdev.common.util.BeanFactoryUtil;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.base.AbsDeviceSocketHandler;
@@ -48,23 +49,32 @@ public class DeviceSocketSubscribe {
     public void init(){
         cache = CacheUtil.newFIFOCache(absSocketHandlerList.size());
         ThreadUtil.execAsync(() -> {
+                //noinspection InfiniteLoopStatement
                 while (true){
                     try {
                         SocketEntity socketEntity = SOCKET_QUEUE.take();
                         BaseInfo devInfo = getDevInfo(socketEntity.getRemoteAddress());
                         //站控响应
                         if (devInfo.getIsRptIp()!= null && Integer.parseInt(devInfo.getIsRptIp()) == 0){
+                            log.info("收到站控数据, 远端地址:{}:{},数据体:{}"
+                                    , socketEntity.getRemoteAddress()
+                                    , socketEntity.getRemotePort()
+                                    , HexUtil.encodeHexStr(socketEntity.getBytes()).toUpperCase());
                             stationControlHandler.stationControlReceive(socketEntity);
-                            return;
+                            continue;
                         }
                         //执行设备数据响应
                         Optional<AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData>> socketHandler
                                 = getHandler(socketEntity.getRemoteAddress());
-                        if (socketHandler.isPresent()){
-                            socketHandler.get().socketResponse(socketEntity);
-                        }
+                        socketHandler.ifPresent(handler -> {
+                            log.info("收到设备数据, 远端地址:{}:{},数据体:{}"
+                                    , socketEntity.getRemoteAddress()
+                                    , socketEntity.getRemotePort()
+                                    , HexUtil.encodeHexStr(socketEntity.getBytes()).toUpperCase());
+                            handler.socketResponse(socketEntity);
+                        });
                     } catch (Exception e) {
-                        log.error("Socket数据解析流程异常", e);
+                        log.error("Socket数据解析流程异常, 异常原因:{}", e.getMessage(), e);
                     }
                 }
         }, true);
@@ -84,7 +94,7 @@ public class DeviceSocketSubscribe {
         //设备信息
         BaseInfo devInfo = getDevInfo(ip);
         if (devInfo == null){
-            log.error("未知设备数据, 设备ip:{}", ip);
+            log.error("未找到指定设备信息, 执行方法getDevInfo(ip), 设备ip:{}", ip);
             return Optional.empty();
         }
         //设备网络协议

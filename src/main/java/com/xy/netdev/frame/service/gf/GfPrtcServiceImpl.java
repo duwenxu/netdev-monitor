@@ -45,8 +45,8 @@ public class GfPrtcServiceImpl implements IParaPrtclAnalysisService {
     public FrameRespData queryParaResponse(FrameRespData respData) {
         FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),respData.getCmdMark());
         if (frameParaInfo == null){
-            log.warn("40W功放数据解析失败. 设备类型:{}, cmd:{}, 调用方法BaseInfoContainer.getParaInfoByCmd, 返回值为:{}",
-                    respData.getDevType(), respData.getCmdMark(), null);
+            log.warn("40W功放数据解析失败,未获取到设备信息 设备类型:{}, cmd:{}, 调用方法BaseInfoContainer.getParaInfoByCmd(devType, cmd), " +
+                            "返回值为:{}", respData.getDevType(), respData.getCmdMark(), null);
             return null;
         }
         byte[] bytes = respData.getParamBytes();
