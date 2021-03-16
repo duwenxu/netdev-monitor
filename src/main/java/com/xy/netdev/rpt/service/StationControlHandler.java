@@ -126,8 +126,7 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
     @Override
     public void queryParaResponse(RptHeadDev headDev) {
         BaseInfo stationInfo = BaseInfoContainer.getDevInfoByNo(headDev.getDevNo());
-        PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(stationInfo.getDevType(), headDev.getCmdMarkHexStr());
-        RequestService requestService = BeanFactoryUtil.getBean(prtclFormat.getFmtHandlerClass());
+        RequestService requestService = BeanFactoryUtil.getBean(headDev.getAchieveClassNameEnum().getClassName());
         byte[] bodyBytes = requestService.pack(headDev);
         int port = Integer.parseInt(stationInfo.getDevPort());
         int cmd = Integer.parseInt(headDev.getCmdMarkHexStr(), 16);
