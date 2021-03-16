@@ -63,7 +63,7 @@ public class ParamSetImpl implements RequestService, ResponseService {
                 //参数编号
                 tempList.add(ByteUtils.objToBytes(frameParaData.getParaNo(), 1));
                 //数据响应值
-                tempList.add(ByteUtils.objToBytes(frameParaData.getParaVal(), 2));
+                tempList.add(ByteUtils.objToBytes(frameParaData.getParaSetRes(), 2));
             });
         });
     }

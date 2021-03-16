@@ -362,7 +362,7 @@ public class BaseInfoContainer {
     }
 
     /**
-     * 设备参数转换为帧参数(参数序号、参数下标、设备编号、告警级别)
+     * 设备参数转换为帧参数(参数序号、参数下标、设备编号、告警级别除外)
      * @param paraInfos
      * @return
      */
