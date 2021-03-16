@@ -10,8 +10,10 @@ import com.xy.netdev.frame.entity.SocketEntity;
 import com.xy.netdev.frame.entity.device.ModemEntity;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
+import com.xy.netdev.frame.service.modem.ModemPrtcServiceImpl;
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -27,20 +29,18 @@ import static com.xy.netdev.common.util.ByteUtils.*;
 @Slf4j
 public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData>{
 
+    @Autowired
+    private ModemPrtcServiceImpl prtcService;
 
     @Override
     public void callback(FrameRespData frameRespData, IParaPrtclAnalysisService iParaPrtclAnalysisService,
                          IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService) {
         switch (frameRespData.getCmdMark()){
             case "53":
-                if (iParaPrtclAnalysisService != null){
-                    iParaPrtclAnalysisService.queryParaResponse(frameRespData);
-                    return;
-                }
-                iQueryInterPrtclAnalysisService.queryParaResponse(frameRespData);
+                prtcService.queryParaResponse(frameRespData);
                 break;
             case "41":
-                iParaPrtclAnalysisService.ctrlParaResponse(frameRespData);
+                prtcService.ctrlParaResponse(frameRespData);
                 break;
             default:
                 log.warn("设备:{},未知调制解调器类型:{}", frameRespData.getDevNo(), frameRespData.getCmdMark());
