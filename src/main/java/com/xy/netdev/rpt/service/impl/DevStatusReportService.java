@@ -175,7 +175,7 @@ public class DevStatusReportService implements IDevStatusReportService {
      */
     public void reportWarningAndStaus(FrameRespData respData, List<TransRule> rules, FrameParaData param){
         //根据参数对应设备状态类型结合参数值上报设备状态或告警信息
-        FrameParaInfo paraInfo = BaseInfoContainer.getParaInfoByCmd(param.getDevType(),param.getParaNo());
+        FrameParaInfo paraInfo = BaseInfoContainer.getParaInfoByNo(param.getDevType(),param.getParaNo());
         String type = paraInfo.getAlertPara();
         rules.forEach(rule->{
             if(rule.getInner().equals(param.getParaVal()) || respData.getRespCode().equals("1")) {

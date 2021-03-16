@@ -6,6 +6,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.xy.common.exception.BaseException;
+import com.xy.common.util.ConvertUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
@@ -79,7 +80,7 @@ public class JwtUtil {
 		Date date = new Date(System.currentTimeMillis() + EXPIRE_TIME);
 		Algorithm algorithm = Algorithm.HMAC256(secret);
 		// 附带username信息
-		return JWT.create().withClaim("username", userId).withExpiresAt(date).sign(algorithm);
+		return JWT.create().withClaim("userId", userId).withExpiresAt(date).sign(algorithm);
 
 	}
 
@@ -91,13 +92,12 @@ public class JwtUtil {
 	 * @throws BaseException
 	 */
 	public static Integer getUserIdByToken(HttpServletRequest request) throws BaseException {
-		/*String accessToken = request.getHeader("X-Access-Token");
+		String accessToken = request.getHeader("X-Access-Token");
 		Integer userId = getUserId(accessToken);
 		if (ConvertUtils.isEmpty(userId)) {
 			throw new BaseException("未获取到用户");
 		}
-		return userId;*/
-		return 1;
+		return userId;
 	}
 
 }

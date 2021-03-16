@@ -81,7 +81,7 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
         frameRespData.setDevNo(devInfo.getDevNo());
         R unpack = unpack((Q) socketEntity, (R) frameRespData);
         //转16进制，用来获取协议解析类
-        String cmdHexStr = Integer.toHexString(Integer.parseInt(frameRespData.getCmdMark(), 16));
+        String cmdHexStr = frameRespData.getCmdMark();
         PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameRespData.getDevType(), cmdHexStr);
         IParaPrtclAnalysisService iParaPrtclAnalysisService = null;
         IQueryInterPrtclAnalysisService queryInterPrtclAnalysisService = null;
@@ -89,10 +89,10 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
             //参数
             if (prtclFormat.getIsPrtclParam() == 0){
                 frameRespData.setAccessType(SysConfigConstant.ACCESS_TYPE_PARAM);
-                queryInterPrtclAnalysisService = QueryInterPrtcllFactory.genHandler(prtclFormat.getFmtHandlerClass());
+                iParaPrtclAnalysisService= ParaPrtclFactory.genHandler(prtclFormat.getFmtHandlerClass());
             }else {
                 frameRespData.setAccessType(SysConfigConstant.ACCESS_TYPE_INTERF);
-                iParaPrtclAnalysisService = ParaPrtclFactory.genHandler(prtclFormat.getFmtHandlerClass());
+                queryInterPrtclAnalysisService = QueryInterPrtcllFactory.genHandler(prtclFormat.getFmtHandlerClass());
             }
         } catch (Exception e) {
             log.error("设备:{}, 未找到数据体处理类", frameRespData.getDevNo(), e);

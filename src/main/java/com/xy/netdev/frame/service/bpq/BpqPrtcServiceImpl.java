@@ -104,8 +104,9 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
         FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),respData.getCmdMark());
         List<FrameParaData> frameParaDatas = new ArrayList<>();
         FrameParaData frameParaData = new FrameParaData();
-        frameParaData.setParaVal(value);
         BeanUtil.copyProperties(frameParaInfo, frameParaData, true);
+        frameParaData.setDevNo(respData.getDevNo());
+        frameParaData.setParaVal(value);
         frameParaDatas.add(frameParaData);
         respData.setFrameParaList(frameParaDatas);
         dataReciveService.paraCtrRecive(respData);
