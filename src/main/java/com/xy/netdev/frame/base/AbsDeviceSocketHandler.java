@@ -94,25 +94,24 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
         //转16进制，用来获取协议解析类
         String cmdHexStr = Integer.toHexString(Integer.parseInt(frameRespData.getCmdMark(),16));
         PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameRespData.getDevType(), cmdHexStr);
-        IParaPrtclAnalysisService iParaPrtclAnalysisService = null;
-        IQueryInterPrtclAnalysisService queryInterPrtclAnalysisService = null;
-        try {
-            //参数
-            if (prtclFormat.getIsPrtclParam() == 0){
-                frameRespData.setAccessType(SysConfigConstant.ACCESS_TYPE_PARAM);
-                iParaPrtclAnalysisService = ParaPrtclFactory.genHandler(prtclFormat.getFmtHandlerClass());
-            }else {
-                frameRespData.setAccessType(SysConfigConstant.ACCESS_TYPE_INTERF);
-                queryInterPrtclAnalysisService = QueryInterPrtcllFactory.genHandler(prtclFormat.getFmtHandlerClass());
-            }
-        } catch (Exception e) {
-            log.error("设备:{}, 未找到数据体处理类", frameRespData.getDevNo(), e);
+        if (prtclFormat == null){
+            log.warn("设备:{}, 未找到数据体处理类", frameRespData.getDevNo());
             return;
         }
-        frameRespData.setReciveOrignData(HexUtil.encodeHexStr(frameRespData.getParamBytes()));
+        IParaPrtclAnalysisService iParaPrtclAnalysisService = null;
+        IQueryInterPrtclAnalysisService queryInterPrtclAnalysisService = null;
+        //参数
+        if (prtclFormat.getIsPrtclParam() == 0){
+            frameRespData.setAccessType(SysConfigConstant.ACCESS_TYPE_PARAM);
+            iParaPrtclAnalysisService = ParaPrtclFactory.genHandler(prtclFormat.getFmtHandlerClass());
+        }else {
+            frameRespData.setAccessType(SysConfigConstant.ACCESS_TYPE_INTERF);
+            queryInterPrtclAnalysisService = QueryInterPrtcllFactory.genHandler(prtclFormat.getFmtHandlerClass());
+        }
+        frameRespData.setReciveOrignData(HexUtil.encodeHexStr(socketEntity.getBytes()).toUpperCase());
         frameRespData.setCmdMark(cmdHexStr);
         this.callback(unpack, iParaPrtclAnalysisService, queryInterPrtclAnalysisService);
-        log.info("数据已发送至对应模块, 数据体:{}", JSON.toJSONString(unpack));
+        log.debug("设备数据已发送至对应模块, 数据体:{}", JSON.toJSONString(unpack));
     }
 
     /**

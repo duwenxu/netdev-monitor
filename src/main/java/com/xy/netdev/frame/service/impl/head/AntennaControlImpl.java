@@ -29,7 +29,11 @@ public class AntennaControlImpl extends AbsDeviceSocketHandler<SocketEntity, Fra
     @Override
     public void callback(FrameRespData frameRespData, IParaPrtclAnalysisService iParaPrtclAnalysisService,
                          IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService) {
-        iParaPrtclAnalysisService.ctrlParaResponse(frameRespData);
+        if (iParaPrtclAnalysisService != null){
+            iParaPrtclAnalysisService.ctrlParaResponse(frameRespData);
+            return;
+        }
+        iQueryInterPrtclAnalysisService.queryParaResponse(frameRespData);
     }
 
     @Override

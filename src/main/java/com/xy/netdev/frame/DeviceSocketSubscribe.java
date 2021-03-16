@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import static com.xy.netdev.container.BaseInfoContainer.getDevInfo;
 import static com.xy.netdev.network.NettyUtil.SOCKET_QUEUE;
@@ -56,7 +57,7 @@ public class DeviceSocketSubscribe {
                         BaseInfo devInfo = getDevInfo(socketEntity.getRemoteAddress());
                         //站控响应
                         if (devInfo.getIsRptIp()!= null && Integer.parseInt(devInfo.getIsRptIp()) == 0){
-                            log.info("收到站控数据, 远端地址:{}:{},数据体:{}"
+                            log.debug("收到站控数据, 远端地址:{}:{},数据体:{}"
                                     , socketEntity.getRemoteAddress()
                                     , socketEntity.getRemotePort()
                                     , HexUtil.encodeHexStr(socketEntity.getBytes()).toUpperCase());
@@ -67,7 +68,7 @@ public class DeviceSocketSubscribe {
                         Optional<AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData>> socketHandler
                                 = getHandler(socketEntity.getRemoteAddress());
                         socketHandler.ifPresent(handler -> {
-                            log.info("收到设备数据, 远端地址:{}:{},数据体:{}"
+                            log.debug("收到设备数据, 远端地址:{}:{},数据体:{}"
                                     , socketEntity.getRemoteAddress()
                                     , socketEntity.getRemotePort()
                                     , HexUtil.encodeHexStr(socketEntity.getBytes()).toUpperCase());
@@ -103,4 +104,5 @@ public class DeviceSocketSubscribe {
         cache.put(ip, handler, DateUnit.MINUTE.getMillis());
         return Optional.of(handler);
     }
+
 }
