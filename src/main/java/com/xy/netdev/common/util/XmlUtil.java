@@ -24,6 +24,7 @@ public class XmlUtil {
      * @return
      */
     public static String convertToXml(Object obj) {
+        //此处增加Feature.OrderedField是为了不影响字段的顺序
         return JsonXmlUtils.jsonToFormatXml(JSONObject.parseObject(JSON.toJSONString(obj), Feature.OrderedField));
     }
     /**

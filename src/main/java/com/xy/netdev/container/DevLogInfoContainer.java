@@ -115,7 +115,7 @@ public class DevLogInfoContainer {
         return devParaSetRespStatusMap.get(devNo);
     }
     /**
-     * @功能：根据设备编号 获取该设备下所有参数响应状态
+     * @功能：根据设备编号 获取该设备下指定参数响应状态
      * @param devNo        设备编号
      * @param paraNo            设备参数编号
      * @return  设备参数状态

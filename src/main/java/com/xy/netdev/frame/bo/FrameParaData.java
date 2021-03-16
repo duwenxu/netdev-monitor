@@ -25,6 +25,9 @@ public class FrameParaData {
 
     @ApiModelProperty(value = "参数值")
     private String paraVal;
+
+    @ApiModelProperty(value = "参数设置响应值")
+    private String paraSetRes;
     /**
      * 参数表中 0020
      */

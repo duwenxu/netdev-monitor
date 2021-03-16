@@ -1,21 +1,25 @@
 package com.xy.netdev.rpt.service.impl;
 
 import com.xy.netdev.common.constant.SysConfigConstant;
+import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.container.DevAlertInfoContainer;
+import com.xy.netdev.container.DevLogInfoContainer;
 import com.xy.netdev.container.DevParaInfoContainer;
-import com.xy.netdev.container.DevStatusContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
-import com.xy.netdev.monitor.bo.DevStatusInfo;
+import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.bo.ParaViewInfo;
 import com.xy.netdev.monitor.entity.AlertInfo;
 import com.xy.netdev.rpt.bo.RptBodyDev;
 import com.xy.netdev.rpt.bo.RptHeadDev;
+import com.xy.netdev.rpt.enums.StationCtlRequestEnums;
 import com.xy.netdev.rpt.service.IDownRptPrtclAnalysisService;
+import com.xy.netdev.transit.impl.DevCmdSendService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -25,37 +29,114 @@ import java.util.stream.Collectors;
  * @create 2021-03-15 11:19
  */
 @Service
+@Slf4j
 public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisService {
+
+    @Autowired
+    private DevCmdSendService devCmdSendService;
+
+    /**
+     * 查询控制响应结果
+     *
+     * @param rptHeadDev 参数设置结构体
+     * @return 控制响应结果
+     */
+    @Override
+    public RptHeadDev queryNewCache(RptHeadDev rptHeadDev) {
+        List<RptBodyDev> rptBodyDev = (List<RptBodyDev>) rptHeadDev.getParam();
+        String devNo = rptHeadDev.getDevNo();
+        //遍历参数设置值
+        rptBodyDev.forEach(body -> {
+            body.getDevParaList().forEach(para -> {
+                String respStatus = DevLogInfoContainer.getDevParaRespStatus(devNo, para.getParaNo());
+                para.setParaSetRes(respStatus);
+            });
+        });
+        return rptHeadDev;
+    }
+
     /**
      * 标识：查询所有参数
      */
     private static final String ALL_PARAS_QUERY = "0";
 
     @Override
-    public RptHeadDev queryNewCache(RptHeadDev rptHeadDev) {
-        return null;
-    }
-
-    @Override
     public RptHeadDev doAction(RptHeadDev headDev) {
         //站控命令标识
         String cmdMarkHexStr = headDev.getCmdMarkHexStr();
         RptHeadDev resBody = new RptHeadDev();
-        switch (cmdMarkHexStr) {
-            case "0003":
-                resBody = doParaQueryAction(headDev);
-                break;
-            case "0005":
-//                resBody = doParaSetAction(headDev);
-                break;
-            case "0007":
-                resBody = doParaWarnQueryAction((headDev));
-            case "0008":
+        try {
+            switch (cmdMarkHexStr) {
+                case "0003":
+                    resBody = doParaQueryAction(headDev);
+                    break;
+                case "0005":
+                    doParaSetAction(headDev);
+                    break;
+                case "0007":
+                    resBody = doParaWarnQueryAction((headDev));
+                case "0008":
 //              resBody = doParaSetAction(headDev);
-            default:
-                break;
+                default:
+                    break;
+            }
+        } catch (Exception e) {
+            log.error("站控指令执行异常...devNo={},cmdMark={}", headDev.getDevNo(), headDev.getCmdMarkHexStr());
         }
         return resBody;
+    }
+
+    /**
+     * 站控 参数设置
+     *
+     * @param headDev 参数设置结构体
+     */
+    private void doParaSetAction(RptHeadDev headDev) {
+        Thread.currentThread().setName(headDev.getDevNo() + "doParaSetAction-thread");
+        List<RptBodyDev> rptBodyDev = (List<RptBodyDev>) headDev.getParam();
+        //阻塞式的进行参数设置调用
+        rptBodyDev.forEach(rptBody -> {
+            String devNo = rptBody.getDevNo();
+            //请求间隔
+            Integer intervalTime = BaseInfoContainer.getDevInfoByNo(devNo).getDevIntervalTime();
+            //参数设置请求初始化
+            List<FrameParaData> canBeWriteFrameDataList = initParaSetAction(rptBody);
+            for (FrameParaData paraData : canBeWriteFrameDataList) {
+                try {
+                    Thread.sleep(intervalTime);
+                } catch (InterruptedException e) {
+                    log.error("线程+{}+休眠发生异常！", Thread.currentThread().getName());
+                }
+                String cmkMark = BaseInfoContainer.getParaInfoByNo(paraData.getDevType(), paraData.getParaNo()).getCmdMark();
+                //参数控制
+                devCmdSendService.paraCtrSend(devNo, cmkMark, paraData.getParaVal());
+            }
+        });
+    }
+
+    /**
+     * 初始化设置响应状态 不可写的设置为 不合法|其它先设置为 未响应
+     *
+     * @param rptBody 单个设备的上报对象
+     * @return 可设置的参数列表
+     */
+    private List<FrameParaData> initParaSetAction(RptBodyDev rptBody) {
+        List<FrameParaData> devParaList = rptBody.getDevParaList();
+        String devNo = rptBody.getDevNo();
+        //初始化设置响应
+        devParaList.forEach(para -> DevLogInfoContainer.initParaRespStatus(devNo, para.getParaNo()));
+        devParaList = devParaList.stream().filter(para -> {
+            String paraNo = para.getParaNo();
+            FrameParaInfo targetParaInfo = BaseInfoContainer.getParaInfoByNo(para.getDevType(), paraNo);
+            String accessRight = targetParaInfo.getNdpaAccessRight();
+            //若为只读参数则不可写
+            boolean canBeWrite = SysConfigConstant.READ_WRITE.equals(accessRight) || SysConfigConstant.ONLY_WRITE.equals(accessRight);
+            if (!canBeWrite) {
+                DevLogInfoContainer.setParaRespIllegalStatus(devNo, paraNo);
+            }
+            return canBeWrite;
+        }).collect(Collectors.toList());
+        return devParaList;
     }
 
     /**
@@ -94,9 +175,9 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
             rptBody.setDevParaList(resFrameParaList);
         });
         headDev.setParam(rptBodyDev);
+        headDev.setCmdMarkHexStr(StationCtlRequestEnums.PARA_QUERY_RESPONSE.getCmdCode());
         return headDev;
     }
-
 
     private FrameParaData frameParaDataWrapper(ParaViewInfo paraView) {
         return FrameParaData.builder()

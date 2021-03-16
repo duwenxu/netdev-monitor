@@ -135,7 +135,7 @@ public class BaseInfoController {
         } catch (IOException e) {
             return new Result<>().error500(e.getMessage());
         }
-        return ControllerResultWrapper.genOkResult();
+        return null;
     }
 
 }

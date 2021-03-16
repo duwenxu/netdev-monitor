@@ -50,15 +50,16 @@ public class ModemPrtcServiceImpl implements IParaPrtclAnalysisService {
      */
     @Override
     public FrameRespData ctrlParaResponse(FrameRespData respData) {
-        String orignData = respData.getReciveOrignData();
+        String data = new String(respData.getParamBytes());
+//        String orignData = respData.getReciveOrignData();
         String controlSuccessCode = sysParamService.getParaRemark1(SysConfigConstant.CONTROL_SUCCESS);
         String controlFailCode = sysParamService.getParaRemark1(SysConfigConstant.CONTROL_FAIL);
-        if (controlSuccessCode.equals(orignData)) {
+        if (controlSuccessCode.equals(data)) {
             respData.setRespCode("控制成功");
-        } else if (controlFailCode.equals(orignData)) {
+        } else if (controlFailCode.equals(data)) {
             respData.setRespCode("控制失败");
         } else {
-            throw new IllegalStateException("调制解调器控制响应异常，数据字节：" + orignData);
+            throw new IllegalStateException("调制解调器控制响应异常，数据字节：" + data);
         }
         return respData;
     }
