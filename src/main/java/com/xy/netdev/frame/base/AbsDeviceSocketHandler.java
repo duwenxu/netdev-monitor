@@ -1,7 +1,9 @@
 package com.xy.netdev.frame.base;
 
 import cn.hutool.core.util.HexUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
+import com.google.common.base.Strings;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.factory.ParaPrtclFactory;
@@ -18,6 +20,7 @@ import com.xy.netdev.monitor.entity.PrtclFormat;
 import com.xy.netdev.network.NettyUtil;
 import io.netty.channel.ChannelFuture;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -92,27 +95,31 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
         frameRespData.setDevNo(devInfo.getDevNo());
         R unpack = unpack((Q) socketEntity, (R) frameRespData);
         //转16进制，用来获取协议解析类
-        String cmdHexStr = frameRespData.getCmdMark();
+        String cmdHexStr;
+        if (StringUtils.isNumeric(frameRespData.getCmdMark())){
+            cmdHexStr = Integer.toHexString(Integer.parseInt(frameRespData.getCmdMark(),16));
+        }else {
+            cmdHexStr = frameRespData.getCmdMark();
+        }
         PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameRespData.getDevType(), cmdHexStr);
-        IParaPrtclAnalysisService iParaPrtclAnalysisService = null;
-        IQueryInterPrtclAnalysisService queryInterPrtclAnalysisService = null;
-        try {
-            //参数
-            if (prtclFormat.getIsPrtclParam() == 0){
-                frameRespData.setAccessType(SysConfigConstant.ACCESS_TYPE_PARAM);
-                iParaPrtclAnalysisService= ParaPrtclFactory.genHandler(prtclFormat.getFmtHandlerClass());
-            }else {
-                frameRespData.setAccessType(SysConfigConstant.ACCESS_TYPE_INTERF);
-                queryInterPrtclAnalysisService = QueryInterPrtcllFactory.genHandler(prtclFormat.getFmtHandlerClass());
-            }
-        } catch (Exception e) {
-            log.error("设备:{}, 未找到数据体处理类", frameRespData.getDevNo(), e);
+        if (prtclFormat == null){
+            log.warn("设备:{}, 未找到数据体处理类", frameRespData.getDevNo());
             return;
         }
-        frameRespData.setReciveOrignData(HexUtil.encodeHexStr(frameRespData.getParamBytes()));
+        IParaPrtclAnalysisService iParaPrtclAnalysisService = null;
+        IQueryInterPrtclAnalysisService queryInterPrtclAnalysisService = null;
+        //参数
+        if (prtclFormat.getIsPrtclParam() == 0){
+            frameRespData.setAccessType(SysConfigConstant.ACCESS_TYPE_PARAM);
+            iParaPrtclAnalysisService = ParaPrtclFactory.genHandler(prtclFormat.getFmtHandlerClass());
+        }else {
+            frameRespData.setAccessType(SysConfigConstant.ACCESS_TYPE_INTERF);
+            queryInterPrtclAnalysisService = QueryInterPrtcllFactory.genHandler(prtclFormat.getFmtHandlerClass());
+        }
+        frameRespData.setReciveOrignData(HexUtil.encodeHexStr(socketEntity.getBytes()).toUpperCase());
         frameRespData.setCmdMark(cmdHexStr);
         this.callback(unpack, iParaPrtclAnalysisService, queryInterPrtclAnalysisService);
-        log.info("数据已发送至对应模块, 数据体:{}", JSON.toJSONString(unpack));
+        log.debug("设备数据已发送至对应模块, 数据体:{}", JSON.toJSONString(unpack));
     }
 
     /**
