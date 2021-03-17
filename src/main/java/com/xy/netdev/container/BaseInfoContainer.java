@@ -343,13 +343,10 @@ public class BaseInfoContainer {
      * @param devNo   设备编号
      * @return  接口解析协议
      */
-    public static List<BaseInfo> getDevsFatByDevNo(String devNo){
+    public static List<BaseInfo> getDevsFatByDevNo(String devNo) {
         List<BaseInfo> baseInfos = new ArrayList<>();
-        BaseInfo baseInfo = getDevInfoByNo(devNo);
-        if(baseInfo != null){
-            if(!StringUtils.isBlank(baseInfo.getDevParentNo())){
-                baseInfos = devNoMap.values().stream().filter(baseInfo1 -> devNo.equals(baseInfo.getDevNo())).collect(Collectors.toList());
-            }
+        if (!StringUtils.isBlank(getDevInfoByNo(devNo).getDevParentNo())) {
+            baseInfos = devNoMap.values().stream().filter(baseInfo -> devNo.equals(baseInfo.getDevNo())).collect(Collectors.toList());
         }
         return baseInfos;
     }
