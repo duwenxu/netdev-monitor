@@ -71,7 +71,6 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
             frameParaList.add(paraInfo);
         }
         respData.setFrameParaList(frameParaList);
-        respData.setCmdType(1);
         dataReciveService.paraQueryRecive(respData);
         return respData;
     }
