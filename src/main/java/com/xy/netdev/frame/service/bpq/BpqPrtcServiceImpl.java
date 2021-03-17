@@ -72,7 +72,6 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
         BeanUtil.copyProperties(frameParaInfo, frameParaData, true);
         frameParas.add(frameParaData);
         respData.setFrameParaList(frameParas);
-        respData.setCmdType(1);
         dataReciveService.paraQueryRecive(respData);
         return respData;
     }
@@ -110,7 +109,6 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
         frameParaData.setParaVal(value);
         frameParaDatas.add(frameParaData);
         respData.setFrameParaList(frameParaDatas);
-        respData.setCmdType(1);
         dataReciveService.paraCtrRecive(respData);
         return respData;
     }
