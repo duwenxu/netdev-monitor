@@ -19,11 +19,13 @@ import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.PrtclFormat;
 import com.xy.netdev.network.NettyUtil;
 import io.netty.channel.ChannelFuture;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.xy.netdev.container.BaseInfoContainer.getDevInfo;
@@ -55,17 +57,22 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
         }
     }
 
+    @SneakyThrows
     @Override
     public void doQuery(T t) {
         byte[] bytes = pack(t);
         //是否发送成功
-        if (sendData(t, bytes)){
-            t.setIsOk("0");
-        }else {
-            t.setIsOk("1");
-        }
-        //设置发送数据
-        t.setSendOrignData(HexUtil.encodeHexStr(bytes).toUpperCase());
+        sendData(t, bytes).ifPresent(channelFuture -> channelFuture.addListener(future -> {
+            if (future.isSuccess()){
+                t.setIsOk("0");
+            }else {
+                t.setIsOk("1");
+            }
+            //设置发送数据
+            t.setSendOrignData(HexUtil.encodeHexStr(bytes).toUpperCase());
+        }));
+        //延迟500毫秒等待结果
+        TimeUnit.MILLISECONDS.sleep(500);
     }
 
 
@@ -143,17 +150,11 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
      * @param bytes
      * @return
      */
-    protected boolean sendData(T t, byte[] bytes) {
-        AtomicBoolean isOk = new AtomicBoolean(false);
+    @SneakyThrows
+    protected  Optional<ChannelFuture> sendData(T t, byte[] bytes) {
         BaseInfo devInfo = BaseInfoContainer.getDevInfoByNo(t.getDevNo());
         int port = Integer.parseInt(devInfo.getDevPort());
-        Optional<ChannelFuture> optional =
-                NettyUtil.sendMsg(bytes, port, devInfo.getDevIpAddr(), port, Integer.parseInt(devInfo.getDevNetPtcl()));
-        if (optional.isPresent()){
-            ChannelFuture channelFuture = optional.get();
-            channelFuture.addListener(future -> isOk.set(future.isSuccess()));
-        }
-        return isOk.get();
+        return NettyUtil.sendMsg(bytes, port, devInfo.getDevIpAddr(), port, Integer.parseInt(devInfo.getDevNetPtcl()));
     }
 
     public static void main(String[] args) {
