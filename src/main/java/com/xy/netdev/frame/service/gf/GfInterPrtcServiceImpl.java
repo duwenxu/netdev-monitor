@@ -1,8 +1,10 @@
 package com.xy.netdev.frame.service.gf;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
+import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
@@ -11,6 +13,7 @@ import com.xy.netdev.frame.enums.ProtocolRequestEnum;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
+import com.xy.netdev.transit.IDataReciveService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +41,7 @@ public class GfInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
     @Override
     public void queryPara(FrameReqData reqInfo) {
         reqInfo.setAccessType(SysConfigConstant.ACCESS_TYPE_PARAM);
+        setParamBytes(reqInfo);
         socketMutualService.request(reqInfo, ProtocolRequestEnum.QUERY);
     }
 
@@ -59,5 +63,20 @@ public class GfInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
                 }).collect(Collectors.toList());
         respData.setFrameParaList(frameParaDataList);
         return respData;
+    }
+
+    public static void setParamBytes(FrameReqData reqInfo) {
+        List<FrameParaData> frameParaList = reqInfo.getFrameParaList();
+        List<byte[]> bytes = frameParaList.stream()
+                .filter(frameParaData -> StrUtil.isNotBlank(frameParaData.getParaVal()))
+                .peek(frameParaData -> {
+                    //防止null
+                    if (Objects.isNull(frameParaData.getLen())){
+                        frameParaData.setLen(1);
+                    }
+                })
+                .map(frameParaData -> ByteUtils.objToBytes(frameParaData.getParaVal(), frameParaData.getLen()))
+                .collect(Collectors.toList());
+        reqInfo.setParamBytes(ByteUtils.listToBytes(bytes));
     }
 }

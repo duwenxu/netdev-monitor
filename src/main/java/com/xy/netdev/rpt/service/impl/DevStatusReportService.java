@@ -225,13 +225,13 @@ public class DevStatusReportService implements IDevStatusReportService {
         //参数返回值是否产生告警
         if (status.equals(SysConfigConstant.RPT_DEV_STATUS_ISALARM_YES)) {
             BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(respData.getDevNo());
-            FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),respData.getCmdMark());
-            String alertDesc = DataHandlerHelper.genAlertDesc(baseInfo,frameParaInfo);
+            String alertDesc = DataHandlerHelper.genAlertDesc(baseInfo,paraInfo);
             AlertInfo alertInfo = new AlertInfo().builder()
                     .devType(respData.getDevType())
                     .alertLevel(paraInfo.getAlertLevel())
                     .devNo(respData.getDevNo())
                     .alertTime(DateUtils.now())
+                    .alertNum(1)
                     .ndpaNo(paraInfo.getParaNo())
                     .alertDesc(alertDesc).build();
             DevAlertInfoContainer.addAlertInfo(alertInfo);
@@ -249,9 +249,7 @@ public class DevStatusReportService implements IDevStatusReportService {
     private RptHeadDev crateRptHeadDev(AlertInfo alertInfo){
         RptHeadDev rptHeadDev = new RptHeadDev();
         rptHeadDev.setStationNo(sysParamService.getParaRemark1(SysConfigConstant.PUBLIC_PARA_STATION_NO));
-        List<AlertInfo> alertInfos = new ArrayList<>();
-        alertInfos.add(alertInfo);
-        rptHeadDev.setParam(alertInfos);
+        rptHeadDev.setParam(alertInfo);
         rptHeadDev.setDevNum(1);
         rptHeadDev.setCmdMarkHexStr(StationCtlRequestEnums.PARA_ALARM_REPORT.getCmdCode());
         rptHeadDev.setDevNo(alertInfo.getDevNo());

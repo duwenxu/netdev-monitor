@@ -77,7 +77,9 @@ public class BaseInfoController {
     @PostMapping
     public Result<BaseInfo> add(BaseInfo data,HttpServletRequest req) {
         Integer userId = JwtUtil.getUserIdByToken(req);
-        return ControllerHelper.add(data, baseInfoService);
+        Result<BaseInfo> result = ControllerHelper.add(data, baseInfoService);
+        baseInfoService.devStatusUpdate(data.getDevNo(), null);
+        return result;
     }
 
     /**
@@ -87,7 +89,9 @@ public class BaseInfoController {
     @ApiOperation(value = "更新设备信息", notes = "更新设备信息")
     @PutMapping
     public Result<BaseInfo> edit(BaseInfo data) {
-        return ControllerHelper.edit(data, baseInfoService);
+        Result<BaseInfo> result = ControllerHelper.edit(data, baseInfoService);
+        baseInfoService.devStatusUpdate(data.getDevNo(), null);
+        return result;
     }
 
     /**
@@ -97,7 +101,10 @@ public class BaseInfoController {
     @ApiOperation(value = "删除设备信息", notes = "删除设备信息")
     @DeleteMapping("/{id}")
     public Result<BaseInfo> delete(@PathVariable String id) {
-        return ControllerHelper.delete(id, baseInfoService);
+        String devParentNo = this.baseInfoService.getById(id).getDevParentNo();
+        Result<BaseInfo> result = ControllerHelper.delete(id, baseInfoService);
+        baseInfoService.devStatusUpdate(null, devParentNo);
+        return result;
     }
 
     /**
@@ -111,6 +118,21 @@ public class BaseInfoController {
         Result<Object> result = new Result<>();
         result.setResult(map);
         return result;
+    }
+
+    /**
+     * 切换当前正在使用的设备
+     * @return 请求结果
+     */
+    @ApiOperation(value = "切换主设备", notes = "切换主设备")
+    @GetMapping("/changeMaster")
+    public Result<Object> changeUseStatus(String devNo) {
+        boolean isOk = baseInfoService.changeUseStatus(devNo);
+        if (isOk){
+            return new Result<>().ok();
+        }else {
+            return new Result<>().error500("主备切换失败");
+        }
     }
 
     /**

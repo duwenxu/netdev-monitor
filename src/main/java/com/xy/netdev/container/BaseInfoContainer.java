@@ -17,6 +17,9 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.xy.netdev.common.constant.SysConfigConstant.DEV_DEPLOY_MASTER;
+import static com.xy.netdev.common.constant.SysConfigConstant.DEV_DEPLOY_SLAVE;
+
 /**
  * <p>
  *基础信息容器类
@@ -348,7 +351,9 @@ public class BaseInfoContainer {
         //获取父设备
         String parId = getDevInfoByNo(devNo).getDevParentNo();
         if (!StringUtils.isBlank(parId)) {
-            baseInfos = devNoMap.values().stream().filter(baseInfo -> parId.equals(baseInfo.getDevParentNo())).collect(Collectors.toList());
+            baseInfos = devNoMap.values().stream().filter(baseInfo -> parId.equals(baseInfo.getDevParentNo()))
+                    .filter(base -> DEV_DEPLOY_MASTER.equals(base.getDevDeployType()) || DEV_DEPLOY_SLAVE.equals(base.getDevDeployType()))
+                    .collect(Collectors.toList());
         }
         return baseInfos;
     }
