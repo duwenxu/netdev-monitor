@@ -62,18 +62,10 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
     public void doQuery(T t) {
         byte[] bytes = pack(t);
         //是否发送成功
-        sendData(t, bytes).ifPresent(channelFuture -> channelFuture.addListener(future -> {
-            if (future.isSuccess()){
-                t.setIsOk("0");
-            }else {
-                t.setIsOk("1");
-            }
-            //设置发送数据
-            t.setSendOrignData(HexUtil.encodeHexStr(bytes).toUpperCase());
-        }));
-        //延迟500毫秒等待结果
-        TimeUnit.MILLISECONDS.sleep(500);
+        sendMsg(t, bytes);
     }
+
+
 
 
     @Override
@@ -155,6 +147,20 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
         BaseInfo devInfo = BaseInfoContainer.getDevInfoByNo(t.getDevNo());
         int port = Integer.parseInt(devInfo.getDevPort());
         return NettyUtil.sendMsg(bytes, port, devInfo.getDevIpAddr(), port, Integer.parseInt(devInfo.getDevNetPtcl()));
+    }
+
+    private void sendMsg(T t, byte[] bytes) throws InterruptedException {
+        sendData(t, bytes).ifPresent(channelFuture -> channelFuture.addListener(future -> {
+            if (future.isSuccess()){
+                t.setIsOk("0");
+            }else {
+                t.setIsOk("1");
+            }
+            //设置发送数据
+            t.setSendOrignData(HexUtil.encodeHexStr(bytes).toUpperCase());
+        }));
+        //延迟500毫秒等待结果
+        TimeUnit.MILLISECONDS.sleep(500);
     }
 
     public static void main(String[] args) {
