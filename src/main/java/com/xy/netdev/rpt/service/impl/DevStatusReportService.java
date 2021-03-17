@@ -225,8 +225,7 @@ public class DevStatusReportService implements IDevStatusReportService {
         //参数返回值是否产生告警
         if (status.equals(SysConfigConstant.RPT_DEV_STATUS_ISALARM_YES)) {
             BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(respData.getDevNo());
-            FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),respData.getCmdMark());
-            String alertDesc = DataHandlerHelper.genAlertDesc(baseInfo,frameParaInfo);
+            String alertDesc = DataHandlerHelper.genAlertDesc(baseInfo,paraInfo);
             AlertInfo alertInfo = new AlertInfo().builder()
                     .devType(respData.getDevType())
                     .alertLevel(paraInfo.getAlertLevel())

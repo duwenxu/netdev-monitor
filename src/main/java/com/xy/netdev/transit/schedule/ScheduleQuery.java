@@ -40,8 +40,6 @@ public class ScheduleQuery implements ApplicationRunner {
         log.info("-----设备状态定时查询开始...");
         try {
             doScheduleQuery();
-            doScheduleReport();
-
         } catch (Exception e) {
             log.error("设备状态定时查询异常...", e);
         }
