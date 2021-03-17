@@ -19,6 +19,7 @@ import com.xy.netdev.rpt.enums.StationCtlRequestEnums;
 import com.xy.netdev.rpt.service.IDevStatusReportService;
 import com.xy.netdev.rpt.service.IUpRptPrtclAnalysisService;
 import com.xy.netdev.transit.util.DataHandlerHelper;
+import com.xy.netdev.websocket.send.DevIfeMegSend;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -136,6 +137,9 @@ public class DevStatusReportService implements IDevStatusReportService {
      */
     private void reportDevStatus(DevStatusInfo devStatusInfo){
         RptHeadDev rptHeadDev = crateRptHeadDev(devStatusInfo);
+        //推送前端
+        DevIfeMegSend.sendDevStatusToDev();
+        //上报站控
         upRptPrtclAnalysisService.queryParaResponse(rptHeadDev);
     }
 
