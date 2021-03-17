@@ -136,7 +136,6 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
                 , ByteUtils.objToBytes(0, 4)
                 //数据字段
                 , bodyBytes);
-
         NettyUtil.sendMsg(bytes, port, stationInfo.getDevIpAddr(), port, Integer.parseInt(stationInfo.getDevNetPtcl()));
     }
 
