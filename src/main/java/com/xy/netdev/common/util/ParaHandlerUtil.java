@@ -32,7 +32,7 @@ public class ParaHandlerUtil {
      * @return
      */
     public static String generateEmptyStr(String str){
-        return StringUtils.isBlank(str)? "" : str ;
+        return StringUtils.isBlank(str)? null : str ;
     }
 
 }

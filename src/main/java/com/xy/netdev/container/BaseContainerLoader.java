@@ -79,7 +79,7 @@ public class BaseContainerLoader {
      * 加载设备参数信息
      */
     private void initDevParam(){
-//查询有效的参数列表
+        //查询有效的参数列表
         List<ParaInfo> paraInfos = paraInfoService.list().stream().filter(paraInfo -> paraInfo.getNdpaStatus().equals(SysConfigConstant.STATUS_OK)).collect(Collectors.toList());
         DevParaInfoContainer.initData(paraInfos);
     }
