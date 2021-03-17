@@ -17,11 +17,12 @@
         <result column="DEV_INTERVAL_TIME" property="devIntervalTime" />
         <result column="DEV_NET_PTCL" property="devNetPtcl" />
         <result column="DEV_DEPLOY_TYPE" property="devDeployType" />
+        <result column="DEV_USE_STATUS" property="devUseStatus" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        DEV_NO, DEV_TYPE, DEV_NAME, DEV_STATUS, DEV_CORP, DEV_VER, DEV_IP_ADDR, DEV_LOCAL_ADDR, DEV_PORT, DEV_PARENT_NO, DEV_INTERVAL_TIME,DEV_NET_PTCL,DEV_DEPLOY_TYPE
+        DEV_NO, DEV_TYPE, DEV_NAME, DEV_STATUS, DEV_CORP, DEV_VER, DEV_IP_ADDR, DEV_LOCAL_ADDR, DEV_PORT, DEV_PARENT_NO, DEV_INTERVAL_TIME,DEV_NET_PTCL,DEV_DEPLOY_TYPE,DEV_USE_STATUS
     </sql>
 
 

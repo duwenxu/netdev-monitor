@@ -117,7 +117,7 @@ public class InterfaceController {
     @RequestMapping(value = "/updateCache", method = RequestMethod.GET)
     public Result<List<TransUiData>> updateCache()  {
         //目前暂时这样，后续有优化方案再继续
-        BaseInfo.initBaseInfo();
+        BaseInfo.load();
         return ControllerResultWrapper.genOkResult();
     }
 
