@@ -66,7 +66,9 @@ public class DevLogInfoContainer {
      * @return
      */
     public synchronized static void addDevLog(OperLog devLog) {
-        devLogInfoMap.get(devLog.getDevNo()).put(DateTools.getDateTime(),devLog);
+        String logTime = DateTools.getDateTime();
+        devLog.setLogTime(logTime);
+        devLogInfoMap.get(devLog.getDevNo()).put(logTime,devLog);
     }
 
     /**
