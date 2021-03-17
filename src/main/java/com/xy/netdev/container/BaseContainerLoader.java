@@ -39,6 +39,8 @@ public class BaseContainerLoader {
      */
     @PostConstruct
     public void load(){
+        log.info("开始更新容器信息！");
+        long time = System.currentTimeMillis();
         //初始化基础信息
         initBaseInfo();
         //初始化设备容器
@@ -51,14 +53,13 @@ public class BaseContainerLoader {
         initDevParam();
         //初始化设备状态容器
         DevStatusContainer.init(sysParamService);
+        log.info("基础信息容器更新完成，耗时:["+(System.currentTimeMillis()-time)+"ms]");
     }
 
     /**
      * 加载基础信息容器
      */
     public void initBaseInfo(){
-        log.info("开始更新基础信息容器！");
-        long time = System.currentTimeMillis();
         //查询有效的设备列表
         List<BaseInfo> devs = baseInfoService.list().stream().filter(baseInfo -> baseInfo.getDevStatus().equals(SysConfigConstant.DEV_STATUS_NEW)).collect(Collectors.toList());
         //查询有效的参数列表
@@ -72,7 +73,6 @@ public class BaseContainerLoader {
         List<PrtclFormat> prtclList = prtclFormatService.list();
         //初始化基础容器的数据
         BaseInfoContainer.init(devs,paraInfos,interfaces,prtclList);
-        log.info("基础信息容器更新完成，耗时:["+(System.currentTimeMillis()-time)+"ms]");
     }
 
     /**
