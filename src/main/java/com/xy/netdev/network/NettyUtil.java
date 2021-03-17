@@ -81,13 +81,14 @@ public class NettyUtil {
             ByteBuf byteBuf = ctx.alloc().heapBuffer(bytes.length);
             if (!ctx.isRemoved() && ctx.channel().isWritable()){
                 byteBuf.writeBytes(bytes);
-                channelFuture = ctx.writeAndFlush(function.apply(byteBuf)).addListener(future -> {
-                    if (!future.isSuccess()){
-                        log.debug("数据发送失败, 本地端口{}, 远程地址{}, 远程端口{}, 数据体{}", localPort, remoteIp, remotePort, HexUtil.encodeHexStr(bytes));
-                    }else {
-                        log.debug("外发数据, 本地端口:{}, 目标地址:{}:{}, 数据体:{}", localPort, remoteIp, remotePort, HexUtil.encodeHexStr(bytes));
-                    }
-                });
+                channelFuture = ctx.writeAndFlush(function.apply(byteBuf));
+//                        .addListener(future -> {
+//                    if (!future.isSuccess()){
+//                        log.debug("数据发送失败, 本地端口{}, 远程地址{}, 远程端口{}, 数据体{}", localPort, remoteIp, remotePort, HexUtil.encodeHexStr(bytes));
+//                    }else {
+//                        log.debug("外发数据, 本地端口:{}, 目标地址:{}:{}, 数据体:{}", localPort, remoteIp, remotePort, HexUtil.encodeHexStr(bytes));
+//                    }
+//                });
             }
         } else {
             log.info("端口号未注册, 请检查端口正确性: {}", localPort);
