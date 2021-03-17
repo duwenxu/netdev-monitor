@@ -47,16 +47,9 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
         RptHeadDev resBody = new RptHeadDev();
         try {
             switch (cmdMarkHexStr) {
-                case "0003":
-                    //此处直接从缓存中获取结果；结果将在调用获取缓存时返回，此处不做处理
-                    break;
                 case "0005":
                     doParaSetAction(headDev);
                     break;
-                case "0007":
-                    resBody = doParaWarnQueryAction((headDev));
-                case "0008":
-//              resBody = doParaSetAction(headDev);
                 default:
                     break;
             }
@@ -78,6 +71,9 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
                     break;
                 case "0005":
                     resBody = doQueryNewCache(headDev);
+                    break;
+                case "0007":
+                    resBody = doParaWarnQueryAction((headDev));
                     break;
                 default:
                     break;
@@ -234,6 +230,7 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
             List<AlertInfo> alertInfoList = DevAlertInfoContainer.getDevAlertInfoList(devNo);
             //当前设备的查询响应参数列表
             List<FrameParaData> resFrameParaList = new ArrayList<>();
+            //当前设备的查询响应参数列表
             for (FrameParaData para : rptBody.getDevParaList()) {
                 String paraNo = para.getParaNo();
                 //参数编号为0,查询所有

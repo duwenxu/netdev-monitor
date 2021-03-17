@@ -1,8 +1,10 @@
 package com.xy.netdev.frame.service.impl.head;
 
 import cn.hutool.core.util.NumberUtil;
+import cn.hutool.core.util.StrUtil;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.ByteUtils;
+import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.base.AbsDeviceSocketHandler;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
@@ -11,6 +13,8 @@ import com.xy.netdev.frame.entity.device.ModemEntity;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.modem.ModemPrtcServiceImpl;
+import com.xy.netdev.monitor.entity.BaseInfo;
+import com.xy.netdev.monitor.entity.PrtclFormat;
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,12 +72,20 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
         byte[] paramBytes = frameReqData.getParamBytes();
         int len = paramBytes.length + 8;
 
+        PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameReqData.getDevType(), frameReqData.getCmdMark());
+        String keyword;
+        if (StrUtil.isNotBlank(prtclFormat.getFmtSkey())){
+            keyword = prtclFormat.getFmtSkey();
+        }else {
+            keyword = prtclFormat.getFmtCkey();
+        }
+
         ModemEntity modemEntity = ModemEntity.builder()
                 .beginOffset((byte)0x02)
                 .num(ByteUtils.objToBytes(len, 2))
                 .deviceType((byte)0x65)
                 .deviceAddress((byte)0x01)
-                .cmd(Byte.valueOf(frameReqData.getCmdMark()))
+                .cmd(Byte.valueOf(keyword))
                 .params(paramBytes)
                 .check((byte)0)
                 .end((byte)0x0A)
