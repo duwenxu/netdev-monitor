@@ -15,6 +15,7 @@ import com.xy.netdev.monitor.bo.TransRule;
 import com.xy.netdev.monitor.entity.AlertInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.rpt.bo.RptHeadDev;
+import com.xy.netdev.rpt.enums.StationCtlRequestEnums;
 import com.xy.netdev.rpt.service.IDevStatusReportService;
 import com.xy.netdev.rpt.service.IUpRptPrtclAnalysisService;
 import com.xy.netdev.transit.util.DataHandlerHelper;
@@ -152,7 +153,7 @@ public class DevStatusReportService implements IDevStatusReportService {
         devStatusInfos.add(devStatusInfo);
         rptHeadDev.setParam(devStatusInfos);
         rptHeadDev.setDevNum(1);
-        rptHeadDev.setCmdMarkHexStr(Integer.toHexString(SysConfigConstant.DEV_STATUS_REPORT));
+        rptHeadDev.setCmdMarkHexStr(StationCtlRequestEnums.DEV_STATUS_REPORT.getCmdCode());
         rptHeadDev.setDevNo(devStatusInfo.getDevNo());
         return rptHeadDev;
     }
@@ -248,7 +249,7 @@ public class DevStatusReportService implements IDevStatusReportService {
         alertInfos.add(alertInfo);
         rptHeadDev.setParam(alertInfos);
         rptHeadDev.setDevNum(1);
-        rptHeadDev.setCmdMarkHexStr(Integer.toHexString(SysConfigConstant.PARA_ALARM_REPORT));
+        rptHeadDev.setCmdMarkHexStr(StationCtlRequestEnums.PARA_ALARM_REPORT.getCmdCode());
         rptHeadDev.setDevNo(alertInfo.getDevNo());
         return rptHeadDev;
     }
