@@ -53,7 +53,7 @@ public class BaseContainerLoader {
         initDevParam();
         //初始化设备状态容器
         DevStatusContainer.init(sysParamService);
-        log.info("基础信息容器更新完成，耗时:["+(System.currentTimeMillis()-time)+"ms]");
+        log.info("容器信息更新完成，耗时:["+(System.currentTimeMillis()-time)+"ms]");
     }
 
     /**
