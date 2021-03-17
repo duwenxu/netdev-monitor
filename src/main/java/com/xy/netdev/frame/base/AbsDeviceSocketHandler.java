@@ -96,10 +96,10 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
         R unpack = unpack((Q) socketEntity, (R) frameRespData);
         //转16进制，用来获取协议解析类
         String cmdHexStr;
-        if (frameRespData.getCmdType().equals(0)){
+        if (!StrUtil.contains(frameRespData.getCmdMark(), '/')){
             cmdHexStr = Integer.toHexString(Integer.parseInt(frameRespData.getCmdMark(),16));
         }else {
-            cmdHexStr = frameRespData.getCmdMark();
+            cmdHexStr = StrUtil.removeAll(frameRespData.getCmdMark(), '/');
         }
         PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameRespData.getDevType(), cmdHexStr);
         if (prtclFormat == null){
@@ -109,6 +109,11 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
         IParaPrtclAnalysisService iParaPrtclAnalysisService = null;
         IQueryInterPrtclAnalysisService queryInterPrtclAnalysisService = null;
         //参数
+        if (prtclFormat.getIsPrtclParam() == null){
+            log.warn("数据解析失败, 发数据地址:{}:{}, cmd:{}, 数据体:{}", socketEntity.getRemoteAddress(),
+                    socketEntity.getRemotePort(), cmdHexStr, HexUtil.encodeHexStr(socketEntity.getBytes()));
+            return;
+        }
         if (prtclFormat.getIsPrtclParam() == 0){
             frameRespData.setAccessType(SysConfigConstant.ACCESS_TYPE_PARAM);
             iParaPrtclAnalysisService = ParaPrtclFactory.genHandler(prtclFormat.getFmtHandlerClass());
@@ -124,7 +129,7 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
 
     /**
      * 回调别的模块数据
-     * @param r设备数据已发送至对应模块
+     * @param r 设备数据已发送至对应模块
      * @param iParaPrtclAnalysisService
      * @param iQueryInterPrtclAnalysisService
      */

@@ -31,4 +31,11 @@ public interface IBaseInfoService extends IService<BaseInfo> {
      * @return 响应结果
      */
     boolean changeUseStatus(String devNo);
+
+    /**
+     * 刷新设备是否主备状态
+     * @param devNo 设备编号
+     * @param devParentNo 设备父级编号
+     */
+    void devStatusUpdate(String devNo, String devParentNo);
 }

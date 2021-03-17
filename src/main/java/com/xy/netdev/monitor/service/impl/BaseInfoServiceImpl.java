@@ -178,7 +178,7 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
         if (StringUtils.isNotBlank(devNo)) {
             BaseInfo targetDev = this.getById(devNo);
             //当前设备相同父编号的主备设备list
-            List<BaseInfo> subList = sameParentSubList(targetDev);
+            List<BaseInfo> subList = BaseInfoContainer.getDevsFatByDevNo(devNo);
             if (!subList.isEmpty()) {
                 for (BaseInfo base : subList) {
                     if (DEV_USE_STATUS_INUSE.equals(base.getDevUseStatus())) {
@@ -202,15 +202,25 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
     }
 
     /**
-     * 当前设备相同父编号的主备设备list
-     * @param targetDev 当前设备
-     * @return 设备信息列表
+     * 设备信息修改时发送 是否启用主备
+     * @param devNo 设备编号
      */
-    private List<BaseInfo> sameParentSubList(BaseInfo targetDev) {
-        LambdaQueryWrapper<BaseInfo> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(BaseInfo::getDevParentNo, targetDev.getDevParentNo());
-        return this.list(queryWrapper).stream()
-                .filter(base -> DEV_DEPLOY_MASTER.equals(base.getDevDeployType()) || SysConfigConstant.DEV_DEPLOY_SLAVE.equals(base.getDevDeployType()))
-                .collect(Collectors.toList());
+    @Override
+    public void devStatusUpdate(String devNo, String devParentNo) {
+        String parentNo;
+        //删除时传递事先拿到的parentNo
+        if (StringUtils.isEmpty(devNo)) {
+            parentNo = devParentNo;
+        } else {
+            BaseInfo targetDev = this.getById(devNo);
+            parentNo = targetDev.getDevParentNo();
+        }
+        LambdaQueryWrapper<BaseInfo> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(BaseInfo::getDevParentNo, parentNo);
+        List<BaseInfo> subMasterSlaveList = this.list(wrapper).stream()
+                .filter(base -> DEV_DEPLOY_MASTER.equals(base.getDevDeployType()) || DEV_DEPLOY_SLAVE.equals(base.getDevDeployType())).collect(Collectors.toList());
+        if (subMasterSlaveList.size() > 1) {
+            //todo 发送是否启用主备通知
+        }
     }
 }
