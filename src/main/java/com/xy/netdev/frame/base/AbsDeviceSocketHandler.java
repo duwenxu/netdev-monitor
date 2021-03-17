@@ -65,9 +65,6 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
         sendMsg(t, bytes);
     }
 
-
-
-
     @Override
     public void doControl(T t) {
         this.doQuery(t);
