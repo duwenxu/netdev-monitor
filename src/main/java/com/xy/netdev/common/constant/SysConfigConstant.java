@@ -133,6 +133,31 @@ public interface SysConfigConstant {
      String  IS_DEFAULT_FALSE="0003002";
 
     /***
+     * 设备部署类型--独立设备   0031001
+     */
+    String  DEV_DEPLOY_ALONE="0031001";
+    /***
+     * 设备部署类型--主设备   0031002
+     */
+    String  DEV_DEPLOY_MASTER="0031002";
+    /***
+     * 设备部署类型--备设备   0031003
+     */
+    String  DEV_DEPLOY_SLAVE="0031003";
+    /***
+     * 设备部署类型--集群设备   0031004
+     */
+    String  DEV_DEPLOY_GROUP="0031004";
+    /***
+     * 设备使用状态--在用   0032001
+     */
+    String  DEV_USE_STATUS_INUSE="0032001";
+    /***
+     * 设备使用状态--不在用   0032001
+     */
+    String  DEV_USE_STATUS_NOTUSE="0032002";
+
+    /***
      * 公共参数--查询间隔时间
      */
     String  DEV_QUERY_INTERVAL="0100002";

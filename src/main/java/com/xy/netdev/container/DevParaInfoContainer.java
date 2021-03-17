@@ -45,7 +45,7 @@ public class DevParaInfoContainer {
      * @return 设备显示列表
      */
     private static Map<String,ParaViewInfo> assembleViewList(String devNo,List<ParaInfo> devTypeParaList){
-        Map<String,ParaViewInfo>  paraViewMap = new HashMap<>();
+        Map<String,ParaViewInfo>  paraViewMap = new TreeMap<>();
         if(devTypeParaList!=null&&!devTypeParaList.isEmpty()){
             for(ParaInfo paraInfo:devTypeParaList){
                 paraViewMap.put(ParaHandlerUtil.genLinkKey(devNo,paraInfo.getNdpaNo()),genParaViewInfo(devNo,paraInfo));

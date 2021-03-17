@@ -24,4 +24,11 @@ public interface IBaseInfoService extends IService<BaseInfo> {
      * @return
      */
     Map<String, Object> downDevFile();
+
+    /**
+     * 切换设备为主设备
+     * @param devNo 设备编号
+     * @return 响应结果
+     */
+    boolean changeUseStatus(String devNo);
 }

@@ -345,8 +345,10 @@ public class BaseInfoContainer {
      */
     public static List<BaseInfo> getDevsFatByDevNo(String devNo) {
         List<BaseInfo> baseInfos = new ArrayList<>();
-        if (!StringUtils.isBlank(getDevInfoByNo(devNo).getDevParentNo())) {
-            baseInfos = devNoMap.values().stream().filter(baseInfo -> devNo.equals(baseInfo.getDevNo())).collect(Collectors.toList());
+        //获取父设备
+        String parId = getDevInfoByNo(devNo).getDevParentNo();
+        if (!StringUtils.isBlank(parId)) {
+            baseInfos = devNoMap.values().stream().filter(baseInfo -> parId.equals(baseInfo.getDevParentNo())).collect(Collectors.toList());
         }
         return baseInfos;
     }

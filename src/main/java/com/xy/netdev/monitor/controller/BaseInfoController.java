@@ -114,6 +114,21 @@ public class BaseInfoController {
     }
 
     /**
+     * 切换当前正在使用的设备
+     * @return 请求结果
+     */
+    @ApiOperation(value = "切换主设备", notes = "切换主设备")
+    @GetMapping("/changeMaster")
+    public Result<Object> changeUseStatus(String devNo) {
+        boolean isOk = baseInfoService.changeUseStatus(devNo);
+        if (isOk){
+            return new Result<>().ok();
+        }else {
+            return new Result<>().error500("主备切换失败");
+        }
+    }
+
+    /**
      * 设备模型文件下载
      * @return
      */

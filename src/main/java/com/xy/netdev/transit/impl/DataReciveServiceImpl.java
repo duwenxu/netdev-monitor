@@ -45,7 +45,7 @@ public class DataReciveServiceImpl implements IDataReciveService {
      * @param  respData   协议解析响应数据
      */
     public void paraQueryRecive(FrameRespData respData) {
-        respData.setAccessType(SysConfigConstant.ACCESS_TYPE_PARAM);
+        //respData.setAccessType(SysConfigConstant.ACCESS_TYPE_PARAM);
         respData.setOperType(SysConfigConstant.OPREATE_QUERY_RESP);
         if(DevParaInfoContainer.handlerRespDevPara(respData)){
             DevIfeMegSend.sendParaToDev(respData.getDevNo());//如果设备参数变化,websocet推前台

@@ -76,6 +76,7 @@ public class PrtclFormat extends Model<PrtclFormat> {
 
     @ApiModelProperty(value = "控制响应类型")
     @TableField(value = "FMT_CC_TYPE")
+    @Param
     private String fmtCcType;
 
     @ApiModelProperty(value = "归属(0：参数；1：接口)")
