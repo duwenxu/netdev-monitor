@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,35 +23,35 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
- * 设备状态上报查询发起类
+ * 设备状态定时查询发起类
  *
  * @author duwenxu
  * @create 2021-03-10 11:39
  */
 @Slf4j
 //@Component
-public class ScheduleReport implements ApplicationRunner {
+public class ScheduleQuery implements ApplicationRunner {
 
     @Autowired
     private IDevCmdSendService devCmdSendService;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        log.info("-----设备状态上报查询开始...");
+        log.info("-----设备状态定时查询开始...");
         try {
             doScheduleQuery();
             doScheduleReport();
 
         } catch (Exception e) {
-            log.error("设备状态上报查询异常...",e);
+            log.error("设备状态定时查询异常...", e);
         }
     }
 
     /**
-     *  设备参数定时查询
+     * 设备参数定时查询
      */
     public void doScheduleQuery() {
-        List<BaseInfo> baseInfos = ScheduleReportHelper.getAvailableBases();
+        List<BaseInfo> baseInfos = ScheduleReportHelper.getAvailableBases().stream().filter(base-> base.getDevType().equals("0020008")).collect(Collectors.toList());
         //单个设备所有查询对象的封装list映射
         Map<BaseInfo, List<FrameReqData>> scheduleReqBodyMap = new ConcurrentHashMap<>(20);
         List<FrameReqData> scheduleReqBodyList = new ArrayList<>();
@@ -64,7 +65,9 @@ public class ScheduleReport implements ApplicationRunner {
                 List<FrameParaData> frameParaList = new ArrayList<>();
                 //获取参数对应的格式协议及拼装查询类请求参数
                 PrtclFormat prtclFormat = frameParaInfo.getInterfacePrtcl();
-                if (prtclFormat == null){ continue; }
+                if (prtclFormat == null) {
+                    continue;
+                }
                 String cmdMark = frameParaInfo.getCmdMark();
                 FrameParaData paraData = FrameParaData.builder()
                         .devNo(base.getDevNo())
@@ -86,7 +89,9 @@ public class ScheduleReport implements ApplicationRunner {
                 //获取接口对应的格式协议及处理类
                 String cmdMark = item.getItfCmdMark();
                 PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterface(base.getDevType(), cmdMark);
-                if (prtclFormat == null){continue;}
+                if (prtclFormat == null) {
+                    continue;
+                }
                 FrameReqData frameReqData = frameReqDataWrapper(base, cmdMark, new ArrayList<>());
                 frameReqData.setAccessType(SysConfigConstant.ACCESS_TYPE_INTERF);
                 scheduleReqBodyList.add(frameReqData);
@@ -106,8 +111,8 @@ public class ScheduleReport implements ApplicationRunner {
         Long commonInterval = ScheduleReportHelper.getQueryInterval();
         scheduleReqBodyMap.forEach((base, queryList) -> {
             long interval = Long.parseLong(base.getDevIntervalTime() + "");
-            ScheduleReportTask scheduleReportTask = new ScheduleReportTask(queryList, interval, commonInterval,devCmdSendService);
-            Thread thread = new Thread(scheduleReportTask, base.getDevName() + "-reportQuery-thread");
+            ScheduleReportTask scheduleReportTask = new ScheduleReportTask(queryList, interval, commonInterval, devCmdSendService);
+            Thread thread = new Thread(scheduleReportTask, base.getDevName() + "-scheduleQuery-thread");
             thread.start();
         });
     }
@@ -129,9 +134,9 @@ public class ScheduleReport implements ApplicationRunner {
 
 
     /**
-     *  设备参数定时上报
+     * 设备参数定时上报
      */
-    public void doScheduleReport(){
+    public void doScheduleReport() {
         List<BaseInfo> baseInfos = ScheduleReportHelper.getAvailableBases();
         //单个设备所有查询对象的封装list映射
         Map<BaseInfo, List<FrameReqData>> scheduleReqBodyMap = new ConcurrentHashMap<>(20);

@@ -15,6 +15,7 @@ import com.xy.netdev.transit.IDataReciveService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +27,7 @@ import java.util.List;
  * @create 2021-03-11 14:23
  */
 @Slf4j
-@Component
+@Service
 public class ModemPrtcServiceImpl implements IParaPrtclAnalysisService {
 
     @Autowired
@@ -40,6 +41,9 @@ public class ModemPrtcServiceImpl implements IParaPrtclAnalysisService {
 
     @Override
     public void queryPara(FrameReqData reqInfo) {
+        //暂时是单个参数查询 cmdMark为单个参数的命令标识
+        byte[] bytes = HexUtil.decodeHex(reqInfo.getCmdMark());
+        reqInfo.setParamBytes(bytes);
         socketMutualService.request(reqInfo, ProtocolRequestEnum.QUERY);
     }
 
