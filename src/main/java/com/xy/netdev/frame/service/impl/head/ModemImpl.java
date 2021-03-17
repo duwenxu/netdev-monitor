@@ -72,20 +72,19 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
         byte[] paramBytes = frameReqData.getParamBytes();
         int len = paramBytes.length + 8;
 
-        PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameReqData.getDevType(), frameReqData.getCmdMark());
+        PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByPara(frameReqData.getDevType(), frameReqData.getCmdMark());
         String keyword;
         if (StrUtil.isNotBlank(prtclFormat.getFmtSkey())){
             keyword = prtclFormat.getFmtSkey();
         }else {
             keyword = prtclFormat.getFmtCkey();
         }
-
         ModemEntity modemEntity = ModemEntity.builder()
                 .beginOffset((byte)0x02)
                 .num(ByteUtils.objToBytes(len, 2))
                 .deviceType((byte)0x65)
                 .deviceAddress((byte)0x01)
-                .cmd(Byte.valueOf(keyword))
+                .cmd(Byte.valueOf(keyword, 16))
                 .params(paramBytes)
                 .check((byte)0)
                 .end((byte)0x0A)
