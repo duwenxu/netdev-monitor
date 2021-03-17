@@ -89,7 +89,7 @@ public class BaseInfo extends Model<BaseInfo> {
     private String devDeployType;
 
     /**
-     * 0032001 设备使用状态-在用  0032002 设备使用状态-不在用在用
+     * 0032001 设备使用状态-在用  0032002 设备使用状态-不在用
      */
     @ApiModelProperty(value = "设备使用状态")
     @TableField(value = "DEV_USE_STATUS")

@@ -244,7 +244,7 @@ public class BaseInfoContainer {
      * @return  设备对象
      */
     public static BaseInfo getDevInfoByNo(String devNo){
-        return devNoMap.get(devNo);
+        return devNoMap.get(devNo) != null ? devNoMap.get(devNo) : new BaseInfo();
     }
 
     /**
@@ -254,7 +254,8 @@ public class BaseInfoContainer {
      * @return  设备对象
      */
     public static FrameParaInfo getParaInfoByCmd(String devType,String cmrMark){
-        return paramCmdMap.get(ParaHandlerUtil.genLinkKey(devType,cmrMark));
+        FrameParaInfo frameParaInfo = paramCmdMap.get(ParaHandlerUtil.genLinkKey(devType,cmrMark));
+        return frameParaInfo !=null ? frameParaInfo : new FrameParaInfo();
     }
     /**
      * @功能：根据 设备类型 和 参数编号 获取参数信息
@@ -263,7 +264,8 @@ public class BaseInfoContainer {
      * @return  设备对象
      */
     public static FrameParaInfo getParaInfoByNo(String devType,String ndpaNo){
-        return paramNoMap.get(ParaHandlerUtil.genLinkKey(devType,ndpaNo));
+        FrameParaInfo frameParaInfo = paramNoMap.get(ParaHandlerUtil.genLinkKey(devType,ndpaNo));
+        return frameParaInfo !=null ? frameParaInfo : new FrameParaInfo();
     }
 
     /**
@@ -277,7 +279,7 @@ public class BaseInfoContainer {
         if(devInterParam != null){
             return devInterParam.getDevParamList();
         }
-        return null;
+        return new ArrayList<>();
     }
 
     /**
@@ -291,7 +293,7 @@ public class BaseInfoContainer {
         if(devInterParam != null){
             return devInterParam.getDevInterface();
         }
-        return null;
+        return new Interface();
     }
 
     /**
@@ -305,7 +307,7 @@ public class BaseInfoContainer {
         if(devInterParam != null){
             return devInterParam.getInterfacePrtcl();
         }
-        return null;
+        return new PrtclFormat();
     }
 
     /**
@@ -319,7 +321,7 @@ public class BaseInfoContainer {
         if (frameParaInfo != null) {
             return frameParaInfo.getInterfacePrtcl();
         }
-        return null;
+        return new PrtclFormat();
     }
 
     /**
@@ -334,6 +336,21 @@ public class BaseInfoContainer {
             prtclFormat = getPrtclByPara(devType,cmdMark);
         }
         return prtclFormat;
+    }
+
+    /**
+     * @功能：通过设备编号查询同属一个父设备的子设备列表
+     * @param devNo   设备编号
+     * @return  接口解析协议
+     */
+    public static List<BaseInfo> getDevsFatByDevNo(String devNo) {
+        List<BaseInfo> baseInfos = new ArrayList<>();
+        //获取父设备
+        String parId = getDevInfoByNo(devNo).getDevParentNo();
+        if (!StringUtils.isBlank(parId)) {
+            baseInfos = devNoMap.values().stream().filter(baseInfo -> parId.equals(baseInfo.getDevParentNo())).collect(Collectors.toList());
+        }
+        return baseInfos;
     }
 
     /**

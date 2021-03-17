@@ -1,6 +1,7 @@
 package com.xy.netdev.monitor.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xy.common.util.DateUtils;
@@ -18,8 +19,11 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.xy.netdev.common.constant.SysConfigConstant.*;
 
 /**
  * 设备信息 服务实现类
@@ -164,5 +168,49 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
         });
         map.put("devList",new LinkedHashMap(){{put("dev",list);}});
         return XmlUtil.convertToXml(map);
+    }
+
+    @Override
+    public boolean changeUseStatus(String devNo) {
+        boolean isOk=false;
+        String devInUse;
+        //修改使用状态
+        if (StringUtils.isNotBlank(devNo)) {
+            BaseInfo targetDev = this.getById(devNo);
+            //当前设备相同父编号的主备设备list
+            List<BaseInfo> subList = sameParentSubList(targetDev);
+            if (!subList.isEmpty()) {
+                for (BaseInfo base : subList) {
+                    if (DEV_USE_STATUS_INUSE.equals(base.getDevUseStatus())) {
+                        base.setDevUseStatus(DEV_USE_STATUS_NOTUSE);
+                        this.updateById(base);
+                    }
+                }
+            }
+
+            //todo 调用接口通知设备状态改变
+            if (DEV_DEPLOY_MASTER.equals(targetDev.getDevDeployType())){
+                devInUse = RPT_DEV_STATUS_MASTERORSLAVE_MASTER;
+            }else {
+                devInUse = RPT_DEV_STATUS_MASTERORSLAVE_SLAVE;
+            }
+
+            targetDev.setDevUseStatus(DEV_USE_STATUS_INUSE);
+            isOk = this.updateById(targetDev);
+        }
+        return isOk;
+    }
+
+    /**
+     * 当前设备相同父编号的主备设备list
+     * @param targetDev 当前设备
+     * @return 设备信息列表
+     */
+    private List<BaseInfo> sameParentSubList(BaseInfo targetDev) {
+        LambdaQueryWrapper<BaseInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(BaseInfo::getDevParentNo, targetDev.getDevParentNo());
+        return this.list(queryWrapper).stream()
+                .filter(base -> DEV_DEPLOY_MASTER.equals(base.getDevDeployType()) || SysConfigConstant.DEV_DEPLOY_SLAVE.equals(base.getDevDeployType()))
+                .collect(Collectors.toList());
     }
 }
