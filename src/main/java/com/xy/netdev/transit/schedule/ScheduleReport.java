@@ -39,8 +39,6 @@ public class ScheduleReport implements ApplicationRunner {
         log.info("-----设备状态上报查询开始...");
         try {
             doScheduleQuery();
-            doScheduleReport();
-
         } catch (Exception e) {
             log.error("设备状态上报查询异常...",e);
         }
@@ -128,17 +126,6 @@ public class ScheduleReport implements ApplicationRunner {
     }
 
 
-    /**
-     *  设备参数定时上报
-     */
-    public void doScheduleReport(){
-        List<BaseInfo> baseInfos = ScheduleReportHelper.getAvailableBases();
-        //单个设备所有查询对象的封装list映射
-        Map<BaseInfo, List<FrameReqData>> scheduleReqBodyMap = new ConcurrentHashMap<>(20);
-        baseInfos.forEach(base -> {
-
-        });
-    }
 
 
 }
