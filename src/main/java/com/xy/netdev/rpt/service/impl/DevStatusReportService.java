@@ -233,6 +233,7 @@ public class DevStatusReportService implements IDevStatusReportService {
                     .alertTime(DateUtils.now())
                     .alertNum(1)
                     .ndpaNo(paraInfo.getParaNo())
+                    .alertStationNo(sysParamService.getParaRemark1(SysConfigConstant.PUBLIC_PARA_STATION_NO))
                     .alertDesc(alertDesc).build();
             DevAlertInfoContainer.addAlertInfo(alertInfo);
             RptHeadDev rptHeadDev = crateRptHeadDev(alertInfo);
