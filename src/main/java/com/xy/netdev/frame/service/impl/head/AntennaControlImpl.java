@@ -9,7 +9,9 @@ import com.xy.netdev.frame.entity.SocketEntity;
 import com.xy.netdev.frame.entity.device.AntennaControlEntity;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
+import com.xy.netdev.transit.IDataReciveService;
 import io.netty.buffer.ByteBuf;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -25,15 +27,19 @@ import static com.xy.netdev.common.util.ByteUtils.listToBytes;
 @Service
 public class AntennaControlImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData> {
 
+    @Autowired
+    IDataReciveService dataReciveService;
 
     @Override
     public void callback(FrameRespData frameRespData, IParaPrtclAnalysisService iParaPrtclAnalysisService,
                          IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService) {
         if (iParaPrtclAnalysisService != null){
             iParaPrtclAnalysisService.ctrlParaResponse(frameRespData);
+            dataReciveService.paraCtrRecive(frameRespData);
             return;
         }
         iQueryInterPrtclAnalysisService.queryParaResponse(frameRespData);
+        dataReciveService.paraQueryRecive(frameRespData);
     }
 
     @Override

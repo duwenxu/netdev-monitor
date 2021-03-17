@@ -1,8 +1,13 @@
 package com.xy.netdev.frame.service;
 
 
+import com.xy.netdev.common.util.ByteUtils;
+import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -35,4 +40,7 @@ public interface IParaPrtclAnalysisService {
      * @return  响应数据
      */
     FrameRespData ctrlParaResponse(FrameRespData respData);
+
+
+
 }

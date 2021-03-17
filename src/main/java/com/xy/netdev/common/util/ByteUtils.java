@@ -82,9 +82,9 @@ public class ByteUtils {
 
 
     public static byte[] objToBytes(Object obj, int len){
-        byte [] data = {};
+        byte [] data;
         if (len == 1){
-            return new byte[]{(byte)obj};
+            return new byte[]{Byte.parseByte(obj.toString())};
         }
         ByteOrder byteOrder = Unpooled.BIG_ENDIAN;
 //        if (order != 1) {

@@ -1,8 +1,10 @@
 package com.xy.netdev.frame.service.gf;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import com.xy.netdev.admin.service.ISysParamService;
+import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
@@ -11,6 +13,7 @@ import com.xy.netdev.frame.enums.ProtocolRequestEnum;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
+import com.xy.netdev.transit.IDataReciveService;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.util.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +24,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.xy.netdev.common.util.ByteUtils.byteToNumber;
+import static com.xy.netdev.frame.service.gf.GfInterPrtcServiceImpl.setParamBytes;
 
 /**
  * 40W 功放
@@ -38,17 +42,13 @@ public class GfPrtcServiceImpl implements IParaPrtclAnalysisService {
 
     @Override
     public void queryPara(FrameReqData reqInfo) {
+        setParamBytes(reqInfo);
         socketMutualService.request(reqInfo, ProtocolRequestEnum.QUERY);
     }
 
     @Override
     public FrameRespData queryParaResponse(FrameRespData respData) {
         FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),respData.getCmdMark());
-        if (frameParaInfo == null){
-            log.warn("40W功放数据解析失败,未获取到设备信息 设备类型:{}, cmd:{}, 调用方法BaseInfoContainer.getParaInfoByCmd(devType, cmd), " +
-                            "返回值为:{}", respData.getDevType(), respData.getCmdMark(), null);
-            return null;
-        }
         byte[] bytes = respData.getParamBytes();
         FrameParaData paraInfo = new FrameParaData();
         BeanUtil.copyProperties(frameParaInfo, paraInfo, true);
@@ -62,9 +62,9 @@ public class GfPrtcServiceImpl implements IParaPrtclAnalysisService {
 
     @Override
     public void ctrlPara(FrameReqData reqInfo) {
+        setParamBytes(reqInfo);
         socketMutualService.request(reqInfo, ProtocolRequestEnum.CONTROL);
     }
-
     @Override
     public FrameRespData ctrlParaResponse(FrameRespData respData) {
         return this.queryParaResponse(respData);
@@ -77,4 +77,6 @@ public class GfPrtcServiceImpl implements IParaPrtclAnalysisService {
         }
         return Integer.parseInt(isUnsigned) == 1;
     }
+
+
 }

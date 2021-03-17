@@ -28,6 +28,9 @@ public class FrameRespData {
     @ApiModelProperty(value = "设备类型")
     private String devType;
 
+    @ApiModelProperty("cmd类型, 0默认 16进制字符串默认, 1 字符")
+    private Integer cmdType  = 0;
+
     @ApiModelProperty(value = "设备编号")
     private String devNo;
     /**

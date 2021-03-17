@@ -96,7 +96,7 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
         R unpack = unpack((Q) socketEntity, (R) frameRespData);
         //转16进制，用来获取协议解析类
         String cmdHexStr;
-        if (StringUtils.isNumeric(frameRespData.getCmdMark())){
+        if (frameRespData.getCmdType().equals(0)){
             cmdHexStr = Integer.toHexString(Integer.parseInt(frameRespData.getCmdMark(),16));
         }else {
             cmdHexStr = frameRespData.getCmdMark();
@@ -124,7 +124,7 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
 
     /**
      * 回调别的模块数据
-     * @param r
+     * @param r设备数据已发送至对应模块
      * @param iParaPrtclAnalysisService
      * @param iQueryInterPrtclAnalysisService
      */
@@ -151,4 +151,10 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
         return isOk.get();
     }
 
+    public static void main(String[] args) {
+        String str = "7F 31 00 10 01 01 03 00 04 00 00 01 01 01 04 02 BC 02 02 01 20 00 2F 01 E1 01 01 01 01 01 00 00" +
+                " 02 BC 01 01 02 17 00 06 01 E0 01 01 01 01 01 3F 7D";
+        System.out.println(str.replaceAll("\\s+", ""));
+
+    }
 }
