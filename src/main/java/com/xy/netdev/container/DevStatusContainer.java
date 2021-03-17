@@ -36,24 +36,55 @@ public class DevStatusContainer {
         BaseInfoContainer.getDevNos().forEach(devNo -> {
             DevStatusInfo devStatusInfo = new DevStatusInfo();
             BaseInfo devInfo = BaseInfoContainer.getDevInfoByNo(devNo);
+            List<BaseInfo> masterSlaveDevList = BaseInfoContainer.getDevsFatByDevNo(devNo);
             devStatusInfo.setDevNo(devNo);
             devStatusInfo.setDevTypeCode(sysParamService.getParaRemark1(devInfo.getDevType()));
             devStatusInfo.setIsInterrupt(SysConfigConstant.RPT_DEV_STATUS_ISINTERRUPT_NO);
             devStatusInfo.setIsAlarm(SysConfigConstant.RPT_DEV_STATUS_ISALARM_NO);
-            devStatusInfo.setIsUseStandby(SysConfigConstant.RPT_DEV_STATUS_USESTANDBY_NO);
-            devStatusInfo.setMasterOrSlave(SysConfigConstant.RPT_DEV_STATUS_MASTERORSLAVE_MASTER);
+            devStatusInfo.setIsUseStandby(initDevIsUseStandby(devInfo,masterSlaveDevList));
+            devStatusInfo.setMasterOrSlave(initDevMasterOrSlave(devStatusInfo.getIsUseStandby(),masterSlaveDevList));
             devStatusInfo.setWorkStatus(sysParamService.getParaRemark1(devInfo.getDevStatus()));
             devStatusMap.put(devNo,devStatusInfo);
         });
     }
 
+
     /**
-     * @功能：清空当前状态
-     * @return
+     * @功能：初始化设备是否启用主备
+     * @param devInfo               设备信息
+     * @param masterSlaveDevList    主备列表
+     * @return 是否启用主备状态
      */
-//    public static void clear(){
-//        init(sysParamServiceLocal);
-//    }
+    private  static String initDevIsUseStandby(BaseInfo devInfo,List<BaseInfo> masterSlaveDevList) {
+        if(!devInfo.getDevDeployType().equals(SysConfigConstant.DEV_DEPLOY_GROUP)){
+            if(masterSlaveDevList.size()>1){
+                return SysConfigConstant.RPT_DEV_STATUS_USESTANDBY_YES;
+            }
+        }
+        return SysConfigConstant.RPT_DEV_STATUS_USESTANDBY_NO;
+    }
+    /**
+     * @功能：初始化设备主用还是备用
+     * @param isUseStandby          是否启用主备状态     *
+     * @param masterSlaveDevList    主备列表
+     * @return 主用还是备用
+     */
+    private  static String initDevMasterOrSlave(String isUseStandby,List<BaseInfo> masterSlaveDevList) {
+        if(isUseStandby.equals(SysConfigConstant.RPT_DEV_STATUS_USESTANDBY_YES)){
+            BaseInfo isUseDevInfo = null;
+            for(BaseInfo devBaseInfo:masterSlaveDevList){
+                if(devBaseInfo.getDevUseStatus().equals(SysConfigConstant.DEV_USE_STATUS_INUSE)){
+                    isUseDevInfo = devBaseInfo;
+                    break;
+                }
+            }
+            if(isUseDevInfo!=null&&isUseDevInfo.getDevDeployType().equals(SysConfigConstant.DEV_DEPLOY_SLAVE)){
+                    return SysConfigConstant.RPT_DEV_STATUS_MASTERORSLAVE_SLAVE;
+            }
+        }
+        return SysConfigConstant.RPT_DEV_STATUS_MASTERORSLAVE_MASTER;
+    }
+
 
     /**
      * @功能：添加设备中断状态
@@ -108,6 +139,14 @@ public class DevStatusContainer {
      * @return 状态是否发生改变  true 改变  false 未改变
      */
     public synchronized static boolean setMasterOrSlave(String devNo,String masterOrSlave) {
+        //设置主备列表中非当前变化设备的主备状态
+        List<BaseInfo> masterSlaveDevList = BaseInfoContainer.getDevsFatByDevNo(devNo);
+        masterSlaveDevList.forEach(devInfo->{
+            if(!devInfo.getDevNo().equals(devNo)){
+                devStatusMap.get(devInfo.getDevNo()).setMasterOrSlave(masterOrSlave);
+            }
+        });
+        //设置当前设备的主备状态,如果发生变化返回true
         DevStatusInfo devStatusInfo = devStatusMap.get(devNo);
         if(!devStatusInfo.getMasterOrSlave().equals(masterOrSlave)){
             devStatusInfo.setMasterOrSlave(masterOrSlave);
