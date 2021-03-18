@@ -338,7 +338,7 @@ public class BaseInfoContainer {
      */
     public static PrtclFormat getPrtclByInterfaceOrPara(String devType, String cmdMark){
         PrtclFormat prtclFormat = getPrtclByInterface(devType,cmdMark);
-        if(prtclFormat.getFmtId() == null){
+        if(prtclFormat.getFmtId() == null||StringUtils.isEmpty(prtclFormat.getFmtId()+"")){
             prtclFormat = getPrtclByPara(devType,cmdMark);
         }
         return prtclFormat;
