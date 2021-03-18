@@ -130,19 +130,4 @@ public class ScheduleQuery implements ApplicationRunner {
                 .frameParaList(frameParaList)
                 .build();
     }
-
-
-    /**
-     * 设备参数定时上报
-     */
-    public void doScheduleReport() {
-        List<BaseInfo> baseInfos = ScheduleReportHelper.getAvailableBases();
-        //单个设备所有查询对象的封装list映射
-        Map<BaseInfo, List<FrameReqData>> scheduleReqBodyMap = new ConcurrentHashMap<>(20);
-        baseInfos.forEach(base -> {
-
-        });
-    }
-
-
 }
