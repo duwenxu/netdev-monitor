@@ -75,6 +75,9 @@ public class ByteUtils {
      * @return
      */
     public static byte[] byteArrayCopy(byte[] bytes, int start, int length){
+        if (length == 0){
+            return null;
+        }
         byte[] byteArray = new byte[length];
         System.arraycopy(bytes, start, byteArray, 0, length);
         return byteArray;
