@@ -9,8 +9,10 @@ import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.bo.ParaSpinnerInfo;
 import com.xy.netdev.monitor.entity.*;
 import com.xy.netdev.monitor.bo.DevInterParam;
+import javafx.util.Pair;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.mockito.internal.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -419,6 +421,32 @@ public class BaseInfoContainer {
             frameParaInfos.add(frameParaInfo);
         });
         return frameParaInfos;
+    }
+
+    /**
+     * 根据 标识字 和 协议信息 获取操作类型
+     *
+     * @param prtclFormat 协议
+     * @param sign        标识字
+     * @return 操作类型
+     */
+    public static String getOptByPrtcl(PrtclFormat prtclFormat, String sign) {
+        if (prtclFormat == null || StringUtils.isEmpty(String.valueOf(prtclFormat.getFmtId())) || StringUtils.isEmpty(sign)) {
+            log.error("getOptByPrtcl方法执行异常:协议格式对象或标识字为空");
+            return null;
+        }
+        if (sign.equals(prtclFormat.getFmtSkey())) {
+            return SysConfigConstant.OPREATE_QUERY;
+        } else if (sign.equals(prtclFormat.getFmtCkey())) {
+            return SysConfigConstant.OPREATE_CONTROL;
+        } else if (sign.equals(prtclFormat.getFmtSckey())) {
+            return SysConfigConstant.OPREATE_QUERY_RESP;
+        } else if (sign.equals(prtclFormat.getFmtCckey())) {
+            return SysConfigConstant.OPREATE_CONTROL_RESP;
+        } else {
+            log.error("getOptByPrtcl方法执行异常:未匹配到对应的操作类型");
+            return null;
+        }
     }
 
 }
