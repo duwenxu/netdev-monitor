@@ -72,7 +72,7 @@ public class AntennaControlImpl extends AbsDeviceSocketHandler<SocketEntity, Fra
                 .stx((byte) 0x7B)
                 .lc((byte) dataLength)
                 .sad((byte) 0)
-                .cmd(Byte.valueOf(frameReqData.getCmdMark()))
+                .cmd(Byte.valueOf(frameReqData.getCmdMark(), 16))
                 .data(frameReqData.getParamBytes())
                 .vs((byte) 0)
                 .etx((byte) 0x7D)

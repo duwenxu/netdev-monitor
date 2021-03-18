@@ -89,8 +89,6 @@ public class ByteUtils {
         ByteOrder byteOrder = Unpooled.BIG_ENDIAN;
 //        if (order != 1) {
 //            byteOrder =  Unpooled.LITTLE_ENDIAN;
-//        } else {
-//            byteOrder =  Unpooled.BIG_ENDIAN;
 //        }
         switch(len){
             case 2:
