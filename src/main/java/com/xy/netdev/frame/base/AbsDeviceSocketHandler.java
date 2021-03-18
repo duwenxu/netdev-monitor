@@ -15,6 +15,7 @@ import com.xy.netdev.frame.entity.SocketEntity;
 import com.xy.netdev.frame.enums.ProtocolRequestEnum;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
+import com.xy.netdev.monitor.constant.MonitorConstants;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.PrtclFormat;
 import com.xy.netdev.network.NettyUtil;
@@ -91,11 +92,13 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
         frameRespData.setDevNo(devInfo.getDevNo());
         R unpack = unpack((Q) socketEntity, (R) frameRespData);
         //转16进制，用来获取协议解析类
-        String cmdHexStr;
-        if (!StrUtil.contains(frameRespData.getCmdMark(), '/')){
-            cmdHexStr = Integer.toHexString(Integer.parseInt(frameRespData.getCmdMark(),16));
-        }else {
-            cmdHexStr = StrUtil.removeAll(frameRespData.getCmdMark(), '/');
+        String cmdHexStr = frameRespData.getCmdMark();
+        if (!MonitorConstants.SUB_MODEM.equals(frameRespData.getDevType())){
+            if (!StrUtil.contains(frameRespData.getCmdMark(), '/')){
+                cmdHexStr = Integer.toHexString(Integer.parseInt(frameRespData.getCmdMark(),16));
+            }else {
+                cmdHexStr = StrUtil.removeAll(frameRespData.getCmdMark(), '/');
+            }
         }
         PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameRespData.getDevType(), cmdHexStr);
         if (prtclFormat == null){
