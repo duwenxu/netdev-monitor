@@ -30,20 +30,20 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Component
-public class ScheduleQuery implements ApplicationRunner {
+public class ScheduleQuery/** implements ApplicationRunner */ {
 
     @Autowired
     private IDevCmdSendService devCmdSendService;
 
-    @Override
-    public void run(ApplicationArguments args) throws Exception {
-        log.info("-----设备状态定时查询开始...");
-        try {
-            doScheduleQuery();
-        } catch (Exception e) {
-            log.error("设备状态定时查询异常...", e);
-        }
-    }
+//    @Override
+//    public void run(ApplicationArguments args) throws Exception {
+//        log.info("-----设备状态定时查询开始...");
+//        try {
+//            doScheduleQuery();
+//        } catch (Exception e) {
+//            log.error("设备状态定时查询异常...", e);
+//        }
+//    }
 
     /**
      * 设备参数定时查询
@@ -53,12 +53,12 @@ public class ScheduleQuery implements ApplicationRunner {
         List<BaseInfo> baseInfos = ScheduleReportHelper.getAvailableBases();
         //单个设备所有查询对象的封装list映射
         Map<BaseInfo, List<FrameReqData>> scheduleReqBodyMap = new ConcurrentHashMap<>(20);
-        List<FrameReqData> scheduleReqBodyList = new ArrayList<>();
         baseInfos.forEach(base -> {
             //获取所有可读参数
             List<FrameParaInfo> parasByDevType = BaseInfoContainer.getParasByDevType(base.getDevType());
             List<FrameParaInfo> readParasByDevType = parasByDevType.stream().parallel()
                     .filter(param -> MonitorConstants.READ_ONLY.equals(param.getNdpaAccessRight()) || MonitorConstants.READ_WRITE.equals(param.getNdpaAccessRight())).collect(Collectors.toList());
+            List<FrameReqData> scheduleReqBodyList = new ArrayList<>();
             //参数查询对象封装
             for (FrameParaInfo frameParaInfo : readParasByDevType) {
                 List<FrameParaData> frameParaList = new ArrayList<>();

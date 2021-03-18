@@ -16,11 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/test")
 public class TestController {
 
-//    @Autowired
-//    private ScheduleQuery scheduleQuery;
-//
-//    @RequestMapping(value = "/query", method = RequestMethod.POST)
-//    public void queryPageList() {
-//        scheduleQuery.doScheduleQuery();
-//    }
+    @Autowired
+    private ScheduleQuery scheduleQuery;
+
+    @RequestMapping(value = "/query", method = RequestMethod.POST)
+    public void queryPageList() {
+        scheduleQuery.doScheduleQuery();
+    }
 }
