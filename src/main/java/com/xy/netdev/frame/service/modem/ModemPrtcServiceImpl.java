@@ -63,7 +63,7 @@ public class ModemPrtcServiceImpl implements IParaPrtclAnalysisService {
             FrameParaData frameParaData = FrameParaData.builder()
                     .devType(devType)
                     .devNo(respData.getDevNo())
-                    .paraVal(paraValue)
+                    .paraVal(paraValue.toUpperCase())
                     .paraNo(paraInfoByCmd.getParaNo())
                     .build();
             frameParaDataList.add(frameParaData);
