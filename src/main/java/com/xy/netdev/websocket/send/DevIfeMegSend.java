@@ -41,6 +41,7 @@ public class DevIfeMegSend {
     public static void sendParaToDev(String devNo){
         ChannelGroup channels = ChannelCache.getInstance().getChannels("DevParaInfos",devNo);
         if( channels != null){
+            //此处加SerializerFeature.WriteMapNullValue是为了让数据中属性值为null的属性不被忽略
             String msg = JSONObject.toJSONString(DevParaInfoContainer.getDevParaViewList(devNo), SerializerFeature.WriteMapNullValue);
             TextWebSocketFrame textWebSocketFrame = new TextWebSocketFrame(msg);
             channels.writeAndFlush(textWebSocketFrame);
@@ -53,6 +54,7 @@ public class DevIfeMegSend {
     public static void sendDevStatusToDev(){
         ChannelGroup channels = ChannelCache.getInstance().getChannelsByIfe("DevStatusInfos");
         if( channels != null){
+            //此处加SerializerFeature.WriteMapNullValue是为了让数据中属性值为null的属性不被忽略
             String msg = JSONObject.toJSONString(DevStatusContainer.getAllDevStatusInfoList(),SerializerFeature.WriteMapNullValue);
             TextWebSocketFrame textWebSocketFrame = new TextWebSocketFrame(msg);
             channels.writeAndFlush(textWebSocketFrame);

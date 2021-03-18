@@ -179,12 +179,14 @@ public class BaseInfoContainer {
     public static void addInterLinkParaMap(List<DevInterParam> devInterParamList) {
         //修改各参数序号和下标
         devInterParamList.forEach(devInterParam -> {
-            int seq = 1;
+            int seq = 0;
             Integer point = 0 ;
             for (FrameParaInfo paraInfo : devInterParam.getDevParamList()) {
                 try {
+                    seq++;
                     paraInfo.setParaSeq(seq);
-                    point = point+Integer.valueOf(paraInfo.getParaByteLen());
+                    String byteLen = StringUtils.isBlank(paraInfo.getParaByteLen()) ? "0":paraInfo.getParaByteLen();
+                    point = point+Integer.valueOf(byteLen);
                     paraInfo.setParaStartPoint(point);
                 } catch (NumberFormatException e) {
                     log.error("参数["+paraInfo.getParaName()+"]的字节长度存在异常，请检查："+e.getMessage());
