@@ -66,14 +66,16 @@ public class AntennaControlImpl extends AbsDeviceSocketHandler<SocketEntity, Fra
         //参数数据
         byte[] paramBytes = frameReqData.getParamBytes();
         //数据长度
-        int dataLength = paramBytes.length + 6;
-
+        int dataLength = 0;
+        if (paramBytes != null){
+            dataLength = paramBytes.length + 6;
+        }
         AntennaControlEntity antennaControlEntity = AntennaControlEntity.builder()
                 .stx((byte) 0x7B)
                 .lc((byte) dataLength)
                 .sad((byte) 0)
                 .cmd(Byte.valueOf(frameReqData.getCmdMark(), 16))
-                .data(frameReqData.getParamBytes())
+                .data(paramBytes)
                 .vs((byte) 0)
                 .etx((byte) 0x7D)
                 .build();
@@ -95,7 +97,9 @@ public class AntennaControlImpl extends AbsDeviceSocketHandler<SocketEntity, Fra
         list.add(new byte[]{antennaControlEntity.getLc()});
         list.add(new byte[]{antennaControlEntity.getSad()});
         list.add(new byte[]{antennaControlEntity.getCmd()});
-        list.add(antennaControlEntity.getData());
+        if (antennaControlEntity.getData() != null){
+            list.add(antennaControlEntity.getData());
+        }
         list.add(new byte[]{antennaControlEntity.getVs()});
         list.add(new byte[]{antennaControlEntity.getEtx()});
         return listToBytes(list);

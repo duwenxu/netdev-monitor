@@ -67,8 +67,10 @@ public class GfInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
     }
 
     public static void setParamBytes(FrameReqData reqInfo) {
-        List<FrameParaData> frameParaList = reqInfo.getFrameParaList();
-        List<byte[]> bytes = frameParaList.stream()
+        if (reqInfo.getFrameParaList() == null){
+            return;
+        }
+        List<byte[]> bytes = reqInfo.getFrameParaList().stream()
                 .filter(Objects::nonNull)
                 .filter(frameParaData -> StrUtil.isNotBlank(frameParaData.getParaVal()))
                 .peek(frameParaData -> {
