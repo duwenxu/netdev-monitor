@@ -41,19 +41,11 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
     @Override
     public void callback(FrameRespData frameRespData, IParaPrtclAnalysisService iParaPrtclAnalysisService,
                          IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService) {
-//        PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameRespData.getDevType(), frameRespData.getCmdMark());
-//        if (prtclFormat!=null && prtclFormat.getFmtId()!=null){
-//            String keyWord;
-//            if (SysConfigConstant.OPREATE_QUERY_RESP.equals(frameRespData.getOperType())){
-//                keyWord = prtclFormat.getFmtSckey();
-//            }else {
-//                keyWord = prtclFormat.getFmtCckey();
-//            }
-        switch (frameRespData.getOperCode()) {
-            case "53":
+        switch (frameRespData.getOperType()) {
+            case SysConfigConstant.OPREATE_QUERY_RESP:
                 prtcService.queryParaResponse(frameRespData);
                 break;
-            case "41":
+            case SysConfigConstant.OPREATE_CONTROL_RESP:
                 prtcService.ctrlParaResponse(frameRespData);
                 break;
             default:
@@ -68,7 +60,7 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
         byte[] bytes = socketEntity.getBytes();
         //数据体长度
         int len = bytesToNum(bytes, 1, 2, ByteBuf::readShort) - 4;
-        //响应数据类型
+        //响应数据类型标识   查询0X53 控制0X41
         Byte respType = bytesToNum(bytes, 5, 1, ByteBuf::readByte);
         //参数命令标识
         Byte cmd = bytesToNum(bytes, 6, 1, ByteBuf::readByte);
@@ -76,8 +68,12 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
         byte[] paramBytes = byteArrayCopy(bytes, 6, len);
         String hexRespType = numToHexStr(Long.valueOf(respType));
         String hexCmd = numToHexStr(Long.valueOf(cmd));
+
+        //获取操作类型
+        PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameRespData.getDevType(), hexCmd);
+        String operateType = BaseInfoContainer.getOptByPrtcl(prtclFormat, hexRespType);
+        frameRespData.setOperType(operateType);
         frameRespData.setCmdMark(hexCmd);
-        frameRespData.setOperCode(hexRespType);
         frameRespData.setParamBytes(paramBytes);
         return frameRespData;
     }
