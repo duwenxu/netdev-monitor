@@ -49,15 +49,7 @@ public class GfPrtcServiceImpl implements IParaPrtclAnalysisService {
     @Override
     public FrameRespData queryParaResponse(FrameRespData respData) {
         FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),respData.getCmdMark());
-        byte[] bytes = respData.getParamBytes();
-        FrameParaData paraInfo = new FrameParaData();
-        BeanUtil.copyProperties(frameParaInfo, paraInfo, true);
-        BeanUtil.copyProperties(respData, paraInfo, true);
-        paraInfo.setLen(Integer.parseInt(frameParaInfo.getParaByteLen()));
-        paraInfo.setParaVal(byteToNumber(bytes, frameParaInfo.getParaStartPoint() - 1,
-                Integer.parseInt(frameParaInfo.getParaByteLen()), isUnsigned(sysParamService, frameParaInfo.getAlertPara())).toString());
-        respData.setFrameParaList(Lists.list(paraInfo));
-        return respData;
+        return setRespData(respData, frameParaInfo,frameParaInfo.getParaStartPoint() - 1);
     }
 
     @Override
@@ -68,13 +60,19 @@ public class GfPrtcServiceImpl implements IParaPrtclAnalysisService {
     @Override
     public FrameRespData ctrlParaResponse(FrameRespData respData) {
         FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),respData.getCmdMark());
+        return setRespData(respData, frameParaInfo,0);
+    }
+
+    private FrameRespData setRespData(FrameRespData respData, FrameParaInfo frameParaInfo, int offset) {
         byte[] bytes = respData.getParamBytes();
         FrameParaData paraInfo = new FrameParaData();
         BeanUtil.copyProperties(frameParaInfo, paraInfo, true);
         BeanUtil.copyProperties(respData, paraInfo, true);
         paraInfo.setLen(Integer.parseInt(frameParaInfo.getParaByteLen()));
-        paraInfo.setParaVal(byteToNumber(bytes, 0,
-                Integer.parseInt(frameParaInfo.getParaByteLen()), isUnsigned(sysParamService, frameParaInfo.getAlertPara())).toString());
+        paraInfo.setParaVal(byteToNumber(bytes
+                , offset
+                , Integer.parseInt(frameParaInfo.getParaByteLen())
+                , isUnsigned(sysParamService, frameParaInfo.getAlertPara())).toString());
         respData.setFrameParaList(Lists.list(paraInfo));
         return respData;
     }
