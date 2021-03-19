@@ -59,6 +59,9 @@ public class DevCmdSendService implements IDevCmdSendService {
         frameParaData.setDevType(frameReqData.getDevType());
         frameParaData.setParaNo(paraInfo.getParaNo());
         frameParaData.setParaVal(paraVal);
+        if(!StringUtils.isEmpty(paraInfo.getParaByteLen())){
+            frameParaData.setLen(Integer.parseInt(paraInfo.getParaByteLen()));
+        }
         paraDataList.add(frameParaData);
         frameReqData.setFrameParaList(paraDataList);
         dataSendService.paraCtrSend(frameReqData);
