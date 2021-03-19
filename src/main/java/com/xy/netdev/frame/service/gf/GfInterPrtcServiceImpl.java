@@ -42,7 +42,6 @@ public class GfInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
 
     @Override
     public void queryPara(FrameReqData reqInfo) {
-        reqInfo.setAccessType(SysConfigConstant.ACCESS_TYPE_PARAM);
         setParamBytes(reqInfo);
         socketMutualService.request(reqInfo, ProtocolRequestEnum.QUERY);
     }
@@ -82,7 +81,8 @@ public class GfInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
                 .peek(frameParaData -> {
                     //防止null
                     if (Objects.isNull(frameParaData.getLen())){
-                        frameParaData.setLen(1);
+                        FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(reqInfo.getDevType(), reqInfo.getCmdMark());
+                        frameParaData.setLen(Integer.parseInt(frameParaInfo.getParaByteLen()));
                     }
                 })
                 .map(frameParaData -> ByteUtils.objToBytes(frameParaData.getParaVal(), frameParaData.getLen()))
