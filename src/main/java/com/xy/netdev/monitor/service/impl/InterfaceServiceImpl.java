@@ -1,6 +1,8 @@
 package com.xy.netdev.monitor.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.monitor.bo.TransUiData;
 import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.entity.ParaInfo;
@@ -56,10 +58,16 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
      * @return
      */
     private List<TransUiData> formatTransUiData(String id, boolean isBing,boolean isSelect){
+        //获取设备接口信息
+        Interface anInterface = this.baseMapper.selectById(id);
         //分解设备接口绑定的参数code
-        List<String> paraIds = Arrays.asList(this.baseMapper.selectById(id).getItfDataFormat().split(","));
-        //获取设备参数列表
-        List<ParaInfo> paraInfos = paraInfoService.list();
+        List<String> paraIds = Arrays.asList(anInterface.getItfDataFormat().split(","));
+        //获取有效的非子参数的和接口设备类型相同的设备参数列表
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("NDPA_STATUS",SysConfigConstant.STATUS_OK);
+        queryWrapper.eq("DEV_TYPE",anInterface.getDevType());
+        queryWrapper.ne("NDPA_CMPLEX_LEVEL",SysConfigConstant.PARA_COMPLEX_LEVEL_SUB);
+        List<ParaInfo> paraInfos = paraInfoService.list(queryWrapper);
         if(isBing){
             paraInfos = paraInfos.stream().filter(paraInfo -> paraIds.contains(paraInfo.getNdpaId().toString())).collect(Collectors.toList());
         }else{

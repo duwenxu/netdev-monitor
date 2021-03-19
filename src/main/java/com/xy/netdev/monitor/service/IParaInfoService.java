@@ -1,7 +1,11 @@
 package com.xy.netdev.monitor.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.xy.netdev.monitor.entity.ParaInfo;
+import org.apache.ibatis.annotations.Param;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * 设备参数 服务类
@@ -11,4 +15,15 @@ import com.xy.netdev.monitor.entity.ParaInfo;
  */
 public interface IParaInfoService extends IService<ParaInfo> {
 
+    /**
+     * 获取所有 非子参数 参数分页
+     * @param page
+     * @param req
+     * @param paraInfo
+     * @return
+     */
+    IPage<ParaInfo> queryPageListAll(IPage<ParaInfo> page, HttpServletRequest req, ParaInfo paraInfo);
+
+
+    IPage<ParaInfo> querySubPageList(IPage<ParaInfo> page, HttpServletRequest req, ParaInfo paraInfo);
 }

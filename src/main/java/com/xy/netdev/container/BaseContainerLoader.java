@@ -57,7 +57,7 @@ public class BaseContainerLoader {
         //初始化告警信息
         initDevAlert();
         //初始化设备参数容器
-        initDevParam(sysParamService);
+        initDevParam();
         //初始化设备状态容器
         DevStatusContainer.init(sysParamService);
         log.info("容器信息更新完成，耗时:["+(System.currentTimeMillis()-time)+"ms]");
@@ -72,7 +72,7 @@ public class BaseContainerLoader {
         //查询有效的参数列表
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("NDPA_STATUS",SysConfigConstant.STATUS_OK);
-        queryWrapper.orderByAsc("NDPA_OUTTER_STATUS");
+        queryWrapper.orderByAsc("NDPA_CMPLEX_LEVEL");
         List<ParaInfo> paraInfos = paraInfoService.list(queryWrapper);
         paraInfos.forEach(paraInfo -> {
             paraInfo.setDevTypeCode(sysParamService.getParaRemark1(paraInfo.getDevType()));
@@ -92,9 +92,9 @@ public class BaseContainerLoader {
         //查询有效的参数列表:根据NDPA_CMPLEX_LEVEL对list：用来生成参数的上下级关系
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("NDPA_STATUS",SysConfigConstant.STATUS_OK);
-        queryWrapper.orderByAsc("NDPA_OUTTER_STATUS");
+        queryWrapper.orderByAsc("NDPA_CMPLEX_LEVEL");
         List<ParaInfo> paraInfos = paraInfoService.list(queryWrapper);
-        DevParaInfoContainer.initData(paraInfos);
+        DevParaInfoContainer.initData(paraInfos,sysParamService);
     }
 
     /**
