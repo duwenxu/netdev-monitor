@@ -83,6 +83,9 @@ public class DevParaInfoContainer {
         viewInfo.setParaSpellFmt(paraInfo.getNdpaSpellFmt());
         viewInfo.setParaViewFmt(paraInfo.getNdpaViewFmt());
         viewInfo.setParaVal(paraInfo.getNdpaDefaultVal());
+        viewInfo.setSubParaLinkType(paraInfo.getNdpaLinkType());
+        viewInfo.setSubParaLinkCode(paraInfo.getNdpaLinkCode());
+        viewInfo.setSubParaLinkVal(paraInfo.getNdpaLinkVal());
         viewInfo.setDevNo(devNo);
         viewInfo.setDevType(paraInfo.getDevType());
         viewInfo.setParaCmdMark(paraInfo.getNdpaCmdMark());
