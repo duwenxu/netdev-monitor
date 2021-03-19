@@ -38,13 +38,13 @@ public class DevStatusContainer {
             BaseInfo devInfo = BaseInfoContainer.getDevInfoByNo(devNo);
             List<BaseInfo> masterSlaveDevList = BaseInfoContainer.getDevsFatByDevNo(devNo);
             devStatusInfo.setDevNo(devNo);
-            devStatusInfo.setDevTypeCode(sysParamService.getParaRemark1(devInfo.getDevType()));
+            devStatusInfo.setDevTypeCode(sysParamServiceLocal.getParaRemark1(devInfo.getDevType()));
             devStatusInfo.setDevDeployType(devInfo.getDevDeployType());
             devStatusInfo.setIsInterrupt(SysConfigConstant.RPT_DEV_STATUS_ISINTERRUPT_NO);
             devStatusInfo.setIsAlarm(SysConfigConstant.RPT_DEV_STATUS_ISALARM_NO);
             devStatusInfo.setIsUseStandby(initDevIsUseStandby(devInfo,masterSlaveDevList));
             devStatusInfo.setMasterOrSlave(initDevMasterOrSlave(devStatusInfo.getIsUseStandby(),masterSlaveDevList));
-            devStatusInfo.setWorkStatus(sysParamService.getParaRemark1(devInfo.getDevStatus()));
+            devStatusInfo.setWorkStatus(sysParamServiceLocal.getParaRemark1(devInfo.getDevStatus()));
             devStatusMap.put(devNo,devStatusInfo);
         });
     }

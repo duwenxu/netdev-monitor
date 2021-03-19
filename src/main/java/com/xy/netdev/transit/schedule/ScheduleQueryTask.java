@@ -14,14 +14,14 @@ import java.util.List;
  * @create 2021-03-10 18:07
  */
 @Slf4j
-public class ScheduleReportTask implements Runnable {
+public class ScheduleQueryTask implements Runnable {
 
     private final IDevCmdSendService devCmdSendService;
     private final List<FrameReqData> frameReqDataList;
     private final Long interval;
     private final Long commonInterval;
 
-    public ScheduleReportTask(List<FrameReqData> frameReqDataList, Long interval, Long commonInterval, IDevCmdSendService devCmdSendService) {
+    public ScheduleQueryTask(List<FrameReqData> frameReqDataList, Long interval, Long commonInterval, IDevCmdSendService devCmdSendService) {
         this.frameReqDataList = frameReqDataList;
         this.interval = interval;
         this.commonInterval = commonInterval;
