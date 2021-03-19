@@ -37,7 +37,7 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
     public final static String RESP_START_MARK = ">";
     /**设备物理地址设置*/
     public final static String SET_ADDR_CMD = "SPA";
-
+    /**设备物理广播地址*/
     public final static String BROADCAST_ADDR = "255";
 
 
@@ -125,6 +125,7 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
         frameParaData.setParaVal(value);
         frameParaDatas.add(frameParaData);
         respData.setFrameParaList(frameParaDatas);
+        respData.setReciveOrignData(respStr);
         dataReciveService.paraCtrRecive(respData);
         return respData;
     }
