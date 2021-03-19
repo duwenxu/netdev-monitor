@@ -42,7 +42,7 @@ public class GfInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
 
     @Override
     public void queryPara(FrameReqData reqInfo) {
-        reqInfo.setAccessType(SysConfigConstant.ACCESS_TYPE_PARAM);
+        reqInfo.setAccessType(SysConfigConstant.ACCESS_TYPE_INTERF);
         setParamBytes(reqInfo);
         socketMutualService.request(reqInfo, ProtocolRequestEnum.QUERY);
     }
