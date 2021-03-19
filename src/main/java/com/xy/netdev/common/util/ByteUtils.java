@@ -75,13 +75,19 @@ public class ByteUtils {
      * @return
      */
     public static byte[] byteArrayCopy(byte[] bytes, int start, int length){
+        if (length == 0){
+            return new byte[]{};
+        }
         byte[] byteArray = new byte[length];
         System.arraycopy(bytes, start, byteArray, 0, length);
         return byteArray;
     }
 
-
     public static byte[] objToBytes(Object obj, int len){
+        return objToBytes(obj, len, false);
+    }
+
+    public static byte[] objToBytes(Object obj, int len, boolean isFloat){
         byte [] data;
         if (len == 1){
             return new byte[]{Byte.parseByte(obj.toString())};
@@ -98,10 +104,18 @@ public class ByteUtils {
                 data = objToBytes(Integer.parseInt(obj.toString()), byteOrder, Unpooled::copyMedium);
                 break;
             case 4:
-                data = objToBytes(Integer.parseInt(obj.toString()), byteOrder, Unpooled::copyInt);
+                if (!isFloat){
+                    data = objToBytes(Integer.parseInt(obj.toString()), byteOrder, Unpooled::copyInt);
+                }else {
+                    data = objToBytes(Integer.parseInt(obj.toString()), byteOrder, Unpooled::copyFloat);
+                }
                 break;
             case 8:
-                data = objToBytes(Long.parseLong(obj.toString()), byteOrder, Unpooled::copyLong);
+                if (!isFloat){
+                    data = objToBytes(Long.parseLong(obj.toString()), byteOrder, Unpooled::copyLong);
+                }else {
+                    data = objToBytes(Long.parseLong(obj.toString()), byteOrder, Unpooled::copyDouble);
+                }
                 break;
             default:
                 data = obj.toString().getBytes(Charset.forName("GB2312"));
@@ -112,7 +126,7 @@ public class ByteUtils {
 
 
     public static Number byteToNumber(byte[] bytes, int offset, int length){
-        return byteToNumber(bytes, offset, length, false);
+        return byteToNumber(bytes, offset, length, false, false);
     }
 
     public static Number bytesToNum(byte[] bytes, int offset, int length, Function<ByteBuf, Number> function,
@@ -123,7 +137,11 @@ public class ByteUtils {
         return bytesToNum(bytes, offset, length, function1);
     }
 
-    public static Number byteToNumber(byte[] bytes, int offset, int length, boolean isUnsigned){
+    public static Number byteToNumber(byte[] bytes, int offset, int length,  boolean isFloat){
+        return byteToNumber(bytes, offset, length, false, isFloat);
+    }
+
+    public static Number byteToNumber(byte[] bytes, int offset, int length, boolean isUnsigned, boolean isFloat){
         Number num = null;
         switch (length){
             case 1:
@@ -136,10 +154,18 @@ public class ByteUtils {
                 num = bytesToNum(bytes, offset, length, ByteBuf::readMedium, ByteBuf::readUnsignedShort, isUnsigned);
                 break;
             case 4:
-                num = bytesToNum(bytes, offset, length, ByteBuf::readInt, ByteBuf::readUnsignedMedium, isUnsigned);
+                if (!isFloat){
+                    num = bytesToNum(bytes, offset, length, ByteBuf::readInt, ByteBuf::readUnsignedMedium, isUnsigned);
+                }else {
+                    num = at.favre.lib.bytes.Bytes.from(byteArrayCopy(bytes, offset, length)).toFloat();
+                }
                 break;
             case 8:
-                num = bytesToNum(bytes, offset, length, ByteBuf::readLong, ByteBuf::readUnsignedInt, isUnsigned);
+                if (!isFloat){
+                    num = bytesToNum(bytes, offset, length, ByteBuf::readLong, ByteBuf::readUnsignedInt, isUnsigned);
+                }else {
+                    num = at.favre.lib.bytes.Bytes.from(byteArrayCopy(bytes, offset, length)).toDouble();
+                }
                 break;
             default:break;
         }

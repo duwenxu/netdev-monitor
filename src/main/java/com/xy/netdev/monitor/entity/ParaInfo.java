@@ -1,21 +1,18 @@
 package com.xy.netdev.monitor.entity;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.extension.activerecord.Model;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableField;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.xy.common.annotation.Param;
-import com.xy.netdev.monitor.bo.ParaSpinnerInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
 
 /**
  * 设备参数
@@ -135,6 +132,18 @@ public class ParaInfo extends Model<ParaInfo> {
     @ApiModelProperty(value = "显示样式")
     @TableField(value = "NDPA_VIEW_FMT")
     private String ndpaViewFmt;
+
+    @ApiModelProperty(value = "上级参数ID")
+    @TableField(value = "NDPA_PARENT_ID")
+    private String ndpaParentId;
+
+    @ApiModelProperty(value = "复杂级别")
+    @TableField(value = "NDPA_CMPLEX_LEVEL")
+    private String ndpaCmplexLevel;
+
+    @ApiModelProperty(value = "缺省值")
+    @TableField(value = "NDPA_DEFAULT_VAL")
+    private String ndpaDefaultVal;
 
     @ApiModelProperty(value = "设备类型编码")
     @TableField(exist = false)

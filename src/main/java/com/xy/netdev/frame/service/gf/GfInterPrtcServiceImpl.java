@@ -13,10 +13,8 @@ import com.xy.netdev.frame.enums.ProtocolRequestEnum;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
-import com.xy.netdev.transit.IDataReciveService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 
 import java.util.List;
 import java.util.Objects;
@@ -67,8 +65,10 @@ public class GfInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
     }
 
     public static void setParamBytes(FrameReqData reqInfo) {
-        List<FrameParaData> frameParaList = reqInfo.getFrameParaList();
-        List<byte[]> bytes = frameParaList.stream()
+        if (reqInfo.getFrameParaList() == null){
+            return;
+        }
+        List<byte[]> bytes = reqInfo.getFrameParaList().stream()
                 .filter(Objects::nonNull)
                 .filter(frameParaData -> StrUtil.isNotBlank(frameParaData.getParaVal()))
                 .peek(frameParaData -> {

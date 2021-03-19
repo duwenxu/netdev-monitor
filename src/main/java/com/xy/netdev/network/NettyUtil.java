@@ -1,7 +1,6 @@
 package com.xy.netdev.network;
 
 import cn.hutool.core.thread.ThreadUtil;
-import cn.hutool.core.util.HexUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.xy.netdev.frame.entity.SocketEntity;
 import com.xy.netdev.network.enums.SocketTypeEnum;

@@ -13,8 +13,8 @@ import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.transit.IDataReciveService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -58,11 +58,11 @@ public class ModemPrtcServiceImpl implements IParaPrtclAnalysisService {
             String paraCmk = data.substring(0, 2);
             String paraValue = data.substring(2);
             FrameParaInfo paraInfoByCmd = BaseInfoContainer.getParaInfoByCmd(devType, paraCmk);
-            if (paraInfoByCmd == null){ continue;}
+            if (paraInfoByCmd == null|| StringUtils.isEmpty(paraInfoByCmd.getParaNo())){ continue;}
             FrameParaData frameParaData = FrameParaData.builder()
                     .devType(devType)
                     .devNo(respData.getDevNo())
-                    .paraVal(paraValue)
+                    .paraVal(paraValue.toUpperCase())
                     .paraNo(paraInfoByCmd.getParaNo())
                     .build();
             frameParaDataList.add(frameParaData);
@@ -75,7 +75,13 @@ public class ModemPrtcServiceImpl implements IParaPrtclAnalysisService {
 
     @Override
     public void ctrlPara(FrameReqData reqInfo) {
-        socketMutualService.request(reqInfo, ProtocolRequestEnum.CONTROL);
+        List<FrameParaData> paraList = reqInfo.getFrameParaList();
+        if (paraList == null||paraList.isEmpty()){ return; }
+        String paraVal = paraList.get(0).getParaVal();
+        String dataBody = reqInfo.getCmdMark() + paraVal;
+        byte[] bytes = HexUtil.decodeHex(dataBody);
+        reqInfo.setParamBytes(bytes);
+        socketMutualService.request(reqInfo, ProtocolRequestEnum.QUERY);
     }
 
     /**

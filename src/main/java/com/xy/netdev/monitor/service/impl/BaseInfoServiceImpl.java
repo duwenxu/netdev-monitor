@@ -1,5 +1,6 @@
 package com.xy.netdev.monitor.service.impl;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -10,10 +11,12 @@ import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.ParaHandlerUtil;
 import com.xy.netdev.common.util.XmlUtil;
 import com.xy.netdev.container.BaseInfoContainer;
-import com.xy.netdev.container.DevParaInfoContainer;
+import com.xy.netdev.monitor.bo.ParaSpinnerInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
+import com.xy.netdev.monitor.entity.ParaInfo;
 import com.xy.netdev.monitor.mapper.BaseInfoMapper;
 import com.xy.netdev.monitor.service.IBaseInfoService;
+import com.xy.netdev.monitor.service.IParaInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +40,8 @@ import static com.xy.netdev.common.constant.SysConfigConstant.*;
 public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> implements IBaseInfoService {
     @Autowired
     private ISysParamService sysParamService;
+    @Autowired
+    private IParaInfoService paraInfoService;
 
     @Override
     public Map<String, Object> baseInfoMenuMap() {
@@ -110,6 +115,8 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
     private String generateDevModelFileMap(){
         List list = new ArrayList();
         Map<String,Object> map = new HashMap<>();
+        //获取有效且对外开放的参数列表
+        List<ParaInfo> paraInfos = paraInfoService.list().stream().filter(paraInfo -> SysConfigConstant.STATUS_OK.equals(paraInfo.getNdpaStatus()) && SysConfigConstant.IS_DEFAULT_TRUE.equals(paraInfo.getNdpaOutterStatus())).collect(Collectors.toList());
         /***********************增加dev节点********************************/
         BaseInfoContainer.getDevInfos().forEach(baseInfo -> {
             Map<String,Object> devMap = new LinkedHashMap<>();
@@ -120,45 +127,47 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
             devMap.put("-corp",sysParamService.getParaRemark1(baseInfo.getDevCorp()));
             devMap.put("-cname",ParaHandlerUtil.generateEmptyStr(baseInfo.getDevName()));
             List paraList = new ArrayList();
-            DevParaInfoContainer.getDevParaViewList(baseInfo.getDevNo()).forEach(parainfo->{
+            //获取指定设备的参数并过滤生成可提供给54所的参数用来生成文件
+            String devType = BaseInfoContainer.getDevInfoByNo(baseInfo.getDevNo()).getDevType();
+            paraInfos.stream().filter(paraInfo -> devType.equals(paraInfo.getDevType())).forEach(parainfo->{
                 Map<String,Object> paraMap = new LinkedHashMap<>();
                 //给param节点增加属性值
-                paraMap.put("-no",parainfo.getParaNo());
-                paraMap.put("-name",ParaHandlerUtil.generateEmptyStr(parainfo.getParaName()));
-                paraMap.put("-access",ParaHandlerUtil.generateEmptyStr(sysParamService.getParaRemark1(parainfo.getAccessRight())));
-                paraMap.put("-unit", ParaHandlerUtil.generateEmptyStr(parainfo.getParaUnit()));
+                paraMap.put("-no",parainfo.getNdpaNo());
+                paraMap.put("-name",ParaHandlerUtil.generateEmptyStr(parainfo.getNdpaName()));
+                paraMap.put("-access",ParaHandlerUtil.generateEmptyStr(sysParamService.getParaRemark1(parainfo.getNdpaAccessRight())));
+                paraMap.put("-unit", ParaHandlerUtil.generateEmptyStr(parainfo.getNdpaUnit()));
                 /***********************增加type节点********************************/
                 Map<String,Object> typeMap = new LinkedHashMap<>();
                 //给type节点增加属性值
-                typeMap.put("-name",sysParamService.getParaName(parainfo.getParaDatatype()));
+                typeMap.put("-name",sysParamService.getParaName(parainfo.getNdpaDatatype()));
                 //当数据类型为字符串指定字符串的len
-                if("0023004".equals(parainfo.getParaDatatype())){
-                    typeMap.put("-len",parainfo.getParaStrLen());
+                if("0023004".equals(parainfo.getNdpaDatatype())){
+                    typeMap.put("-len",parainfo.getNdpaStrLen());
                 }
                 paraMap.put("type",typeMap);
                 /***********************增加showModel节点****************************/
                 Map<String,Object> showMap = new LinkedHashMap<>();
-                showMap.put("-name",ParaHandlerUtil.generateEmptyStr(sysParamService.getParaRemark1(parainfo.getParahowMode())));
-                if("0024002".equals(parainfo.getParahowMode())){
-                    List  modelList = new ArrayList();
-                    parainfo.getSpinnerInfoList().forEach(paraSpinnerInfo->{
-                        Map<String,Object> modelMap = new LinkedHashMap<>();
+                showMap.put("-name", ParaHandlerUtil.generateEmptyStr(sysParamService.getParaRemark1(parainfo.getNdpaShowMode())));
+                if ("0024002".equals(parainfo.getNdpaShowMode())) {
+                    List modelList = new ArrayList();
+                    JSONArray.parseArray(parainfo.getNdpaSelectData(), ParaSpinnerInfo.class).forEach(paraSpinnerInfo -> {
+                        Map<String, Object> modelMap = new LinkedHashMap<>();
                         //给type节点增加属性值
-                        modelMap.put("-index",ParaHandlerUtil.generateEmptyStr(paraSpinnerInfo.getCode()));
-                        modelMap.put("",paraSpinnerInfo.getName());
+                        modelMap.put("-index", ParaHandlerUtil.generateEmptyStr(paraSpinnerInfo.getCode()));
+                        modelMap.put("", paraSpinnerInfo.getName());
                         modelList.add(modelMap);
                     });
-                    showMap.put("option",modelList);
+                    showMap.put("option", modelList);
                 }
-                paraMap.put("showMode",showMap);
+                paraMap.put("showMode", showMap);
                 /***********************增加range节点********************************/
-                String iRange = sysParamService.getParaRemark2(parainfo.getParaDatatype());
+                String iRange = sysParamService.getParaRemark2(parainfo.getNdpaDatatype());
                 if(!StringUtils.isBlank(iRange)){
                     Map<String,Object> rangeMap = new LinkedHashMap<>();
                     rangeMap.put("-name",iRange);
-                    rangeMap.put("-down",ParaHandlerUtil.generateEmptyStr(parainfo.getParaValMax()));
-                    rangeMap.put("-up",ParaHandlerUtil.generateEmptyStr(parainfo.getParaValMin()));
-                    rangeMap.put("-step",parainfo.getParaValStep());
+                    rangeMap.put("-down",ParaHandlerUtil.generateEmptyStr(parainfo.getNdpaValMax()));
+                    rangeMap.put("-up",ParaHandlerUtil.generateEmptyStr(parainfo.getNdpaValMin()));
+                    rangeMap.put("-step",parainfo.getNdpaValStep());
                     paraMap.put("range",new LinkedHashMap(){{put("IRange",rangeMap);}});
                 }
                 paraList.add(paraMap);
@@ -173,7 +182,7 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
     @Override
     public boolean changeUseStatus(String devNo) {
         boolean isOk=false;
-        String devInUse;
+        String masterOrSlaveStatus;
         //修改使用状态
         if (StringUtils.isNotBlank(devNo)) {
             BaseInfo targetDev = this.getById(devNo);
@@ -188,11 +197,10 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
                 }
             }
 
-            //todo 调用接口通知设备状态改变
             if (DEV_DEPLOY_MASTER.equals(targetDev.getDevDeployType())){
-                devInUse = RPT_DEV_STATUS_MASTERORSLAVE_MASTER;
+                masterOrSlaveStatus = RPT_DEV_STATUS_MASTERORSLAVE_MASTER;
             }else {
-                devInUse = RPT_DEV_STATUS_MASTERORSLAVE_SLAVE;
+                masterOrSlaveStatus = RPT_DEV_STATUS_MASTERORSLAVE_SLAVE;
             }
 
             targetDev.setDevUseStatus(DEV_USE_STATUS_INUSE);

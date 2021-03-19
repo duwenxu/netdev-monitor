@@ -47,7 +47,13 @@ public class ScheduleReportHelper {
      * @return
      */
     private void addAvailableBases() {
-        List<BaseInfo> baseInfos = baseInfoService.list().stream().filter(base -> base.getDevStatus().equals(SysConfigConstant.DEV_STATUS_NEW)).collect(Collectors.toList());
+        List<BaseInfo> allBases = baseInfoService.list();
+        //所有父设备
+        List<String> parentBases = allBases.stream().map(BaseInfo::getDevParentNo).distinct().collect(Collectors.toList());
+        List<BaseInfo> baseInfos = allBases.stream()
+                .filter(base -> base.getDevStatus().equals(SysConfigConstant.DEV_STATUS_NEW))
+                .filter(base-> !parentBases.contains(base.getDevNo()))
+                .collect(Collectors.toList());
         availableBases.addAll(baseInfos);
     }
 

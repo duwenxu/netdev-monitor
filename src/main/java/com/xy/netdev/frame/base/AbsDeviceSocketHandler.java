@@ -3,7 +3,6 @@ package com.xy.netdev.frame.base;
 import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
-import com.google.common.base.Strings;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.factory.ParaPrtclFactory;
@@ -22,12 +21,10 @@ import com.xy.netdev.network.NettyUtil;
 import io.netty.channel.ChannelFuture;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.xy.netdev.container.BaseInfoContainer.getDevInfo;
 

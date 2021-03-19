@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
  * @create 2021-03-10 11:39
  */
 @Slf4j
-//@Component
+@Component
 public class ScheduleQuery implements ApplicationRunner {
 
     @Autowired
@@ -49,16 +49,16 @@ public class ScheduleQuery implements ApplicationRunner {
      * 设备参数定时查询
      */
     public void doScheduleQuery() {
-        List<BaseInfo> baseInfos = ScheduleReportHelper.getAvailableBases().stream().filter(base-> base.getDevType().equals("0020008")).collect(Collectors.toList());
-//        List<BaseInfo> baseInfos = ScheduleReportHelper.getAvailableBases();
+//        List<BaseInfo> baseInfos = ScheduleReportHelper.getAvailableBases().stream().filter(base-> base.getDevType().equals("0020008")).collect(Collectors.toList());
+        List<BaseInfo> baseInfos = ScheduleReportHelper.getAvailableBases();
         //单个设备所有查询对象的封装list映射
         Map<BaseInfo, List<FrameReqData>> scheduleReqBodyMap = new ConcurrentHashMap<>(20);
-        List<FrameReqData> scheduleReqBodyList = new ArrayList<>();
         baseInfos.forEach(base -> {
             //获取所有可读参数
             List<FrameParaInfo> parasByDevType = BaseInfoContainer.getParasByDevType(base.getDevType());
             List<FrameParaInfo> readParasByDevType = parasByDevType.stream().parallel()
                     .filter(param -> MonitorConstants.READ_ONLY.equals(param.getNdpaAccessRight()) || MonitorConstants.READ_WRITE.equals(param.getNdpaAccessRight())).collect(Collectors.toList());
+            List<FrameReqData> scheduleReqBodyList = new ArrayList<>();
             //参数查询对象封装
             for (FrameParaInfo frameParaInfo : readParasByDevType) {
                 List<FrameParaData> frameParaList = new ArrayList<>();
@@ -130,19 +130,4 @@ public class ScheduleQuery implements ApplicationRunner {
                 .frameParaList(frameParaList)
                 .build();
     }
-
-
-    /**
-     * 设备参数定时上报
-     */
-    public void doScheduleReport() {
-        List<BaseInfo> baseInfos = ScheduleReportHelper.getAvailableBases();
-        //单个设备所有查询对象的封装list映射
-        Map<BaseInfo, List<FrameReqData>> scheduleReqBodyMap = new ConcurrentHashMap<>(20);
-        baseInfos.forEach(base -> {
-
-        });
-    }
-
-
 }

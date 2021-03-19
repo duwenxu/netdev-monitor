@@ -136,6 +136,24 @@ public interface SysConfigConstant {
      * 设备部署类型--独立设备   0031001
      */
     String  DEV_DEPLOY_ALONE="0031001";
+
+    /***
+     * 设备参数复杂级别--简单参数
+     */
+    String  PARA_COMPLEX_LEVEL_SIMPLE="0019001";
+    /***
+     * 设备参数复杂级别--复杂参数
+     */
+    String  PARA_COMPLEX_LEVEL_COMPLEX="0019002";
+    /***
+     * 设备参数复杂级别--组合参数
+     */
+    String  PARA_COMPLEX_LEVEL_COMPOSE="0019003";
+    /***
+     * 设备参数复杂级别--子参数
+     */
+    String  PARA_COMPLEX_LEVEL_SUB="0019004";
+
     /***
      * 设备部署类型--主设备   0031002
      */

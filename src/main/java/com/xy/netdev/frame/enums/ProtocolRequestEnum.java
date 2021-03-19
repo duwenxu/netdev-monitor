@@ -1,7 +1,5 @@
 package com.xy.netdev.frame.enums;
 
-import lombok.Getter;
-
 public enum ProtocolRequestEnum {
     QUERY,
     CONTROL,

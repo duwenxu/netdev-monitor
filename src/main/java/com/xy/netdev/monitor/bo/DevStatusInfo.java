@@ -29,6 +29,12 @@ public class DevStatusInfo extends Model<DevStatusInfo>  {
 
     @ApiModelProperty(value = "设备编号")
     private String devNo;
+
+    /**
+     * 0031002:主设备|0031003:备设备
+     */
+    @ApiModelProperty(value = "设备部署类型")
+    private String devDeployType;
     /**
      * 0:正常|1:中断
      */
