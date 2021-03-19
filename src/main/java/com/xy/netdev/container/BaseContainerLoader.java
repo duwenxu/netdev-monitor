@@ -72,7 +72,7 @@ public class BaseContainerLoader {
         //查询有效的参数列表
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("NDPA_STATUS",SysConfigConstant.STATUS_OK);
-        queryWrapper.orderByAsc("NDPA_OUTTER_STATUS");
+        queryWrapper.orderByAsc("NDPA_CMPLEX_LEVEL");
         List<ParaInfo> paraInfos = paraInfoService.list(queryWrapper);
         paraInfos.forEach(paraInfo -> {
             paraInfo.setDevTypeCode(sysParamService.getParaRemark1(paraInfo.getDevType()));
@@ -92,7 +92,7 @@ public class BaseContainerLoader {
         //查询有效的参数列表:根据NDPA_CMPLEX_LEVEL对list：用来生成参数的上下级关系
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("NDPA_STATUS",SysConfigConstant.STATUS_OK);
-        queryWrapper.orderByAsc("NDPA_OUTTER_STATUS");
+        queryWrapper.orderByAsc("NDPA_CMPLEX_LEVEL");
         List<ParaInfo> paraInfos = paraInfoService.list(queryWrapper);
         DevParaInfoContainer.initData(paraInfos,sysParamService);
     }
