@@ -1,5 +1,6 @@
 package com.xy.netdev.container;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.monitor.entity.BaseInfo;
@@ -13,7 +14,6 @@ import com.xy.netdev.monitor.service.IPrtclFormatService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -70,7 +70,10 @@ public class BaseContainerLoader {
         //查询有效的设备列表
         List<BaseInfo> devs = baseInfoService.list().stream().filter(baseInfo -> baseInfo.getDevStatus().equals(SysConfigConstant.DEV_STATUS_NEW)).collect(Collectors.toList());
         //查询有效的参数列表
-        List<ParaInfo> paraInfos = paraInfoService.list().stream().filter(paraInfo -> paraInfo.getNdpaStatus().equals(SysConfigConstant.STATUS_OK)).collect(Collectors.toList());
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("NDPA_STATUS",SysConfigConstant.STATUS_OK);
+        queryWrapper.orderByAsc("NDPA_OUTTER_STATUS");
+        List<ParaInfo> paraInfos = paraInfoService.list(queryWrapper);
         paraInfos.forEach(paraInfo -> {
             paraInfo.setDevTypeCode(sysParamService.getParaRemark1(paraInfo.getDevType()));
         });
@@ -86,8 +89,11 @@ public class BaseContainerLoader {
      * 加载设备参数信息
      */
     private void initDevParam(){
-        //查询有效的参数列表
-        List<ParaInfo> paraInfos = paraInfoService.list().stream().filter(paraInfo -> paraInfo.getNdpaStatus().equals(SysConfigConstant.STATUS_OK)).collect(Collectors.toList());
+        //查询有效的参数列表:根据NDPA_CMPLEX_LEVEL对list：用来生成参数的上下级关系
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("NDPA_STATUS",SysConfigConstant.STATUS_OK);
+        queryWrapper.orderByAsc("NDPA_OUTTER_STATUS");
+        List<ParaInfo> paraInfos = paraInfoService.list(queryWrapper);
         DevParaInfoContainer.initData(paraInfos);
     }
 
