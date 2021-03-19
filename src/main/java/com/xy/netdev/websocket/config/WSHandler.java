@@ -6,10 +6,9 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
+
 import java.util.Map;
 
 /**
@@ -57,16 +56,6 @@ public class WSHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
                     cache.setChannelUser(interfaceMark.toString(),devCd.toString(),channelHandlerContext.channel());
                 }else{
                     //存放接口和所有设备的关系
-                    cache.setChannelByIfe(interfaceMark.toString(),channelHandlerContext.channel());
-                }
-            }else{
-                //先移除这个通道的相关信息
-                cache.removeChannel(channel);
-                //增加新的接口与设备和通道的关系缓存
-                if(interfaceMark != null && devCd != null){
-                    cache.setChannelUser(interfaceMark.toString(),devCd.toString(),channelHandlerContext.channel());
-                }else{
-                    //增加新的接口和通道的关系缓存
                     cache.setChannelByIfe(interfaceMark.toString(),channelHandlerContext.channel());
                 }
             }

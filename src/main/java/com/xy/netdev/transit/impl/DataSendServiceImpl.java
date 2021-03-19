@@ -4,7 +4,6 @@ import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.DevLogInfoContainer;
 import com.xy.netdev.container.DevStatusContainer;
 import com.xy.netdev.frame.bo.FrameReqData;
-import com.xy.netdev.monitor.bo.DevStatusInfo;
 import com.xy.netdev.rpt.service.IDevStatusReportService;
 import com.xy.netdev.transit.IDataSendService;
 import com.xy.netdev.transit.util.DataHandlerHelper;

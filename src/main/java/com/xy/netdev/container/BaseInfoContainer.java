@@ -5,13 +5,15 @@ import com.xy.common.exception.BaseException;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.ParaHandlerUtil;
+import com.xy.netdev.monitor.bo.DevInterParam;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.bo.ParaSpinnerInfo;
-import com.xy.netdev.monitor.entity.*;
-import com.xy.netdev.monitor.bo.DevInterParam;
+import com.xy.netdev.monitor.entity.BaseInfo;
+import com.xy.netdev.monitor.entity.Interface;
+import com.xy.netdev.monitor.entity.ParaInfo;
+import com.xy.netdev.monitor.entity.PrtclFormat;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.mockito.internal.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

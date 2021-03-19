@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Component
-public class ScheduleQuery implements ApplicationRunner  {
+public class ScheduleQuery implements ApplicationRunner {
 
     @Autowired
     private IDevCmdSendService devCmdSendService;

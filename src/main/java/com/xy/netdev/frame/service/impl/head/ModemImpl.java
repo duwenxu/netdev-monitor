@@ -14,7 +14,6 @@ import com.xy.netdev.frame.entity.device.ModemEntity;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.modem.ModemPrtcServiceImpl;
-import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.PrtclFormat;
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;

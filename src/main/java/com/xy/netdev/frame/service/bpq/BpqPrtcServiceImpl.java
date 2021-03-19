@@ -1,6 +1,7 @@
 package com.xy.netdev.frame.service.bpq;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.xy.common.exception.BaseException;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
@@ -9,7 +10,10 @@ import com.xy.netdev.frame.enums.ProtocolRequestEnum;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
+import com.xy.netdev.monitor.entity.BaseInfo;
+import com.xy.netdev.monitor.service.IBaseInfoService;
 import com.xy.netdev.transit.IDataReciveService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -31,12 +35,18 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
     public final static String SEND_START_MARK = "<";
     /**设备响应开始标记*/
     public final static String RESP_START_MARK = ">";
+    /**设备物理地址设置*/
+    public final static String SET_ADDR_CMD = "SPA";
+
+    public final static String BROADCAST_ADDR = "255";
 
 
     @Autowired
     SocketMutualService socketMutualService;
     @Autowired
     IDataReciveService dataReciveService;
+    @Autowired
+    IBaseInfoService baseInfoService;
 
 
     /**
@@ -46,7 +56,8 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
     @Override
     public void queryPara(FrameReqData reqInfo) {
         StringBuilder sb = new StringBuilder();
-        sb.append(SEND_START_MARK).append(reqInfo.getDevNo()).append("/")
+        String localAddr = getDevLocalAddr(reqInfo);
+        sb.append(SEND_START_MARK).append(localAddr).append("/")
                 .append(reqInfo.getCmdMark());
         String command = sb.toString();
         reqInfo.setParamBytes(command.getBytes());
@@ -83,7 +94,8 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
     @Override
     public void ctrlPara(FrameReqData reqInfo) {
         StringBuilder sb = new StringBuilder();
-        sb.append(SEND_START_MARK).append(reqInfo.getDevNo()).append("/").append(reqInfo.getCmdMark())
+        String localAddr = getDevLocalAddr(reqInfo);
+        sb.append(SEND_START_MARK).append(localAddr).append("/").append(reqInfo.getCmdMark())
                 .append("_").append(reqInfo.getFrameParaList().get(0).getParaVal());
         String command = sb.toString();
         reqInfo.setParamBytes(command.getBytes());
@@ -101,7 +113,11 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
         int beginIdx = respStr.indexOf("/");
         int endIdx = respStr.indexOf("_");
         String value = respStr.substring(endIdx+1,respStr.indexOf("\\r"));
-        FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),respData.getCmdMark());
+        String cmdMark = respData.getCmdMark();
+        if(cmdMark.equals(SET_ADDR_CMD)) {
+            setDevLocalAddr(respData,value);
+        }
+        FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),cmdMark);
         List<FrameParaData> frameParaDatas = new ArrayList<>();
         FrameParaData frameParaData = new FrameParaData();
         BeanUtil.copyProperties(frameParaInfo, frameParaData, true);
@@ -113,5 +129,33 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
         return respData;
     }
 
+    /**
+     * 获取设备物理地址
+     * @param reqInfo
+     * @return
+     */
+    protected String getDevLocalAddr(FrameReqData reqInfo){
+        BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(reqInfo.getDevNo());
+        String localAddr = baseInfo.getDevLocalAddr();
+        if(StringUtils.isEmpty(localAddr)){
+            if(reqInfo.getCmdMark().equals(SET_ADDR_CMD)){
+                localAddr = BROADCAST_ADDR;
+            }
+        }
+        return localAddr;
+    }
+
+    /**
+     * 设置设备物理地址
+     * @param respData
+     * @param value
+     */
+    private void setDevLocalAddr(FrameRespData respData,String value){
+        String devNo = respData.getDevNo();
+        BaseInfo baseInfo = new BaseInfo();
+        baseInfo.setDevNo(devNo);
+        baseInfo.setDevLocalAddr(value);
+        baseInfoService.updateById(baseInfo);
+    }
 
 }

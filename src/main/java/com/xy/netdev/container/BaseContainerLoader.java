@@ -2,11 +2,18 @@ package com.xy.netdev.container;
 
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
-import com.xy.netdev.monitor.entity.*;
-import com.xy.netdev.monitor.service.*;
+import com.xy.netdev.monitor.entity.BaseInfo;
+import com.xy.netdev.monitor.entity.Interface;
+import com.xy.netdev.monitor.entity.ParaInfo;
+import com.xy.netdev.monitor.entity.PrtclFormat;
+import com.xy.netdev.monitor.service.IBaseInfoService;
+import com.xy.netdev.monitor.service.IInterfaceService;
+import com.xy.netdev.monitor.service.IParaInfoService;
+import com.xy.netdev.monitor.service.IPrtclFormatService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.stream.Collectors;

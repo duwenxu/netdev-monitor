@@ -2,13 +2,11 @@ package com.xy.netdev.rpt.service.impl;
 
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.monitor.bo.DevStatusInfo;
-import com.xy.netdev.rpt.bo.RptBodyDev;
 import com.xy.netdev.rpt.bo.RptHeadDev;
 import com.xy.netdev.rpt.service.RequestService;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static com.xy.netdev.common.util.ByteUtils.placeholderByte;
