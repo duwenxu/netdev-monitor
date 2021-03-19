@@ -257,4 +257,13 @@ public class DevStatusReportService implements IDevStatusReportService {
         return rptHeadDev;
     }
 
+    @Override
+    public void rptUseStandby(String devNo, String status) {
+
+    }
+
+    @Override
+    public void rptMasterOrSlave(String devNo, String status) {
+
+    }
 }
