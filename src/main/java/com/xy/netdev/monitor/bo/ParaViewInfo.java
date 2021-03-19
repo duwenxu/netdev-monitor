@@ -1,6 +1,8 @@
 package com.xy.netdev.monitor.bo;
 
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.xy.common.annotation.Param;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -42,7 +44,7 @@ public class ParaViewInfo {
     private String paraVal;
 
     /**
-     * 0022001 只写  0022002 只读  0022003读写
+     * 0022001 只写  0022002 只读  0022003读写  0020004无权限  0020005命令
      */
     @ApiModelProperty(value = "访问权限")
     private String accessRight;
@@ -127,6 +129,27 @@ public class ParaViewInfo {
 
     @ApiModelProperty(value = "设备编号")
     private String devNo;
+
+    /**
+     * 仅复杂级别为0019004-子参数时有效
+     * 0018001-独立参数 0018002-值关联
+     */
+    @ApiModelProperty(value = "子参数关联类型")
+    private String subParaLinkType;
+
+    /**
+     * 仅复杂级别为0019004-子参数   子参数关联类型 为0018002-值关联 时有效
+     * 该条参数关联 同一父参数的子参数的编码
+     */
+    @ApiModelProperty(value = "子参数关联参数编码")
+    private String subParaLinkCode;
+
+    /**
+     * 仅复杂级别为0019004-子参数   子参数关联类型 为0018002-值关联 时有效
+     * 该条参数关联 同一父参数的子参数的值
+     */
+    @ApiModelProperty(value = "子参数关联值")
+    private String subParaLinkVal;
     /**
      *  下拉框显示数据,当显示模式 是0024002 需要赋值下拉框列表
      */
