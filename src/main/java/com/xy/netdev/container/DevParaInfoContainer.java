@@ -2,6 +2,7 @@ package com.xy.netdev.container;
 
 import com.alibaba.fastjson.JSONArray;
 import com.xy.netdev.admin.service.ISysParamService;
+import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.ParaHandlerUtil;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameRespData;
@@ -50,7 +51,11 @@ public class DevParaInfoContainer {
         Map<String,ParaViewInfo>  paraViewMap = new TreeMap<>();
         if(devTypeParaList!=null&&!devTypeParaList.isEmpty()){
             for(ParaInfo paraInfo:devTypeParaList){
-                paraViewMap.put(ParaHandlerUtil.genLinkKey(devNo,paraInfo.getNdpaNo()),genParaViewInfo(devNo,paraInfo));
+                if(paraInfo.getNdpaCmplexLevel().equals(SysConfigConstant.PARA_COMPLEX_LEVEL_SUB)){
+                    paraViewMap.get(ParaHandlerUtil.genLinkKey(devNo,paraInfo.getNdpaParentNo())).addSubPara(genParaViewInfo(devNo,paraInfo));
+                }else{
+                    paraViewMap.put(ParaHandlerUtil.genLinkKey(devNo,paraInfo.getNdpaNo()),genParaViewInfo(devNo,paraInfo));
+                }
             }
         }
         return paraViewMap;
