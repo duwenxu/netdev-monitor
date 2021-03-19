@@ -136,6 +136,18 @@ public class ParaInfo extends Model<ParaInfo> {
     @TableField(value = "NDPA_VIEW_FMT")
     private String ndpaViewFmt;
 
+    @ApiModelProperty(value = "上级参数ID")
+    @TableField(value = "NDPA_PARENT_ID")
+    private String ndpaParentId;
+
+    @ApiModelProperty(value = "复杂级别")
+    @TableField(value = "NDPA_CMPLEX_LEVEL")
+    private String ndpaCmplexLevel;
+
+    @ApiModelProperty(value = "缺省值")
+    @TableField(value = "NDPA_DEFAULT_VAL")
+    private String ndpaDefaultVal;
+
     @ApiModelProperty(value = "设备类型编码")
     @TableField(exist = false)
     private String devTypeCode;
