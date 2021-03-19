@@ -17,27 +17,17 @@ public interface IDevStatusReportService {
     /**
      * 上报设备告警
      */
-    void rptWarning(FrameRespData respData, String status);
+    void rptWarning(String devNo, String status);
 
     /**
      * 上报设备未中断，恢复连接
      */
-    void rptUnInterrupted(FrameRespData respData, String status);
+    void rptUnInterrupted(String devNo, String status);
 
     /**
      * 上报设备中断
      */
-    void rptInterrupted(FrameReqData respData, String status);
-
-    /**
-     * 上报设备启用主备
-     */
-    void rptUseStandby(FrameRespData respData, String status);
-
-    /**
-     * 上报设备主备状态
-     */
-    void rptMasterOrSlave(FrameRespData respData, String status);
+    void rptInterrupted(String devNo, String status);
 
     /**
      * 上报设备启用主备
@@ -49,10 +39,11 @@ public interface IDevStatusReportService {
      */
     void rptMasterOrSlave(String devNo, String status);
 
+
     /**
      * 上报设备工作状态
      */
-    void rptWorkStatus(FrameRespData respData, String status);
+    void rptWorkStatus(String devNo, String status);
 
     /**
      * 上报告警和状态信息
