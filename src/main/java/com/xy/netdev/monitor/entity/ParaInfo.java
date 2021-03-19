@@ -138,7 +138,6 @@ public class ParaInfo extends Model<ParaInfo> {
     private String ndpaParentNo;
 
     @ApiModelProperty(value = "复杂级别")
-    @Param
     @TableField(value = "NDPA_CMPLEX_LEVEL")
     @Param
     private String ndpaCmplexLevel;
@@ -163,9 +162,6 @@ public class ParaInfo extends Model<ParaInfo> {
     @ApiModelProperty(value = "设备类型编码")
     @TableField(exist = false)
     private String devTypeCode;
-
-
-
 
     @Override
     protected Serializable pkVal() {
