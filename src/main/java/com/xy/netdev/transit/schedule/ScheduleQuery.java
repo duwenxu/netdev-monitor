@@ -50,7 +50,7 @@ public class ScheduleQuery implements ApplicationRunner  {
      */
     public void doScheduleQuery() {
 //        List<BaseInfo> baseInfos = ScheduleReportHelper.getAvailableBases().stream().filter(base-> base.getDevType().equals("0020008")).collect(Collectors.toList());
-        List<BaseInfo> baseInfos = ScheduleReportHelper.getAvailableBases();
+        List<BaseInfo> baseInfos = ScheduleQueryHelper.getAvailableBases();
         //单个设备所有查询对象的封装list映射
         Map<BaseInfo, List<FrameReqData>> scheduleReqBodyMap = new ConcurrentHashMap<>(20);
         baseInfos.forEach(base -> {
@@ -107,10 +107,10 @@ public class ScheduleQuery implements ApplicationRunner  {
      * @param scheduleReqBodyMap 参数信息
      */
     public void execQueryTask(Map<BaseInfo, List<FrameReqData>> scheduleReqBodyMap) {
-        Long commonInterval = ScheduleReportHelper.getQueryInterval();
+        Long commonInterval = ScheduleQueryHelper.getQueryInterval();
         scheduleReqBodyMap.forEach((base, queryList) -> {
             long interval = Long.parseLong(base.getDevIntervalTime() + "");
-            ScheduleReportTask scheduleReportTask = new ScheduleReportTask(queryList, interval, commonInterval, devCmdSendService);
+            ScheduleQueryTask scheduleReportTask = new ScheduleQueryTask(queryList, interval, commonInterval, devCmdSendService);
             Thread thread = new Thread(scheduleReportTask, base.getDevName() + "-scheduleQuery-thread");
             thread.start();
         });

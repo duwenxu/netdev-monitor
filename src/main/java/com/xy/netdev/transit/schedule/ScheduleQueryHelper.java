@@ -24,7 +24,7 @@ import static com.xy.netdev.common.constant.SysConfigConstant.DEV_REPORT_INTERVA
  */
 @Component
 @Order(100)
-public class ScheduleReportHelper {
+public class ScheduleQueryHelper {
 
     @Autowired
     private IBaseInfoService baseInfoService;
