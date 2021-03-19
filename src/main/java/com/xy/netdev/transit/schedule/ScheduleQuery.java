@@ -30,20 +30,20 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Component
-public class ScheduleQuery/** implements ApplicationRunner */ {
+public class ScheduleQuery implements ApplicationRunner  {
 
     @Autowired
     private IDevCmdSendService devCmdSendService;
 
-//    @Override
-//    public void run(ApplicationArguments args) throws Exception {
-//        log.info("-----设备状态定时查询开始...");
-//        try {
-//            doScheduleQuery();
-//        } catch (Exception e) {
-//            log.error("设备状态定时查询异常...", e);
-//        }
-//    }
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
+        log.info("-----设备状态定时查询开始...");
+        try {
+            doScheduleQuery();
+        } catch (Exception e) {
+            log.error("设备状态定时查询异常...", e);
+        }
+    }
 
     /**
      * 设备参数定时查询
