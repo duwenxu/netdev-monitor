@@ -50,6 +50,7 @@ public class ScheduleQuery implements ApplicationRunner {
      */
     public void doScheduleQuery() {
         List<BaseInfo> baseInfos = ScheduleReportHelper.getAvailableBases().stream().filter(base-> base.getDevType().equals("0020008")).collect(Collectors.toList());
+//        List<BaseInfo> baseInfos = ScheduleReportHelper.getAvailableBases();
         //单个设备所有查询对象的封装list映射
         Map<BaseInfo, List<FrameReqData>> scheduleReqBodyMap = new ConcurrentHashMap<>(20);
         List<FrameReqData> scheduleReqBodyList = new ArrayList<>();

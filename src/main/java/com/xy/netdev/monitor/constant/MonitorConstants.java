@@ -24,4 +24,10 @@ public interface MonitorConstants {
     String QUERY = "0027001";
     /**控制*/
     String SET = "0027002";
+
+    /**
+     * 设备类型
+     */
+    /**子调制解调器*/
+    String SUB_MODEM = "0020008";
 }
