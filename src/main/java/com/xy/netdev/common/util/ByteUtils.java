@@ -11,6 +11,7 @@ import org.springframework.util.DigestUtils;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
@@ -137,8 +138,9 @@ public class ByteUtils {
         return bytesToNum(bytes, offset, length, function1);
     }
 
-    public static Number byteToNumber(byte[] bytes, int offset, int length,  boolean isFloat){
-        return byteToNumber(bytes, offset, length, false, isFloat);
+
+    public static Number byteToNumber(byte[] bytes, int offset, int length,  boolean isUnsigned){
+        return byteToNumber(bytes, offset, length, isUnsigned, false);
     }
 
     public static Number byteToNumber(byte[] bytes, int offset, int length, boolean isUnsigned, boolean isFloat){

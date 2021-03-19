@@ -18,6 +18,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.xy.netdev.common.util.ByteUtils.byteToNumber;
+import static com.xy.netdev.frame.service.gf.GfPrtcServiceImpl.isFloat;
 import static com.xy.netdev.frame.service.gf.GfPrtcServiceImpl.isUnsigned;
 
 
@@ -53,9 +54,12 @@ public class AcuInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
                     BeanUtil.copyProperties(frameParaInfo, paraInfo, true);
                     BeanUtil.copyProperties(respData, paraInfo, true);
                     paraInfo.setLen(Integer.parseInt(frameParaInfo.getParaByteLen()));
-                    paraInfo.setParaVal(byteToNumber(bytes, frameParaInfo.getParaStartPoint() - 1,
-                            Integer.parseInt(frameParaInfo.getParaByteLen()), isUnsigned(sysParamService,
-                                    frameParaInfo.getAlertPara())).toString());
+                    paraInfo.setParaVal(
+                            byteToNumber(bytes, frameParaInfo.getParaStartPoint() - 1,
+                                    Integer.parseInt(frameParaInfo.getParaByteLen())
+                            ,isUnsigned(sysParamService, frameParaInfo.getAlertPara())
+                            ,isFloat(sysParamService, frameParaInfo.getAlertPara())
+                            ).toString());
                     return paraInfo;
                 }).collect(Collectors.toList());
         respData.setFrameParaList(frameParaDataList);

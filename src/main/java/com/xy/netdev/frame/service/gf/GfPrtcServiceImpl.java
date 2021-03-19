@@ -79,4 +79,11 @@ public class GfPrtcServiceImpl implements IParaPrtclAnalysisService {
     }
 
 
+    public static boolean isFloat(ISysParamService sysParamService, String paraNo){
+        String isFloat = sysParamService.getParaRemark3(paraNo);
+        if (StrUtil.isBlank(isFloat)){
+            return false;
+        }
+        return Integer.parseInt(isFloat) == 2;
+    }
 }
