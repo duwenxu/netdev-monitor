@@ -72,7 +72,7 @@ public class DataSendServiceImpl implements IDataSendService {
         //参数返回值是否产生中断
         if(status.equals(SysConfigConstant.RPT_DEV_STATUS_ISINTERRUPT_YES)
                 && DevStatusContainer.setInterrupt(frameReqData.getDevNo(),status)){
-            devStatusReportService.rptInterrupted(frameReqData,status);
+            devStatusReportService.rptInterrupted(frameReqData.getDevNo(),status);
         }
     }
 }
