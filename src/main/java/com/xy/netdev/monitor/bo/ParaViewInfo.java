@@ -1,13 +1,12 @@
 package com.xy.netdev.monitor.bo;
 
 
-
-import com.baomidou.mybatisplus.annotation.TableField;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
 import java.util.ArrayList;
 import java.util.List;
 

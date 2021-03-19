@@ -7,12 +7,11 @@ import com.xy.netdev.rpt.service.RequestService;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import static com.xy.netdev.common.util.ByteUtils.*;
+import static com.xy.netdev.common.util.ByteUtils.listToBytes;
+import static com.xy.netdev.common.util.ByteUtils.placeholderByte;
 
 /**
  * 告警时间上报
