@@ -23,6 +23,8 @@ import java.util.stream.Collectors;
  */
 public class DevParaInfoContainer {
 
+    private static ISysParamService sysParamService;
+
     /**
      * 设备参数MAP K设备编号  V设备参数信息
      */
@@ -34,7 +36,8 @@ public class DevParaInfoContainer {
      * @param paraList  参数列表
      * @return
      */
-    public static void initData(List<ParaInfo> paraList) {
+    public static void initData(List<ParaInfo> paraList,ISysParamService sysParamService) {
+        DevParaInfoContainer.sysParamService = sysParamService;
         Map<String,List<ParaInfo>> paraMapByDevType = paraList.stream().collect(Collectors.groupingBy(ParaInfo::getDevType));
         BaseInfoContainer.getDevNos().forEach(devNo->{
             String devType = BaseInfoContainer.getDevInfoByNo(devNo).getDevType();
@@ -62,7 +65,6 @@ public class DevParaInfoContainer {
     }
 
     private static ParaViewInfo  genParaViewInfo(String devNo,ParaInfo paraInfo){
-        ISysParamService sysParamService = BaseInfoContainer.getSysParamService();
         ParaViewInfo  viewInfo = new ParaViewInfo();
         viewInfo.setParaId(paraInfo.getNdpaId());
         viewInfo.setParaNo(paraInfo.getNdpaNo());

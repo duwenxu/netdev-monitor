@@ -17,6 +17,7 @@ import com.xy.netdev.monitor.entity.ParaInfo;
 import com.xy.netdev.monitor.mapper.BaseInfoMapper;
 import com.xy.netdev.monitor.service.IBaseInfoService;
 import com.xy.netdev.monitor.service.IParaInfoService;
+import com.xy.netdev.rpt.service.IDevStatusReportService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,8 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
     private ISysParamService sysParamService;
     @Autowired
     private IParaInfoService paraInfoService;
+    @Autowired
+    private IDevStatusReportService devStatusReportService;
 
     @Override
     public Map<String, Object> baseInfoMenuMap() {
@@ -196,13 +199,13 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
                     }
                 }
             }
-
+            //上报当前设备 主备状态
             if (DEV_DEPLOY_MASTER.equals(targetDev.getDevDeployType())){
                 masterOrSlaveStatus = RPT_DEV_STATUS_MASTERORSLAVE_MASTER;
             }else {
                 masterOrSlaveStatus = RPT_DEV_STATUS_MASTERORSLAVE_SLAVE;
             }
-
+            devStatusReportService.rptMasterOrSlave(devNo, masterOrSlaveStatus);
             targetDev.setDevUseStatus(DEV_USE_STATUS_INUSE);
             isOk = this.updateById(targetDev);
         }
@@ -228,7 +231,9 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
         List<BaseInfo> subMasterSlaveList = this.list(wrapper).stream()
                 .filter(base -> DEV_DEPLOY_MASTER.equals(base.getDevDeployType()) || DEV_DEPLOY_SLAVE.equals(base.getDevDeployType())).collect(Collectors.toList());
         if (subMasterSlaveList.size() > 1) {
-            //todo 发送是否启用主备通知
+            devStatusReportService.rptUseStandby(devNo, RPT_DEV_STATUS_USESTANDBY_YES);
+        }else {
+            devStatusReportService.rptUseStandby(devNo, RPT_DEV_STATUS_USESTANDBY_NO);
         }
     }
 }
