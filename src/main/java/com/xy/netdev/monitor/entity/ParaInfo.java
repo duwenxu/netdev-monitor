@@ -139,6 +139,7 @@ public class ParaInfo extends Model<ParaInfo> {
 
     @ApiModelProperty(value = "复杂级别")
     @TableField(value = "NDPA_CMPLEX_LEVEL")
+    @Param
     private String ndpaCmplexLevel;
 
     @ApiModelProperty(value = "缺省值")

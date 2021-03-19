@@ -42,7 +42,20 @@ public class ParaInfoController {
     @ApiOperation(value = "获取分页设备参数", notes = "获取分页设备参数")
     @PostMapping(value = "/list")
     public Result<IPage<ParaInfo>> queryPageList(ParaInfo data,Page page,HttpServletRequest req){
-        return ControllerHelper.queryPageList(data, page, req, targetService);
+        IPage pageListAll = targetService.queryPageListAll(page, req, data);
+        return ControllerResultWrapper.genPageListResult(pageListAll);
+    }
+
+    /**
+     * 获取分页数据
+     *
+     * @return
+     */
+    @ApiOperation(value = "获取指定上级参数分页设备参数", notes = "获取指定上级参数分页设备参数")
+    @PostMapping(value = "/subList")
+    public Result<IPage<ParaInfo>> querySubPageList(ParaInfo data,Page page,HttpServletRequest req){
+        IPage pageListAll = targetService.querySubPageList(page, req, data);
+        return ControllerResultWrapper.genPageListResult(pageListAll);
     }
 
     /**
