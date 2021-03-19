@@ -73,17 +73,17 @@ public class ChannelCache {
     }
 
     //存放接口、设备、通道信息
-    public void setChannelUser(String ifeMake, String devCode,Channel channel){
+    public void setChannelUser(String ifeMake, String devNo,Channel channel){
         //判断此接口此设备是否已存在通道
-        if(channelMap.get(ifeMake) != null && channelMap.get(ifeMake).get(devCode) != null){
+        if(channelMap.get(ifeMake) != null && channelMap.get(ifeMake).get(devNo) != null){
             //存在，则将新的通道添加到通道组中
-            channelMap.get(ifeMake).get(devCode).add(channel);
+            channelMap.get(ifeMake).get(devNo).add(channel);
         }else{
             //不存在，则新建通道组填充进去
             ChannelGroup clients = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
             clients.add(channel);
             ConcurrentMap<String,ChannelGroup> map = new ConcurrentHashMap();
-            map.put(devCode,clients);
+            map.put(devNo,clients);
             channelMap.put(ifeMake,map);
         }
     }

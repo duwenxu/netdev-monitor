@@ -56,6 +56,12 @@ public class ParaViewInfo {
     private String paraDatatype;
 
     /**
+     * 0 数字   1 字符串
+     */
+    @ApiModelProperty(value = "参数简易数据类型")
+    private String paraSimpleDatatype;
+
+    /**
      * 参数数据类型是 0023004 时,设置时需判断长度
      */
     @ApiModelProperty(value = "参数长度")
@@ -85,7 +91,7 @@ public class ParaViewInfo {
     private String paraValStep;
 
     /**
-     * 当拼装样式不为空时,需要对参数值进行解析,按照显示样式展示,
+     * 当复杂级别是0019002-复杂参数 0019003-组合参数时,需要对参数值进行解析,按照显示样式展示,
      * 参数修改提交时按照拼装样式进行拼装提交
      * 参数 []
      * 分割符{}
@@ -102,6 +108,12 @@ public class ParaViewInfo {
 
     @ApiModelProperty(value = "显示样式")
     private String paraViewFmt;
+    /**
+     * 0019001-简单参数 0019002-复杂参数 0019003-组合参数 0019004-子参数
+     */
+    @ApiModelProperty(value = "复杂级别")
+    private String paraCmplexLevel;
+
     /**
      * 参数表中 0020
      */
@@ -120,5 +132,17 @@ public class ParaViewInfo {
      */
     @ApiModelProperty(value = "下拉框显示数据")
     private List<ParaSpinnerInfo> spinnerInfoList = new ArrayList<>();
+
+    /**
+     * 当复杂级别是0019003-组合参数时,复杂参数的子参数列表
+     */
+    @ApiModelProperty(value = "子参数列表")
+    private List<ParaViewInfo> subParaList = new ArrayList<>();
+    /**
+     * 添加子参数
+     */
+    public void  addSubPara(ParaViewInfo subParaViewInfo){
+        subParaList.add(subParaViewInfo);
+    }
 
 }
