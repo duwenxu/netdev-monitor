@@ -1,6 +1,7 @@
 package com.xy.netdev.container;
 
 import com.alibaba.fastjson.JSONArray;
+import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.util.ParaHandlerUtil;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameRespData;
@@ -56,6 +57,7 @@ public class DevParaInfoContainer {
     }
 
     private static ParaViewInfo  genParaViewInfo(String devNo,ParaInfo paraInfo){
+        ISysParamService sysParamService = BaseInfoContainer.getSysParamService();
         ParaViewInfo  viewInfo = new ParaViewInfo();
         viewInfo.setParaId(paraInfo.getNdpaId());
         viewInfo.setParaNo(paraInfo.getNdpaNo());
@@ -65,6 +67,7 @@ public class DevParaInfoContainer {
         viewInfo.setAccessRight(paraInfo.getNdpaAccessRight());
         viewInfo.setParaUnit(paraInfo.getNdpaUnit());
         viewInfo.setParaDatatype(paraInfo.getNdpaDatatype());
+        viewInfo.setParaSimpleDatatype(sysParamService.getParaRemark3(paraInfo.getNdpaDatatype()));
         viewInfo.setParaStrLen(paraInfo.getNdpaStrLen());
         viewInfo.setParahowMode(paraInfo.getNdpaShowMode());
         viewInfo.setParaValMax(paraInfo.getNdpaValMax());
@@ -72,6 +75,7 @@ public class DevParaInfoContainer {
         viewInfo.setParaValStep(paraInfo.getNdpaValStep());
         viewInfo.setParaSpellFmt(paraInfo.getNdpaSpellFmt());
         viewInfo.setParaViewFmt(paraInfo.getNdpaViewFmt());
+        viewInfo.setParaVal(paraInfo.getNdpaDefaultVal());
         viewInfo.setDevNo(devNo);
         viewInfo.setDevType(paraInfo.getDevType());
         viewInfo.setParaCmdMark(paraInfo.getNdpaCmdMark());
@@ -102,7 +106,7 @@ public class DevParaInfoContainer {
                 String devNo = frameParaData.getDevNo();
                 String paraNo = frameParaData.getParaNo();
                 ParaViewInfo paraViewInfo = devParaMap.get(devNo).get(ParaHandlerUtil.genLinkKey(devNo, paraNo));
-                if (!frameParaData.getParaVal().equals(paraViewInfo.getParaVal())) {
+                if (paraViewInfo!=null&&!frameParaData.getParaVal().equals(paraViewInfo.getParaVal())) {
                     paraViewInfo.setParaVal(frameParaData.getParaVal());
                     isUpadte = true;
                 }
