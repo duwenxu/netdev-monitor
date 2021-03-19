@@ -1,7 +1,6 @@
 package com.xy.netdev.rpt.service.impl;
 
 import com.xy.netdev.common.util.ByteUtils;
-import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.rpt.bo.RptBodyDev;
 import com.xy.netdev.rpt.bo.RptHeadDev;
 import com.xy.netdev.rpt.service.RequestService;
@@ -12,9 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.xy.netdev.common.util.ByteUtils.listToBytes;
 import static com.xy.netdev.rpt.service.StationControlHandler.*;
-import static com.xy.netdev.rpt.service.StationControlHandler.queryHeadNext;
 
 /**
  * 参数设置命令

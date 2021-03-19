@@ -1,7 +1,6 @@
 package com.xy.netdev.frame.service.gf;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.container.BaseInfoContainer;
@@ -12,15 +11,10 @@ import com.xy.netdev.frame.enums.ProtocolRequestEnum;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
-import com.xy.netdev.transit.IDataReciveService;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.util.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static com.xy.netdev.common.util.ByteUtils.byteToNumber;
 import static com.xy.netdev.frame.service.gf.GfInterPrtcServiceImpl.setParamBytes;

@@ -12,8 +12,6 @@ import com.xy.netdev.monitor.entity.PrtclFormat;
 import com.xy.netdev.transit.IDevCmdSendService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -30,20 +28,20 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Component
-public class ScheduleQuery/** implements ApplicationRunner */ {
+public class ScheduleQuery implements ApplicationRunner  {
 
     @Autowired
     private IDevCmdSendService devCmdSendService;
 
-//    @Override
-//    public void run(ApplicationArguments args) throws Exception {
-//        log.info("-----设备状态定时查询开始...");
-//        try {
-//            doScheduleQuery();
-//        } catch (Exception e) {
-//            log.error("设备状态定时查询异常...", e);
-//        }
-//    }
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
+        log.info("-----设备状态定时查询开始...");
+        try {
+            doScheduleQuery();
+        } catch (Exception e) {
+            log.error("设备状态定时查询异常...", e);
+        }
+    }
 
     /**
      * 设备参数定时查询

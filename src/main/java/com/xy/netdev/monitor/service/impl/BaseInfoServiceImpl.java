@@ -182,7 +182,7 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
     @Override
     public boolean changeUseStatus(String devNo) {
         boolean isOk=false;
-        String devInUse;
+        String masterOrSlaveStatus;
         //修改使用状态
         if (StringUtils.isNotBlank(devNo)) {
             BaseInfo targetDev = this.getById(devNo);
@@ -197,11 +197,10 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
                 }
             }
 
-            //todo 调用接口通知设备状态改变
             if (DEV_DEPLOY_MASTER.equals(targetDev.getDevDeployType())){
-                devInUse = RPT_DEV_STATUS_MASTERORSLAVE_MASTER;
+                masterOrSlaveStatus = RPT_DEV_STATUS_MASTERORSLAVE_MASTER;
             }else {
-                devInUse = RPT_DEV_STATUS_MASTERORSLAVE_SLAVE;
+                masterOrSlaveStatus = RPT_DEV_STATUS_MASTERORSLAVE_SLAVE;
             }
 
             targetDev.setDevUseStatus(DEV_USE_STATUS_INUSE);

@@ -1,13 +1,13 @@
 package com.xy.netdev.monitor.bo;
 
 import com.xy.netdev.monitor.entity.Interface;
-import com.xy.netdev.monitor.entity.ParaInfo;
 import com.xy.netdev.monitor.entity.PrtclFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
 import java.util.List;
 
 /**
