@@ -133,9 +133,9 @@ public class ParaInfo extends Model<ParaInfo> {
     @TableField(value = "NDPA_VIEW_FMT")
     private String ndpaViewFmt;
 
-    @ApiModelProperty(value = "上级参数ID")
-    @TableField(value = "NDPA_PARENT_ID")
-    private String ndpaParentId;
+    @ApiModelProperty(value = "上级参数编号")
+    @TableField(value = "NDPA_PARENT_NO")
+    private String ndpaParentNo;
 
     @ApiModelProperty(value = "复杂级别")
     @TableField(value = "NDPA_CMPLEX_LEVEL")
