@@ -1,7 +1,9 @@
 package com.xy.netdev.frame.service.gf;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSON;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.ByteUtils;
@@ -13,6 +15,7 @@ import com.xy.netdev.frame.enums.ProtocolRequestEnum;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +31,7 @@ import static com.xy.netdev.frame.service.gf.GfPrtcServiceImpl.isUnsigned;
  * @author cc
  */
 @Service
+@Slf4j
 public class GfInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
 
     @Autowired
@@ -48,6 +52,10 @@ public class GfInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
         List<FrameParaInfo> frameParaInfos = BaseInfoContainer
                 .getInterLinkParaList(respData.getDevType(), respData.getCmdMark());
         byte[] bytes = respData.getParamBytes();
+        if (ObjectUtil.isNull(bytes)){
+            log.warn("40W功放查询响应异常, 未获取到数据体, 信息:{}", JSON.toJSONString(respData));
+            return respData;
+        }
         List<FrameParaData> frameParaDataList = frameParaInfos.stream()
                 .filter(Objects::nonNull)
                 .map(frameParaInfo -> {
