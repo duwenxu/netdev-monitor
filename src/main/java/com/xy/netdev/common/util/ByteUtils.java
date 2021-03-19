@@ -76,7 +76,7 @@ public class ByteUtils {
      * @return
      */
     public static byte[] byteArrayCopy(byte[] bytes, int start, int length){
-        if (length == 0){
+        if (length <= 0){
             return new byte[]{};
         }
         byte[] byteArray = new byte[length];
