@@ -40,6 +40,16 @@ public interface IDevStatusReportService {
     void rptMasterOrSlave(FrameRespData respData, String status);
 
     /**
+     * 上报设备启用主备
+     */
+    void rptUseStandby(String devNo, String status);
+
+    /**
+     * 上报设备主备状态
+     */
+    void rptMasterOrSlave(String devNo, String status);
+
+    /**
      * 上报设备工作状态
      */
     void rptWorkStatus(FrameRespData respData, String status);
