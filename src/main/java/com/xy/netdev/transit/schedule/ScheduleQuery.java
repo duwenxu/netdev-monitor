@@ -12,6 +12,8 @@ import com.xy.netdev.monitor.entity.PrtclFormat;
 import com.xy.netdev.transit.IDevCmdSendService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -28,7 +30,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Component
-public class ScheduleQuery implements ApplicationRunner  {
+public class ScheduleQuery implements ApplicationRunner {
 
     @Autowired
     private IDevCmdSendService devCmdSendService;
