@@ -1,6 +1,7 @@
 package com.xy.netdev.frame.service.gf;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
@@ -48,6 +49,9 @@ public class GfInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
         List<FrameParaInfo> frameParaInfos = BaseInfoContainer
                 .getInterLinkParaList(respData.getDevType(), respData.getCmdMark());
         byte[] bytes = respData.getParamBytes();
+        if (ObjectUtil.isNull(bytes)){
+            return respData;
+        }
         List<FrameParaData> frameParaDataList = frameParaInfos.stream()
                 .filter(Objects::nonNull)
                 .map(frameParaInfo -> {

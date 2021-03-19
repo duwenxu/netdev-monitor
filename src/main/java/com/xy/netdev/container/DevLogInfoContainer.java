@@ -1,5 +1,6 @@
 package com.xy.netdev.container;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.xy.netdev.admin.entity.SysParam;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.collection.FixedSizeMap;
@@ -242,14 +243,14 @@ public class DevLogInfoContainer {
      * @return 发送是否成功信息
      */
     private static String genIsOkInfo(FrameReqData reqData){
+        if (ObjectUtil.isNull(reqData.getIsOk())){
+         return "";
+        }
         if(reqData.getIsOk().equals("0")){
             return "执行结果:发送成功";
         }
-        if(reqData.getIsOk().equals("1")){
-            setReqParaRepsStatus("1",reqData);
-            return "执行结果:发送失败";
-        }
-        return "";
+        setReqParaRepsStatus("1",reqData);
+        return "执行结果:发送失败";
     }
     /**
      * @功能：设置参数控制请求响应状态
