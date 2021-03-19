@@ -11,6 +11,7 @@ import org.springframework.util.DigestUtils;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
@@ -75,7 +76,7 @@ public class ByteUtils {
      * @return
      */
     public static byte[] byteArrayCopy(byte[] bytes, int start, int length){
-        if (length == 0){
+        if (length <= 0){
             return new byte[]{};
         }
         byte[] byteArray = new byte[length];
@@ -106,16 +107,16 @@ public class ByteUtils {
             case 4:
                 if (!isFloat){
                     data = objToBytes(Integer.parseInt(obj.toString()), byteOrder, Unpooled::copyInt);
-                }else {
-                    data = objToBytes(Integer.parseInt(obj.toString()), byteOrder, Unpooled::copyFloat);
+                    break;
                 }
+                data = objToBytes(Integer.parseInt(obj.toString()), byteOrder, Unpooled::copyFloat);
                 break;
             case 8:
                 if (!isFloat){
                     data = objToBytes(Long.parseLong(obj.toString()), byteOrder, Unpooled::copyLong);
-                }else {
-                    data = objToBytes(Long.parseLong(obj.toString()), byteOrder, Unpooled::copyDouble);
+                    break;
                 }
+                data = objToBytes(Long.parseLong(obj.toString()), byteOrder, Unpooled::copyDouble);
                 break;
             default:
                 data = obj.toString().getBytes(Charset.forName("GB2312"));
@@ -137,8 +138,9 @@ public class ByteUtils {
         return bytesToNum(bytes, offset, length, function1);
     }
 
-    public static Number byteToNumber(byte[] bytes, int offset, int length,  boolean isFloat){
-        return byteToNumber(bytes, offset, length, false, isFloat);
+
+    public static Number byteToNumber(byte[] bytes, int offset, int length,  boolean isUnsigned){
+        return byteToNumber(bytes, offset, length, isUnsigned, false);
     }
 
     public static Number byteToNumber(byte[] bytes, int offset, int length, boolean isUnsigned, boolean isFloat){
@@ -156,18 +158,20 @@ public class ByteUtils {
             case 4:
                 if (!isFloat){
                     num = bytesToNum(bytes, offset, length, ByteBuf::readInt, ByteBuf::readUnsignedMedium, isUnsigned);
-                }else {
-                    num = at.favre.lib.bytes.Bytes.from(byteArrayCopy(bytes, offset, length)).toFloat();
+                    break;
                 }
+                num = at.favre.lib.bytes.Bytes.from(byteArrayCopy(bytes, offset, length)).toFloat();
                 break;
             case 8:
                 if (!isFloat){
                     num = bytesToNum(bytes, offset, length, ByteBuf::readLong, ByteBuf::readUnsignedInt, isUnsigned);
-                }else {
-                    num = at.favre.lib.bytes.Bytes.from(byteArrayCopy(bytes, offset, length)).toDouble();
+                    break;
                 }
+                num = at.favre.lib.bytes.Bytes.from(byteArrayCopy(bytes, offset, length)).toDouble();
                 break;
-            default:break;
+            default:
+                log.warn("转换失败, 数据长度{}不匹配", length);
+                break;
         }
         return num;
     }
