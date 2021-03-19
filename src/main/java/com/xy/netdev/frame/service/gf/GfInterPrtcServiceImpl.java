@@ -78,13 +78,6 @@ public class GfInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
         List<byte[]> bytes = reqInfo.getFrameParaList().stream()
                 .filter(Objects::nonNull)
                 .filter(frameParaData -> StrUtil.isNotBlank(frameParaData.getParaVal()))
-                .peek(frameParaData -> {
-                    //防止null
-                    if (Objects.isNull(frameParaData.getLen())){
-                        FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(reqInfo.getDevType(), reqInfo.getCmdMark());
-                        frameParaData.setLen(Integer.parseInt(frameParaInfo.getParaByteLen()));
-                    }
-                })
                 .map(frameParaData -> ByteUtils.objToBytes(frameParaData.getParaVal(), frameParaData.getLen()))
                 .collect(Collectors.toList());
         reqInfo.setParamBytes(ByteUtils.listToBytes(bytes));
