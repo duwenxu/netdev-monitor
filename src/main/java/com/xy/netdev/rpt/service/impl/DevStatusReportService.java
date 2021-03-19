@@ -96,16 +96,6 @@ public class DevStatusReportService implements IDevStatusReportService {
         reportDevStatus(devStatusInfo);
     }
 
-    @Override
-    public void rptUseStandby(String devNo, String status) {
-
-    }
-
-    @Override
-    public void rptMasterOrSlave(String devNo, String status) {
-
-    }
-
     /**
      * 上报设备工作状态
      * @param devNo
