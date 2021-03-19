@@ -107,16 +107,16 @@ public class ByteUtils {
             case 4:
                 if (!isFloat){
                     data = objToBytes(Integer.parseInt(obj.toString()), byteOrder, Unpooled::copyInt);
-                }else {
-                    data = objToBytes(Integer.parseInt(obj.toString()), byteOrder, Unpooled::copyFloat);
+                    break;
                 }
+                data = objToBytes(Integer.parseInt(obj.toString()), byteOrder, Unpooled::copyFloat);
                 break;
             case 8:
                 if (!isFloat){
                     data = objToBytes(Long.parseLong(obj.toString()), byteOrder, Unpooled::copyLong);
-                }else {
-                    data = objToBytes(Long.parseLong(obj.toString()), byteOrder, Unpooled::copyDouble);
+                    break;
                 }
+                data = objToBytes(Long.parseLong(obj.toString()), byteOrder, Unpooled::copyDouble);
                 break;
             default:
                 data = obj.toString().getBytes(Charset.forName("GB2312"));
@@ -158,18 +158,20 @@ public class ByteUtils {
             case 4:
                 if (!isFloat){
                     num = bytesToNum(bytes, offset, length, ByteBuf::readInt, ByteBuf::readUnsignedMedium, isUnsigned);
-                }else {
-                    num = at.favre.lib.bytes.Bytes.from(byteArrayCopy(bytes, offset, length)).toFloat();
+                    break;
                 }
+                num = at.favre.lib.bytes.Bytes.from(byteArrayCopy(bytes, offset, length)).toFloat();
                 break;
             case 8:
                 if (!isFloat){
                     num = bytesToNum(bytes, offset, length, ByteBuf::readLong, ByteBuf::readUnsignedInt, isUnsigned);
-                }else {
-                    num = at.favre.lib.bytes.Bytes.from(byteArrayCopy(bytes, offset, length)).toDouble();
+                    break;
                 }
+                num = at.favre.lib.bytes.Bytes.from(byteArrayCopy(bytes, offset, length)).toDouble();
                 break;
-            default:break;
+            default:
+                log.warn("转换失败, 数据长度{}不匹配", length);
+                break;
         }
         return num;
     }
