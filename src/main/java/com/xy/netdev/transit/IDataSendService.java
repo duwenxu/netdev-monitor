@@ -31,11 +31,11 @@ public interface IDataSendService {
     void interfaceQuerySend(FrameReqData frameReqData);
 
     /**
-     * 处理报警信息
+     * 通知网络传输结果
      * 网络层UDP链接异步回调后获取到传输结果后调用
      * @param  frameReqData   协议解析请求数据
      */
-    void handlerAlertInfo(FrameReqData frameReqData);
+    void notifyNetworkResult(FrameReqData frameReqData);
 
 
 }

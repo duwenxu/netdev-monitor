@@ -33,9 +33,6 @@ public class DataSendServiceImpl implements IDataSendService {
         frameReqData.setAccessType(SysConfigConstant.ACCESS_TYPE_PARAM);
         frameReqData.setOperType(SysConfigConstant.OPREATE_QUERY);
         DataHandlerHelper.getParaPrtclAnalysisService(frameReqData).queryPara(frameReqData);
-        DevLogInfoContainer.handlerReqDevPara(frameReqData);//记录日志
-        DevIfeMegSend.sendLogToDev(frameReqData.getDevNo());//操作日志websocet推前台
-        //handlerAlertInfo(frameReqData);//处理报警信息
     }
 
     /**
@@ -46,9 +43,6 @@ public class DataSendServiceImpl implements IDataSendService {
         frameReqData.setAccessType(SysConfigConstant.ACCESS_TYPE_PARAM);
         frameReqData.setOperType(SysConfigConstant.OPREATE_CONTROL);
         DataHandlerHelper.getParaPrtclAnalysisService(frameReqData).ctrlPara(frameReqData);
-        DevLogInfoContainer.handlerReqDevPara(frameReqData);//记录日志
-        DevIfeMegSend.sendLogToDev(frameReqData.getDevNo());//操作日志websocet推前台
-        //handlerAlertInfo(frameReqData);//处理报警信息
     }
 
     /**
@@ -59,13 +53,10 @@ public class DataSendServiceImpl implements IDataSendService {
         frameReqData.setAccessType(SysConfigConstant.ACCESS_TYPE_INTERF);
         frameReqData.setOperType(SysConfigConstant.OPREATE_QUERY);
         DataHandlerHelper.getQueryInterPrtclAnalysisService(frameReqData).queryPara(frameReqData);
-        DevLogInfoContainer.handlerReqDevPara(frameReqData);//记录日志
-        DevIfeMegSend.sendLogToDev(frameReqData.getDevNo());//操作日志websocet推前台
-        //handlerAlertInfo(frameReqData);//处理报警信息
     }
     /**
      * 处理报警信息
-     * 网络层UDP链接异步回调后获取到传输结果后调用
+     * 
      * @param  frameReqData   协议解析请求数据
      */
     public void handlerAlertInfo(FrameReqData frameReqData){
@@ -75,5 +66,16 @@ public class DataSendServiceImpl implements IDataSendService {
                 && DevStatusContainer.setInterrupt(frameReqData.getDevNo(),status)){
             devStatusReportService.rptInterrupted(frameReqData.getDevNo(),status);
         }
+    }
+
+    /**
+     * 通知网络传输结果
+     * 网络层UDP链接异步回调后获取到传输结果后调用
+     * @param  frameReqData   协议解析请求数据
+     */
+    public void notifyNetworkResult(FrameReqData frameReqData) {
+        DevLogInfoContainer.handlerReqDevPara(frameReqData);//记录日志
+        DevIfeMegSend.sendLogToDev(frameReqData.getDevNo());//操作日志websocet推前台
+        handlerAlertInfo(frameReqData);//处理报警信息
     }
 }

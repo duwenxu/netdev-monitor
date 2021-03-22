@@ -18,9 +18,11 @@ import com.xy.netdev.monitor.constant.MonitorConstants;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.PrtclFormat;
 import com.xy.netdev.network.NettyUtil;
+import com.xy.netdev.transit.IDataSendService;
 import io.netty.channel.ChannelFuture;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -36,6 +38,9 @@ import static com.xy.netdev.container.BaseInfoContainer.getDevInfo;
 @Slf4j
 public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends FrameReqData, R extends FrameRespData>
         extends DeviceSocketBaseHandler<T, R> implements ProtocolPackService<Q, T, R> {
+
+    @Autowired
+    private IDataSendService dataSendService;
 
     @Override
     public void socketRequest(T t, ProtocolRequestEnum requestEnum) {
@@ -146,7 +151,7 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
         return NettyUtil.sendMsg(bytes, port, devInfo.getDevIpAddr(), port, Integer.parseInt(devInfo.getDevNetPtcl()));
     }
 
-    private void sendMsg(T t, byte[] bytes) throws InterruptedException {
+    private void sendMsg(T t, byte[] bytes) {
         sendData(t, bytes).ifPresent(channelFuture -> channelFuture.addListener(future -> {
             if (future.isSuccess()){
                 t.setIsOk("0");
@@ -155,15 +160,15 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
             }
             //设置发送数据
             t.setSendOrignData(HexUtil.encodeHexStr(bytes).toUpperCase());
+            //回调
+            dataSendService.notifyNetworkResult(t);
         }));
-        //延迟500毫秒等待结果
-        TimeUnit.MILLISECONDS.sleep(500);
     }
 
-    public static void main(String[] args) {
-        String str = "7F 31 00 10 01 01 03 00 04 00 00 01 01 01 04 02 BC 02 02 01 20 00 2F 01 E1 01 01 01 01 01 00 00" +
-                " 02 BC 01 01 02 17 00 06 01 E0 01 01 01 01 01 3F 7D";
-        System.out.println(str.replaceAll("\\s+", ""));
-
-    }
+//    public static void main(String[] args) {
+//        String str = "7F 31 00 10 01 01 03 00 04 00 00 01 01 01 04 02 BC 02 02 01 20 00 2F 01 E1 01 01 01 01 01 00 00" +
+//                " 02 BC 01 01 02 17 00 06 01 E0 01 01 01 01 01 3F 7D";
+//        System.out.println(str.replaceAll("\\s+", ""));
+//
+//    }
 }
