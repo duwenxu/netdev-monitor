@@ -50,8 +50,6 @@ public class BaseContainerLoader {
         long time = System.currentTimeMillis();
         //初始化基础信息
         initBaseInfo();
-        //初始化设备容器
-        //initDevInfo();
         //初始化设备日志容器
         initDevLog();
         //初始化告警信息
@@ -69,7 +67,7 @@ public class BaseContainerLoader {
     public void initBaseInfo(){
         //查询有效的设备列表
         List<BaseInfo> devs = baseInfoService.list().stream().filter(baseInfo -> baseInfo.getDevStatus().equals(SysConfigConstant.DEV_STATUS_NEW)).collect(Collectors.toList());
-        //查询有效的参数列表
+        //查询有效的参数列表:根据NDPA_CMPLEX_LEVEL对list：用来生成参数的上下级关系
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("NDPA_STATUS",SysConfigConstant.STATUS_OK);
         queryWrapper.orderByAsc("NDPA_CMPLEX_LEVEL");

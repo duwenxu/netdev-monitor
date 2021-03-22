@@ -56,15 +56,25 @@ public class DataSendServiceImpl implements IDataSendService {
     }
     /**
      * 处理报警信息
-     * 网络层UDP链接异步回调后获取到传输结果后调用
+     * 
      * @param  frameReqData   协议解析请求数据
      */
     public void handlerAlertInfo(FrameReqData frameReqData){
         String status = frameReqData.getIsOk();
        //参数返回值是否产生中断
-        if(status.equals(SysConfigConstant.RPT_DEV_STATUS_ISINTERRUPT_YES)
-                && DevStatusContainer.setInterrupt(frameReqData.getDevNo(),status)){
+        if(DevStatusContainer.setInterrupt(frameReqData.getDevNo(),status)){
             devStatusReportService.rptInterrupted(frameReqData.getDevNo(),status);
         }
+    }
+
+    /**
+     * 通知网络传输结果
+     * 网络层UDP链接异步回调后获取到传输结果后调用
+     * @param  frameReqData   协议解析请求数据
+     */
+    public void notifyNetworkResult(FrameReqData frameReqData) {
+        DevLogInfoContainer.handlerReqDevPara(frameReqData);//记录日志
+        DevIfeMegSend.sendLogToDev(frameReqData.getDevNo());//操作日志websocet推前台
+        handlerAlertInfo(frameReqData);//处理报警信息
     }
 }

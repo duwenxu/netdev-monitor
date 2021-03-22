@@ -89,25 +89,4 @@ public class WSHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
         //移除通道
         cache.removeChannel(ctx.channel());
     }
-
-
-    /**
-     * 通过url截取token
-     * @param uri
-     * @return
-     */
-
-    public String getToken(String uri) {
-        String token=null;
-        if (null != uri && uri.contains("/ws") && uri.contains("?")) {
-            String[] uriArray = uri.split("\\?");
-            if (null != uriArray && uriArray.length > 1) {
-                String[] paramsArray = uriArray[1].split("=");
-                if (null != paramsArray && paramsArray.length > 1) {
-                    token = paramsArray[1];
-                }
-            }
-        }
-        return token;
-    }
 }
