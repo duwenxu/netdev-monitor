@@ -180,17 +180,8 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
             }
             //设置发送原始数据十六进制字符串
             t.setSendOrignData(HexUtil.encodeHexStr(bytes).toUpperCase());
-<<<<<<< HEAD
-            //回调方法
-            dataSendService.handlerAlertInfo(t);
-            //记录日志
-            DevLogInfoContainer.handlerReqDevPara(t);
-            //操作日志websocet推前台
-            DevIfeMegSend.sendLogToDev(t.getDevNo());
-=======
             //回调
             dataSendService.notifyNetworkResult(t);
->>>>>>> origin/dev
         }));
     }
 
