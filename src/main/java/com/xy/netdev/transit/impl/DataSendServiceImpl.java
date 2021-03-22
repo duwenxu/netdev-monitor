@@ -62,8 +62,7 @@ public class DataSendServiceImpl implements IDataSendService {
     public void handlerAlertInfo(FrameReqData frameReqData){
         String status = frameReqData.getIsOk();
        //参数返回值是否产生中断
-        if(status.equals(SysConfigConstant.RPT_DEV_STATUS_ISINTERRUPT_YES)
-                && DevStatusContainer.setInterrupt(frameReqData.getDevNo(),status)){
+        if(DevStatusContainer.setInterrupt(frameReqData.getDevNo(),status)){
             devStatusReportService.rptInterrupted(frameReqData.getDevNo(),status);
         }
     }
