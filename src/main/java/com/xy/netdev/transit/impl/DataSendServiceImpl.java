@@ -33,9 +33,6 @@ public class DataSendServiceImpl implements IDataSendService {
         frameReqData.setAccessType(SysConfigConstant.ACCESS_TYPE_PARAM);
         frameReqData.setOperType(SysConfigConstant.OPREATE_QUERY);
         DataHandlerHelper.getParaPrtclAnalysisService(frameReqData).queryPara(frameReqData);
-        DevLogInfoContainer.handlerReqDevPara(frameReqData);//记录日志
-        DevIfeMegSend.sendLogToDev(frameReqData.getDevNo());//操作日志websocet推前台
-        //handlerAlertInfo(frameReqData);//处理报警信息
     }
 
     /**
@@ -46,9 +43,6 @@ public class DataSendServiceImpl implements IDataSendService {
         frameReqData.setAccessType(SysConfigConstant.ACCESS_TYPE_PARAM);
         frameReqData.setOperType(SysConfigConstant.OPREATE_CONTROL);
         DataHandlerHelper.getParaPrtclAnalysisService(frameReqData).ctrlPara(frameReqData);
-        DevLogInfoContainer.handlerReqDevPara(frameReqData);//记录日志
-        DevIfeMegSend.sendLogToDev(frameReqData.getDevNo());//操作日志websocet推前台
-        //handlerAlertInfo(frameReqData);//处理报警信息
     }
 
     /**
@@ -59,9 +53,6 @@ public class DataSendServiceImpl implements IDataSendService {
         frameReqData.setAccessType(SysConfigConstant.ACCESS_TYPE_INTERF);
         frameReqData.setOperType(SysConfigConstant.OPREATE_QUERY);
         DataHandlerHelper.getQueryInterPrtclAnalysisService(frameReqData).queryPara(frameReqData);
-        DevLogInfoContainer.handlerReqDevPara(frameReqData);//记录日志
-        DevIfeMegSend.sendLogToDev(frameReqData.getDevNo());//操作日志websocet推前台
-        //handlerAlertInfo(frameReqData);//处理报警信息
     }
     /**
      * 处理报警信息

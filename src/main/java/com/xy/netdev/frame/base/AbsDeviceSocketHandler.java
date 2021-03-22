@@ -5,6 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
+import com.xy.netdev.container.DevLogInfoContainer;
 import com.xy.netdev.factory.ParaPrtclFactory;
 import com.xy.netdev.factory.QueryInterPrtcllFactory;
 import com.xy.netdev.frame.base.service.ProtocolPackService;
@@ -19,6 +20,8 @@ import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.PrtclFormat;
 import com.xy.netdev.network.NettyUtil;
 import com.xy.netdev.transit.IDataSendService;
+import com.xy.netdev.websocket.send.DevIfeMegSend;
+import io.netty.buffer.UnpooledHeapByteBuf;
 import io.netty.channel.ChannelFuture;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -63,9 +66,10 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
     @SneakyThrows
     @Override
     public void doQuery(T t) {
-        byte[] bytes = pack(t);
+        //数据封包
+        byte[] packBytes = pack(t);
         //是否发送成功
-        sendMsg(t, bytes);
+        sendMsg(t, packBytes);
     }
 
     @Override
@@ -88,13 +92,18 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
     @Override
     @SuppressWarnings("unchecked")
     public void socketResponse(SocketEntity socketEntity) {
+        //获取设备参数信息
         BaseInfo devInfo = getDevInfo(socketEntity.getRemoteAddress());
         FrameRespData frameRespData = new FrameRespData();
         frameRespData.setDevType(devInfo.getDevType());
         frameRespData.setDevNo(devInfo.getDevNo());
-        R unpack = unpack((Q) socketEntity, (R) frameRespData);
+
+        //数据拆包
+        R unpackBytes = unpack((Q) socketEntity, (R) frameRespData);
         //转16进制，用来获取协议解析类
         String cmdHexStr = frameRespData.getCmdMark();
+
+        //获取设备CMD信息, '/'为调制解调器, 因为调制解调器为字符串, 不能进行十六进制转换, 所以特殊区分
         if (!MonitorConstants.SUB_MODEM.equals(frameRespData.getDevType())){
             if (!StrUtil.contains(frameRespData.getCmdMark(), '/')){
                 cmdHexStr = Integer.toHexString(Integer.parseInt(frameRespData.getCmdMark(),16));
@@ -102,19 +111,22 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
                 cmdHexStr = StrUtil.removeAll(frameRespData.getCmdMark(), '/');
             }
         }
+
+        //根据cmd和设备类型获取具体的数据处理类
         PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameRespData.getDevType(), cmdHexStr);
         if (prtclFormat == null){
             log.warn("设备:{}, 未找到数据体处理类", frameRespData.getDevNo());
             return;
         }
-        IParaPrtclAnalysisService iParaPrtclAnalysisService = null;
-        IQueryInterPrtclAnalysisService queryInterPrtclAnalysisService = null;
-        //参数
         if (prtclFormat.getIsPrtclParam() == null){
-            log.warn("数据解析失败, 发数据地址:{}:{}, cmd:{}, 数据体:{}", socketEntity.getRemoteAddress(),
+            log.warn("数据解析失败, 未获取到处理类,  发数据地址:{}:{}, cmd:{}, 数据体:{}", socketEntity.getRemoteAddress(),
                     socketEntity.getRemotePort(), cmdHexStr, HexUtil.encodeHexStr(socketEntity.getBytes()));
             return;
         }
+
+        //初始化协议和接口
+        IParaPrtclAnalysisService iParaPrtclAnalysisService = null;
+        IQueryInterPrtclAnalysisService queryInterPrtclAnalysisService = null;
         if (prtclFormat.getIsPrtclParam() == 0){
             frameRespData.setAccessType(SysConfigConstant.ACCESS_TYPE_PARAM);
             iParaPrtclAnalysisService = ParaPrtclFactory.genHandler(prtclFormat.getFmtHandlerClass());
@@ -124,8 +136,10 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
         }
         frameRespData.setReciveOrignData(HexUtil.encodeHexStr(socketEntity.getBytes()).toUpperCase());
         frameRespData.setCmdMark(cmdHexStr);
-        this.callback(unpack, iParaPrtclAnalysisService, queryInterPrtclAnalysisService);
-        log.debug("设备数据已发送至对应模块, 数据体:{}", JSON.toJSONString(unpack));
+
+        //执行回调方法
+        this.callback(unpackBytes, iParaPrtclAnalysisService, queryInterPrtclAnalysisService);
+        log.debug("设备数据已发送至对应模块, 数据体:{}", JSON.toJSONString(unpackBytes));
     }
 
     /**
@@ -140,28 +154,38 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
 
     /**
      * 数据发送
-     * @param t
-     * @param bytes
-     * @return
+     * @param t t
+     * @param bytes 原始数据
+     * @return 回调结果
      */
     @SneakyThrows
-    protected  Optional<ChannelFuture> sendData(T t, byte[] bytes) {
+    protected Optional<ChannelFuture> sendData(T t, byte[] bytes) {
         BaseInfo devInfo = BaseInfoContainer.getDevInfoByNo(t.getDevNo());
         int port = Integer.parseInt(devInfo.getDevPort());
         return NettyUtil.sendMsg(bytes, port, devInfo.getDevIpAddr(), port, Integer.parseInt(devInfo.getDevNetPtcl()));
     }
 
+    /**
+     * 消息发送
+     * @param t t
+     * @param bytes 目标字节
+     */
     private void sendMsg(T t, byte[] bytes) {
         sendData(t, bytes).ifPresent(channelFuture -> channelFuture.addListener(future -> {
+            //设置发送结果
             if (future.isSuccess()){
                 t.setIsOk("0");
             }else {
                 t.setIsOk("1");
             }
-            //设置发送数据
+            //设置发送原始数据十六进制字符串
             t.setSendOrignData(HexUtil.encodeHexStr(bytes).toUpperCase());
-            //回调
+            //回调方法
             dataSendService.handlerAlertInfo(t);
+            //记录日志
+            DevLogInfoContainer.handlerReqDevPara(t);
+            //操作日志websocet推前台
+            DevIfeMegSend.sendLogToDev(t.getDevNo());
         }));
     }
 

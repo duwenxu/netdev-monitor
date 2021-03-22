@@ -1,5 +1,6 @@
 package com.xy.netdev.common.util;
 
+import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.HexUtil;
 import com.google.common.primitives.Bytes;
 import io.netty.buffer.ByteBuf;
@@ -13,6 +14,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 
 
@@ -33,6 +35,7 @@ public class ByteUtils {
     }
 
     public static <T> T bytesToNum(byte[] bytes, int offset, int length, Function<ByteBuf, T> function) {
+        Assert.isTrue(bytes.length >= length);
         ByteBuf byteBuf = Unpooled.wrappedBuffer(bytes, offset, length);
         T t = function.apply(byteBuf);
         ReferenceCountUtil.release(t);
@@ -88,6 +91,13 @@ public class ByteUtils {
         return objToBytes(obj, len, false);
     }
 
+    /**
+     * obj转字节数组
+     * @param obj obj
+     * @param len 长度
+     * @param isFloat 是否浮点类型
+     * @return 字节数组
+     */
     public static byte[] objToBytes(Object obj, int len, boolean isFloat){
         byte [] data;
         if (len == 1){
@@ -126,11 +136,28 @@ public class ByteUtils {
     }
 
 
+    /**
+     * 字节数组转数字
+     * @param bytes 原始字节数据
+     * @param offset 起始位下标
+     * @param length 长度
+     * @return Number
+     */
     public static Number byteToNumber(byte[] bytes, int offset, int length){
         return byteToNumber(bytes, offset, length, false, false);
     }
 
-    public static Number bytesToNum(byte[] bytes, int offset, int length, Function<ByteBuf, Number> function,
+    /**
+     * 字节数组转数字
+     * @param bytes 原始字节数据
+     * @param offset 起始位下标
+     * @param length 长度
+     * @param function 方法1
+     * @param function1 方法2
+     * @param isUnsigned 有无符号
+     * @return
+     */
+    private static Number bytesToNum(byte[] bytes, int offset, int length, Function<ByteBuf, Number> function,
                                     Function<ByteBuf, Number> function1, boolean isUnsigned){
         if (!isUnsigned){
            return bytesToNum(bytes, offset, length, function);
@@ -139,10 +166,27 @@ public class ByteUtils {
     }
 
 
+    /**
+     * 字节数组转数字
+     * @param bytes 原始字节数据
+     * @param offset 起始位下标
+     * @param length 长度
+     * @param isUnsigned 有无符号
+     * @return Number
+     */
     public static Number byteToNumber(byte[] bytes, int offset, int length,  boolean isUnsigned){
         return byteToNumber(bytes, offset, length, isUnsigned, false);
     }
 
+    /**
+     * 字节数组转数字
+     * @param bytes 原始字节数据
+     * @param offset 起始位下标
+     * @param length 长度
+     * @param isUnsigned 有无符号
+     * @param isFloat 是否浮点类型
+     * @return Number
+     */
     public static Number byteToNumber(byte[] bytes, int offset, int length, boolean isUnsigned, boolean isFloat){
         Number num = null;
         switch (length){
@@ -160,14 +204,14 @@ public class ByteUtils {
                     num = bytesToNum(bytes, offset, length, ByteBuf::readInt, ByteBuf::readUnsignedMedium, isUnsigned);
                     break;
                 }
-                num = at.favre.lib.bytes.Bytes.from(byteArrayCopy(bytes, offset, length)).toFloat();
+                num = at.favre.lib.bytes.Bytes.from(Objects.requireNonNull(byteArrayCopy(bytes, offset, length))).toFloat();
                 break;
             case 8:
                 if (!isFloat){
                     num = bytesToNum(bytes, offset, length, ByteBuf::readLong, ByteBuf::readUnsignedInt, isUnsigned);
                     break;
                 }
-                num = at.favre.lib.bytes.Bytes.from(byteArrayCopy(bytes, offset, length)).toDouble();
+                num = at.favre.lib.bytes.Bytes.from(Objects.requireNonNull(byteArrayCopy(bytes, offset, length))).toDouble();
                 break;
             default:
                 log.warn("转换失败, 数据长度{}不匹配", length);
