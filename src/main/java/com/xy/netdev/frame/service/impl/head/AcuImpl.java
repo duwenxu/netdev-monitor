@@ -11,6 +11,7 @@ import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.Charset;
+import java.util.Objects;
 
 import static com.xy.netdev.common.util.ByteUtils.byteArrayCopy;
 
@@ -35,7 +36,7 @@ public class AcuImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, 
         byte[] bytes = socketEntity.getBytes();
         //长度为69则为主动上报. 否则为参数
         if (bytes.length == 69){
-            String cmd = new String(byteArrayCopy(bytes, 1, 3));
+            String cmd = new String(Objects.requireNonNull(byteArrayCopy(bytes, 1, 3)));
             byte[] paramBytes = ByteUtils.byteArrayCopy(bytes, 4, 44);
             frameRespData.setParamBytes(paramBytes);
             frameRespData.setCmdMark(cmd);
