@@ -94,6 +94,13 @@ public class BaseInfo extends Model<BaseInfo> {
     @Param
     private String devUseStatus;
 
+    /**
+     * 设备型号
+     */
+    @ApiModelProperty(value = "设备型号")
+    @TableField(value = "DEV_SUB_TYPE")
+    @Param
+    private String devSubType;
 
     /**
      * 0 代表  上报54所IP
