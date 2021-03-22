@@ -30,5 +30,12 @@ public interface IDataSendService {
      */
     void interfaceQuerySend(FrameReqData frameReqData);
 
+    /**
+     * 通知网络传输结果
+     * 网络层UDP链接异步回调后获取到传输结果后调用
+     * @param  frameReqData   协议解析请求数据
+     */
+    void notifyNetworkResult(FrameReqData frameReqData);
+
 
 }
