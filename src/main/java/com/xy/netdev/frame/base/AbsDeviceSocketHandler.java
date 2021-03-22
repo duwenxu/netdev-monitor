@@ -161,7 +161,7 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
             //设置发送数据
             t.setSendOrignData(HexUtil.encodeHexStr(bytes).toUpperCase());
             //回调
-            dataSendService.handlerAlertInfo(t);
+            dataSendService.notifyNetworkResult(t);
         }));
     }
 
