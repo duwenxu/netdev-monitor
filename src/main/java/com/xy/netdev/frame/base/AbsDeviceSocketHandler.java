@@ -151,7 +151,7 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
         return NettyUtil.sendMsg(bytes, port, devInfo.getDevIpAddr(), port, Integer.parseInt(devInfo.getDevNetPtcl()));
     }
 
-    private void sendMsg(T t, byte[] bytes) throws InterruptedException {
+    private void sendMsg(T t, byte[] bytes) {
         sendData(t, bytes).ifPresent(channelFuture -> channelFuture.addListener(future -> {
             if (future.isSuccess()){
                 t.setIsOk("0");
@@ -160,14 +160,15 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
             }
             //设置发送数据
             t.setSendOrignData(HexUtil.encodeHexStr(bytes).toUpperCase());
-//            dataSendService.
+            //回调
+            dataSendService.handlerAlertInfo(t);
         }));
     }
 
-    public static void main(String[] args) {
-        String str = "7F 31 00 10 01 01 03 00 04 00 00 01 01 01 04 02 BC 02 02 01 20 00 2F 01 E1 01 01 01 01 01 00 00" +
-                " 02 BC 01 01 02 17 00 06 01 E0 01 01 01 01 01 3F 7D";
-        System.out.println(str.replaceAll("\\s+", ""));
-
-    }
+//    public static void main(String[] args) {
+//        String str = "7F 31 00 10 01 01 03 00 04 00 00 01 01 01 04 02 BC 02 02 01 20 00 2F 01 E1 01 01 01 01 01 00 00" +
+//                " 02 BC 01 01 02 17 00 06 01 E0 01 01 01 01 01 3F 7D";
+//        System.out.println(str.replaceAll("\\s+", ""));
+//
+//    }
 }
