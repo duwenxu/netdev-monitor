@@ -3,6 +3,7 @@ package com.xy.netdev.frame.service.impl.head;
 import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
+import com.google.common.primitives.Bytes;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
@@ -18,6 +19,7 @@ import com.xy.netdev.monitor.entity.PrtclFormat;
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.apache.tomcat.util.buf.HexUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -149,5 +151,16 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
 
     private static String numToHexStr(long num){
         return StringUtils.leftPad(HexUtil.toHex(num), 2,'0').toUpperCase();
+    }
+
+    public static void main(String[] args) {
+        byte[] bytes = HexUtil.decodeHex("00010003810420");
+        int sum = 0;
+        for (byte aByte : bytes) {
+            sum += (aByte & 0xFF);
+        }
+        System.out.println(HexUtil.toHex(sum));
+        sum = sum & 0xFF;
+        System.out.println(HexUtil.toHex(sum));
     }
 }

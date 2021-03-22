@@ -9,6 +9,7 @@ import io.netty.util.ReferenceCountUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.DigestUtils;
 
+import java.io.*;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -253,6 +254,43 @@ public class ByteUtils {
             list.add(0);
         }
         return Bytes.toArray(list);
+    }
+
+    /**
+     * 对象转换成字节数组。
+     *
+     * @param obj 字节数组。
+     * @return 对象实例相应的序列化后的字节数组。
+     * @throws IOException
+     */
+    public static byte[] objectToByte(Object obj) throws IOException {
+        ByteArrayOutputStream buff = new ByteArrayOutputStream();
+        ObjectOutputStream out = new ObjectOutputStream(buff);
+        out.writeObject(obj);
+        try {
+            return buff.toByteArray();
+        } finally {
+            out.close();
+        }
+    }
+
+    /**
+     * 序死化字节数组转换成实际对象。
+     *
+     * @param b 字节数组。
+     * @return 对象。
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    public static Object byteToObject(byte[] b) throws IOException, ClassNotFoundException {
+        ByteArrayInputStream buff = new ByteArrayInputStream(b);
+        ObjectInputStream in = new ObjectInputStream(buff);
+        Object obj = in.readObject();
+        try {
+            return obj;
+        } finally {
+            in.close();
+        }
     }
 
 }
