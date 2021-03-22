@@ -34,6 +34,9 @@ import static com.xy.netdev.common.util.ByteUtils.*;
 @Slf4j
 public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData>{
 
+    /**响应标识数组，用来校验响应帧结构*/
+    private static final String[] RESPONSE_SIGNS = {"13","01"};
+
     @Autowired
     private ModemPrtcServiceImpl prtcService;
 
@@ -61,11 +64,15 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
         int len = bytesToNum(bytes, 1, 2, ByteBuf::readShort) - 4;
         //响应数据类型标识   查询0X53 控制0X41
         Byte respType = bytesToNum(bytes, 5, 1, ByteBuf::readByte);
+        String hexRespType = numToHexStr(Long.valueOf(respType));
+        if (!Arrays.asList(RESPONSE_SIGNS).contains(hexRespType)){
+            log.error("收到包含错误响应标识的帧结构，标识字节：{}----数据体：{}",hexRespType,bytes);
+        }
+
         //参数命令标识
         Byte cmd = bytesToNum(bytes, 6, 1, ByteBuf::readByte);
         //数据体
         byte[] paramBytes = byteArrayCopy(bytes, 6, len);
-        String hexRespType = numToHexStr(Long.valueOf(respType));
         String hexCmd = numToHexStr(Long.valueOf(cmd));
 
         //获取操作类型
