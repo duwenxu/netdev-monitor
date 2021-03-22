@@ -48,7 +48,7 @@ public class DeviceSocketSubscribe {
     @PostConstruct
     public void init(){
         cache = CacheUtil.newFIFOCache(absSocketHandlerList.size());
-        ThreadFactory socketResponse = ThreadUtil.newNamedThreadFactory("设备响应线程-", true);
+        ThreadFactory socketResponse = ThreadUtil.newNamedThreadFactory("设备响应-", true);
         socketResponse.newThread(() -> {
             //noinspection InfiniteLoopStatement
             while (true){
