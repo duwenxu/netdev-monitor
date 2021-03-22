@@ -17,8 +17,13 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.xy.netdev.common.util.ByteUtils.byteToNumber;
+import static com.xy.netdev.frame.service.gf.GfPrtcServiceImpl.isFloat;
+import static com.xy.netdev.frame.service.gf.GfPrtcServiceImpl.isUnsigned;
 
 /**
  * 650型号 调制解调器
@@ -56,13 +61,19 @@ public class ModemPrtcServiceImpl implements IParaPrtclAnalysisService {
         List<FrameParaData> frameParaDataList = new ArrayList<>();
         for (String data : dataList) {
             String paraCmk = data.substring(0, 2);
-            String paraValue = data.substring(2);
+            FrameParaInfo currentPara = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(), paraCmk);
+            byte[] paraValBytes = HexUtil.decodeHex(data.substring(2));
             FrameParaInfo paraInfoByCmd = BaseInfoContainer.getParaInfoByCmd(devType, paraCmk);
             if (paraInfoByCmd == null|| StringUtils.isEmpty(paraInfoByCmd.getParaNo())){ continue;}
             FrameParaData frameParaData = FrameParaData.builder()
                     .devType(devType)
                     .devNo(respData.getDevNo())
-                    .paraVal(paraValue.toUpperCase())
+                    //单个参数值转换
+                    .paraVal(byteToNumber(paraValBytes, 0,
+                            Integer.parseInt(currentPara.getParaByteLen())
+                            ,isUnsigned(sysParamService, currentPara.get())
+                            ,isFloat(sysParamService, currentPara.getParaNo())
+                    ).toString())
                     .paraNo(paraInfoByCmd.getParaNo())
                     .build();
             frameParaDataList.add(frameParaData);

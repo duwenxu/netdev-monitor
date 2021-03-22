@@ -7,6 +7,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.util.ReferenceCountUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.util.DigestUtils;
 
 import java.io.*;
@@ -291,6 +292,10 @@ public class ByteUtils {
         } finally {
             in.close();
         }
+    }
+
+    public static String numToHexStr(long num){
+        return StringUtils.leftPad(HexUtil.toHex(num), 2,'0').toUpperCase();
     }
 
 }
