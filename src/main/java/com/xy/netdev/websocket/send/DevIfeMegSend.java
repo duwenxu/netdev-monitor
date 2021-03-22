@@ -28,6 +28,7 @@ public class DevIfeMegSend {
     public static void sendLogToDev(String devNo){
         ChannelGroup channels = ChannelCache.getInstance().getChannels("DevLogInfos",devNo);
         if( channels != null){
+            //此处加SerializerFeature.WriteMapNullValue是为了让数据中属性值为null的属性不被忽略
             String msg = JSONObject.toJSONString(DevLogInfoContainer.getDevLogList(devNo),SerializerFeature.WriteMapNullValue);
             TextWebSocketFrame textWebSocketFrame = new TextWebSocketFrame(msg);
             channels.writeAndFlush(textWebSocketFrame);

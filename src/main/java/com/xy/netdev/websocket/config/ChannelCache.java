@@ -32,7 +32,7 @@ public class ChannelCache {
     /**
      * 接口对应设备和通道缓存：当是多设备时，设备值为固定值all
      * ConcurrentMap：能够支持并发访问，线程安全，是一个高效的HashMap
-     * 第一个String：接口标识；第二个String：设备
+     * 第一个String：接口标识；第二个String：设备编号
      */
     private static final ConcurrentMap<String, ConcurrentMap<String,ChannelGroup>> channelMap = new ConcurrentHashMap();
 
