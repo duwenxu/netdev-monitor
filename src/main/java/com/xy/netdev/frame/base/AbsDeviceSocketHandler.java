@@ -103,7 +103,7 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
         //转16进制，用来获取协议解析类
         String cmdHexStr = frameRespData.getCmdMark();
 
-        //获取设备CMD信息, '/'为调制解调器, 因为调制解调器为字符串, 不能进行十六进制转换, 所以特殊区分
+        //获取设备CMD信息, '/'为调制解调器特殊格式, 因为调制解调器cmd为字符串, 不能进行十六进制转换, 所以特殊区分
         if (!MonitorConstants.SUB_MODEM.equals(frameRespData.getDevType())){
             if (!StrUtil.contains(frameRespData.getCmdMark(), '/')){
                 cmdHexStr = Integer.toHexString(Integer.parseInt(frameRespData.getCmdMark(),16));

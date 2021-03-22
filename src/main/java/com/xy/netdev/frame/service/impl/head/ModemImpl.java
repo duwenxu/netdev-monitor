@@ -57,6 +57,10 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
     @Override
     public FrameRespData unpack(SocketEntity socketEntity, FrameRespData frameRespData) {
         byte[] bytes = socketEntity.getBytes();
+        if (bytes.length<=6){
+            log.warn("调制解调器数据长度错误, 未能正确解析, 数据体长度:{}, 数据体:{}", bytes.length, HexUtil.encodeHexStr(bytes));
+            return frameRespData;
+        }
         //数据体长度
         int len = bytesToNum(bytes, 1, 2, ByteBuf::readShort) - 4;
         //响应数据类型标识   查询0X53 控制0X41

@@ -35,7 +35,6 @@ public class ByteUtils {
     }
 
     public static <T> T bytesToNum(byte[] bytes, int offset, int length, Function<ByteBuf, T> function) {
-        Assert.isTrue(bytes.length >= length);
         ByteBuf byteBuf = Unpooled.wrappedBuffer(bytes, offset, length);
         T t = function.apply(byteBuf);
         ReferenceCountUtil.release(t);
