@@ -2,6 +2,8 @@ package com.xy.netdev.rpt.service;
 
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.HexUtil;
+import cn.hutool.core.util.StrUtil;
 import com.xy.netdev.common.util.BeanFactoryUtil;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
@@ -20,7 +22,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadFactory;
@@ -266,5 +270,11 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
             default:break;
         }
         rptHeadDev.setAchieveClassNameEnum(achieveClassNameEnum);
+    }
+
+    public static void main(String[] args) {
+        String str = " <30";
+        byte[] bytes = StrUtil.bytes(str);
+        System.out.println(HexUtil.encodeHexStr(bytes));
     }
 }
