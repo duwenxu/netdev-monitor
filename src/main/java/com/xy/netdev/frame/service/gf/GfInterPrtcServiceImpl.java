@@ -35,10 +35,10 @@ import static com.xy.netdev.frame.service.gf.GfPrtcServiceImpl.isUnsigned;
 public class GfInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
 
     @Autowired
-    SocketMutualService socketMutualService;
+    private SocketMutualService socketMutualService;
 
     @Autowired
-    ISysParamService sysParamService;
+    private ISysParamService sysParamService;
 
     @Override
     public void queryPara(FrameReqData reqInfo) {
@@ -64,7 +64,7 @@ public class GfInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
                     paraInfo.setLen(Integer.parseInt(frameParaInfo.getParaByteLen()));
                     paraInfo.setParaVal(byteToNumber(bytes, frameParaInfo.getParaStartPoint() - 1,
                             Integer.parseInt(frameParaInfo.getParaByteLen()), isUnsigned(sysParamService,
-                                    frameParaInfo.getAlertPara())).toString());
+                                    frameParaInfo.getParaNo())).toString());
                     return paraInfo;
                 }).collect(Collectors.toList());
         respData.setFrameParaList(frameParaDataList);

@@ -57,8 +57,8 @@ public class AcuInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
                     paraInfo.setParaVal(
                             byteToNumber(bytes, frameParaInfo.getParaStartPoint() - 1,
                                     Integer.parseInt(frameParaInfo.getParaByteLen())
-                            ,isUnsigned(sysParamService, frameParaInfo.getAlertPara())
-                            ,isFloat(sysParamService, frameParaInfo.getAlertPara())
+                            ,isUnsigned(sysParamService, frameParaInfo.getParaNo())
+                            ,isFloat(sysParamService, frameParaInfo.getParaNo())
                             ).toString());
                     return paraInfo;
                 }).collect(Collectors.toList());
