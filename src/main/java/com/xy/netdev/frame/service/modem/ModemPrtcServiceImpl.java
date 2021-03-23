@@ -1,7 +1,6 @@
 package com.xy.netdev.frame.service.modem;
 
 import cn.hutool.core.util.HexUtil;
-import cn.hutool.core.util.StrUtil;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
@@ -16,11 +15,9 @@ import com.xy.netdev.monitor.constant.MonitorConstants;
 import com.xy.netdev.transit.IDataReciveService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.apache.tomcat.util.buf.HexUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
