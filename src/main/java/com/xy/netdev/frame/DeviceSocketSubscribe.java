@@ -69,14 +69,8 @@ public class DeviceSocketSubscribe {
      * 执行响应流程
      * @param socketEntity socket实体
      */
-    private void doResponse(SocketEntity socketEntity) throws BaseException{
-        BaseInfo devInfo;
-        try {
-            devInfo = getDevInfo(socketEntity.getRemoteAddress());
-        } catch (BaseException e) {
-            log.error("未知ip地址{}", e.getMessage());
-            return;
-        }
+    public void doResponse(SocketEntity socketEntity) throws BaseException{
+        BaseInfo devInfo = getDevInfo(socketEntity.getRemoteAddress());
         //站控响应
         if (devInfo.getIsRptIp()!= null && Integer.parseInt(devInfo.getIsRptIp()) == 0){
             log.debug("收到站控数据, 远端地址:{}:{},数据体:{}"

@@ -7,6 +7,7 @@ import com.xy.netdev.network.enums.SocketTypeEnum;
 import com.xy.netdev.network.server.NettyTcpClient;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
@@ -15,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -78,8 +80,10 @@ public class NettyUtil {
         ChannelFuture channelFuture = null;
         if (ctx != null) {
             ByteBuf byteBuf = ctx.alloc().buffer(bytes.length);
-            byteBuf.writeBytes(bytes);
-            channelFuture = ctx.writeAndFlush(function.apply(byteBuf));
+            if (!ctx.isRemoved() && ctx.channel().isWritable()){
+                byteBuf.writeBytes(bytes);
+                channelFuture = ctx.writeAndFlush(function.apply(byteBuf));
+            }
         }
         return Optional.ofNullable(channelFuture);
     }
