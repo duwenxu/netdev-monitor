@@ -50,8 +50,8 @@ public class DeviceSocketSubscribe {
     @PostConstruct
     public void init(){
         cache = CacheUtil.newFIFOCache(absSocketHandlerList.size());
-        ThreadFactory socketResponse = ThreadUtil.newNamedThreadFactory("DeviceResponse-", true);
-        socketResponse.newThread(() -> {
+        ExecutorService executorService = ThreadUtil.newSingleExecutor();
+        executorService.execute(() -> {
             //noinspection InfiniteLoopStatement
             while (true){
                 try {
@@ -62,7 +62,7 @@ public class DeviceSocketSubscribe {
                     log.error("响应流程异常, 异常原因:{}", e.getMessage(), e);
                 }
             }
-        }).start();
+        });
     }
 
     /**
