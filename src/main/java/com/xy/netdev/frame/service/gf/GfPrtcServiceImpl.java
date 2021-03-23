@@ -66,7 +66,7 @@ public class GfPrtcServiceImpl implements IParaPrtclAnalysisService {
         paraInfo.setParaVal(byteToNumber(bytes
                 , offset
                 , Integer.parseInt(frameParaInfo.getParaByteLen())
-                , isUnsigned(sysParamService, frameParaInfo.getParaNo())).toString());
+                , isUnsigned(sysParamService, frameParaInfo.getAlertPara())).toString());
         respData.setFrameParaList(Lists.list(paraInfo));
         return respData;
     }
@@ -74,11 +74,11 @@ public class GfPrtcServiceImpl implements IParaPrtclAnalysisService {
     /**
      * 有无符号
      * @param sysParamService 系统参数
-     * @param paraNo 参数编号
+     * @param alertPara 参数编号
      * @return true 有符号, false 无符号
      */
-    public static boolean isUnsigned(ISysParamService sysParamService, String paraNo){
-        String isUnsigned = sysParamService.getParaRemark1(paraNo);
+    public static boolean isUnsigned(ISysParamService sysParamService, String alertPara){
+        String isUnsigned = sysParamService.getParaRemark1(alertPara);
         if (StrUtil.isBlank(isUnsigned)){
             return true;
         }
@@ -88,11 +88,11 @@ public class GfPrtcServiceImpl implements IParaPrtclAnalysisService {
     /**
      * 是否浮点型参数
      * @param sysParamService 系统参数
-     * @param paraNo 参数编号
+     * @param alertPara 参数编号
      * @return true 浮点型, false 整型
      */
-    public static boolean isFloat(ISysParamService sysParamService, String paraNo){
-        String isFloat = sysParamService.getParaRemark3(paraNo);
+    public static boolean isFloat(ISysParamService sysParamService, String alertPara){
+        String isFloat = sysParamService.getParaRemark3(alertPara);
         if (StrUtil.isBlank(isFloat)){
             return false;
         }

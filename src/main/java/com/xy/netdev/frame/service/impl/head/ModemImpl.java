@@ -165,14 +165,4 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
         return StringUtils.leftPad(HexUtil.toHex(num), 2,'0').toUpperCase();
     }
 
-    public static void main(String[] args) {
-        byte[] bytes = HexUtil.decodeHex("00010003810420");
-        int sum = 0;
-        for (byte aByte : bytes) {
-            sum += (aByte & 0xFF);
-        }
-        System.out.println(HexUtil.toHex(sum));
-        sum = sum & 0xFF;
-        System.out.println(HexUtil.toHex(sum));
-    }
 }

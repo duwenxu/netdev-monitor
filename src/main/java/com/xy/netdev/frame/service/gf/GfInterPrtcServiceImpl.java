@@ -64,7 +64,7 @@ public class GfInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
                     paraInfo.setLen(Integer.parseInt(frameParaInfo.getParaByteLen()));
                     paraInfo.setParaVal(byteToNumber(bytes, frameParaInfo.getParaStartPoint() - 1,
                             Integer.parseInt(frameParaInfo.getParaByteLen()), isUnsigned(sysParamService,
-                                    frameParaInfo.getParaNo())).toString());
+                                    frameParaInfo.getAlertPara())).toString());
                     return paraInfo;
                 }).collect(Collectors.toList());
         respData.setFrameParaList(frameParaDataList);
