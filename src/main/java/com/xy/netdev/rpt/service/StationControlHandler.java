@@ -224,6 +224,12 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
         return length + offset;
     }
 
+    /**
+     * 公共拆包方法
+     * @param rptHeadDev
+     * @param consumer
+     * @return
+     */
     @SuppressWarnings("unchecked")
     public static byte[] commonPack(RptHeadDev rptHeadDev, BiConsumer<List<FrameParaData>, List<byte[]>> consumer){
         List<RptBodyDev> rptBodyDevs = (List<RptBodyDev>) rptHeadDev.getParam();
@@ -272,9 +278,4 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
         rptHeadDev.setAchieveClassNameEnum(achieveClassNameEnum);
     }
 
-    public static void main(String[] args) {
-        String str = " <30";
-        byte[] bytes = StrUtil.bytes(str);
-        System.out.println(HexUtil.encodeHexStr(bytes));
-    }
 }

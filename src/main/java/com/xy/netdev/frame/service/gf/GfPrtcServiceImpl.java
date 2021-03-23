@@ -28,10 +28,10 @@ import static com.xy.netdev.frame.service.gf.GfInterPrtcServiceImpl.setParamByte
 public class GfPrtcServiceImpl implements IParaPrtclAnalysisService {
 
     @Autowired
-    SocketMutualService socketMutualService;
+    private SocketMutualService socketMutualService;
 
     @Autowired
-    ISysParamService sysParamService;
+    private ISysParamService sysParamService;
 
     @Override
     public void queryPara(FrameReqData reqInfo) {
@@ -41,7 +41,7 @@ public class GfPrtcServiceImpl implements IParaPrtclAnalysisService {
 
     @Override
     public FrameRespData queryParaResponse(FrameRespData respData) {
-        FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),respData.getCmdMark());
+        FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(), respData.getCmdMark());
         return setRespData(respData, frameParaInfo,frameParaInfo.getParaStartPoint() - 1);
     }
 
@@ -50,9 +50,10 @@ public class GfPrtcServiceImpl implements IParaPrtclAnalysisService {
         setParamBytes(reqInfo);
         socketMutualService.request(reqInfo, ProtocolRequestEnum.CONTROL);
     }
+
     @Override
     public FrameRespData ctrlParaResponse(FrameRespData respData) {
-        FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),respData.getCmdMark());
+        FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(), respData.getCmdMark());
         return setRespData(respData, frameParaInfo,0);
     }
 
@@ -65,11 +66,17 @@ public class GfPrtcServiceImpl implements IParaPrtclAnalysisService {
         paraInfo.setParaVal(byteToNumber(bytes
                 , offset
                 , Integer.parseInt(frameParaInfo.getParaByteLen())
-                , isUnsigned(sysParamService, frameParaInfo.getAlertPara())).toString());
+                , isUnsigned(sysParamService, frameParaInfo.getParaNo())).toString());
         respData.setFrameParaList(Lists.list(paraInfo));
         return respData;
     }
 
+    /**
+     * 有无符号
+     * @param sysParamService 系统参数
+     * @param paraNo 参数编号
+     * @return true 有符号, false 无符号
+     */
     public static boolean isUnsigned(ISysParamService sysParamService, String paraNo){
         String isUnsigned = sysParamService.getParaRemark1(paraNo);
         if (StrUtil.isBlank(isUnsigned)){
@@ -78,7 +85,12 @@ public class GfPrtcServiceImpl implements IParaPrtclAnalysisService {
         return Integer.parseInt(isUnsigned) == 1;
     }
 
-
+    /**
+     * 是否浮点型参数
+     * @param sysParamService 系统参数
+     * @param paraNo 参数编号
+     * @return true 浮点型, false 整型
+     */
     public static boolean isFloat(ISysParamService sysParamService, String paraNo){
         String isFloat = sysParamService.getParaRemark3(paraNo);
         if (StrUtil.isBlank(isFloat)){
