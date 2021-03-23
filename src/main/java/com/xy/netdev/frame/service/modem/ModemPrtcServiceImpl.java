@@ -1,6 +1,7 @@
 package com.xy.netdev.frame.service.modem;
 
 import cn.hutool.core.util.HexUtil;
+import cn.hutool.core.util.StrUtil;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
@@ -11,9 +12,11 @@ import com.xy.netdev.frame.enums.ProtocolRequestEnum;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
+import com.xy.netdev.monitor.constant.MonitorConstants;
 import com.xy.netdev.transit.IDataReciveService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.apache.tomcat.util.buf.HexUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -61,21 +64,27 @@ public class ModemPrtcServiceImpl implements IParaPrtclAnalysisService {
         List<FrameParaData> frameParaDataList = new ArrayList<>();
         for (String data : dataList) {
             String paraCmk = data.substring(0, 2);
-            FrameParaInfo currentPara = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(), paraCmk);
-            byte[] paraValBytes = HexUtil.decodeHex(data.substring(2));
-            FrameParaInfo paraInfoByCmd = BaseInfoContainer.getParaInfoByCmd(devType, paraCmk);
-            if (paraInfoByCmd == null|| StringUtils.isEmpty(paraInfoByCmd.getParaNo())){ continue;}
+            String paraValueStr = data.substring(2);
+            byte[] paraValBytes = HexUtil.decodeHex(paraValueStr);
+            FrameParaInfo currentPara = BaseInfoContainer.getParaInfoByCmd(devType, paraCmk);
+            if (StringUtils.isEmpty(currentPara.getParaNo())){ continue;}
             FrameParaData frameParaData = FrameParaData.builder()
                     .devType(devType)
                     .devNo(respData.getDevNo())
-                    //单个参数值转换
-                    .paraVal(byteToNumber(paraValBytes, 0,
-                            Integer.parseInt(currentPara.getParaByteLen())
-                            ,isUnsigned(sysParamService, currentPara.get())
-                            ,isFloat(sysParamService, currentPara.getParaNo())
-                    ).toString())
-                    .paraNo(paraInfoByCmd.getParaNo())
+                    .paraNo(currentPara.getParaNo())
                     .build();
+            //根据是否为String类型采取不同的处理方式
+            boolean isStr = MonitorConstants.STRING_CODE.equals(currentPara.getDataType());
+            if (isStr){
+                frameParaData.setParaVal(paraValueStr);
+            }else {
+                //单个参数值转换
+                frameParaData.setParaVal(byteToNumber(paraValBytes, 0,
+                        Integer.parseInt(currentPara.getParaByteLen())
+                        ,isUnsigned(sysParamService, currentPara.getDataType())
+                        ,isFloat(sysParamService, currentPara.getDataType())
+                ).toString());
+            }
             frameParaDataList.add(frameParaData);
         }
         respData.setFrameParaList(frameParaDataList);
