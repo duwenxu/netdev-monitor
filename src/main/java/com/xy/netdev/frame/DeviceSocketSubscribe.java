@@ -15,7 +15,6 @@ import com.xy.netdev.frame.entity.SocketEntity;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.rpt.service.StationControlHandler;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ThreadUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -23,7 +22,6 @@ import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadFactory;
 
 import static com.xy.netdev.container.BaseInfoContainer.getDevInfo;
 import static com.xy.netdev.network.NettyUtil.SOCKET_QUEUE;
@@ -69,14 +67,8 @@ public class DeviceSocketSubscribe {
      * 执行响应流程
      * @param socketEntity socket实体
      */
-    private void doResponse(SocketEntity socketEntity) throws BaseException{
-        BaseInfo devInfo;
-        try {
-            devInfo = getDevInfo(socketEntity.getRemoteAddress());
-        } catch (BaseException e) {
-            log.error("未知ip地址{}", e.getMessage());
-            return;
-        }
+    public void doResponse(SocketEntity socketEntity) throws BaseException{
+        BaseInfo devInfo = getDevInfo(socketEntity.getRemoteAddress());
         //站控响应
         if (devInfo.getIsRptIp()!= null && Integer.parseInt(devInfo.getIsRptIp()) == 0){
             log.debug("收到站控数据, 远端地址:{}:{},数据体:{}"

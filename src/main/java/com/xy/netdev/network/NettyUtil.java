@@ -78,8 +78,10 @@ public class NettyUtil {
         ChannelFuture channelFuture = null;
         if (ctx != null) {
             ByteBuf byteBuf = ctx.alloc().buffer(bytes.length);
-            byteBuf.writeBytes(bytes);
-            channelFuture = ctx.writeAndFlush(function.apply(byteBuf));
+            if (!ctx.isRemoved() && ctx.channel().isWritable()){
+                byteBuf.writeBytes(bytes);
+                channelFuture = ctx.writeAndFlush(function.apply(byteBuf));
+            }
         }
         return Optional.ofNullable(channelFuture);
     }

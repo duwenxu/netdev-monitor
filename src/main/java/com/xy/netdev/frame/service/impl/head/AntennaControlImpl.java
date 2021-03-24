@@ -65,10 +65,10 @@ public class AntennaControlImpl extends AbsDeviceSocketHandler<SocketEntity, Fra
     public byte[] pack(FrameReqData frameReqData) {
         //参数数据
         byte[] paramBytes = frameReqData.getParamBytes();
-        //数据长度
-        int dataLength = 0;
+        //数据长度,初始长度为6
+        int dataLength = 6;
         if (paramBytes != null){
-            dataLength = paramBytes.length + 6;
+            dataLength += paramBytes.length;
         }
         AntennaControlEntity antennaControlEntity = AntennaControlEntity.builder()
                 .stx((byte) 0x7B)

@@ -1,8 +1,6 @@
 package com.xy.netdev.monitor.bo;
 
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.xy.common.annotation.Param;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
