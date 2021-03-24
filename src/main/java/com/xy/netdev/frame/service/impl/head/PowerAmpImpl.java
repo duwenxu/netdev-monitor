@@ -101,11 +101,10 @@ public class PowerAmpImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqD
     public byte[] pack(FrameReqData frameReqData) {
         //参数数据
         byte[] paramBytes = frameReqData.getParamBytes();
-        //数据长度
+        //数据长度 命令字固定1字节，存在参数时增加参数体长度
         int dataLength = 1;
         if (paramBytes != null) {
-            //命令字+参数体 之外的固定长度 9
-            dataLength = paramBytes.length;
+            dataLength += paramBytes.length;
         }
         String subTypeCode = getDevSubCode(frameReqData);
         String operType = frameReqData.getOperType();
