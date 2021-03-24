@@ -3,23 +3,26 @@ package com.xy.netdev.frame.service.pam;
 import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.StrUtil;
 import com.google.common.base.Charsets;
+import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.enums.ProtocolRequestEnum;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
+import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.transit.IDataReciveService;
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.Charset;
 import java.util.List;
 
 import static com.xy.netdev.common.util.ByteUtils.bytesToNum;
 import static com.xy.netdev.common.util.ByteUtils.numToHexStr;
+import static com.xy.netdev.monitor.constant.MonitorConstants.BYTE;
+import static com.xy.netdev.monitor.constant.MonitorConstants.STR;
 
 /**
  * Ku400w功放 参数查询响应 帧协议解析层
@@ -54,12 +57,24 @@ public class PowerAmpPrtcServiceImpl implements IParaPrtclAnalysisService {
     @Override
     public void ctrlPara(FrameReqData reqInfo) {
         List<FrameParaData> paraList = reqInfo.getFrameParaList();
-        if (paraList == null|| paraList.isEmpty()){return;}
-        String paraVal = paraList.get(0).getParaVal();
-        String dataBody = reqInfo.getCmdMark() + paraVal;
-        byte[] bytes = HexUtil.decodeHex(dataBody);
+        if (paraList == null || paraList.isEmpty()) {
+            return;
+        }
+        FrameParaData paraData = paraList.get(0);
+        FrameParaInfo paraInfoByNo = BaseInfoContainer.getParaInfoByNo(paraData.getDevType(), paraData.getParaNo());
+        String dataType = paraInfoByNo.getDataType();
+        byte[] bytes = new byte[0];
+        if (dataType.equals(STR)) {
+            //todo 控制设置待调试
+            bytes = StrUtil.bytes(paraData.getParaVal());
+        } else if (dataType.equals(BYTE)) {
+            //功放开关设置 直接发送状态位 80关/81开
+            String byteVal = "0".equals(paraData.getParaVal())? "80":"81";
+            String dataBody = reqInfo.getCmdMark() + byteVal;
+            bytes = HexUtil.decodeHex(dataBody);
+        }
         reqInfo.setParamBytes(bytes);
-        socketMutualService.request(reqInfo, ProtocolRequestEnum.QUERY);
+        socketMutualService.request(reqInfo, ProtocolRequestEnum.CONTROL);
     }
 
     /**
@@ -78,7 +93,7 @@ public class PowerAmpPrtcServiceImpl implements IParaPrtclAnalysisService {
         String hexResponse = numToHexStr(Long.valueOf(response));
         respData.setCmdMark(hexCmd);
         respData.setRespCode(hexResponse);
-        dataReciveService.paraQueryRecive(respData);
+        dataReciveService.paraCtrRecive(respData);
         return respData;
     }
 
