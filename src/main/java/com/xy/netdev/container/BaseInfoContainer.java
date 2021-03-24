@@ -186,9 +186,9 @@ public class BaseInfoContainer {
                 try {
                     seq++;
                     paraInfo.setParaSeq(seq);  //参数序号
+                    paraInfo.setParaStartPoint(point);  //参数下标：从哪一个字节开始
                     String byteLen = StringUtils.isBlank(paraInfo.getParaByteLen()) ? "0":paraInfo.getParaByteLen();
                     point = point+Integer.valueOf(byteLen);
-                    paraInfo.setParaStartPoint(point);   //参数下标：从哪一个字节开始
                 } catch (NumberFormatException e) {
                     log.error("参数["+paraInfo.getParaName()+"]的字节长度存在异常，请检查："+e.getMessage());
                 }
