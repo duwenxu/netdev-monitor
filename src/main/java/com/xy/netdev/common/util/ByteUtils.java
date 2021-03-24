@@ -296,4 +296,20 @@ public class ByteUtils {
         return StringUtils.leftPad(HexUtil.toHex(num), 2,'0').toUpperCase();
     }
 
+
+    /**
+     * 累加字节数组取低位
+     * @param bytes 原始数组
+     * @param offset 起始位
+     * @param len 长度
+     * @return 低位
+     */
+    public static byte addGetBottom(byte[] bytes, int offset, int len){
+        byte[] arrayCopy = byteArrayCopy(bytes, offset, len);
+        int sum = 0;
+        for (byte b : arrayCopy) {
+            sum += (b & 0xFF);
+        }
+        return (byte)(sum & 0XFF);
+    }
 }

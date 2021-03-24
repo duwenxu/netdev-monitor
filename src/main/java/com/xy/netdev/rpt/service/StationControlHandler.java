@@ -254,7 +254,7 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
                 achieveClassNameEnum = AchieveClassNameEnum.REPORT_STATUS;
                 break;
             case 2:
-                achieveClassNameEnum = AchieveClassNameEnum.REPORT_WARN;
+                achieveClassNameEnum = AchieveClassNameEnum.REPORT_WARN;ByteBuf
                 break;
             case 3:
             case 4:
