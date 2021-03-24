@@ -307,7 +307,7 @@ public class ByteUtils {
     public static byte addGetBottom(byte[] bytes, int offset, int len){
         byte[] arrayCopy = byteArrayCopy(bytes, offset, len);
         int sum = 0;
-        for (byte b : arrayCopy) {
+        for (byte b : Objects.requireNonNull(arrayCopy)) {
             sum += (b & 0xFF);
         }
         return (byte)(sum & 0XFF);
