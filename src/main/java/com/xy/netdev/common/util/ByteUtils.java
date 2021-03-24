@@ -1,19 +1,18 @@
 package com.xy.netdev.common.util;
 
-import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.HexUtil;
 import com.google.common.primitives.Bytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.util.ReferenceCountUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.util.DigestUtils;
 
 import java.io.*;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
@@ -293,4 +292,24 @@ public class ByteUtils {
         }
     }
 
+    public static String numToHexStr(long num){
+        return StringUtils.leftPad(HexUtil.toHex(num), 2,'0').toUpperCase();
+    }
+
+
+    /**
+     * 累加字节数组取低位
+     * @param bytes 原始数组
+     * @param offset 起始位
+     * @param len 长度
+     * @return 低位
+     */
+    public static byte addGetBottom(byte[] bytes, int offset, int len){
+        byte[] arrayCopy = byteArrayCopy(bytes, offset, len);
+        int sum = 0;
+        for (byte b : Objects.requireNonNull(arrayCopy)) {
+            sum += (b & 0xFF);
+        }
+        return (byte)(sum & 0XFF);
+    }
 }

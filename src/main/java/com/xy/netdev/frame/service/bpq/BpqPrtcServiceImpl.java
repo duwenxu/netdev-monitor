@@ -1,7 +1,6 @@
 package com.xy.netdev.frame.service.bpq;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.xy.common.exception.BaseException;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;

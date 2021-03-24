@@ -2,7 +2,6 @@ package com.xy.netdev.rpt.service;
 
 
 import com.xy.netdev.frame.bo.FrameParaData;
-import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.monitor.bo.TransRule;
 

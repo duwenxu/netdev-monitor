@@ -30,27 +30,27 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Component
-public class ScheduleQuery implements ApplicationRunner {
+public class ScheduleQuery /** implements ApplicationRunner */ {
 
     @Autowired
     private IDevCmdSendService devCmdSendService;
 
-    @Override
-    public void run(ApplicationArguments args) throws Exception {
-        log.info("-----设备状态定时查询开始...");
-        try {
-            doScheduleQuery();
-        } catch (Exception e) {
-            log.error("设备状态定时查询异常...", e);
-        }
-    }
+//    @Override
+//    public void run(ApplicationArguments args) throws Exception {
+//        log.info("-----设备状态定时查询开始...");
+//        try {
+//            doScheduleQuery();
+//        } catch (Exception e) {
+//            log.error("设备状态定时查询异常...", e);
+//        }
+//    }
 
     /**
      * 设备参数定时查询
      */
     public void doScheduleQuery() {
-//        List<BaseInfo> baseInfos = ScheduleReportHelper.getAvailableBases().stream().filter(base-> base.getDevType().equals("0020008")).collect(Collectors.toList());
-        List<BaseInfo> baseInfos = ScheduleQueryHelper.getAvailableBases();
+        List<BaseInfo> baseInfos = ScheduleQueryHelper.getAvailableBases().stream().filter(base-> base.getDevType().equals("0020010")).collect(Collectors.toList());
+//        List<BaseInfo> baseInfos = ScheduleQueryHelper.getAvailableBases();
         //单个设备所有查询对象的封装list映射
         Map<BaseInfo, List<FrameReqData>> scheduleReqBodyMap = new ConcurrentHashMap<>(20);
         baseInfos.forEach(base -> {

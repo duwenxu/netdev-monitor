@@ -44,8 +44,8 @@ public class NettyUdp implements Runnable {
     @Override
     @SneakyThrows
     public void run() {
-        MultithreadEventLoopGroup loopGroup = Epoll.isAvailable() ? new EpollEventLoopGroup(1) :
-                new NioEventLoopGroup(1);
+        MultithreadEventLoopGroup loopGroup = Epoll.isAvailable() ? new EpollEventLoopGroup() :
+                new NioEventLoopGroup();
         eventLoopGroupsList.add(loopGroup);
         try {
             String address = InetAddress.getLocalHost().getHostAddress();
@@ -53,8 +53,7 @@ public class NettyUdp implements Runnable {
             bootstrap.group(loopGroup)
                     .channel(Epoll.isAvailable()? EpollDatagramChannel.class: NioDatagramChannel.class)
                     .option(ChannelOption.SO_BROADCAST, true)
-                    .option(ChannelOption.SO_REUSEADDR, true)
-                    .option(ChannelOption.IP_MULTICAST_TTL, 64)
+                    .option(ChannelOption.IP_MULTICAST_TTL, 255)
                     .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                     .handler(new PipeLineHandler(handles));
             if (Epoll.isAvailable()){

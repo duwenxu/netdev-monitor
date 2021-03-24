@@ -83,6 +83,9 @@ public class FrameParaInfo {
     @ApiModelProperty(value = "字段类型")
     private String alertPara;
 
+    @ApiModelProperty(value = "数值类型")
+    private String dataType;
+
     /**
      *  下拉框显示数据,当显示模式 是0024002 需要赋值下拉框列表
      */

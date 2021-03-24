@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ExecutorService;
 
 import static com.xy.netdev.container.BaseInfoContainer.getDevInfo;
 import static com.xy.netdev.network.NettyUtil.SOCKET_QUEUE;
@@ -48,8 +48,8 @@ public class DeviceSocketSubscribe {
     @PostConstruct
     public void init(){
         cache = CacheUtil.newFIFOCache(absSocketHandlerList.size());
-        ThreadFactory socketResponse = ThreadUtil.newNamedThreadFactory("设备响应-", true);
-        socketResponse.newThread(() -> {
+        ExecutorService executorService = ThreadUtil.newSingleExecutor();
+        executorService.execute(() -> {
             //noinspection InfiniteLoopStatement
             while (true){
                 try {
@@ -60,21 +60,15 @@ public class DeviceSocketSubscribe {
                     log.error("响应流程异常, 异常原因:{}", e.getMessage(), e);
                 }
             }
-        }).start();
+        });
     }
 
     /**
      * 执行响应流程
      * @param socketEntity socket实体
      */
-    private void doResponse(SocketEntity socketEntity) throws BaseException{
-        BaseInfo devInfo;
-        try {
-            devInfo = getDevInfo(socketEntity.getRemoteAddress());
-        } catch (BaseException e) {
-            log.error("未知ip地址{}", e.getMessage());
-            return;
-        }
+    public void doResponse(SocketEntity socketEntity) throws BaseException{
+        BaseInfo devInfo = getDevInfo(socketEntity.getRemoteAddress());
         //站控响应
         if (devInfo.getIsRptIp()!= null && Integer.parseInt(devInfo.getIsRptIp()) == 0){
             log.debug("收到站控数据, 远端地址:{}:{},数据体:{}"
