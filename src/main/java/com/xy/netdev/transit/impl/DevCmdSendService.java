@@ -1,6 +1,7 @@
 package com.xy.netdev.transit.impl;
 
 import com.xy.common.exception.BaseException;
+import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
@@ -48,11 +49,13 @@ public class DevCmdSendService implements IDevCmdSendService {
      */
     public void paraCtrSend(String devNo,String cmdMark,String paraVal) {
         validateInputPara(devNo,cmdMark);
-        if(StringUtils.isEmpty(paraVal)){
-            throw new BaseException("传入的paraVal为空!");
-        }
         FrameReqData frameReqData = genFrameReqData(devNo,cmdMark);
         FrameParaInfo paraInfo = BaseInfoContainer.getParaInfoByCmd(frameReqData.getDevType(),cmdMark);
+        if(!paraInfo.getNdpaAccessRight().equals(SysConfigConstant.CMD_RIGHT)){
+            if(StringUtils.isEmpty(paraVal)){
+                throw new BaseException("传入的paraVal为空!");
+            }
+        }
         List<FrameParaData>  paraDataList = new ArrayList<>();
         FrameParaData  frameParaData = new FrameParaData();
         frameParaData.setDevNo(devNo);
