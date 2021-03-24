@@ -7,7 +7,6 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.google.common.base.Charsets;
 import com.xy.netdev.admin.service.ISysParamService;
-import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
@@ -16,15 +15,13 @@ import com.xy.netdev.frame.enums.ProtocolRequestEnum;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
-import com.xy.netdev.monitor.entity.PrtclFormat;
+import com.xy.netdev.transit.IDataReciveService;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -47,6 +44,8 @@ public class PowerAmpInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
     private SocketMutualService socketMutualService;
     @Autowired
     private ISysParamService sysParamService;
+    @Autowired
+    private IDataReciveService dataReciveService;
     private static final String QUERY = "82";
 
     @Override
@@ -85,9 +84,9 @@ public class PowerAmpInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
                     } else if (dataType.equals(INT)) {
                         byte[] targetBytes = byteArrayCopy(bytes, paraStartPoint, paraByteLen);
                         String paraVal = byteToNumber(bytes, paraStartPoint, paraByteLen, isUnsigned(sysParamService, INT)).toString();
-                        if ("147".equals(paraNo)) {
+                        if ("7".equals(paraNo)) {
                             paraInfo.setParaVal(String.valueOf(HexUtil.encodeHex(targetBytes)));
-                        }else if ("148".equals(paraNo)) {
+                        }else if ("8".equals(paraNo)) {
                             double i = (double) Integer.parseInt(paraVal) / 1000;
                             paraInfo.setParaVal("V"+i);
                         }else {
@@ -96,17 +95,18 @@ public class PowerAmpInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
                     } else if (dataType.equals(BYTE)) {
                         Byte statusByte = bytesToNum(bytes, 21, 1, ByteBuf::readByte);
                         //分别对应第 7，6，5位
-                        if ("149".equals(paraNo)) {
+                        if ("9".equals(paraNo)) {
                             paraInfo.setParaVal(String.valueOf(statusByte & 1));
-                        } else if ("150".equals(paraNo)) {
+                        } else if ("10".equals(paraNo)) {
                             paraInfo.setParaVal(String.valueOf(statusByte & 8));
-                        } else if ("151".equals(paraNo)) {
+                        } else if ("11".equals(paraNo)) {
                             paraInfo.setParaVal(String.valueOf(statusByte & 64));
                         }
                     }
                     return paraInfo;
                 }).collect(Collectors.toList());
         respData.setFrameParaList(frameParaDataList);
+        dataReciveService.paraQueryRecive(respData);
         return respData;
     }
 }

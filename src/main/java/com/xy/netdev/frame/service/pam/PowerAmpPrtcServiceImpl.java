@@ -9,6 +9,7 @@ import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.enums.ProtocolRequestEnum;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
+import com.xy.netdev.transit.IDataReciveService;
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,8 @@ public class PowerAmpPrtcServiceImpl implements IParaPrtclAnalysisService {
 
     @Autowired
     private SocketMutualService socketMutualService;
+    @Autowired
+    private IDataReciveService dataReciveService;
     /**分隔符 ASCII码为 0x2C*/
     private static final String SPLIT=",";
 
@@ -75,6 +78,7 @@ public class PowerAmpPrtcServiceImpl implements IParaPrtclAnalysisService {
         String hexResponse = numToHexStr(Long.valueOf(response));
         respData.setCmdMark(hexCmd);
         respData.setRespCode(hexResponse);
+        dataReciveService.paraQueryRecive(respData);
         return respData;
     }
 
