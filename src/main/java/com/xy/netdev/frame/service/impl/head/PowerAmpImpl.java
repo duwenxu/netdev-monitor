@@ -1,9 +1,6 @@
 package com.xy.netdev.frame.service.impl.head;
 
-import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.HexUtil;
-import cn.hutool.core.util.NumberUtil;
-import com.google.common.base.Charsets;
 import com.xy.common.exception.BaseException;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.util.ByteUtils;
@@ -12,7 +9,6 @@ import com.xy.netdev.frame.base.AbsDeviceSocketHandler;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.entity.SocketEntity;
-import com.xy.netdev.frame.entity.device.AntennaControlEntity;
 import com.xy.netdev.frame.entity.device.PowerAmpEntity;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
@@ -21,12 +17,10 @@ import com.xy.netdev.monitor.entity.PrtclFormat;
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.omg.CORBA.PRIVATE_MEMBER;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static com.xy.netdev.common.constant.SysConfigConstant.*;
@@ -138,10 +132,27 @@ public class PowerAmpImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqD
                 .params(paramBytes)
                 .end((byte) 0x7E)
                 .build();
-        //todo 校验合
-        byte checkSum = xor(ampEntity);
+        //累加校验和
+        byte checkSum = addGetBottom(ampEntity);
         ampEntity.setCheck(checkSum);
         return pack(ampEntity);
+    }
+
+    /**
+     * 累加从 地址 到 参数体 的所有内容作为校验和
+     * @param ampEntity 数据体
+     * @return 校验和字节
+     */
+    private byte addGetBottom(PowerAmpEntity ampEntity) {
+        List<byte[]> list = new ArrayList<>();
+        list.add(ampEntity.getDeviceAddress());
+        list.add(ampEntity.getLength());
+        list.add(new byte[]{ampEntity.getCmd()});
+        if (ampEntity.getParams() != null){
+            list.add(ampEntity.getParams());
+        }
+        byte[] bytes = listToBytes(list);
+        return ByteUtils.addGetBottom(bytes, 0, bytes.length);
     }
 
     private byte[] pack(PowerAmpEntity ampEntity) {
@@ -160,15 +171,6 @@ public class PowerAmpImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqD
         return listToBytes(list);
     }
 
-    private byte xor(PowerAmpEntity entity){
-        byte[] bytes = {entity.getCmd()};
-        byte[] xorBytes = ArrayUtil.addAll(bytes, entity.getDeviceAddress(),entity.getLength());
-        if (entity.getParams() != null){
-            xorBytes = ArrayUtil.addAll(xorBytes,entity.getParams());
-        }
-        return ByteUtils.xor(xorBytes, 0, xorBytes.length);
-    }
-
     /**
      * 获取子设备型号 编码
      * @param frameReqData 数据结构
@@ -181,14 +183,5 @@ public class PowerAmpImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqD
             return sysParamService.getParaRemark1(devSubType);
         }
         return null;
-    }
-
-    /**
-     * 数组转十六进制字符串并补全
-     * @param num
-     * @return
-     */
-    private static String lefPadNumToHexStr(long num){
-        return StringUtils.leftPad(HexUtil.toHex(num), 2,'0').toUpperCase();
     }
 }
