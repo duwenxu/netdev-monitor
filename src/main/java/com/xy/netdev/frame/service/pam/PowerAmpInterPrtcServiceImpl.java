@@ -1,8 +1,11 @@
 package com.xy.netdev.frame.service.pam;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
+import com.google.common.base.Charsets;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
@@ -14,16 +17,21 @@ import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.entity.PrtclFormat;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static com.xy.netdev.common.util.ByteUtils.byteToNumber;
+import static com.xy.netdev.common.util.ByteUtils.*;
 import static com.xy.netdev.frame.service.gf.GfPrtcServiceImpl.isUnsigned;
+import static com.xy.netdev.monitor.constant.MonitorConstants.*;
 
 /**
  * Ku400w功放 接口查询响应 帧协议解析层
@@ -43,11 +51,6 @@ public class PowerAmpInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
 
     @Override
     public void queryPara(FrameReqData reqInfo) {
-        //获取查询关键字
-//        PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(reqInfo.getDevType(), reqInfo.getCmdMark());
-//        String fmtSkey = prtclFormat.getFmtSkey();
-//        byte[] bytes = ByteUtils.objToBytes(fmtSkey, 1);
-//        reqInfo.setParamBytes(bytes);
         socketMutualService.request(reqInfo, ProtocolRequestEnum.QUERY);
     }
 
@@ -56,7 +59,7 @@ public class PowerAmpInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
         List<FrameParaInfo> frameParaInfos = BaseInfoContainer
                 .getInterLinkParaList(respData.getDevType(), QUERY);
         byte[] bytes = respData.getParamBytes();
-        if (ObjectUtil.isNull(bytes)){
+        if (ObjectUtil.isNull(bytes)) {
             log.warn("400W功放查询响应异常, 未获取到数据体, 信息:{}", JSON.toJSONString(respData));
             return respData;
         }
@@ -66,10 +69,41 @@ public class PowerAmpInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
                     FrameParaData paraInfo = new FrameParaData();
                     BeanUtil.copyProperties(frameParaInfo, paraInfo, true);
                     BeanUtil.copyProperties(respData, paraInfo, true);
-                    paraInfo.setLen(Integer.parseInt(frameParaInfo.getParaByteLen()));
-                    paraInfo.setParaVal(byteToNumber(bytes, frameParaInfo.getParaStartPoint() - 1,
-                            Integer.parseInt(frameParaInfo.getParaByteLen()), isUnsigned(sysParamService,
-                                    frameParaInfo.getAlertPara())).toString());
+                    String byteLen = frameParaInfo.getParaByteLen();
+                    int paraByteLen = 0;
+                    if (StringUtils.isNotBlank(byteLen)) {
+                        paraByteLen = Integer.parseInt(byteLen);
+                        paraInfo.setLen(paraByteLen);
+                    }
+                    String dataType = frameParaInfo.getDataType();
+                    Integer paraStartPoint = frameParaInfo.getParaStartPoint();
+                    String paraNo = paraInfo.getParaNo();
+                    if (dataType.equals(STR)) {
+                        byte[] targetBytes = byteArrayCopy(bytes, paraStartPoint, paraByteLen);
+                        String paraVal = StrUtil.str(targetBytes, Charsets.UTF_8);
+                        paraInfo.setParaVal(paraVal);
+                    } else if (dataType.equals(INT)) {
+                        byte[] targetBytes = byteArrayCopy(bytes, paraStartPoint, paraByteLen);
+                        String paraVal = byteToNumber(bytes, paraStartPoint, paraByteLen, isUnsigned(sysParamService, INT)).toString();
+                        if ("147".equals(paraNo)) {
+                            paraInfo.setParaVal(String.valueOf(HexUtil.encodeHex(targetBytes)));
+                        }else if ("148".equals(paraNo)) {
+                            double i = (double) Integer.parseInt(paraVal) / 1000;
+                            paraInfo.setParaVal("V"+i);
+                        }else {
+                            paraInfo.setParaVal(paraVal);
+                        }
+                    } else if (dataType.equals(BYTE)) {
+                        Byte statusByte = bytesToNum(bytes, 21, 1, ByteBuf::readByte);
+                        //分别对应第 7，6，5位
+                        if ("149".equals(paraNo)) {
+                            paraInfo.setParaVal(String.valueOf(statusByte & 1));
+                        } else if ("150".equals(paraNo)) {
+                            paraInfo.setParaVal(String.valueOf(statusByte & 8));
+                        } else if ("151".equals(paraNo)) {
+                            paraInfo.setParaVal(String.valueOf(statusByte & 64));
+                        }
+                    }
                     return paraInfo;
                 }).collect(Collectors.toList());
         respData.setFrameParaList(frameParaDataList);

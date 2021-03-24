@@ -34,4 +34,10 @@ public interface MonitorConstants {
 
     /**数据类型*/
     String STRING_CODE = "0023004";
+
+
+    /**参数数据类型*/
+    String STR="0023004";
+    String INT ="0023002";
+    String BYTE="0023001";
 }

@@ -22,8 +22,6 @@ import java.util.stream.Collectors;
 
 import static com.xy.netdev.common.constant.SysConfigConstant.DEV_DEPLOY_MASTER;
 import static com.xy.netdev.common.constant.SysConfigConstant.DEV_DEPLOY_SLAVE;
-import static com.xy.netdev.monitor.constant.MonitorConstants.SUB_KU_GF;
-import static com.xy.netdev.monitor.constant.MonitorConstants.SUB_MODEM;
 
 /**
  * <p>
@@ -186,25 +184,13 @@ public class BaseInfoContainer {
         devInterParamList.forEach(devInterParam -> {
             int seq = 0;
             Integer point = 0 ;
-            int previousLen = 0;
             for (FrameParaInfo paraInfo : devInterParam.getDevParamList()) {
                 try {
                     seq++;
                     paraInfo.setParaSeq(seq);  //参数序号
+                    paraInfo.setParaStartPoint(point);  //参数下标：从哪一个字节开始
                     String byteLen = StringUtils.isBlank(paraInfo.getParaByteLen()) ? "0":paraInfo.getParaByteLen();
                     point = point+Integer.valueOf(byteLen);
-                    paraInfo.setParaStartPoint(point);   //参数下标：从哪一个字节开始
-                    //对于存在分隔符的参数下标做特殊处理
-                    String devType = paraInfo.getDevType();
-                    if (SUB_MODEM.equals(devType)||SUB_KU_GF.equals(devType)){
-                        //增加1字节的分隔符
-                        if (seq == 1){
-                            paraInfo.setParaStartPoint(0);
-                        }else {
-                            paraInfo.setParaStartPoint(previousLen+1);
-                        }
-                        previousLen += Integer.parseInt(byteLen);
-                    }
                 } catch (NumberFormatException e) {
                     log.error("参数["+paraInfo.getParaName()+"]的字节长度存在异常，请检查："+e.getMessage());
                 }
