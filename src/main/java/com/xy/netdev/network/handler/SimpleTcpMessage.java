@@ -32,5 +32,6 @@ public class SimpleTcpMessage extends SimpleChannelInboundHandler<ByteBuf> {
         //数据放入队列
         SOCKET_QUEUE.offer(socketEntity, 1, TimeUnit.SECONDS);
 
+
     }
 }

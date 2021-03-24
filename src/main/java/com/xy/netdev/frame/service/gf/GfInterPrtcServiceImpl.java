@@ -35,10 +35,10 @@ import static com.xy.netdev.frame.service.gf.GfPrtcServiceImpl.isUnsigned;
 public class GfInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
 
     @Autowired
-    SocketMutualService socketMutualService;
+    private SocketMutualService socketMutualService;
 
     @Autowired
-    ISysParamService sysParamService;
+    private ISysParamService sysParamService;
 
     @Override
     public void queryPara(FrameReqData reqInfo) {

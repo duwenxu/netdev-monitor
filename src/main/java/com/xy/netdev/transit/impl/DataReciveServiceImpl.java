@@ -13,6 +13,7 @@ import com.xy.netdev.monitor.bo.TransRule;
 import com.xy.netdev.rpt.service.IDevStatusReportService;
 import com.xy.netdev.transit.IDataReciveService;
 import com.xy.netdev.websocket.send.DevIfeMegSend;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +29,7 @@ import java.util.List;
  * @since 2021-03-11
  */
 @Service
+@Slf4j
 public class DataReciveServiceImpl implements IDataReciveService {
 
     @Autowired
@@ -83,7 +85,11 @@ public class DataReciveServiceImpl implements IDataReciveService {
      * @param  respData   协议解析响应数据
      */
     private void handlerAlertInfo(FrameRespData respData){
-        List<FrameParaData> params =  respData.getFrameParaList();
+        List<FrameParaData> params = respData.getFrameParaList();
+        if (params == null || params.isEmpty()){
+            log.warn("处理报警信息失败, 参数列表为空, 数据体:{}", JSONArray.toJSONString(respData));
+            return;
+        }
         params.forEach(param->{
             FrameParaInfo paraInfo = BaseInfoContainer.getParaInfoByNo(param.getDevType(),param.getParaNo());
             if(!paraInfo.getAlertPara().equals(SysConfigConstant.PARA_ALERT_TYPE_NULL)){

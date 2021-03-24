@@ -11,7 +11,7 @@ public interface ProtocolResponseService<T extends FrameRespData> {
 
     /**
      * socket 数据响应
-     * @param socketEntity
+     * @param socketEntity socket实体
      */
     void socketResponse(SocketEntity socketEntity);
 }

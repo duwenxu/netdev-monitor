@@ -7,6 +7,7 @@ import com.xy.netdev.network.enums.SocketTypeEnum;
 import com.xy.netdev.network.server.NettyTcpClient;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
@@ -15,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -77,20 +79,11 @@ public class NettyUtil {
         ChannelHandlerContext ctx = HOST_CHANNEL_MAP.get(localPort);
         ChannelFuture channelFuture = null;
         if (ctx != null) {
-            ByteBuf byteBuf = ctx.alloc().heapBuffer(bytes.length);
+            ByteBuf byteBuf = ctx.alloc().buffer(bytes.length);
             if (!ctx.isRemoved() && ctx.channel().isWritable()){
                 byteBuf.writeBytes(bytes);
                 channelFuture = ctx.writeAndFlush(function.apply(byteBuf));
-//                        .addListener(future -> {
-//                    if (!future.isSuccess()){
-//                        log.debug("数据发送失败, 本地端口{}, 远程地址{}, 远程端口{}, 数据体{}", localPort, remoteIp, remotePort, HexUtil.encodeHexStr(bytes));
-//                    }else {
-//                        log.debug("外发数据, 本地端口:{}, 目标地址:{}:{}, 数据体:{}", localPort, remoteIp, remotePort, HexUtil.encodeHexStr(bytes));
-//                    }
-//                });
             }
-        } else {
-            log.info("端口号未注册, 请检查端口正确性: {}", localPort);
         }
         return Optional.ofNullable(channelFuture);
     }

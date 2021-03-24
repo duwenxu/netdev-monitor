@@ -1,18 +1,22 @@
 package com.xy.netdev.common.util;
 
+import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.HexUtil;
 import com.google.common.primitives.Bytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.util.ReferenceCountUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.util.DigestUtils;
 
+import java.io.*;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 
 
@@ -88,6 +92,13 @@ public class ByteUtils {
         return objToBytes(obj, len, false);
     }
 
+    /**
+     * obj转字节数组
+     * @param obj obj
+     * @param len 长度
+     * @param isFloat 是否浮点类型
+     * @return 字节数组
+     */
     public static byte[] objToBytes(Object obj, int len, boolean isFloat){
         byte [] data;
         if (len == 1){
@@ -126,11 +137,28 @@ public class ByteUtils {
     }
 
 
+    /**
+     * 字节数组转数字
+     * @param bytes 原始字节数据
+     * @param offset 起始位下标
+     * @param length 长度
+     * @return Number
+     */
     public static Number byteToNumber(byte[] bytes, int offset, int length){
         return byteToNumber(bytes, offset, length, false, false);
     }
 
-    public static Number bytesToNum(byte[] bytes, int offset, int length, Function<ByteBuf, Number> function,
+    /**
+     * 字节数组转数字
+     * @param bytes 原始字节数据
+     * @param offset 起始位下标
+     * @param length 长度
+     * @param function 方法1
+     * @param function1 方法2
+     * @param isUnsigned 有无符号
+     * @return
+     */
+    private static Number bytesToNum(byte[] bytes, int offset, int length, Function<ByteBuf, Number> function,
                                     Function<ByteBuf, Number> function1, boolean isUnsigned){
         if (!isUnsigned){
            return bytesToNum(bytes, offset, length, function);
@@ -139,10 +167,27 @@ public class ByteUtils {
     }
 
 
+    /**
+     * 字节数组转数字
+     * @param bytes 原始字节数据
+     * @param offset 起始位下标
+     * @param length 长度
+     * @param isUnsigned 有无符号
+     * @return Number
+     */
     public static Number byteToNumber(byte[] bytes, int offset, int length,  boolean isUnsigned){
         return byteToNumber(bytes, offset, length, isUnsigned, false);
     }
 
+    /**
+     * 字节数组转数字
+     * @param bytes 原始字节数据
+     * @param offset 起始位下标
+     * @param length 长度
+     * @param isUnsigned 有无符号
+     * @param isFloat 是否浮点类型
+     * @return Number
+     */
     public static Number byteToNumber(byte[] bytes, int offset, int length, boolean isUnsigned, boolean isFloat){
         Number num = null;
         switch (length){
@@ -160,14 +205,14 @@ public class ByteUtils {
                     num = bytesToNum(bytes, offset, length, ByteBuf::readInt, ByteBuf::readUnsignedMedium, isUnsigned);
                     break;
                 }
-                num = at.favre.lib.bytes.Bytes.from(byteArrayCopy(bytes, offset, length)).toFloat();
+                num = at.favre.lib.bytes.Bytes.from(Objects.requireNonNull(byteArrayCopy(bytes, offset, length))).toFloat();
                 break;
             case 8:
                 if (!isFloat){
                     num = bytesToNum(bytes, offset, length, ByteBuf::readLong, ByteBuf::readUnsignedInt, isUnsigned);
                     break;
                 }
-                num = at.favre.lib.bytes.Bytes.from(byteArrayCopy(bytes, offset, length)).toDouble();
+                num = at.favre.lib.bytes.Bytes.from(Objects.requireNonNull(byteArrayCopy(bytes, offset, length))).toDouble();
                 break;
             default:
                 log.warn("转换失败, 数据长度{}不匹配", length);
@@ -210,6 +255,47 @@ public class ByteUtils {
             list.add(0);
         }
         return Bytes.toArray(list);
+    }
+
+    /**
+     * 对象转换成字节数组。
+     *
+     * @param obj 字节数组。
+     * @return 对象实例相应的序列化后的字节数组。
+     * @throws IOException
+     */
+    public static byte[] objectToByte(Object obj) throws IOException {
+        ByteArrayOutputStream buff = new ByteArrayOutputStream();
+        ObjectOutputStream out = new ObjectOutputStream(buff);
+        out.writeObject(obj);
+        try {
+            return buff.toByteArray();
+        } finally {
+            out.close();
+        }
+    }
+
+    /**
+     * 序死化字节数组转换成实际对象。
+     *
+     * @param b 字节数组。
+     * @return 对象。
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    public static Object byteToObject(byte[] b) throws IOException, ClassNotFoundException {
+        ByteArrayInputStream buff = new ByteArrayInputStream(b);
+        ObjectInputStream in = new ObjectInputStream(buff);
+        Object obj = in.readObject();
+        try {
+            return obj;
+        } finally {
+            in.close();
+        }
+    }
+
+    public static String numToHexStr(long num){
+        return StringUtils.leftPad(HexUtil.toHex(num), 2,'0').toUpperCase();
     }
 
 }

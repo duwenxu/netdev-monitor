@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static com.xy.netdev.container.BaseInfoContainer.getDevInfos;
@@ -72,7 +73,8 @@ public class DeviceSocketServer {
     private void udpStart(Set<Integer> setPort){
         //创建随机端口保活
         setPort.add(0);
-        ThreadUtil.execute(() -> new NettyUdp(setPort, new SimpleUdpMessage()).run());
+        ExecutorService executorService = ThreadUtil.newExecutor(1);
+        executorService.execute(() -> new NettyUdp(setPort, new SimpleUdpMessage()).run());
     }
 
     private void tcpStart(List<BaseInfo> list){

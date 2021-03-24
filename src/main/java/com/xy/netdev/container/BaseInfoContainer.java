@@ -16,10 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import java.util.*;
 import java.util.stream.Collectors;
-
 import static com.xy.netdev.common.constant.SysConfigConstant.DEV_DEPLOY_MASTER;
 import static com.xy.netdev.common.constant.SysConfigConstant.DEV_DEPLOY_SLAVE;
 
@@ -187,10 +185,10 @@ public class BaseInfoContainer {
             for (FrameParaInfo paraInfo : devInterParam.getDevParamList()) {
                 try {
                     seq++;
-                    paraInfo.setParaSeq(seq);
+                    paraInfo.setParaSeq(seq);  //参数序号
                     String byteLen = StringUtils.isBlank(paraInfo.getParaByteLen()) ? "0":paraInfo.getParaByteLen();
                     point = point+Integer.valueOf(byteLen);
-                    paraInfo.setParaStartPoint(point);
+                    paraInfo.setParaStartPoint(point);   //参数下标：从哪一个字节开始
                 } catch (NumberFormatException e) {
                     log.error("参数["+paraInfo.getParaName()+"]的字节长度存在异常，请检查："+e.getMessage());
                 }
@@ -403,6 +401,7 @@ public class BaseInfoContainer {
             frameParaInfo.setParaName(paraInfo.getNdpaName());  //参数名称
             frameParaInfo.setCmdMark(paraInfo.getNdpaCmdMark()); //命令标识
             frameParaInfo.setParaByteLen(paraInfo.getNdpaByteLen());  // 字节长度
+            frameParaInfo.setDataType(paraInfo.getNdpaDatatype());//数值类型
             Map map = new HashMap();
             if(!StringUtils.isBlank(paraInfo.getNdpaSelectData())){
                 JSONArray.parseArray(paraInfo.getNdpaSelectData(), ParaSpinnerInfo.class).forEach(paraSpinnerInfo -> map.put(paraSpinnerInfo.getCode(),paraSpinnerInfo.getName()));

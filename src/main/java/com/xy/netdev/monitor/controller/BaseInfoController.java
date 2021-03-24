@@ -1,5 +1,6 @@
 package com.xy.netdev.monitor.controller;
 
+import cn.hutool.core.thread.ThreadUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xy.common.helper.ControllerHelper;
@@ -78,7 +79,7 @@ public class BaseInfoController {
     public Result<BaseInfo> add(BaseInfo data,HttpServletRequest req) {
         Integer userId = JwtUtil.getUserIdByToken(req);
         Result<BaseInfo> result = ControllerHelper.add(data, baseInfoService);
-        baseInfoService.devStatusUpdate(data.getDevNo(), null);
+        ThreadUtil.execAsync(() ->baseInfoService.devStatusUpdate(data.getDevNo(), null));
         return result;
     }
 
@@ -90,7 +91,8 @@ public class BaseInfoController {
     @PutMapping
     public Result<BaseInfo> edit(BaseInfo data) {
         Result<BaseInfo> result = ControllerHelper.edit(data, baseInfoService);
-        baseInfoService.devStatusUpdate(data.getDevNo(), null);
+        //异步执行通知
+        ThreadUtil.execAsync(() ->baseInfoService.devStatusUpdate(data.getDevNo(), null));
         return result;
     }
 
@@ -103,7 +105,7 @@ public class BaseInfoController {
     public Result<BaseInfo> delete(@PathVariable String id) {
         String devParentNo = this.baseInfoService.getById(id).getDevParentNo();
         Result<BaseInfo> result = ControllerHelper.delete(id, baseInfoService);
-        baseInfoService.devStatusUpdate(null, devParentNo);
+        ThreadUtil.execAsync(() ->baseInfoService.devStatusUpdate(null, devParentNo));
         return result;
     }
 
