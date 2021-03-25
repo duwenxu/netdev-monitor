@@ -46,10 +46,10 @@ public interface IDevStatusReportService {
 
     /**
      * 上报告警和状态信息
-     * @param respData
      * @param rules
-     * @param param
+     * @param frameParaData
+     * @param respCode
      */
-    void reportWarningAndStaus(FrameRespData respData, List<TransRule> rules, FrameParaData param);
+    void reportWarningAndStaus(List<TransRule> rules, FrameParaData frameParaData,String respCode);
 
 }

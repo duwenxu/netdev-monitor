@@ -133,7 +133,8 @@ public class DevStatusReportService implements IDevStatusReportService {
         //推送前端
         DevIfeMegSend.sendDevStatusToDev();
         //上报站控
-        upRptPrtclAnalysisService.queryParaResponse(rptHeadDev);
+        //upRptPrtclAnalysisService.queryParaResponse(rptHeadDev);
+        System.out.println("------------------上报站控设备状态");
     }
 
 
@@ -158,25 +159,25 @@ public class DevStatusReportService implements IDevStatusReportService {
 
     /**
      * 上报设备状态信息
-     * @param respData
      * @param rules
-     * @param param
+     * @param frameParaData
+     * @param respCode
      */
-    public void reportWarningAndStaus(FrameRespData respData, List<TransRule> rules, FrameParaData param){
+    public void reportWarningAndStaus(List<TransRule> rules, FrameParaData frameParaData,String respCode){
         //根据参数对应设备状态类型结合参数值上报设备状态或告警信息
-        FrameParaInfo paraInfo = BaseInfoContainer.getParaInfoByNo(param.getDevType(),param.getParaNo());
+        FrameParaInfo paraInfo = BaseInfoContainer.getParaInfoByNo(frameParaData.getDevType(),frameParaData.getParaNo());
         String type = paraInfo.getAlertPara();
         rules.forEach(rule->{
-            if(rule.getInner().equals(param.getParaVal()) || respData.getRespCode().equals("1")) {
+            if(rule.getInner().equals(frameParaData.getParaVal()) || respCode.equals("1")) {
                 String outerStatus = rule.getOuter();
-                String devNo = respData.getDevNo();
+                String devNo = frameParaData.getDevNo();
                 switch(type) {
                     case SysConfigConstant.DEV_STATUS_ALARM:
                         if(DevStatusContainer.setAlarm(devNo,outerStatus)){
                             rptWarning(devNo,outerStatus);
                         }
                         //上报告警信息
-                        reportDevAlertInfo(respData,paraInfo,outerStatus);
+                        reportDevAlertInfo(frameParaData,paraInfo,outerStatus);
                     break;
                     case SysConfigConstant.DEV_STATUS_INTERRUPT:
                         //参数返回值是否恢复中断
@@ -215,14 +216,15 @@ public class DevStatusReportService implements IDevStatusReportService {
      * @param paraInfo
      * @param status
      */
-    private void reportDevAlertInfo(FrameRespData respData,FrameParaInfo paraInfo, String status){
+    private void reportDevAlertInfo(FrameParaData respData,FrameParaInfo paraInfo, String status){
         //参数返回值是否产生告警
         if (status.equals(SysConfigConstant.RPT_DEV_STATUS_ISALARM_YES)) {
+            paraInfo.setParaVal(respData.getParaVal());
             BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(respData.getDevNo());
             String alertDesc = DataHandlerHelper.genAlertDesc(baseInfo,paraInfo);
             AlertInfo alertInfo = new AlertInfo().builder()
                     .devType(respData.getDevType())
-                    .alertLevel(paraInfo.getAlertLevel())
+                    .alertLevel(sysParamService.getParaName(paraInfo.getAlertLevel()))
                     .devNo(respData.getDevNo())
                     .alertTime(DateUtils.now())
                     .alertNum(1)
@@ -231,7 +233,8 @@ public class DevStatusReportService implements IDevStatusReportService {
                     .alertDesc(alertDesc).build();
             DevAlertInfoContainer.addAlertInfo(alertInfo);
             RptHeadDev rptHeadDev = crateRptHeadDev(alertInfo);
-            upRptPrtclAnalysisService.queryParaResponse(rptHeadDev);
+            //upRptPrtclAnalysisService.queryParaResponse(rptHeadDev);
+            System.out.println("------------------上报站控设备告警");
         }
     }
 

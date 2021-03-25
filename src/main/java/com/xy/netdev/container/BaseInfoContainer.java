@@ -3,6 +3,7 @@ package com.xy.netdev.container;
 import com.alibaba.fastjson.JSONArray;
 import com.xy.common.exception.BaseException;
 import com.xy.netdev.admin.service.ISysParamService;
+import com.xy.netdev.admin.service.impl.SysParamServiceImpl;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.ParaHandlerUtil;
 import com.xy.netdev.monitor.bo.DevInterParam;
@@ -436,7 +437,8 @@ public class BaseInfoContainer {
                 frameParaInfo.setInterfacePrtcl(prtclFormats.get(0));      //解析协议
             }
             frameParaInfo.setTransRule(paraInfo.getNdpaTransRule()); //内外转换值域
-            frameParaInfo.setAlertPara(paraInfo.getNdpaAlertPara()); //字段类型
+            frameParaInfo.setAlertPara(paraInfo.getNdpaAlertPara()); //状态上报类型
+            frameParaInfo.setAlertLevel(paraInfo.getNdpaAlertLevel());
             frameParaInfos.add(frameParaInfo);
         });
         return frameParaInfos;
