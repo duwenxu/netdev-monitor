@@ -310,6 +310,7 @@ public class ByteUtils {
         for (byte b : Objects.requireNonNull(arrayCopy)) {
             sum += (b & 0xFF);
         }
-        return (byte)(sum & 0XFF);
+        return (byte)sum;
     }
+
 }
