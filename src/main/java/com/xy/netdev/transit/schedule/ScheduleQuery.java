@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Component
-public class ScheduleQuery implements ApplicationRunner {
+public class ScheduleQuery  implements ApplicationRunner  {
 
     @Autowired
     private IDevCmdSendService devCmdSendService;
@@ -49,7 +49,7 @@ public class ScheduleQuery implements ApplicationRunner {
      * 设备参数定时查询
      */
     public void doScheduleQuery() {
-//        List<BaseInfo> baseInfos = ScheduleReportHelper.getAvailableBases().stream().filter(base-> base.getDevType().equals("0020008")).collect(Collectors.toList());
+//        List<BaseInfo> baseInfos = ScheduleQueryHelper.getAvailableBases().stream().filter(base-> base.getDevType().equals("0020010")).collect(Collectors.toList());
         List<BaseInfo> baseInfos = ScheduleQueryHelper.getAvailableBases();
         //单个设备所有查询对象的封装list映射
         Map<BaseInfo, List<FrameReqData>> scheduleReqBodyMap = new ConcurrentHashMap<>(20);

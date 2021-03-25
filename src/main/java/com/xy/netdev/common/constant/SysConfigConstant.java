@@ -234,6 +234,15 @@ public interface SysConfigConstant {
      * 参数访问限制--读写
      */
     String READ_WRITE = "0022003";
+    /**
+     * 参数访问限制--无权限
+     */
+    String NO_RIGHT = "0022004";
+
+    /**
+     * 参数访问限制--命令
+     */
+    String CMD_RIGHT = "0022005";
 
     /**
      * 访问类型--参数

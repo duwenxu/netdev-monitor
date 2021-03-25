@@ -30,7 +30,14 @@ public interface MonitorConstants {
      */
     /**子调制解调器*/
     String SUB_MODEM = "0020008";
+    String SUB_KU_GF = "0020010";
 
     /**数据类型*/
     String STRING_CODE = "0023004";
+
+
+    /**参数数据类型*/
+    String STR="0023004";
+    String INT ="0023002";
+    String BYTE="0023001";
 }
