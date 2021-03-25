@@ -223,7 +223,7 @@ public class DevStatusReportService implements IDevStatusReportService {
             String alertDesc = DataHandlerHelper.genAlertDesc(baseInfo,paraInfo);
             AlertInfo alertInfo = new AlertInfo().builder()
                     .devType(respData.getDevType())
-                    .alertLevel(sysParamService.getParaName(paraInfo.getAlertLevel()))
+                    .alertLevel(sysParamService.getParaRemark1(paraInfo.getAlertLevel()))
                     .devNo(respData.getDevNo())
                     .alertTime(DateUtils.now())
                     .alertNum(1)
