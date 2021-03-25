@@ -16,10 +16,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 import java.util.*;
 import java.util.stream.Collectors;
+
 import static com.xy.netdev.common.constant.SysConfigConstant.DEV_DEPLOY_MASTER;
 import static com.xy.netdev.common.constant.SysConfigConstant.DEV_DEPLOY_SLAVE;
+import static com.xy.netdev.monitor.constant.MonitorConstants.SUB_KU_GF;
+import static com.xy.netdev.monitor.constant.MonitorConstants.SUB_MODEM;
 
 /**
  * <p>
@@ -108,7 +112,12 @@ public class BaseInfoContainer {
                 devInterParam.setInterfacePrtcl(prtclFormats.get(0));
             }
             devInterParam.setDevInterface(anInterface);
-            devInterParam.setDevParamList(frameParaInfos.stream().filter(paraInfo -> paraIds.contains(paraInfo.getParaId().toString())).collect(Collectors.toList()));
+            devInterParam.setDevParamList(frameParaInfos.stream().filter(paraInfo -> paraIds.contains(paraInfo.getParaId().toString()))
+                   .sorted((o1, o2) -> {
+                        int n2 = Integer.parseInt(o2.getParaNo());
+                        int n1 = Integer.parseInt(o1.getParaNo());
+                        return Integer.compare(n1, n2);
+                    }).collect(Collectors.toList()));
             devInterParams.add(devInterParam);
         });
         addInterLinkParaMap(devInterParams);
@@ -181,14 +190,24 @@ public class BaseInfoContainer {
         //修改各参数序号和下标
         devInterParamList.forEach(devInterParam -> {
             int seq = 0;
-            Integer point = 0 ;
+            int point = 0 ;
             for (FrameParaInfo paraInfo : devInterParam.getDevParamList()) {
                 try {
                     seq++;
                     paraInfo.setParaSeq(seq);  //参数序号
+                    //对于存在分隔符的参数下标做特殊处理
+                    String devType = paraInfo.getDevType();
+                    if (SUB_MODEM.equals(devType)||SUB_KU_GF.equals(devType)){
+                        if (seq == 1){
+                            point =point +1;
+                        }else {
+                            point = point+2;
+                        }
+                    }
+                    paraInfo.setParaStartPoint(point);//参数下标：从哪一个字节开始
+                    log.info("cmd:{}----point:{}",paraInfo.getCmdMark(),point);
                     String byteLen = StringUtils.isBlank(paraInfo.getParaByteLen()) ? "0":paraInfo.getParaByteLen();
                     point = point+Integer.valueOf(byteLen);
-                    paraInfo.setParaStartPoint(point);   //参数下标：从哪一个字节开始
                 } catch (NumberFormatException e) {
                     log.error("参数["+paraInfo.getParaName()+"]的字节长度存在异常，请检查："+e.getMessage());
                 }

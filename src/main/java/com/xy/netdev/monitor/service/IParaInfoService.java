@@ -3,7 +3,6 @@ package com.xy.netdev.monitor.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.xy.netdev.monitor.entity.ParaInfo;
-import org.apache.ibatis.annotations.Param;
 
 import javax.servlet.http.HttpServletRequest;
 

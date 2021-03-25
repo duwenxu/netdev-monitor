@@ -1,8 +1,6 @@
 package com.xy.netdev.monitor.bo;
 
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.xy.common.annotation.Param;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -44,7 +42,7 @@ public class ParaViewInfo {
     private String paraVal;
 
     /**
-     * 0022001 只写  0022002 只读  0022003读写  0020004无权限  0020005命令
+     * 0022001 只写  0022002 只读  0022003读写  0022004无权限  0022005命令
      */
     @ApiModelProperty(value = "访问权限")
     private String accessRight;
@@ -58,7 +56,7 @@ public class ParaViewInfo {
     private String paraDatatype;
 
     /**
-     * 0 数字   1 字符串
+     * 0 整数   1 字符串  2浮点数
      */
     @ApiModelProperty(value = "参数简易数据类型")
     private String paraSimpleDatatype;
