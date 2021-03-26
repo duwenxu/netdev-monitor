@@ -144,7 +144,11 @@ public class DevStatusContainer {
         List<BaseInfo> masterSlaveDevList = BaseInfoContainer.getDevsFatByDevNo(devNo);
         masterSlaveDevList.forEach(devInfo->{
             if(!devInfo.getDevNo().equals(devNo)){
-                devStatusMap.get(devInfo.getDevNo()).setMasterOrSlave(masterOrSlave);
+                if(masterOrSlave.equals(SysConfigConstant.RPT_DEV_STATUS_MASTERORSLAVE_SLAVE)){
+                    devStatusMap.get(devInfo.getDevNo()).setMasterOrSlave(SysConfigConstant.RPT_DEV_STATUS_MASTERORSLAVE_MASTER);
+                }else if(masterOrSlave.equals(SysConfigConstant.RPT_DEV_STATUS_MASTERORSLAVE_MASTER)){
+                    devStatusMap.get(devInfo.getDevNo()).setMasterOrSlave(SysConfigConstant.RPT_DEV_STATUS_MASTERORSLAVE_SLAVE);
+                }
             }
         });
         //设置当前设备的主备状态,如果发生变化返回true

@@ -133,8 +133,7 @@ public class DevStatusReportService implements IDevStatusReportService {
         //推送前端
         DevIfeMegSend.sendDevStatusToDev();
         //上报站控
-        //upRptPrtclAnalysisService.queryParaResponse(rptHeadDev);
-        System.out.println("------------------上报站控设备状态");
+        upRptPrtclAnalysisService.queryParaResponse(rptHeadDev);
     }
 
 
@@ -224,7 +223,7 @@ public class DevStatusReportService implements IDevStatusReportService {
             String alertDesc = DataHandlerHelper.genAlertDesc(baseInfo,paraInfo);
             AlertInfo alertInfo = new AlertInfo().builder()
                     .devType(respData.getDevType())
-                    .alertLevel(sysParamService.getParaName(paraInfo.getAlertLevel()))
+                    .alertLevel(sysParamService.getParaRemark1(paraInfo.getAlertLevel()))
                     .devNo(respData.getDevNo())
                     .alertTime(DateUtils.now())
                     .alertNum(1)
@@ -233,8 +232,7 @@ public class DevStatusReportService implements IDevStatusReportService {
                     .alertDesc(alertDesc).build();
             DevAlertInfoContainer.addAlertInfo(alertInfo);
             RptHeadDev rptHeadDev = crateRptHeadDev(alertInfo);
-            //upRptPrtclAnalysisService.queryParaResponse(rptHeadDev);
-            System.out.println("------------------上报站控设备告警");
+            upRptPrtclAnalysisService.queryParaResponse(rptHeadDev);
         }
     }
 

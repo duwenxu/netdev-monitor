@@ -39,27 +39,27 @@ public class DevStatusInfo extends Model<DevStatusInfo>  {
      * 0:正常|1:中断
      */
     @ApiModelProperty(value = "是否中断")
-    private String isInterrupt;
+    private String isInterrupt = "0";
     /**
      * 0:无告警|1:告警
      */
     @ApiModelProperty(value = "是否告警")
-    private String isAlarm;
+    private String isAlarm = "0";
     /**
      * 0:不启用主备|1:启用主备
      */
     @ApiModelProperty(value = "是否启用主备")
-    private String isUseStandby;
+    private String isUseStandby = "0";
     /**
      * 0:主用|1:备用
      */
     @ApiModelProperty(value = "主用还是备用")
-    private String masterOrSlave;
+    private String masterOrSlave = "0";
     /**
      * 0:正常状态|1:维修状态
      */
     @ApiModelProperty(value = "工作状态")
-    private String workStatus;
+    private String workStatus = "0";
 
     /**
      * 测站编号
