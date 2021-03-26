@@ -1,7 +1,9 @@
 package com.xy.netdev.transit;
 
 
+import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.frame.bo.FrameReqData;
+import com.xy.netdev.transit.util.DataHandlerHelper;
 
 /**
  * <p>
@@ -29,6 +31,12 @@ public interface IDataSendService {
      * @param  frameReqData   协议解析请求数据
      */
     void interfaceQuerySend(FrameReqData frameReqData);
+
+    /**
+     * 接口控制发送
+     * @param  frameReqData   协议解析请求数据
+     */
+    void interfaceCtrlSend(FrameReqData frameReqData);
 
     /**
      * 通知网络传输结果
