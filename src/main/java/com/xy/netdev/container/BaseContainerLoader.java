@@ -67,7 +67,7 @@ public class BaseContainerLoader {
      */
     public void initBaseInfo(){
         //查询有效的设备列表
-        List<BaseInfo> devs = baseInfoService.list().stream().filter(baseInfo -> baseInfo.getDevStatus().equals(SysConfigConstant.DEV_STATUS_NEW)).collect(Collectors.toList());
+        List<BaseInfo> devs = baseInfoService.list().stream().filter(baseInfo -> !baseInfo.getDevStatus().equals(SysConfigConstant.DEV_STATUS_REPAIR)).collect(Collectors.toList());
         //查询有效的参数列表:根据NDPA_CMPLEX_LEVEL对list：用来生成参数的上下级关系
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("NDPA_STATUS",SysConfigConstant.STATUS_OK);

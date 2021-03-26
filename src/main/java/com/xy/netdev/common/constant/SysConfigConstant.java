@@ -15,7 +15,7 @@ public interface SysConfigConstant {
      */
      String DEV_STATUS_NEW = "0028001";
     /**
-     * 设备状态： 维修
+     * 设备状态： 报废
      */
      String DEV_STATUS_REPAIR = "0028002";
 
