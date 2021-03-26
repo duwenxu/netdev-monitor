@@ -339,18 +339,4 @@ public class ByteUtils {
         return byteToBinary(b, 8);
     }
 
-
-    /**
-     * 二进制转byte数组
-     * @param binaryStr 二进制字符串
-     * @return byte数组
-     */
-    public static byte[] binaryToBytes(String binaryStr){
-        return BCD.strToBcd(binaryStr);
-    }
-
-    public static void main(String[] args) {
-        System.out.println(HexUtil.encodeHexStr(binaryToBytes("00011100")));
-    }
-
 }
