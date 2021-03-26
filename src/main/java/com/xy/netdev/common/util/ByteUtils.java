@@ -1,5 +1,6 @@
 package com.xy.netdev.common.util;
 
+import cn.hutool.core.codec.BCD;
 import cn.hutool.core.util.HexUtil;
 import com.google.common.primitives.Bytes;
 import io.netty.buffer.ByteBuf;
@@ -7,6 +8,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.util.ReferenceCountUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.checkerframework.checker.units.qual.C;
 import org.springframework.util.DigestUtils;
 
 import java.io.*;
@@ -118,14 +120,14 @@ public class ByteUtils {
                     data = objToBytes(Integer.parseInt(obj.toString()), byteOrder, Unpooled::copyInt);
                     break;
                 }
-                data = objToBytes(Integer.parseInt(obj.toString()), byteOrder, Unpooled::copyFloat);
+                data = objToBytes(Float.parseFloat(obj.toString()), byteOrder, Unpooled::copyFloat);
                 break;
             case 8:
                 if (!isFloat){
                     data = objToBytes(Long.parseLong(obj.toString()), byteOrder, Unpooled::copyLong);
                     break;
                 }
-                data = objToBytes(Long.parseLong(obj.toString()), byteOrder, Unpooled::copyDouble);
+                data = objToBytes(Double.parseDouble(obj.toString()), byteOrder, Unpooled::copyDouble);
                 break;
             default:
                 data = obj.toString().getBytes(Charset.forName("GB2312"));
@@ -311,6 +313,44 @@ public class ByteUtils {
             sum += (b & 0xFF);
         }
         return (byte)sum;
+    }
+
+
+    /**
+     * byte转二进制字符串
+     * @param b 字节
+     * @param length 长度
+     * @return 二进制字符串
+     */
+    public static String byteToBinary(byte b, int length){
+        int temp = b & 0xff;
+        String string = Integer.toBinaryString(temp);
+        StringBuilder stringBuilder = new StringBuilder();
+        int a = string.length();
+        while (a < length){
+            stringBuilder.append("0");
+            a++;
+        }
+        stringBuilder.append(string);
+        return stringBuilder.toString();
+    }
+
+    public static String byteToBinary(byte b){
+        return byteToBinary(b, 8);
+    }
+
+
+    /**
+     * 二进制转byte数组
+     * @param binaryStr 二进制字符串
+     * @return byte数组
+     */
+    public static byte[] binaryToBytes(String binaryStr){
+        return BCD.strToBcd(binaryStr);
+    }
+
+    public static void main(String[] args) {
+        System.out.println(HexUtil.encodeHexStr(binaryToBytes("00011100")));
     }
 
 }

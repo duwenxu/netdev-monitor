@@ -1,7 +1,7 @@
-package com.xy.netdev.frame.base.service;
+package com.xy.netdev.sendrecv.base.service;
 
 import com.xy.netdev.frame.bo.FrameReqData;
-import com.xy.netdev.frame.enums.ProtocolRequestEnum;
+import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 
 /**
  * 协议请求接口

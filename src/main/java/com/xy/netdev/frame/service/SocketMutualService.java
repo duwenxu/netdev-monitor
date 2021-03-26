@@ -1,7 +1,7 @@
 package com.xy.netdev.frame.service;
 
 import com.xy.netdev.frame.bo.FrameReqData;
-import com.xy.netdev.frame.enums.ProtocolRequestEnum;
+import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 
 /**
  * 数据解析模块与其他模块通讯service

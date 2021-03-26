@@ -1,7 +1,7 @@
 package com.xy.netdev.network.handler;
 
 import cn.hutool.core.net.NetUtil;
-import com.xy.netdev.frame.entity.SocketEntity;
+import com.xy.netdev.sendrecv.entity.SocketEntity;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandler;

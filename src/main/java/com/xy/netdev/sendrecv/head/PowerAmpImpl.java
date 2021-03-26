@@ -1,20 +1,19 @@
-package com.xy.netdev.frame.service.impl.head;
+package com.xy.netdev.sendrecv.head;
 
 import cn.hutool.core.util.HexUtil;
 import com.xy.common.exception.BaseException;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
-import com.xy.netdev.frame.base.AbsDeviceSocketHandler;
+import com.xy.netdev.sendrecv.base.AbsDeviceSocketHandler;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
-import com.xy.netdev.frame.entity.SocketEntity;
-import com.xy.netdev.frame.entity.device.PowerAmpEntity;
+import com.xy.netdev.sendrecv.entity.SocketEntity;
+import com.xy.netdev.sendrecv.entity.device.PowerAmpEntity;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.PrtclFormat;
-import com.xy.netdev.transit.IDataReciveService;
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;

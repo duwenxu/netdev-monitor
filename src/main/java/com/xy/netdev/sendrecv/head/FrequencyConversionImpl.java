@@ -1,11 +1,11 @@
-package com.xy.netdev.frame.service.impl.head;
+package com.xy.netdev.sendrecv.head;
 
 import cn.hutool.core.util.StrUtil;
 import com.xy.netdev.common.constant.SysConfigConstant;
-import com.xy.netdev.frame.base.AbsDeviceSocketHandler;
+import com.xy.netdev.sendrecv.base.AbsDeviceSocketHandler;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
-import com.xy.netdev.frame.entity.SocketEntity;
+import com.xy.netdev.sendrecv.entity.SocketEntity;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import lombok.extern.slf4j.Slf4j;

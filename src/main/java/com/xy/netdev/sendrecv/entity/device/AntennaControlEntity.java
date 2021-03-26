@@ -1,4 +1,4 @@
-package com.xy.netdev.frame.entity.device;
+package com.xy.netdev.sendrecv.entity.device;
 
 import lombok.Builder;
 import lombok.Getter;

@@ -1,7 +1,7 @@
-package com.xy.netdev.frame.base.service;
+package com.xy.netdev.sendrecv.base.service;
 
 import com.xy.netdev.frame.bo.FrameRespData;
-import com.xy.netdev.frame.entity.SocketEntity;
+import com.xy.netdev.sendrecv.entity.SocketEntity;
 
 /**
  * 协议响应接口

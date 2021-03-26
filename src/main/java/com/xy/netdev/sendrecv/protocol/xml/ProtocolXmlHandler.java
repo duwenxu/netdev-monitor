@@ -1,4 +1,4 @@
-package com.xy.netdev.frame.protocol.xml;
+package com.xy.netdev.sendrecv.protocol.xml;
 
 import cn.hutool.core.io.resource.ClassPathResource;
 import cn.hutool.core.text.StrSpliter;

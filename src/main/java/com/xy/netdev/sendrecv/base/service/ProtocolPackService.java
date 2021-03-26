@@ -1,8 +1,8 @@
-package com.xy.netdev.frame.base.service;
+package com.xy.netdev.sendrecv.base.service;
 
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
-import com.xy.netdev.frame.entity.SocketEntity;
+import com.xy.netdev.sendrecv.entity.SocketEntity;
 
 public interface ProtocolPackService <Q extends SocketEntity, T extends FrameReqData, R extends FrameRespData>{
 
