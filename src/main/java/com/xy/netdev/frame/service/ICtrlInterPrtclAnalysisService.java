@@ -1,25 +1,15 @@
 package com.xy.netdev.frame.service;
 
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/dev
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
 
 /**
-<<<<<<< HEAD
- * 控制接口协议解析接口 多参数
- * @author luo
- * @date 2021/3/26
-=======
  * <p>
  * 控制接口协议解析接口 多参数
  * </p>
  *
  * @author tangxl
  * @since 2021-03-26
->>>>>>> origin/dev
  */
 public interface ICtrlInterPrtclAnalysisService {
 
@@ -35,9 +25,4 @@ public interface ICtrlInterPrtclAnalysisService {
      */
     FrameRespData ctrlParaResponse(FrameRespData respData);
 
-<<<<<<< HEAD
-=======
-
-
->>>>>>> origin/dev
 }
