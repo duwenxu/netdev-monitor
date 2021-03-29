@@ -10,6 +10,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
+import io.netty.util.ReferenceCountUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -74,11 +75,11 @@ public class NettyUtil {
 
     private static Optional<ChannelFuture> sendCore(byte[] bytes, int localPort, String remoteIp, int remotePort,
                                                     Function<ByteBuf, Object> function) {
-        ChannelHandlerContext ctx = HOST_CHANNEL_MAP.get(localPort);
         ChannelFuture channelFuture = null;
+        ChannelHandlerContext ctx = HOST_CHANNEL_MAP.get(localPort);
         if (ctx != null) {
-            ByteBuf byteBuf = ctx.alloc().buffer(bytes.length);
             if (!ctx.isRemoved() && ctx.channel().isWritable()){
+                ByteBuf byteBuf = ctx.alloc().buffer(bytes.length);
                 byteBuf.writeBytes(bytes);
                 channelFuture = ctx.writeAndFlush(function.apply(byteBuf));
             }

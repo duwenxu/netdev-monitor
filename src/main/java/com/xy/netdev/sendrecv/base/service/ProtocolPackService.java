@@ -8,8 +8,8 @@ public interface ProtocolPackService <Q extends SocketEntity, T extends FrameReq
 
     /**
      * 数据拆包
-     * @param q
-     * @param t
+     * @param q q
+     * @param t t
      * @return
      */
     R unpack(Q q, R r);
