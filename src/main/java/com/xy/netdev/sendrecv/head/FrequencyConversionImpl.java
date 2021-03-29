@@ -25,6 +25,7 @@ public class FrequencyConversionImpl extends AbsDeviceSocketHandler<SocketEntity
     @Override
     public void callback(FrameRespData frameRespData, IParaPrtclAnalysisService iParaPrtclAnalysisService,
                          IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService) {
+        frameRespData.setReciveOriginalData(StrUtil.str(frameRespData.getParamBytes(), Charset.defaultCharset()));
         if(iParaPrtclAnalysisService != null){
             iParaPrtclAnalysisService.ctrlParaResponse(frameRespData);
         }
@@ -60,10 +61,19 @@ public class FrequencyConversionImpl extends AbsDeviceSocketHandler<SocketEntity
     @Override
     public String cmdMarkConvert(FrameRespData frameRespData) {
         //获取设备CMD信息, '/'为调制解调器特殊格式, 因为调制解调器cmd为字符串, 不能进行十六进制转换, 所以特殊区分
-        if (!StrUtil.contains(frameRespData.getCmdMark(), '/')){
-            return Integer.toHexString(Integer.parseInt(frameRespData.getCmdMark(),16));
-        }else {
-            return  StrUtil.removeAll(frameRespData.getCmdMark(), '/');
+        if (!StrUtil.contains(frameRespData.getCmdMark(), '/')) {
+            return Integer.toHexString(Integer.parseInt(frameRespData.getCmdMark(), 16));
+        } else {
+            return StrUtil.removeAll(frameRespData.getCmdMark(), '/');
         }
+    }
+
+    protected void setSendOriginalData(FrameReqData frameReqData, byte[] bytes) {
+        frameReqData.setSendOriginalData(StrUtil.str(bytes, Charset.defaultCharset()));
+    }
+
+    @Override
+    protected void setReceiveOriginalData(FrameRespData frameRespData) {
+        frameRespData.setReciveOriginalData(StrUtil.str(frameRespData.getParamBytes(), Charset.defaultCharset()));
     }
 }

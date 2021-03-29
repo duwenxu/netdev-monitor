@@ -68,6 +68,7 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
         sendMsg(t, packBytes);
     }
 
+
     @Override
     public void doControl(T t) {
         this.doQuery(t);
@@ -83,6 +84,21 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
         this.doQuery(t);
     }
 
+    /**
+     * 设置发送原始数据十六进制字符串
+     * @param t t
+     */
+    protected void setSendOriginalData(T t, byte[] bytes){
+        t.setSendOriginalData(HexUtil.encodeHexStr(bytes).toUpperCase());
+    }
+
+    /**
+     * 设置接收原始数据十六进制字符串
+     * @param r
+     */
+    protected void setReceiveOriginalData(R r){
+        r.setReciveOriginalData(HexUtil.encodeHexStr(r.getParamBytes()).toUpperCase());
+    }
 
 
     @Override
@@ -121,7 +137,8 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
             frameRespData.setAccessType(SysConfigConstant.ACCESS_TYPE_INTERF);
             queryInterPrtclAnalysisService = QueryInterPrtcllFactory.genHandler(prtclFormat.getFmtHandlerClass());
         }
-        frameRespData.setReciveOrignData(HexUtil.encodeHexStr(socketEntity.getBytes()).toUpperCase());
+        frameRespData.setReciveOriginalData(HexUtil.encodeHexStr(socketEntity.getBytes()).toUpperCase());
+        setReceiveOriginalData((R)frameRespData);
         frameRespData.setCmdMark(cmdHexStr);
 
         //执行回调方法
@@ -173,8 +190,8 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
             }else {
                 t.setIsOk("1");
             }
-            //设置发送原始数据十六进制字符串
-            t.setSendOrignData(HexUtil.encodeHexStr(bytes).toUpperCase());
+            //设置发送原始数据
+            setSendOriginalData(t, bytes);
             //回调
             dataSendService.notifyNetworkResult(t);
         }));

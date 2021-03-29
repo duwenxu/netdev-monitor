@@ -1,6 +1,5 @@
 package com.xy.netdev.frame.service;
 
-
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
 
@@ -25,7 +24,5 @@ public interface ICtrlInterPrtclAnalysisService {
      * @return  响应数据
      */
     FrameRespData ctrlParaResponse(FrameRespData respData);
-
-
 
 }
