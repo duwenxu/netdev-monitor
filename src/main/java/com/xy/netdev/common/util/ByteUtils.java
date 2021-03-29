@@ -4,6 +4,7 @@ import cn.hutool.core.codec.BCD;
 import cn.hutool.core.util.HexUtil;
 import com.google.common.primitives.Bytes;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.util.ReferenceCountUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -60,7 +61,7 @@ public class ByteUtils {
         }else {
             data = bytes;
         }
-        byte temp = data[0];
+        byte temp = Objects.requireNonNull(data)[0];
         for(int i=1;i<data.length;i++){
             temp^=data[i];
         }
