@@ -64,8 +64,8 @@ public class PowerAmpPrtcServiceImpl implements IParaPrtclAnalysisService {
         FrameParaInfo paraInfoByNo = BaseInfoContainer.getParaInfoByNo(paraData.getDevType(), paraData.getParaNo());
         String dataType = paraInfoByNo.getDataType();
         byte[] bytes = new byte[0];
+        //此处只有 衰减可设置
         if (dataType.equals(STR)) {
-            //todo 控制设置待调试
             bytes = StrUtil.bytes(paraData.getParaVal());
         } else if (dataType.equals(BYTE)) {
             //功放开关设置 直接发送状态位 80关/81开
