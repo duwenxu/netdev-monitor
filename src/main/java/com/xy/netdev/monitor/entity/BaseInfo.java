@@ -102,6 +102,30 @@ public class BaseInfo extends Model<BaseInfo> {
     @Param
     private String devSubType;
 
+    @ApiModelProperty(value = "备注一描述")
+    @TableField(value = "DEV_REMARK1_DESC")
+    private String devRemark1Desc;
+
+    @ApiModelProperty(value = "备注一数据")
+    @TableField(value = "DEV_REMARK1_DATA")
+    private String devRemark1Data;
+
+    @ApiModelProperty(value = "备注二描述")
+    @TableField(value = "DEV_REMARK2_DESC")
+    private String devRemark2Desc;
+
+    @ApiModelProperty(value = "备注二数据")
+    @TableField(value = "DEV_REMARK2_DATA")
+    private String devRemark2Data;
+
+    @ApiModelProperty(value = "备注三描述")
+    @TableField(value = "DEV_REMARK3_DESC")
+    private String devRemark3Desc;
+
+    @ApiModelProperty(value = "备注三数据")
+    @TableField(value = "DEV_REMARK3_DATA")
+    private String devRemark3Data;
+
     /**
      * 0 代表  上报54所IP
      */

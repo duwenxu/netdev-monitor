@@ -15,6 +15,10 @@ import java.util.concurrent.TimeUnit;
 import static com.xy.netdev.network.NettyUtil.SOCKET_QUEUE;
 
 
+/**
+ * TCP handler
+ * @author cc
+ */
 @Slf4j
 @ChannelHandler.Sharable
 public class SimpleTcpMessage extends SimpleChannelInboundHandler<ByteBuf> {
@@ -24,10 +28,10 @@ public class SimpleTcpMessage extends SimpleChannelInboundHandler<ByteBuf> {
         byte[] bytes = ByteBufUtil.getBytes(msg);
         InetSocketAddress socketAddress = (InetSocketAddress)ctx.channel().remoteAddress();
         InetSocketAddress localAddress = (InetSocketAddress) ctx.channel().localAddress();
-        SocketEntity socketEntity = new SocketEntity();
+        SocketEntity socketEntity = SocketEntity.SocketEntityFactory.cloneable();
         socketEntity.setLocalPort(localAddress.getPort());
         socketEntity.setRemotePort(socketAddress.getPort());
-        socketEntity.setRemoteAddress(NetUtil.getIpByHost(socketAddress.getHostName()));
+        socketEntity.setRemoteAddress(socketAddress.getAddress().getHostAddress());
         socketEntity.setBytes(bytes);
         //数据放入队列
         SOCKET_QUEUE.offer(socketEntity, 1, TimeUnit.SECONDS);

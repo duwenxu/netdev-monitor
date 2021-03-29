@@ -2,6 +2,7 @@ package com.xy.netdev.sendrecv.base;
 
 import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.TypeUtil;
 import com.alibaba.fastjson.JSON;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
@@ -24,6 +25,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import sun.reflect.misc.ReflectUtil;
 
 import java.util.Optional;
 
@@ -96,29 +98,28 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
      * 设置接收原始数据十六进制字符串
      * @param r
      */
-    protected void setReceiveOriginalData(R r){
-        r.setReciveOriginalData(HexUtil.encodeHexStr(r.getParamBytes()).toUpperCase());
+    protected void setReceiveOriginalData(R r, byte[] bytes){
+        r.setReciveOriginalData(HexUtil.encodeHexStr(bytes).toUpperCase());
     }
-
 
     @Override
     @SuppressWarnings("unchecked")
     public void socketResponse(SocketEntity socketEntity) {
         //获取设备参数信息
         BaseInfo devInfo = getDevInfo(socketEntity.getRemoteAddress());
-        FrameRespData frameRespData = new FrameRespData();
-        frameRespData.setDevType(devInfo.getDevType());
-        frameRespData.setDevNo(devInfo.getDevNo());
+        R r = (R)new FrameRespData();
+        r.setDevType(devInfo.getDevType());
+        r.setDevNo(devInfo.getDevNo());
 
         //数据拆包
-        R unpackBytes = unpack((Q) socketEntity, (R) frameRespData);
+        R unpackBytes = unpack((Q) socketEntity, r);
         //转16进制，用来获取协议解析类
-        String cmdHexStr = cmdMarkConvert(frameRespData);
+        String cmdHexStr = cmdMarkConvert(r);
 
         //根据cmd和设备类型获取具体的数据处理类
-        PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameRespData.getDevType(), cmdHexStr);
+        PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(r.getDevType(), cmdHexStr);
         if (prtclFormat == null){
-            log.warn("设备:{}, 未找到数据体处理类", frameRespData.getDevNo());
+            log.warn("设备:{}, 未找到数据体处理类", r.getDevNo());
             return;
         }
         if (prtclFormat.getIsPrtclParam() == null){
@@ -131,15 +132,14 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
         IParaPrtclAnalysisService iParaPrtclAnalysisService = null;
         IQueryInterPrtclAnalysisService queryInterPrtclAnalysisService = null;
         if (prtclFormat.getIsPrtclParam() == 0){
-            frameRespData.setAccessType(SysConfigConstant.ACCESS_TYPE_PARAM);
+            r.setAccessType(SysConfigConstant.ACCESS_TYPE_PARAM);
             iParaPrtclAnalysisService = ParaPrtclFactory.genHandler(prtclFormat.getFmtHandlerClass());
         }else {
-            frameRespData.setAccessType(SysConfigConstant.ACCESS_TYPE_INTERF);
+            r.setAccessType(SysConfigConstant.ACCESS_TYPE_INTERF);
             queryInterPrtclAnalysisService = QueryInterPrtcllFactory.genHandler(prtclFormat.getFmtHandlerClass());
         }
-        frameRespData.setReciveOriginalData(HexUtil.encodeHexStr(socketEntity.getBytes()).toUpperCase());
-        setReceiveOriginalData((R)frameRespData);
-        frameRespData.setCmdMark(cmdHexStr);
+        setReceiveOriginalData(r, socketEntity.getBytes());
+        r.setCmdMark(cmdHexStr);
 
         //执行回调方法
         this.callback(unpackBytes, iParaPrtclAnalysisService, queryInterPrtclAnalysisService);
@@ -197,10 +197,4 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
         }));
     }
 
-//    public static void main(String[] args) {
-//        String str = "7F 31 00 10 01 01 03 00 04 00 00 01 01 01 04 02 BC 02 02 01 20 00 2F 01 E1 01 01 01 01 01 00 00" +
-//                " 02 BC 01 01 02 17 00 06 01 E0 01 01 01 01 01 3F 7D";
-//        System.out.println(str.replaceAll("\\s+", ""));
-//
-//    }
 }

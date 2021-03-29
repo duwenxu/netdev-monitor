@@ -1,5 +1,7 @@
 package com.xy.netdev.network.handler;
 
+import cn.hutool.core.clone.CloneSupport;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.NetUtil;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.sendrecv.entity.SocketEntity;
@@ -20,6 +22,10 @@ import static com.xy.netdev.network.NettyUtil.HOST_CHANNEL_MAP;
 import static com.xy.netdev.network.NettyUtil.SOCKET_QUEUE;
 
 
+/**
+ * UDP handler
+ * @author cc
+ */
 @Slf4j
 @ChannelHandler.Sharable
 public class SimpleUdpMessage extends SimpleChannelInboundHandler<DatagramPacket> {
@@ -38,7 +44,7 @@ public class SimpleUdpMessage extends SimpleChannelInboundHandler<DatagramPacket
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket msg) {
-        String remoteAddress= NetUtil.getIpByHost(msg.sender().getHostName());
+        String remoteAddress= msg.sender().getAddress().getHostAddress();
         //过滤非ip配置中的数据
         if (!ipFilter.contains(remoteAddress)){
             return;
@@ -50,8 +56,7 @@ public class SimpleUdpMessage extends SimpleChannelInboundHandler<DatagramPacket
             return;
         }
         byte[] bytes = ByteBufUtil.getBytes(msg.content());
-
-        SocketEntity socketEntity = new SocketEntity();
+        SocketEntity socketEntity = SocketEntity.SocketEntityFactory.cloneable();
         socketEntity.setLocalPort(localAddress.getPort());
         socketEntity.setRemotePort(remotePort);
         socketEntity.setRemoteAddress(remoteAddress);

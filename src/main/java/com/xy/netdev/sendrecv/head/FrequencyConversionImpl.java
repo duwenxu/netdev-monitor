@@ -68,12 +68,13 @@ public class FrequencyConversionImpl extends AbsDeviceSocketHandler<SocketEntity
         }
     }
 
+    @Override
     protected void setSendOriginalData(FrameReqData frameReqData, byte[] bytes) {
         frameReqData.setSendOriginalData(StrUtil.str(bytes, Charset.defaultCharset()));
     }
 
     @Override
-    protected void setReceiveOriginalData(FrameRespData frameRespData) {
-        frameRespData.setReciveOriginalData(StrUtil.str(frameRespData.getParamBytes(), Charset.defaultCharset()));
+    protected void setReceiveOriginalData(FrameRespData frameRespData, byte[] bytes) {
+        frameRespData.setReciveOriginalData(StrUtil.str(bytes, Charset.defaultCharset()));
     }
 }
