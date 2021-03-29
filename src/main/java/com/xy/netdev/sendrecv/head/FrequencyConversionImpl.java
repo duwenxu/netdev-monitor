@@ -25,6 +25,7 @@ public class FrequencyConversionImpl extends AbsDeviceSocketHandler<SocketEntity
     @Override
     public void callback(FrameRespData frameRespData, IParaPrtclAnalysisService iParaPrtclAnalysisService,
                          IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService) {
+        frameRespData.setReciveOriginalData(StrUtil.str(frameRespData.getParamBytes(), Charset.defaultCharset()));
         if(iParaPrtclAnalysisService != null){
             iParaPrtclAnalysisService.ctrlParaResponse(frameRespData);
         }
@@ -55,5 +56,15 @@ public class FrequencyConversionImpl extends AbsDeviceSocketHandler<SocketEntity
     @Override
     public byte[] pack(FrameReqData frameReqData) {
         return frameReqData.getParamBytes();
+    }
+
+    @Override
+    protected void setSendOriginalData(FrameReqData frameReqData, byte[] bytes) {
+        frameReqData.setSendOriginalData(StrUtil.str(bytes, Charset.defaultCharset()));
+    }
+
+    @Override
+    protected void setReceiveOriginalData(FrameRespData frameRespData) {
+        frameRespData.setReciveOriginalData(StrUtil.str(frameRespData.getParamBytes(), Charset.defaultCharset()));
     }
 }

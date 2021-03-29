@@ -124,7 +124,7 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
         frameParaData.setParaVal(value);
         frameParaDatas.add(frameParaData);
         respData.setFrameParaList(frameParaDatas);
-        respData.setReciveOrignData(respStr);
+        respData.setReciveOriginalData(respStr);
         dataReciveService.paraCtrRecive(respData);
         return respData;
     }

@@ -1,5 +1,6 @@
 package com.xy.netdev.network.server;
 
+import cn.hutool.core.util.ArrayUtil;
 import com.xy.netdev.network.handler.PipeLineHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -60,10 +61,8 @@ public class NettyUdp implements Runnable {
                 bootstrap.option(EpollChannelOption.SO_REUSEPORT, true);
             }
             Set<ChannelFuture> set = new HashSet<>();
-            ports.forEach(port -> {
-                set.add(bootstrap.bind(port).syncUninterruptibly());
-                log.info("UDP服务启动, 地址{}:{}", address, port);
-            });
+            ports.forEach(port -> set.add(bootstrap.bind(port).syncUninterruptibly()));
+            log.info("UDP服务启动, 地址{}:{}", address, ArrayUtil.toString(ports));
             set.forEach(channelFuture -> {
                 try {
                     channelFuture.channel().closeFuture().await();

@@ -55,7 +55,7 @@ public class FrameReqData {
     private byte[] paramBytes;
 
     @ApiModelProperty(value = "发送的原始数据")
-    private String sendOrignData;
+    private String sendOriginalData;
 
     @ApiModelProperty(value = "帧参数列表")
     private List<FrameParaData> frameParaList;

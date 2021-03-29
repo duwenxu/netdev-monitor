@@ -52,7 +52,7 @@ public class FrameRespData {
     private byte[] paramBytes;
 
     @ApiModelProperty(value = "接收到的原始数据")
-    private String reciveOrignData;
+    private String reciveOriginalData;
 
     @ApiModelProperty(value = "帧参数列表")
     private List<FrameParaData> frameParaList;
