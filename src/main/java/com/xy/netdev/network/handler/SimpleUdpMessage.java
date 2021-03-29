@@ -2,7 +2,7 @@ package com.xy.netdev.network.handler;
 
 import cn.hutool.core.util.NetUtil;
 import com.xy.netdev.container.BaseInfoContainer;
-import com.xy.netdev.frame.entity.SocketEntity;
+import com.xy.netdev.sendrecv.entity.SocketEntity;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandler;

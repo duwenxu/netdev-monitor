@@ -81,6 +81,21 @@ public class DataReciveServiceImpl implements IDataReciveService {
     }
 
     /**
+     * 接口控制接收
+     * @param  respData   协议解析响应数据
+     */
+    public void interfaceCtrlRecive(FrameRespData respData) {
+        respData.setAccessType(SysConfigConstant.ACCESS_TYPE_INTERF);
+        respData.setOperType(SysConfigConstant.OPREATE_CONTROL_RESP);
+        if(DevParaInfoContainer.handlerRespDevPara(respData)){
+            DevIfeMegSend.sendParaToDev(respData.getDevNo());//如果设备参数变化,websocet推前台
+        }
+        DevLogInfoContainer.handlerRespDevPara(respData);//记录日志
+        DevIfeMegSend.sendLogToDev(respData.getDevNo());//操作日志websocet推前台
+        handlerAlertInfo(respData);//处理报警信息
+    }
+
+    /**
      * 处理报警信息
      * @param  respData   协议解析响应数据
      */

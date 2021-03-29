@@ -1,4 +1,4 @@
-package com.xy.netdev.frame.enums;
+package com.xy.netdev.sendrecv.enums;
 
 import lombok.Getter;
 

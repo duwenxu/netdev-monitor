@@ -31,4 +31,11 @@ public interface IDataReciveService {
     void interfaceQueryRecive(FrameRespData respData);
 
 
+    /**
+     * 接口控制接收
+     * @param  respData   协议解析响应数据
+     */
+    void interfaceCtrlRecive(FrameRespData respData);
+
+
 }

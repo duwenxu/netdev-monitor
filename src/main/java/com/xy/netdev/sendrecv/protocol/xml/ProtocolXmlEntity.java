@@ -1,4 +1,4 @@
-package com.xy.netdev.frame.protocol.xml;
+package com.xy.netdev.sendrecv.protocol.xml;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;

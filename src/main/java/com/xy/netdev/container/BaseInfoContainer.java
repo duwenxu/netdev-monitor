@@ -206,7 +206,7 @@ public class BaseInfoContainer {
                         }
                     }
                     paraInfo.setParaStartPoint(point);//参数下标：从哪一个字节开始
-                    log.info("cmd:{}----point:{}",paraInfo.getCmdMark(),point);
+                    log.debug("cmd:{}----point:{}",paraInfo.getCmdMark(),point);
                     String byteLen = StringUtils.isBlank(paraInfo.getParaByteLen()) ? "0":paraInfo.getParaByteLen();
                     point = point+Integer.valueOf(byteLen);
                 } catch (NumberFormatException e) {

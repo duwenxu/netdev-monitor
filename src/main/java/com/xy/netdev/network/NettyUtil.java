@@ -2,7 +2,7 @@ package com.xy.netdev.network;
 
 import cn.hutool.core.thread.ThreadUtil;
 import com.alibaba.fastjson.JSONObject;
-import com.xy.netdev.frame.entity.SocketEntity;
+import com.xy.netdev.sendrecv.entity.SocketEntity;
 import com.xy.netdev.network.enums.SocketTypeEnum;
 import com.xy.netdev.network.server.NettyTcpClient;
 import io.netty.bootstrap.Bootstrap;

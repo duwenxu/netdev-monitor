@@ -10,7 +10,7 @@ import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
-import com.xy.netdev.frame.enums.ProtocolRequestEnum;
+import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
@@ -61,7 +61,7 @@ public class GfInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
                     BeanUtil.copyProperties(frameParaInfo, paraInfo, true);
                     BeanUtil.copyProperties(respData, paraInfo, true);
                     paraInfo.setLen(Integer.parseInt(frameParaInfo.getParaByteLen()));
-                    paraInfo.setParaVal(byteToNumber(bytes, frameParaInfo.getParaStartPoint() - 1,
+                    paraInfo.setParaVal(byteToNumber(bytes, frameParaInfo.getParaStartPoint() ,
                             Integer.parseInt(frameParaInfo.getParaByteLen()), isUnsigned(sysParamService,
                                     frameParaInfo.getAlertPara())).toString());
                     return paraInfo;
@@ -81,4 +81,5 @@ public class GfInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
                 .collect(Collectors.toList());
         reqInfo.setParamBytes(ByteUtils.listToBytes(bytes));
     }
+
 }

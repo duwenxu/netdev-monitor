@@ -4,7 +4,7 @@ package com.xy.netdev.frame.service.acu;
 import cn.hutool.core.util.StrUtil;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
-import com.xy.netdev.frame.enums.ProtocolRequestEnum;
+import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.transit.IDataReciveService;

@@ -1,4 +1,4 @@
-package com.xy.netdev.frame.entity.device;
+package com.xy.netdev.sendrecv.entity.device;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
