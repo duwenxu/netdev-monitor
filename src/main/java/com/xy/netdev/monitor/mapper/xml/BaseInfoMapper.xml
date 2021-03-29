@@ -19,12 +19,18 @@
         <result column="DEV_DEPLOY_TYPE" property="devDeployType" />
         <result column="DEV_USE_STATUS" property="devUseStatus" />
         <result column="DEV_SUB_TYPE" property="devSubType" />
+        <result column="DEV_REMARK1_DESC" property="devRemark1Desc" />
+        <result column="DEV_REMARK1_DATA" property="devRemark1Data" />
+        <result column="DEV_REMARK2_DESC" property="devRemark2Desc" />
+        <result column="DEV_REMARK2_DATA" property="devRemark2Data" />
+        <result column="DEV_REMARK3_DESC" property="devRemark3Desc" />
+        <result column="DEV_REMARK3_DATA" property="devRemark3Data" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         DEV_NO, DEV_TYPE, DEV_NAME, DEV_STATUS, DEV_CORP, DEV_VER, DEV_IP_ADDR, DEV_LOCAL_ADDR, DEV_PORT, DEV_PARENT_NO, DEV_INTERVAL_TIME,DEV_NET_PTCL,
-        DEV_DEPLOY_TYPE,DEV_USE_STATUS,DEV_SUB_TYPE
+        DEV_DEPLOY_TYPE,DEV_USE_STATUS,DEV_SUB_TYPE,DEV_REMARK1_DESC,DEV_REMARK1_DATA,DEV_REMARK2_DESC,DEV_REMARK2_DATA,DEV_REMARK3_DESC,DEV_REMARK3_DATA
     </sql>
 
 

@@ -127,7 +127,7 @@ public class BaseInfoController {
      * @return 请求结果
      */
     @ApiOperation(value = "切换主设备", notes = "切换主设备")
-    @GetMapping("/changeMaster")
+    @PostMapping("/changeMaster")
     public Result<Object> changeUseStatus(String devNo) {
         boolean isOk = baseInfoService.changeUseStatus(devNo);
         if (isOk){
