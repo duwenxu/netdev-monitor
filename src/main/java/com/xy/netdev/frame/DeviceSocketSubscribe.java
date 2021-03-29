@@ -81,10 +81,8 @@ public class DeviceSocketSubscribe {
                         doResponse(SOCKET_QUEUE.take());
                     } catch (InterruptedException e) {
                         log.error("响应流程终端", e);
-                        throw new CompletionException(e);
                     } catch (BaseException e) {
                         log.error("响应流程异常, 异常原因:{}", e.getMessage(), e);
-                        throw new CompletionException(e);
                     }
                 }, executor);
             }
