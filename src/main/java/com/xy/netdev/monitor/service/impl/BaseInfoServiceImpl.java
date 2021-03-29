@@ -190,7 +190,7 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
         if (StringUtils.isNotBlank(devNo)) {
             BaseInfo targetDev = this.getById(devNo);
             //当前设备相同父编号的主备设备list
-            List<BaseInfo> subList = BaseInfoContainer.getDevsFatByDevNo(devNo);
+            List<BaseInfo> subList = subListByDevNo(targetDev.getDevParentNo());
             if (!subList.isEmpty()) {
                 for (BaseInfo base : subList) {
                     if (DEV_USE_STATUS_INUSE.equals(base.getDevUseStatus())) {
@@ -205,9 +205,9 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
             }else {
                 masterOrSlaveStatus = RPT_DEV_STATUS_MASTERORSLAVE_SLAVE;
             }
-            devStatusReportService.rptMasterOrSlave(devNo, masterOrSlaveStatus);
             targetDev.setDevUseStatus(DEV_USE_STATUS_INUSE);
             isOk = this.updateById(targetDev);
+            devStatusReportService.rptMasterOrSlave(devNo, masterOrSlaveStatus);
         }
         return isOk;
     }
@@ -226,14 +226,22 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
             BaseInfo targetDev = this.getById(devNo);
             parentNo = targetDev.getDevParentNo();
         }
-        LambdaQueryWrapper<BaseInfo> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(BaseInfo::getDevParentNo, parentNo);
-        List<BaseInfo> subMasterSlaveList = this.list(wrapper).stream()
-                .filter(base -> DEV_DEPLOY_MASTER.equals(base.getDevDeployType()) || DEV_DEPLOY_SLAVE.equals(base.getDevDeployType())).collect(Collectors.toList());
+        List<BaseInfo> subMasterSlaveList = subListByDevNo(parentNo);
         if (subMasterSlaveList.size() > 1) {
             devStatusReportService.rptUseStandby(devNo, RPT_DEV_STATUS_USESTANDBY_YES);
         }else {
             devStatusReportService.rptUseStandby(devNo, RPT_DEV_STATUS_USESTANDBY_NO);
         }
+    }
+
+    /**
+     * 通过设备编号查询同属一个父设备的子设备列表(从数据库获取而非缓存)
+     * @return 子设备列表
+     */
+    private List<BaseInfo> subListByDevNo(String parentNo){
+        LambdaQueryWrapper<BaseInfo> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(BaseInfo::getDevParentNo, parentNo);
+        return this.list(wrapper).stream()
+                .filter(base -> DEV_DEPLOY_MASTER.equals(base.getDevDeployType()) || DEV_DEPLOY_SLAVE.equals(base.getDevDeployType())).collect(Collectors.toList());
     }
 }
