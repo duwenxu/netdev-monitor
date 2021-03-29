@@ -42,7 +42,8 @@ public class InterfaceController {
     @ApiOperation(value = "获取分页设备接口", notes = "获取分页设备接口")
     @PostMapping(value = "/list")
     public Result<IPage<Interface>> queryPageList(Interface data,Page page,HttpServletRequest req){
-        return ControllerHelper.queryPageList(data, page, req, targetService);
+        IPage interfaces = targetService.queryPageListAll(page, req, data);
+        return ControllerResultWrapper.genPageListResult(interfaces);
     }
 
     /**
