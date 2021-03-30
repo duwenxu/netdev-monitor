@@ -1,7 +1,9 @@
 package com.xy.netdev.monitor.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.xy.common.query.QueryGenerator;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.monitor.bo.TransUiData;
 import com.xy.netdev.monitor.entity.Interface;
@@ -12,7 +14,7 @@ import com.xy.netdev.monitor.service.IParaInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -30,6 +32,24 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
 
     @Autowired
     private IParaInfoService paraInfoService;
+
+    /**
+     * 获取所有 非子接口的 接口分页
+     * @param page
+     * @param req
+     * @param interfaceInfo
+     * @return
+     */
+    @Override
+    public IPage<Interface> queryPageListAll(IPage<Interface> page, HttpServletRequest req, Interface interfaceInfo) {
+        QueryWrapper<Interface> queryWrapper = QueryGenerator.initQueryWrapper(interfaceInfo, req.getParameterMap());
+        if("-1".equals(interfaceInfo.getItfFlag())){
+            queryWrapper.isNotNull("ITF_PARENT_ID");
+        }else{
+            queryWrapper.isNull("ITF_PARENT_ID");
+        }
+        return this.page(page, queryWrapper);
+    }
 
     /**
      * 设备接口已绑定参数列表

@@ -13,11 +13,13 @@
         <result column="ITF_CMD_MARK" property="itfCmdMark" />
         <result column="ITF_STATUS" property="itfStatus" />
         <result column="ITF_DATA_FORMAT" property="itfDataFormat" />
+        <result column="ITF_PARENT_ID" property="itfParentId" />
+        <result column="ITF_PAGE_PATH" property="itfPagePath" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        ITF_ID, DEV_TYPE, FMT_ID, ITF_CODE, ITF_NAME, ITF_TYPE, ITF_CMD_MARK,ITF_STATUS, ITF_DATA_FORMAT
+        ITF_ID, DEV_TYPE, FMT_ID, ITF_CODE, ITF_NAME, ITF_TYPE, ITF_CMD_MARK,ITF_STATUS, ITF_DATA_FORMAT,ITF_PARENT_ID,ITF_PAGE_PATH
     </sql>
 
 

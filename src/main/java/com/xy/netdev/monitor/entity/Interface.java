@@ -69,6 +69,18 @@ public class Interface extends Model<Interface> {
     @TableField(value = "ITF_DATA_FORMAT")
     private String itfDataFormat;
 
+    @ApiModelProperty(value = "上级接口ID")
+    @TableField(value = "ITF_PARENT_ID")
+    private Integer itfParentId;
+
+    @ApiModelProperty(value = "页面路径")
+    @TableField(value = "ITF_PAGE_PATH")
+    private String itfPagePath;
+
+    @ApiModelProperty(value = "接口标志（-1：查询子接口；其他：查询除子接口外的其他接口）")
+    @TableField(exist = false)
+    private String itfFlag;
+
     @Override
     protected Serializable pkVal() {
         return this.itfId;
