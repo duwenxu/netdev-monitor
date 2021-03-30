@@ -10,6 +10,6 @@ import com.xy.netdev.sendrecv.entity.SocketEntity;
 public class SocketEntityFactory implements EventFactory<SocketEntity> {
     @Override
     public SocketEntity newInstance() {
-        return new SocketEntity();
+        return SocketEntity.SocketEntityFactory.cloneable();
     }
 }
