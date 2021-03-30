@@ -11,6 +11,7 @@ import com.xy.netdev.monitor.entity.ParaInfo;
 import com.xy.netdev.monitor.mapper.InterfaceMapper;
 import com.xy.netdev.monitor.service.IInterfaceService;
 import com.xy.netdev.monitor.service.IParaInfoService;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,10 +43,11 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
      */
     @Override
     public IPage<Interface> queryPageListAll(IPage<Interface> page, HttpServletRequest req, Interface interfaceInfo) {
+        //拿到接口标志：这样写为了解决此字段不是数据库字段问题
+        String iftFlag = interfaceInfo.getItfFlag();
+        interfaceInfo.setItfFlag(null);
         QueryWrapper<Interface> queryWrapper = QueryGenerator.initQueryWrapper(interfaceInfo, req.getParameterMap());
-        if("-1".equals(interfaceInfo.getItfFlag())){
-            queryWrapper.isNotNull("ITF_PARENT_ID");
-        }else{
+        if(!"-1".equals(iftFlag)){
             queryWrapper.isNull("ITF_PARENT_ID");
         }
         return this.page(page, queryWrapper);
@@ -81,17 +83,21 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
         //获取设备接口信息
         Interface anInterface = this.baseMapper.selectById(id);
         //分解设备接口绑定的参数code
-        List<String> paraIds = Arrays.asList(anInterface.getItfDataFormat().split(","));
+        List<String> paraIds = new ArrayList<>();
+        if(!StringUtils.isBlank(anInterface.getItfDataFormat())){
+            paraIds = Arrays.asList(anInterface.getItfDataFormat().split(","));
+        }
         //获取有效的非子参数的和接口设备类型相同的设备参数列表
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("NDPA_STATUS",SysConfigConstant.STATUS_OK);
         queryWrapper.eq("DEV_TYPE",anInterface.getDevType());
         queryWrapper.ne("NDPA_CMPLEX_LEVEL",SysConfigConstant.PARA_COMPLEX_LEVEL_SUB);
         List<ParaInfo> paraInfos = paraInfoService.list(queryWrapper);
+        List<String> finalParaIds = paraIds;
         if(isBing){
-            paraInfos = paraInfos.stream().filter(paraInfo -> paraIds.contains(paraInfo.getNdpaId().toString())).collect(Collectors.toList());
+            paraInfos = paraInfos.stream().filter(paraInfo -> finalParaIds.contains(paraInfo.getNdpaId().toString())).collect(Collectors.toList());
         }else{
-            paraInfos = paraInfos.stream().filter(paraInfo -> !paraIds.contains(paraInfo.getNdpaId().toString())).collect(Collectors.toList());
+            paraInfos = paraInfos.stream().filter(paraInfo -> !finalParaIds.contains(paraInfo.getNdpaId().toString())).collect(Collectors.toList());
         }
         List<TransUiData> dataList = new ArrayList<>();
         //封装前端穿梭框数据
