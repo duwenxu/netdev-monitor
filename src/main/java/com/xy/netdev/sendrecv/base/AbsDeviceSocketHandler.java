@@ -68,6 +68,7 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
         sendMsg(t, packBytes);
     }
 
+
     @Override
     public void doControl(T t) {
         this.doQuery(t);
@@ -83,6 +84,21 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
         this.doQuery(t);
     }
 
+    /**
+     * 设置发送原始数据十六进制字符串
+     * @param t t
+     */
+    protected void setSendOriginalData(T t, byte[] bytes){
+        t.setSendOriginalData(HexUtil.encodeHexStr(bytes).toUpperCase());
+    }
+
+    /**
+     * 设置接收原始数据十六进制字符串
+     * @param r
+     */
+    protected void setReceiveOriginalData(R r){
+        r.setReciveOriginalData(HexUtil.encodeHexStr(r.getParamBytes()).toUpperCase());
+    }
 
 
     @Override
@@ -97,16 +113,7 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
         //数据拆包
         R unpackBytes = unpack((Q) socketEntity, (R) frameRespData);
         //转16进制，用来获取协议解析类
-        String cmdHexStr = frameRespData.getCmdMark();
-
-        //获取设备CMD信息, '/'为调制解调器特殊格式, 因为调制解调器cmd为字符串, 不能进行十六进制转换, 所以特殊区分
-        if (!MonitorConstants.SUB_MODEM.equals(frameRespData.getDevType())){
-            if (!StrUtil.contains(frameRespData.getCmdMark(), '/')){
-                cmdHexStr = Integer.toHexString(Integer.parseInt(frameRespData.getCmdMark(),16));
-            }else {
-                cmdHexStr = StrUtil.removeAll(frameRespData.getCmdMark(), '/');
-            }
-        }
+        String cmdHexStr = cmdMarkConvert(frameRespData);
 
         //根据cmd和设备类型获取具体的数据处理类
         PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameRespData.getDevType(), cmdHexStr);
@@ -130,13 +137,22 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
             frameRespData.setAccessType(SysConfigConstant.ACCESS_TYPE_INTERF);
             queryInterPrtclAnalysisService = QueryInterPrtcllFactory.genHandler(prtclFormat.getFmtHandlerClass());
         }
-        frameRespData.setReciveOrignData(HexUtil.encodeHexStr(socketEntity.getBytes()).toUpperCase());
+        frameRespData.setReciveOriginalData(HexUtil.encodeHexStr(socketEntity.getBytes()).toUpperCase());
+        setReceiveOriginalData((R)frameRespData);
         frameRespData.setCmdMark(cmdHexStr);
 
         //执行回调方法
         this.callback(unpackBytes, iParaPrtclAnalysisService, queryInterPrtclAnalysisService);
         log.debug("设备数据已发送至对应模块, 数据体:{}", JSON.toJSONString(unpackBytes));
     }
+
+    /**
+     * 不同协议 cmd 关键字转换处理 默认不做转换
+     * @param frameRespData 响应数据结构
+     * @return 转换的cmd
+     */
+    public String cmdMarkConvert(FrameRespData frameRespData){return frameRespData.getCmdMark();}
+
 
     /**
      * 回调别的模块数据
@@ -174,8 +190,8 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
             }else {
                 t.setIsOk("1");
             }
-            //设置发送原始数据十六进制字符串
-            t.setSendOrignData(HexUtil.encodeHexStr(bytes).toUpperCase());
+            //设置发送原始数据
+            setSendOriginalData(t, bytes);
             //回调
             dataSendService.notifyNetworkResult(t);
         }));

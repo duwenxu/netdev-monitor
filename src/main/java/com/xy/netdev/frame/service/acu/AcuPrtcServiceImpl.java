@@ -54,7 +54,7 @@ public class AcuPrtcServiceImpl implements IParaPrtclAnalysisService {
     @Override
     public FrameRespData ctrlParaResponse(FrameRespData respData) {
         String str = StrUtil.str(respData.getParamBytes(), Charset.defaultCharset());
-        respData.setReciveOrignData(str);
+        respData.setReciveOriginalData(str);
         dataReciveService.paraCtrRecive(respData);
         return respData;
     }

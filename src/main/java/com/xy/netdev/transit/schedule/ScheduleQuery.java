@@ -1,5 +1,7 @@
 package com.xy.netdev.transit.schedule;
 
+import cn.hutool.core.thread.ThreadUtil;
+import cn.hutool.core.util.HexUtil;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
@@ -14,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

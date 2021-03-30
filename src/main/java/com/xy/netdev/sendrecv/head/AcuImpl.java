@@ -32,6 +32,16 @@ public class AcuImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, 
     }
 
     @Override
+    public String cmdMarkConvert(FrameRespData frameRespData) {
+        //获取设备CMD信息, '/'为调制解调器特殊格式, 因为调制解调器cmd为字符串, 不能进行十六进制转换, 所以特殊区分
+        if (!StrUtil.contains(frameRespData.getCmdMark(), '/')){
+            return Integer.toHexString(Integer.parseInt(frameRespData.getCmdMark(),16));
+        }else {
+            return  StrUtil.removeAll(frameRespData.getCmdMark(), '/');
+        }
+    }
+
+    @Override
     public FrameRespData unpack(SocketEntity socketEntity, FrameRespData frameRespData) {
         byte[] bytes = socketEntity.getBytes();
         //长度为69则为主动上报. 否则为参数
