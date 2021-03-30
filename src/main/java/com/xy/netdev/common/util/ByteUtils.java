@@ -1,7 +1,11 @@
 package com.xy.netdev.common.util;
 
 import cn.hutool.core.codec.BCD;
+import cn.hutool.core.lang.Assert;
+import cn.hutool.core.lang.Pair;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.HexUtil;
+import cn.hutool.core.util.StrUtil;
 import com.google.common.primitives.Bytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
@@ -340,4 +344,98 @@ public class ByteUtils {
         return byteToBinary(b, 8);
     }
 
+
+    /**
+     * 字节替换
+     * @param bytes byte数组
+     * @param pairs 替换字节
+     * @return 替换字节
+     */
+    @SafeVarargs
+    public static byte[] byteReplace(byte[] bytes, Pair<String, String>... pairs){
+        if (ArrayUtil.isEmpty(pairs)){
+            return bytes;
+        }
+        return byteReplace(bytes, pairs[0].getKey().length(), pairs);
+    }
+
+    /**
+     * 字节替换
+     * @param bytes byte数组
+     * @param offset 起始位
+     * @param len 长度
+     * @param pairs 替换字节
+     * @return 校验字节
+     */
+    @SafeVarargs
+    public static byte[] byteReplace(byte[] bytes, int offset, int len, Pair<String, String>... pairs){
+        if (len == bytes.length){
+            return byteReplace(bytes, pairs);
+        }
+        byte[] beginBytes = null;
+        if (offset != 0){
+            beginBytes = byteArrayCopy(bytes, 0, offset);
+        }
+        byte[] checkBytes = byteArrayCopy(bytes, offset, len - offset);
+        byte[] endBytes = byteArrayCopy(bytes, len, bytes.length - len);
+        byte[] resultBytes = byteReplace(checkBytes, pairs);
+        if (beginBytes != null && endBytes != null){
+            return Bytes.concat(beginBytes, resultBytes, endBytes);
+        }
+        if (beginBytes != null){
+            return Bytes.concat(beginBytes, resultBytes);
+        }
+        if (endBytes != null){
+            return Bytes.concat(resultBytes, endBytes);
+        }
+        return resultBytes;
+    }
+
+
+    /**
+     * 字节替换
+     * @param bytes byte数组
+     * @param skip 步长
+     * @param pairs 替换字节序
+     * @return 替换字节序
+     */
+    @SafeVarargs
+    public static byte[] byteReplace(byte[] bytes, int skip, Pair<String, String>... pairs){
+        if (ArrayUtil.isEmpty(pairs)){
+            return bytes;
+        }
+        for (Pair<String, String> pair : pairs) {
+            Assert.isTrue(pair.getKey().length() == skip);
+        }
+        StringBuilder stringBuilder = new StringBuilder();
+        int skipSize = skip / 2;
+        for (int i = 0; i < bytes.length; i = i + skipSize) {
+            byte[] bytesTemp = new byte[skipSize];
+            if (skipSize >= 0) {
+                System.arraycopy(bytes, i, bytesTemp, 0, skipSize);
+            }
+            String encodeHexStr = HexUtil.encodeHexStr(bytesTemp);
+            boolean ifReplace = false;
+            for (Pair<String, String> pair : pairs) {
+                if (pair.getKey().equalsIgnoreCase(encodeHexStr)) {
+                    stringBuilder.append(pair.getValue());
+                    ifReplace = true;
+                    break;
+                }
+            }
+            if (!ifReplace){
+                stringBuilder.append(encodeHexStr);
+            }
+        }
+        return HexUtil.decodeHex(stringBuilder.toString());
+    }
+
+    public static void main(String[] args) {
+        String str = "7E7E7D7E";
+        byte[] bytes = HexUtil.decodeHex(str);
+        byte[] byteReplace = byteReplace(bytes, 1, bytes.length - 1, Pair.of("7E", "7D5E"), Pair.of("7D", "7D5D"));
+        System.out.println(HexUtil.encodeHexStr(byteReplace).toUpperCase());
+        byte[] replace = byteReplace(byteReplace, 1, byteReplace.length - 1, Pair.of("7D5E", "7E"), Pair.of("7D5D", "7D"));
+        System.out.println(HexUtil.encodeHexStr(replace).toUpperCase());
+    }
 }
