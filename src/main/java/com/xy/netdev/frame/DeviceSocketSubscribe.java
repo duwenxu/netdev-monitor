@@ -56,7 +56,7 @@ public class DeviceSocketSubscribe {
         //队列
         cache = CacheUtil.newFIFOCache(absSocketHandlerList.size());
         //线程池工厂
-        ThreadFactory factory = ThreadUtil.newNamedThreadFactory("NettySocketHandler-", true);
+        ThreadFactory factory = ThreadUtil.newNamedThreadFactory("ConsumerWork-", true);
         //cpu 核心数
         int cpuCore = Runtime.getRuntime().availableProcessors();
         //构建线程池
