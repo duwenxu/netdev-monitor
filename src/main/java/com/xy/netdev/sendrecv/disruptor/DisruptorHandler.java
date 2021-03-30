@@ -10,9 +10,12 @@ import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import com.xy.netdev.sendrecv.entity.SocketEntity;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
@@ -21,7 +24,8 @@ import java.util.concurrent.TimeUnit;
  * @author cc
  */
 @Component
-public class DisruptorHandler implements InitializingBean{
+@Slf4j
+public class DisruptorHandler implements InitializingBean, Closeable {
 
 
     private EventTranslatorOneArg<SocketEntity, SocketEntity> translator;
@@ -51,10 +55,12 @@ public class DisruptorHandler implements InitializingBean{
         for (int i = 0; i < cpuCore; i++) {
             handlers[i] = new SocketEntityHandler();
         }
+        //设置异常处理类
         disruptor.setDefaultExceptionHandler(new IgnoreExceptionHandler());
+        //设置工作线程池
         disruptor.handleEventsWithWorkerPool(handlers);
+        //启动disruptor环形队列
         disruptor.start();
-
     }
 
     /**
@@ -67,4 +73,11 @@ public class DisruptorHandler implements InitializingBean{
     }
 
 
+    @Override
+    public void close() throws IOException {
+        log.info("Disruptor Service - Shutdown initiated...");
+        disruptor.halt();
+        disruptor.shutdown();
+        log.info("Disruptor Service - Shutdown completed...");
+    }
 }

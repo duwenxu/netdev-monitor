@@ -95,7 +95,11 @@ public class BaseInfoContainer {
         //加载设备参数信息
         addParaMap(frameParaInfos);
         //加载设备接口参数信息
-        addInterLinkParaMap(genDevInterParam(interfaces,frameParaInfos,prtclList));
+        //获取非子接口
+        List<Interface> iftParents = interfaces.stream().filter(anInterface -> anInterface.getItfParentId() == null).collect(Collectors.toList());
+        //获取子接口列表
+        List<Interface> subParents = interfaces.stream().filter(anInterface -> !iftParents.contains(anInterface)).collect(Collectors.toList());
+        addInterLinkParaMap(genDevInterParam(iftParents,subParents,frameParaInfos,prtclList));
     }
 
     /**
@@ -461,14 +465,15 @@ public class BaseInfoContainer {
 
     /**
      * 生成设备接口参数实体list（运用递归方式处理组装接口）
-     * @param interfaces
+     * @param parentItfs  所有的上级接口
+     * @param subItfs     所有的子接口
      * @param frameParaInfos
      * @param prtclList
      * @return
      */
-    private static List<DevInterParam> genDevInterParam(List<Interface> interfaces,List<FrameParaInfo> frameParaInfos,List<PrtclFormat> prtclList){
+    private static List<DevInterParam> genDevInterParam(List<Interface> parentItfs,List<Interface> subItfs,List<FrameParaInfo> frameParaInfos,List<PrtclFormat> prtclList){
         List<DevInterParam> devInterParams = new ArrayList<>();
-        interfaces.forEach(anInterface -> {
+        parentItfs.forEach(anInterface -> {
             DevInterParam devInterParam = new DevInterParam();
             //id
             devInterParam.setId(ParaHandlerUtil.genLinkKey(anInterface.getDevType(),anInterface.getItfCmdMark()));
@@ -485,17 +490,21 @@ public class BaseInfoContainer {
             List<String> paraIds = StringUtils.isBlank(anInterface.getItfDataFormat())? new ArrayList<>():Arrays.asList(anInterface.getItfDataFormat().split(","));
             //参数list
             devInterParam.setDevParamList(frameParaInfos.stream().filter(paraInfo -> paraIds.contains(paraInfo.getParaId().toString()))
+                    //此处需要倒叙则增加使用.sorted(Comparator.comparing(FrameParaInfo::getParaNo).reversed())
                     .sorted(Comparator.comparing(FrameParaInfo::getParaNo))
                     .collect(Collectors.toList()));
             //如果为组合接口则填充子接口列表：递归方法
+            List<DevInterParam> subList = new ArrayList<>();
             if(INTERFACE_TYPE_PACK.equals(anInterface.getItfType())){
-                List<Interface> interfaceList = interfaces.stream().filter(anInterface1 -> anInterface1.getDevType().equals(anInterface.getDevType()) && anInterface1.getItfParentId().equals(anInterface.getItfId())).collect(Collectors.toList());
-                devInterParam.setSubItfList(genDevInterParam(interfaceList,frameParaInfos,prtclList));
+                //查找所属当前接口的所有子接口
+                List<Interface> interfaceList = subItfs.stream().filter(anInterface1 -> anInterface.getDevType().equals(anInterface1.getDevType()) && anInterface.getItfId().equals(anInterface1.getItfParentId())).collect(Collectors.toList());
+                //开始递归
+                subList = genDevInterParam(interfaceList,subItfs,frameParaInfos,prtclList);
             }
+            devInterParam.setSubItfList(subList);
             devInterParams.add(devInterParam);
 
         });
         return devInterParams;
     }
-
 }
