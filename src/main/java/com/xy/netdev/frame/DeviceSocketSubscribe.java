@@ -46,51 +46,13 @@ public class DeviceSocketSubscribe {
      */
     private FIFOCache<String, AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData>> cache;
 
-    /**
-     * 线程池
-     */
-    private ThreadPoolExecutor executor;
 
     @PostConstruct
     public void init(){
         //队列
         cache = CacheUtil.newFIFOCache(absSocketHandlerList.size());
-        //线程池工厂
-        ThreadFactory factory = ThreadUtil.newNamedThreadFactory("ConsumerWork-", true);
-        //cpu 核心数
-        int cpuCore = Runtime.getRuntime().availableProcessors();
-        //构建线程池
-        executor = ExecutorBuilder.create()
-                .setThreadFactory(factory)
-                .setCorePoolSize(cpuCore)
-                .setMaxPoolSize(cpuCore)
-                .build();
-        //执行消费线程
-        consumer();
     }
 
-    /**
-     * 消费线程
-     */
-    private void consumer() {
-       CompletableFuture.runAsync(() -> {
-            //noinspection InfiniteLoopStatement
-            while (true) {
-                CompletableFuture.runAsync(() -> {
-                    try {
-                        doResponse(SOCKET_QUEUE.take());
-                    } catch (InterruptedException e) {
-                        log.error("响应流程终端", e);
-                    } catch (BaseException e) {
-                        log.error("响应流程异常, 异常原因:{}", e.getMessage(), e);
-                    }
-                }, executor);
-            }
-        }, executor).exceptionally(throwable -> {
-            log.error(throwable.getMessage());
-            return null;
-       });
-    }
 
     /**
      * 执行响应流程

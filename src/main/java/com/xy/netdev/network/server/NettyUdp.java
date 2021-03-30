@@ -45,8 +45,8 @@ public class NettyUdp implements Runnable {
     @Override
     @SneakyThrows
     public void run() {
-        MultithreadEventLoopGroup loopGroup = Epoll.isAvailable() ? new EpollEventLoopGroup(2) :
-                new NioEventLoopGroup(2);
+        MultithreadEventLoopGroup loopGroup = Epoll.isAvailable() ? new EpollEventLoopGroup(1) :
+                new NioEventLoopGroup(1);
         eventLoopGroupsList.add(loopGroup);
         try {
             String address = InetAddress.getLocalHost().getHostAddress();
