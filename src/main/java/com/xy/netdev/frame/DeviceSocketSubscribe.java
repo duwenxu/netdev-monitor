@@ -25,7 +25,6 @@ import java.util.Optional;
 import java.util.concurrent.*;
 
 import static com.xy.netdev.container.BaseInfoContainer.getDevInfo;
-import static com.xy.netdev.network.NettyUtil.SOCKET_QUEUE;
 
 /**
  * 设备数据订阅
