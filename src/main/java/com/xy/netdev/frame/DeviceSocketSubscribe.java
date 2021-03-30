@@ -3,17 +3,16 @@ package com.xy.netdev.frame;
 import cn.hutool.cache.CacheUtil;
 import cn.hutool.cache.impl.FIFOCache;
 import cn.hutool.core.date.DateUnit;
-import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.HexUtil;
 import com.xy.common.exception.BaseException;
 import com.xy.netdev.common.util.BeanFactoryUtil;
 import com.xy.netdev.container.BaseInfoContainer;
-import com.xy.netdev.sendrecv.base.AbsDeviceSocketHandler;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
-import com.xy.netdev.sendrecv.entity.SocketEntity;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.rpt.service.StationControlHandler;
+import com.xy.netdev.sendrecv.base.AbsDeviceSocketHandler;
+import com.xy.netdev.sendrecv.entity.SocketEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -21,10 +20,8 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
 
 import static com.xy.netdev.container.BaseInfoContainer.getDevInfo;
-import static com.xy.netdev.network.NettyUtil.SOCKET_QUEUE;
 
 /**
  * 设备数据订阅
@@ -45,22 +42,11 @@ public class DeviceSocketSubscribe {
      */
     private FIFOCache<String, AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData>> cache;
 
+
     @PostConstruct
     public void init(){
+        //队列
         cache = CacheUtil.newFIFOCache(absSocketHandlerList.size());
-        ExecutorService executorService = ThreadUtil.newSingleExecutor();
-        executorService.execute(() -> {
-            //noinspection InfiniteLoopStatement
-            while (true){
-                try {
-                    doResponse(SOCKET_QUEUE.take());
-                } catch (InterruptedException e) {
-                    log.error("响应流程终端", e);
-                } catch (BaseException e){
-                    log.error("响应流程异常, 异常原因:{}", e.getMessage(), e);
-                }
-            }
-        });
     }
 
     /**

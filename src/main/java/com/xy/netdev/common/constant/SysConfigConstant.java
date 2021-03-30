@@ -377,5 +377,10 @@ public interface SysConfigConstant {
      */
     String PARA_ALERT_TYPE_NULL = "0029006";
 
+    /**
+     * 接口类型--组装接口
+     */
+    String INTERFACE_TYPE_PACK = "0027004";
+
 
 }

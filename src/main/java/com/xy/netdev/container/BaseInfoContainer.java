@@ -3,8 +3,6 @@ package com.xy.netdev.container;
 import com.alibaba.fastjson.JSONArray;
 import com.xy.common.exception.BaseException;
 import com.xy.netdev.admin.service.ISysParamService;
-import com.xy.netdev.admin.service.impl.SysParamServiceImpl;
-import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.ParaHandlerUtil;
 import com.xy.netdev.monitor.bo.DevInterParam;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
@@ -17,12 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.xy.netdev.common.constant.SysConfigConstant.DEV_DEPLOY_MASTER;
-import static com.xy.netdev.common.constant.SysConfigConstant.DEV_DEPLOY_SLAVE;
+import static com.xy.netdev.common.constant.SysConfigConstant.*;
 import static com.xy.netdev.monitor.constant.MonitorConstants.SUB_KU_GF;
 import static com.xy.netdev.monitor.constant.MonitorConstants.SUB_MODEM;
 
@@ -100,28 +95,11 @@ public class BaseInfoContainer {
         //加载设备参数信息
         addParaMap(frameParaInfos);
         //加载设备接口参数信息
-        List<DevInterParam> devInterParams = new ArrayList<>();
-        //封装设备接口参数实体类list
-        interfaces.forEach(anInterface -> {
-            List<String> paraIds = StringUtils.isBlank(anInterface.getItfDataFormat())? new ArrayList<>():Arrays.asList(anInterface.getItfDataFormat().split(","));
-            DevInterParam devInterParam = new DevInterParam();
-            devInterParam.setId(ParaHandlerUtil.genLinkKey(anInterface.getDevType(),anInterface.getItfCmdMark()));
-            List<PrtclFormat> prtclFormats = prtclList.stream().filter(prtclFormat -> prtclFormat.getFmtId() == anInterface.getFmtId()).collect(Collectors.toList());
-            if(prtclFormats.size()>0){
-                //设置协议的归属
-                prtclFormats.get(0).setIsPrtclParam(1);
-                devInterParam.setInterfacePrtcl(prtclFormats.get(0));
-            }
-            devInterParam.setDevInterface(anInterface);
-            devInterParam.setDevParamList(frameParaInfos.stream().filter(paraInfo -> paraIds.contains(paraInfo.getParaId().toString()))
-                   .sorted((o1, o2) -> {
-                        int n2 = Integer.parseInt(o2.getParaNo());
-                        int n1 = Integer.parseInt(o1.getParaNo());
-                        return Integer.compare(n1, n2);
-                    }).collect(Collectors.toList()));
-            devInterParams.add(devInterParam);
-        });
-        addInterLinkParaMap(devInterParams);
+        //获取非子接口
+        List<Interface> iftParents = interfaces.stream().filter(anInterface -> anInterface.getItfParentId() == null).collect(Collectors.toList());
+        //获取子接口列表
+        List<Interface> subParents = interfaces.stream().filter(anInterface -> !iftParents.contains(anInterface)).collect(Collectors.toList());
+        addInterLinkParaMap(genDevInterParam(iftParents,subParents,frameParaInfos,prtclList));
     }
 
     /**
@@ -226,7 +204,7 @@ public class BaseInfoContainer {
         if(devMap.containsKey(devIPAddr)){
             return devMap.get(devIPAddr);
         }else{
-            String rptIpAddr = sysParamService.getParaRemark1(SysConfigConstant.RPT_IP_ADDR);
+            String rptIpAddr = sysParamService.getParaRemark1(RPT_IP_ADDR);
             if(rptIpAddr.equals(devIPAddr)){
                 return genRptBaseInfo();
             }
@@ -240,9 +218,9 @@ public class BaseInfoContainer {
      */
     public static BaseInfo genRptBaseInfo(){
         BaseInfo rptBaseInfo = new BaseInfo();
-        rptBaseInfo.setDevIpAddr(sysParamService.getParaRemark1(SysConfigConstant.RPT_IP_ADDR));
-        rptBaseInfo.setDevPort(sysParamService.getParaRemark2(SysConfigConstant.RPT_IP_ADDR));
-        rptBaseInfo.setDevNetPtcl(sysParamService.getParaRemark3(SysConfigConstant.RPT_IP_ADDR));
+        rptBaseInfo.setDevIpAddr(sysParamService.getParaRemark1(RPT_IP_ADDR));
+        rptBaseInfo.setDevPort(sysParamService.getParaRemark2(RPT_IP_ADDR));
+        rptBaseInfo.setDevNetPtcl(sysParamService.getParaRemark3(RPT_IP_ADDR));
         rptBaseInfo.setIsRptIp("0");
         return rptBaseInfo;
     }
@@ -304,6 +282,20 @@ public class BaseInfoContainer {
         DevInterParam devInterParam = InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType,cmdMark));
         if(devInterParam != null){
             return devInterParam.getDevParamList();
+        }
+        return new ArrayList<>();
+    }
+
+    /**
+     * @功能：根据设备类型  和  命令标识 查询子接口列表
+     * @param devType     设备类型
+     * @param cmdMark     命令标识
+     * @return  接口解析参数列表
+     */
+    public static List<DevInterParam> getSubIftList(String devType,String cmdMark){
+        DevInterParam devInterParam = InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType,cmdMark));
+        if(devInterParam != null){
+            return devInterParam.getSubItfList();
         }
         return new ArrayList<>();
     }
@@ -406,6 +398,33 @@ public class BaseInfoContainer {
         return devNoMap.keySet();
     }
 
+
+    /**
+     * 根据 标识字 和 协议信息 获取操作类型
+     *
+     * @param prtclFormat 协议
+     * @param sign        标识字
+     * @return 操作类型
+     */
+    public static String getOptByPrtcl(PrtclFormat prtclFormat, String sign) {
+        if (prtclFormat == null || StringUtils.isEmpty(String.valueOf(prtclFormat.getFmtId())) || StringUtils.isEmpty(sign)) {
+            log.error("getOptByPrtcl方法执行异常:协议格式对象或标识字为空");
+            return null;
+        }
+        if (sign.equals(prtclFormat.getFmtSkey())) {
+            return OPREATE_QUERY;
+        } else if (sign.equals(prtclFormat.getFmtCkey())) {
+            return OPREATE_CONTROL;
+        } else if (sign.equals(prtclFormat.getFmtSckey())) {
+            return OPREATE_QUERY_RESP;
+        } else if (sign.equals(prtclFormat.getFmtCckey())) {
+            return OPREATE_CONTROL_RESP;
+        } else {
+            log.error("getOptByPrtcl方法执行异常:未匹配到对应的操作类型");
+            return null;
+        }
+    }
+
     /**
      * 设备参数转换为帧参数(参数序号、参数下标、设备编号、告警级别除外)
      * @param paraInfos
@@ -445,29 +464,47 @@ public class BaseInfoContainer {
     }
 
     /**
-     * 根据 标识字 和 协议信息 获取操作类型
-     *
-     * @param prtclFormat 协议
-     * @param sign        标识字
-     * @return 操作类型
+     * 生成设备接口参数实体list（运用递归方式处理组装接口）
+     * @param parentItfs  所有的上级接口
+     * @param subItfs     所有的子接口
+     * @param frameParaInfos
+     * @param prtclList
+     * @return
      */
-    public static String getOptByPrtcl(PrtclFormat prtclFormat, String sign) {
-        if (prtclFormat == null || StringUtils.isEmpty(String.valueOf(prtclFormat.getFmtId())) || StringUtils.isEmpty(sign)) {
-            log.error("getOptByPrtcl方法执行异常:协议格式对象或标识字为空");
-            return null;
-        }
-        if (sign.equals(prtclFormat.getFmtSkey())) {
-            return SysConfigConstant.OPREATE_QUERY;
-        } else if (sign.equals(prtclFormat.getFmtCkey())) {
-            return SysConfigConstant.OPREATE_CONTROL;
-        } else if (sign.equals(prtclFormat.getFmtSckey())) {
-            return SysConfigConstant.OPREATE_QUERY_RESP;
-        } else if (sign.equals(prtclFormat.getFmtCckey())) {
-            return SysConfigConstant.OPREATE_CONTROL_RESP;
-        } else {
-            log.error("getOptByPrtcl方法执行异常:未匹配到对应的操作类型");
-            return null;
-        }
-    }
+    private static List<DevInterParam> genDevInterParam(List<Interface> parentItfs,List<Interface> subItfs,List<FrameParaInfo> frameParaInfos,List<PrtclFormat> prtclList){
+        List<DevInterParam> devInterParams = new ArrayList<>();
+        parentItfs.forEach(anInterface -> {
+            DevInterParam devInterParam = new DevInterParam();
+            //id
+            devInterParam.setId(ParaHandlerUtil.genLinkKey(anInterface.getDevType(),anInterface.getItfCmdMark()));
+            //接口
+            devInterParam.setDevInterface(anInterface);
+            //协议
+            List<PrtclFormat> prtclFormats = prtclList.stream().filter(prtclFormat -> prtclFormat.getFmtId() == anInterface.getFmtId()).collect(Collectors.toList());
+            if(prtclFormats.size()>0){
+                //设置协议的归属
+                prtclFormats.get(0).setIsPrtclParam(1);
+                devInterParam.setInterfacePrtcl(prtclFormats.get(0));
+            }
+            //参数列表
+            List<String> paraIds = StringUtils.isBlank(anInterface.getItfDataFormat())? new ArrayList<>():Arrays.asList(anInterface.getItfDataFormat().split(","));
+            //参数list
+            devInterParam.setDevParamList(frameParaInfos.stream().filter(paraInfo -> paraIds.contains(paraInfo.getParaId().toString()))
+                    //此处需要倒叙则增加使用.sorted(Comparator.comparing(FrameParaInfo::getParaNo).reversed())
+                    .sorted(Comparator.comparing(FrameParaInfo::getParaNo))
+                    .collect(Collectors.toList()));
+            //如果为组合接口则填充子接口列表：递归方法
+            List<DevInterParam> subList = new ArrayList<>();
+            if(INTERFACE_TYPE_PACK.equals(anInterface.getItfType())){
+                //查找所属当前接口的所有子接口
+                List<Interface> interfaceList = subItfs.stream().filter(anInterface1 -> anInterface.getDevType().equals(anInterface1.getDevType()) && anInterface.getItfId().equals(anInterface1.getItfParentId())).collect(Collectors.toList());
+                //开始递归
+                subList = genDevInterParam(interfaceList,subItfs,frameParaInfos,prtclList);
+            }
+            devInterParam.setSubItfList(subList);
+            devInterParams.add(devInterParam);
 
+        });
+        return devInterParams;
+    }
 }
