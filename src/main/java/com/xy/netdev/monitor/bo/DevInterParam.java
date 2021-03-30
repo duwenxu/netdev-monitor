@@ -35,4 +35,7 @@ public class DevInterParam {
 
     @ApiModelProperty(value = "帧参数列表")
     private List<FrameParaInfo> devParamList;
+
+    @ApiModelProperty(value = "子接口列表")
+    private List<DevInterParam> subItfList;
 }
