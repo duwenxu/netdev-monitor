@@ -1,12 +1,20 @@
 package com.xy.netdev.transit.impl;
 
+import cn.hutool.core.convert.Convert;
+import cn.hutool.core.convert.Converter;
 import com.xy.common.exception.BaseException;
+import com.xy.common.util.ConvertUtils;
 import com.xy.netdev.common.constant.SysConfigConstant;
+import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
+import com.xy.netdev.monitor.bo.InterCtrlInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
+import com.xy.netdev.monitor.entity.Interface;
+import com.xy.netdev.monitor.entity.ParaInfo;
+import com.xy.netdev.monitor.service.IInterfaceService;
 import com.xy.netdev.transit.IDataSendService;
 import com.xy.netdev.transit.IDevCmdSendService;
 import org.apache.commons.lang.StringUtils;
@@ -15,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -79,10 +88,27 @@ public class DevCmdSendService implements IDevCmdSendService {
         FrameReqData frameReqData = genFrameReqData(devNo,cmdMark);
         dataSendService.interfaceQuerySend(frameReqData);
     }
+
+    /**
+     * 接口设置发送
+     * @param  interCtrlInfo 接口参数信息
+     */
+    @Override
+    public void interfaceCtrSend(InterCtrlInfo interCtrlInfo) {
+        FrameReqData frameReqData = genFrameReqData(interCtrlInfo.getDevNo(),interCtrlInfo.getCmdMark());
+        String devType = frameReqData.getDevType();
+        for (FrameParaData para : interCtrlInfo.getParaInfos()) {
+            FrameParaInfo detail = BaseInfoContainer.getParaInfoByNo(devType,para.getDevNo());
+            para.setLen(Integer.parseInt(detail.getParaByteLen()));
+            para.setDevNo(interCtrlInfo.getDevNo());
+            para.setDevType(devType);
+        }
+        dataSendService.interfaceCtrlSend(frameReqData);
+    }
+
     /**
      * 生成协议解析请求数据
      * @param  devNo   设备编号
-     * @param  cmdMark 命令标识
      * @return  协议解析请求数据
      */
     private  FrameReqData  genFrameReqData(String devNo,String cmdMark){

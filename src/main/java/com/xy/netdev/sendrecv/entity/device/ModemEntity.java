@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 调制解调器头
+ * 650-调制解调器头
  * @author cc
  */
 @Setter
