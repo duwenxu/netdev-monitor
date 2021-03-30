@@ -20,10 +20,18 @@ public interface MonitorConstants {
     /**
      * 接口类型
      */
-    /**查询*/
-    String QUERY = "0027001";
-    /**控制*/
-    String SET = "0027002";
+    /**独立查询*/
+    String SINGLE_QUERY = "0027001";
+    /**独立控制*/
+    String SINGLE_SET = "0027002";
+    /**页面查询接口*/
+    String PAGE_QUERY = "0027003";
+    /**组装查询接口*/
+    String PACKAGE_QUERY = "0027004";
+    /**组装控制接口*/
+    String PACKAGE_SET = "0027005";
+    /**子接口*/
+    String SUB_QUERY = "0027006";
 
     /**
      * 设备类型
