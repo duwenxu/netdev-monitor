@@ -42,10 +42,11 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
      */
     @Override
     public IPage<Interface> queryPageListAll(IPage<Interface> page, HttpServletRequest req, Interface interfaceInfo) {
+        //拿到接口标志：这样写为了解决此字段不是数据库字段问题
+        String iftFlag = interfaceInfo.getItfFlag();
+        interfaceInfo.setItfFlag(null);
         QueryWrapper<Interface> queryWrapper = QueryGenerator.initQueryWrapper(interfaceInfo, req.getParameterMap());
-        if("-1".equals(interfaceInfo.getItfFlag())){
-            queryWrapper.isNotNull("ITF_PARENT_ID");
-        }else{
+        if(!"-1".equals(iftFlag)){
             queryWrapper.isNull("ITF_PARENT_ID");
         }
         return this.page(page, queryWrapper);
