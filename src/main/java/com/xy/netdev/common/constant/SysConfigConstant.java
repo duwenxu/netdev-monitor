@@ -363,12 +363,12 @@ public interface SysConfigConstant {
     String RPT_DEV_STATUS_WORKSTATUS_YES = "0";
 
     /**
-     * 调制解调器控制成功响应--code
+     * 调制解调器、车载卫星天线控制成功响应--code
      */
     String CONTROL_SUCCESS = "0061000";
 
     /**
-     * 调制解调器控制失败响应--code
+     * 调制解调器、车载卫星天线控制失败响应--code
      */
     String CONTROL_FAIL = "0061001";
 
