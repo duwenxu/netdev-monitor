@@ -7,9 +7,13 @@ import com.xy.common.helper.ControllerResultWrapper;
 import com.xy.common.model.Result;
 import com.xy.netdev.common.util.JwtUtil;
 import com.xy.netdev.container.BaseContainerLoader;
+import com.xy.netdev.monitor.bo.InterCtrlInfo;
+import com.xy.netdev.monitor.bo.ParaViewInfo;
 import com.xy.netdev.monitor.bo.TransUiData;
 import com.xy.netdev.monitor.entity.Interface;
+import com.xy.netdev.monitor.entity.ParaInfo;
 import com.xy.netdev.monitor.service.IInterfaceService;
+import com.xy.netdev.transit.IDevCmdSendService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +35,8 @@ public class InterfaceController {
 
     @Autowired
     private IInterfaceService targetService;
+    @Autowired
+    private IDevCmdSendService devCmdSendService;
     @Autowired
     private BaseContainerLoader BaseInfo;
 
@@ -120,6 +126,16 @@ public class InterfaceController {
         //目前暂时这样，后续有优化方案再继续
         BaseInfo.load();
         return ControllerResultWrapper.genOkResult();
+    }
+
+    /**
+     * 设置设备参数
+     */
+    @ApiOperation(value = "设置设备参数", notes = "设置设备参数")
+    @PutMapping(value = "/interfaceCtrl")
+    public Result<ParaInfo> paraCtrl(InterCtrlInfo interCtrlInfo) {
+        devCmdSendService.interfaceCtrSend(interCtrlInfo);
+        return ControllerResultWrapper.genUpdateResult();
     }
 
 }
