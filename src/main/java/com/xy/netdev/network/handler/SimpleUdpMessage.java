@@ -3,7 +3,9 @@ package com.xy.netdev.network.handler;
 import cn.hutool.core.clone.CloneSupport;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.NetUtil;
+import com.xy.netdev.common.util.BeanFactoryUtil;
 import com.xy.netdev.container.BaseInfoContainer;
+import com.xy.netdev.sendrecv.disruptor.DisruptorHandler;
 import com.xy.netdev.sendrecv.entity.SocketEntity;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import io.netty.buffer.ByteBufUtil;
@@ -34,6 +36,7 @@ public class SimpleUdpMessage extends SimpleChannelInboundHandler<DatagramPacket
             .map(BaseInfo::getDevIpAddr)
             .collect(Collectors.toSet());
 
+    private final DisruptorHandler disruptorHandler = BeanFactoryUtil.getBean(DisruptorHandler.class);
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
@@ -62,7 +65,7 @@ public class SimpleUdpMessage extends SimpleChannelInboundHandler<DatagramPacket
         socketEntity.setRemoteAddress(remoteAddress);
         socketEntity.setBytes(bytes);
         //数据放入队列
-        SOCKET_QUEUE.offer(socketEntity, 1, TimeUnit.SECONDS);
+        disruptorHandler.push(socketEntity);
     }
 
 

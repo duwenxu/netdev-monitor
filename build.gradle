@@ -23,6 +23,7 @@ dependencies {
 	compile 'dom4j:dom4j:1.6.1'
 	compile 'org.projectlombok:lombok:1.18.18'
 	implementation 'cn.hutool:hutool-core:5.5.8'
+	implementation 'com.lmax:disruptor:3.4.2'
 }
 
 test {

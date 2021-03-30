@@ -3,6 +3,7 @@ package com.xy.netdev.sendrecv.entity;
 import cn.hutool.core.clone.CloneRuntimeException;
 import cn.hutool.core.clone.CloneSupport;
 import cn.hutool.core.clone.Cloneable;
+import com.lmax.disruptor.EventFactory;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,7 +14,7 @@ import lombok.Setter;
  */
 @Setter
 @Getter
-public class SocketEntity extends CloneSupport<SocketEntity> {
+public class SocketEntity extends CloneSupport<SocketEntity>  {
     @ApiModelProperty("本地端口")
     private Integer localPort;
 
@@ -27,7 +28,7 @@ public class SocketEntity extends CloneSupport<SocketEntity> {
     private byte[] bytes;
 
 
-  public static class SocketEntityFactory{
+    public static class SocketEntityFactory{
     private static final SocketEntity ENTITY = new SocketEntity();
     public static SocketEntity cloneable(){
         return ENTITY.clone();
