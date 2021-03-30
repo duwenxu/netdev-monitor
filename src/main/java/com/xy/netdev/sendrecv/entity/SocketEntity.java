@@ -1,9 +1,7 @@
 package com.xy.netdev.sendrecv.entity;
 
-import cn.hutool.core.clone.CloneRuntimeException;
+
 import cn.hutool.core.clone.CloneSupport;
-import cn.hutool.core.clone.Cloneable;
-import com.lmax.disruptor.EventFactory;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
