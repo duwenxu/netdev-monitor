@@ -1,7 +1,10 @@
 package com.xy.netdev.transit;
 
 
+import com.xy.netdev.monitor.bo.InterCtrlInfo;
+import com.xy.netdev.monitor.entity.ParaInfo;
 
+import java.util.List;
 
 /**
  * <p>
@@ -33,6 +36,12 @@ public interface IDevCmdSendService {
      * @param  cmdMark 命令标识
      */
     void interfaceQuerySend(String devNo,String cmdMark);
+
+    /**
+     * 接口设置发送
+     * @param  interCtrlInfo 接口设置信息
+     */
+    void interfaceCtrSend(InterCtrlInfo interCtrlInfo);
 
 
 }

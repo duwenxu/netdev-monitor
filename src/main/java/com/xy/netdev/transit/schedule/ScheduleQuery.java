@@ -1,7 +1,6 @@
 package com.xy.netdev.transit.schedule;
 
-import cn.hutool.core.thread.ThreadUtil;
-import cn.hutool.core.util.HexUtil;
+import cn.hutool.core.collection.ConcurrentHashSet;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
@@ -13,17 +12,20 @@ import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.entity.PrtclFormat;
 import com.xy.netdev.transit.IDevCmdSendService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+
+import static com.xy.netdev.monitor.constant.MonitorConstants.*;
 
 /**
  * 设备状态定时查询发起类
@@ -33,7 +35,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Component
-public class ScheduleQuery  implements ApplicationRunner  {
+public class ScheduleQuery implements ApplicationRunner {
 
     @Autowired
     private IDevCmdSendService devCmdSendService;
@@ -71,6 +73,10 @@ public class ScheduleQuery  implements ApplicationRunner  {
                     continue;
                 }
                 String cmdMark = frameParaInfo.getCmdMark();
+                if (StringUtils.isEmpty(cmdMark)){
+                    log.warn("设备编号：{}--参数编号：{}的cmdMark为空",base.getDevNo(),frameParaInfo.getParaNo());
+                    continue;
+                }
                 FrameParaData paraData = FrameParaData.builder()
                         .devNo(base.getDevNo())
                         .devType(base.getDevType())
@@ -84,12 +90,18 @@ public class ScheduleQuery  implements ApplicationRunner  {
             }
 
             //获取所有查询接口
+            List<String> interTypes = Arrays.asList(SINGLE_QUERY, PAGE_QUERY, PACKAGE_QUERY);
             List<Interface> interfacesByDevType = BaseInfoContainer.getInterfacesByDevType(base.getDevType());
-            List<Interface> queryIntersByDevType = interfacesByDevType.stream().filter(inter -> MonitorConstants.QUERY.equals(inter.getItfType())).collect(Collectors.toList());
+            List<Interface> queryIntersByDevType = interfacesByDevType.stream()
+                    .filter(inter -> interTypes.contains(inter.getItfType())).collect(Collectors.toList());
             //接口查询对象封装
             for (Interface item : queryIntersByDevType) {
                 //获取接口对应的格式协议及处理类
                 String cmdMark = item.getItfCmdMark();
+                if (StringUtils.isEmpty(cmdMark)){
+                    log.warn("接口编号：{}的cmdMark为空",item.getItfId());
+                    continue;
+                }
                 PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterface(base.getDevType(), cmdMark);
                 if (prtclFormat == null) {
                     continue;

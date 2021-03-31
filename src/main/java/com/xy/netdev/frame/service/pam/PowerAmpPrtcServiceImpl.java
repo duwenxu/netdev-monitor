@@ -63,10 +63,11 @@ public class PowerAmpPrtcServiceImpl implements IParaPrtclAnalysisService {
         FrameParaData paraData = paraList.get(0);
         FrameParaInfo paraInfoByNo = BaseInfoContainer.getParaInfoByNo(paraData.getDevType(), paraData.getParaNo());
         String dataType = paraInfoByNo.getDataType();
-        byte[] bytes = new byte[0];
+        byte[] bytes = HexUtil.decodeHex(reqInfo.getCmdMark());
         //此处只有 衰减可设置
         if (dataType.equals(STR)) {
-            bytes = StrUtil.bytes(paraData.getParaVal());
+            byte[] valBytes = StrUtil.bytes(paraData.getParaVal());
+            bytes = bytesMerge(bytes,valBytes);
         } else if (dataType.equals(BYTE)) {
             //功放开关设置 直接发送状态位 80关/81开
             String byteVal = "0".equals(paraData.getParaVal())? "80":"81";
@@ -97,6 +98,18 @@ public class PowerAmpPrtcServiceImpl implements IParaPrtclAnalysisService {
         return respData;
     }
 
+    /**
+     * 合并两个byte[]
+     * @param bytes1 数组1
+     * @param bytes2 数组2
+     * @return 合并的数组
+     */
+    private byte[] bytesMerge(byte[] bytes1,byte[] bytes2){
+        byte[] bytes = new byte[bytes1.length + bytes2.length];
+        System.arraycopy(bytes1, 0, bytes, 0, bytes1.length);
+        System.arraycopy(bytes2, 0, bytes, bytes1.length, bytes2.length);
+        return bytes;
+    }
 
     public static void main(String[] args) {
         byte[] bytes = {0x32, 0x30, 0x2E, 0x30, 0x30};

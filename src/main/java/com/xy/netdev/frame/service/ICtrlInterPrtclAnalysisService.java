@@ -15,9 +15,9 @@ public interface ICtrlInterPrtclAnalysisService {
 
     /**
      * 控制协议
-     * @param  reqInfo   请求参数信息
+     * @param  reqData   请求参数信息
      */
-    void ctrlPara(FrameReqData reqInfo);
+    void ctrlPara(FrameReqData reqData);
     /**
      * 控制响应协议
      * @param  respData   协议解析响应数据

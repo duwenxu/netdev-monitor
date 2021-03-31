@@ -41,7 +41,7 @@ public class ScheduleQueryTask implements Runnable {
                 String accessType = data.getAccessType();
                 //分别调用接口或参数查询方法
                 if (SysConfigConstant.ACCESS_TYPE_PARAM.equals(accessType)) {
-                    log.debug("baseInfo query:设备编号：{}-参数指令:{}",data.getDevNo(),data.getCmdMark());
+                    log.debug("baseInfo query:设备编号：{}--参数编号：{}--参数指令:{}",data.getDevNo(),data.getFrameParaList().get(0).getParaNo(),data.getCmdMark());
                     devCmdSendService.paraQuerySend(data.getDevNo(),data.getCmdMark());
                 } else if (SysConfigConstant.ACCESS_TYPE_INTERF.equals(accessType)) {
                     log.debug("baseInfo query:设备编号：{}-接口指令:{}",data.getDevNo(),data.getCmdMark());

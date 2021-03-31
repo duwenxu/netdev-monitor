@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.xy.common.annotation.KeyCode;
 import com.xy.common.annotation.Param;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -158,6 +159,30 @@ public class ParaInfo extends Model<ParaInfo> {
     @ApiModelProperty(value = "关联值")
     @TableField(value = "NDPA_LINK_VAL")
     private String ndpaLinkVal;
+
+    @ApiModelProperty(value = "备注一描述")
+    @TableField(value = "NDPA_REMARK1_DESC")
+    private String ndpaRemark1Desc;
+
+    @ApiModelProperty(value = "备注一数据")
+    @TableField(value = "NDPA_REMARK1_DATA")
+    private String ndpaRemark1Data;
+
+    @ApiModelProperty(value = "备注二描述")
+    @TableField(value = "NDPA_REMARK2_DESC")
+    private String ndpaRemark2Desc;
+
+    @ApiModelProperty(value = "备注二数据")
+    @TableField(value = "NDPA_REMARK2_DATA")
+    private String ndpaRemark2Data;
+
+    @ApiModelProperty(value = "备注三描述")
+    @TableField(value = "NDPA_REMARK3_DESC")
+    private String ndpaRemark3Desc;
+
+    @ApiModelProperty(value = "备注三数据")
+    @TableField(value = "NDPA_REMARK3_DATA")
+    private String ndpaRemark3Data;
 
     @ApiModelProperty(value = "设备类型编码")
     @TableField(exist = false)
