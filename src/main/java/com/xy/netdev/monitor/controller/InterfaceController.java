@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 设备接口 前端控制器
@@ -143,9 +144,9 @@ public class InterfaceController {
      */
     @ApiOperation(value = "查询设备的页面查询接口", notes = "查询设备的组装控制接口")
     @PutMapping(value = "/getPageItfInfo")
-    public Result<ParaInfo> getPageItfInfo(BaseInfo baseInfo) {
-        targetService.getPageItfInfo(baseInfo);
-        return ControllerResultWrapper.genUpdateResult();
+    public Result<Map<String,Object>> getPageItfInfo(BaseInfo baseInfo) {
+        Map<String,Object> map = targetService.getPageItfInfo(baseInfo);
+        return ControllerResultWrapper.genGetOneResult(map);
     }
 
     /**

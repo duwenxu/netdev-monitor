@@ -7,6 +7,7 @@ import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.Interface;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 设备接口 服务类
@@ -42,10 +43,10 @@ public interface IInterfaceService extends IService<Interface> {
     /**
      * 查询设备的页面查询接口参数实时信息
      */
-    void getPageItfInfo(BaseInfo baseInfo);
+    Map<String,Object> getPageItfInfo(BaseInfo baseInfo);
 
     /**
-     * 查询设备的页面查询接口参数实时信息
+     * 查询设备的组装控制接口参数实时信息
      */
-    void getCtrlItfInfo(BaseInfo baseInfo);
+    Map<String,Object> getCtrlItfInfo(BaseInfo baseInfo);
 }

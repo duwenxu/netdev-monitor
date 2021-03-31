@@ -2,9 +2,11 @@ package com.xy.netdev.monitor.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.BeanUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xy.common.query.QueryGenerator;
 import com.xy.netdev.container.BaseInfoContainer;
+import com.xy.netdev.container.PageInfoContainer;
 import com.xy.netdev.monitor.bo.TransUiData;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.Interface;
@@ -17,9 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import static com.xy.netdev.common.constant.SysConfigConstant.*;
 
@@ -83,16 +83,32 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
      * 查询设备的页面查询接口参数实时信息
      */
     @Override
-    public void getPageItfInfo(BaseInfo baseInfo) {
-        BaseInfoContainer.getPageItfInfo(baseInfo.getDevNo());
+    public Map<String,Object> getPageItfInfo(BaseInfo baseInfo) {
+        Map<String,Object> map = new HashMap<>();
+        //合并设备信息
+        map.putAll(BeanUtils.beanToMap(baseInfo));
+        //合并接口信息
+        Interface anInterface = BaseInfoContainer.getPageItfInfo(baseInfo.getDevNo());
+        map.putAll(BeanUtils.beanToMap(anInterface));
+        //存放数据
+        map.put("data", PageInfoContainer.getPageInfo(baseInfo.getDevNo(),anInterface.getItfCode()));
+        return map;
     }
 
     /**
-     * 查询设备的页面查询接口参数实时信息
+     * 查询设备的组装控制接口参数实时信息
      */
     @Override
-    public void getCtrlItfInfo(BaseInfo baseInfo) {
-        BaseInfoContainer.getCtrlItfInfo(baseInfo.getDevNo());
+    public Map<String,Object> getCtrlItfInfo(BaseInfo baseInfo) {
+        Map<String,Object> map = new HashMap<>();
+        //合并设备信息
+        map.putAll(BeanUtils.beanToMap(baseInfo));
+        //合并接口信息
+        Interface anInterface = BaseInfoContainer.getCtrlItfInfo(baseInfo.getDevNo());
+        map.putAll(BeanUtils.beanToMap(anInterface));
+        //存放数据
+        map.put("data", PageInfoContainer.getPageInfo(baseInfo.getDevNo(),anInterface.getItfCode()));
+        return map;
     }
 
     /**
