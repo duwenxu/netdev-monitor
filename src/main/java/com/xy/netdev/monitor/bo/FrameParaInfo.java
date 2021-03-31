@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import java.util.List;
 import java.util.Map;
 
 
@@ -92,6 +93,14 @@ public class FrameParaInfo {
     @ApiModelProperty(value = "下拉值域")
     private Map<String,Object> selectMap;
 
+    @ApiModelProperty(value = "子参数列表")
+    private List<FrameParaInfo> subParaList;
 
-
+    /**
+     * 增加参数的子参数
+     * @param frameParaInfo
+     */
+    public void addSubPara(FrameParaInfo frameParaInfo){
+        subParaList.add(frameParaInfo);
+    }
 }

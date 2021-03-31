@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xy.common.query.QueryGenerator;
-import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.monitor.bo.TransUiData;
 import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.entity.ParaInfo;
@@ -20,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import static com.xy.netdev.common.constant.SysConfigConstant.*;
 
 /**
  * 设备接口 服务实现类
@@ -48,7 +48,11 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
         interfaceInfo.setItfFlag(null);
         QueryWrapper<Interface> queryWrapper = QueryGenerator.initQueryWrapper(interfaceInfo, req.getParameterMap());
         if(!"-1".equals(iftFlag)){
-            queryWrapper.isNull("ITF_PARENT_ID");
+            //查询非子接口
+            queryWrapper.notIn("ITF_TYPE",INTERFACE_TYPE_SUB);
+        }else{
+            //查询子接口
+            queryWrapper.in("ITF_TYPE",INTERFACE_TYPE_SUB);
         }
         return this.page(page, queryWrapper);
     }
@@ -89,9 +93,9 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
         }
         //获取有效的非子参数的和接口设备类型相同的设备参数列表
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("NDPA_STATUS",SysConfigConstant.STATUS_OK);
+        queryWrapper.eq("NDPA_STATUS",STATUS_OK);
         queryWrapper.eq("DEV_TYPE",anInterface.getDevType());
-        queryWrapper.ne("NDPA_CMPLEX_LEVEL",SysConfigConstant.PARA_COMPLEX_LEVEL_SUB);
+        queryWrapper.ne("NDPA_CMPLEX_LEVEL",PARA_COMPLEX_LEVEL_SUB);
         List<ParaInfo> paraInfos = paraInfoService.list(queryWrapper);
         List<String> finalParaIds = paraIds;
         if(isBing){
