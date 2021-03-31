@@ -441,6 +441,8 @@ public class BaseInfoContainer {
             frameParaInfo.setCmdMark(paraInfo.getNdpaCmdMark()); //命令标识
             frameParaInfo.setParaByteLen(paraInfo.getNdpaByteLen());  // 字节长度
             frameParaInfo.setDataType(paraInfo.getNdpaDatatype());//数值类型
+            frameParaInfo.setNdpaRemark1Desc(paraInfo.getNdpaRemark1Desc());//备注1
+            frameParaInfo.setNdpaRemark1Data(paraInfo.getNdpaRemark1Data());//数据1
             Map map = new HashMap();
             if(!StringUtils.isBlank(paraInfo.getNdpaSelectData())){
                 JSONArray.parseArray(paraInfo.getNdpaSelectData(), ParaSpinnerInfo.class).forEach(paraSpinnerInfo -> map.put(paraSpinnerInfo.getCode(),paraSpinnerInfo.getName()));

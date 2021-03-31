@@ -32,19 +32,13 @@ import static com.xy.netdev.common.util.ByteUtils.*;
 @Service
 @Slf4j
 public class ModemScmmImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData> {
-    /**
-     * 查询/控制响应命令标识
-     */
-    private static final String CONTROL_RES = "81";
-    private static final String QUERY = "82";
-    private static final String QUERY_RES = "83";
 
     @Override
     public void callback(FrameRespData frameRespData, IParaPrtclAnalysisService iParaPrtclAnalysisService, IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService) {
         String operType = frameRespData.getOperType();
         switch (operType) {
             case OPREATE_QUERY_RESP:
-                iParaPrtclAnalysisService.queryParaResponse(frameRespData);
+                iQueryInterPrtclAnalysisService.queryParaResponse(frameRespData);
                 break;
             case OPREATE_CONTROL_RESP:
                 iParaPrtclAnalysisService.ctrlParaResponse(frameRespData);
@@ -63,6 +57,7 @@ public class ModemScmmImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReq
             log.warn("SCMM-2300调制解调器数据帧异常, 响应数据长度错误, 数据体长度:{}, 数据体:{}", bytes.length, HexUtil.encodeHexStr(bytes));
             return frameRespData;
         }
+        //TODO 转义校验
         if (!validAndCheck(socketEntity)) {
             log.warn("SCMM-2300调制解调器数据帧异常，校验和校验错误,  数据体长度:{}, 数据体:{}", bytes.length, HexUtil.encodeHexStr(bytes));
             return frameRespData;
@@ -76,7 +71,7 @@ public class ModemScmmImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReq
         //参数关键字
         Short cmd = bytesToNum(bytes, 4, 1, ByteBuf::readUnsignedByte);
         String hexCmd = HexUtil.toHex(cmd);
-        //数据体
+        //数据体   去掉 命令体+校验字的长度(设置单元-信息体)
         byte[] paramBytes = byteArrayCopy(bytes, 3, hexLen - 2);
         frameRespData.setParamBytes(paramBytes);
         frameRespData.setCmdMark(hexCmd);
@@ -88,7 +83,10 @@ public class ModemScmmImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReq
     public byte[] pack(FrameReqData frameReqData) {
         byte[] paramBytes = frameReqData.getParamBytes();
         //业务层内容包括 设置单元 + 关键字 + 信息体
-        int dataLen = paramBytes.length;
+        int dataLen = 0;
+        if (paramBytes!=null){
+            dataLen = paramBytes.length;
+        }
         int frameLenField = dataLen + 2;
 
         String operType = frameReqData.getOperType();
@@ -97,7 +95,8 @@ public class ModemScmmImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReq
         //获取参数协议
         PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameReqData.getDevType(), frameReqData.getCmdMark());
         FrameParaInfo paraInfo = BaseInfoContainer.getParaInfoByCmd(frameReqData.getDevType(), frameReqData.getCmdMark());
-        //todo 设备参数添加所属子单元
+        //备注1 单元编码
+        String unitCode = paraInfo.getNdpaRemark1Data();
         if (prtclFormat == null || prtclFormat.getFmtId() == null) {
             throw new BaseException("设备类型为" + frameReqData.getDevType() + "，参数命令为" + frameReqData.getCmdMark() + "协议格式获取失败...");
         }
@@ -110,13 +109,14 @@ public class ModemScmmImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReq
                 .beginOffset((byte) 0x7E)
                 .length((byte) frameLenField)
                 .cmd((byte) Integer.parseInt(keyWord, 16))
-                .unit((byte)Integer.parseInt(paraInfo.getParaVal(),16))  //todo
+                .unit((byte) Integer.parseInt(unitCode, 16))
                 .value(paramBytes)
                 .end((byte) 0x7E)
                 .build();
         //累加校验和
         byte checkSum = addGetBottom(modemScmmEntity);
         modemScmmEntity.setCheck(checkSum);
+        //TODO 转义
         return pack(modemScmmEntity);
     }
 
@@ -160,7 +160,6 @@ public class ModemScmmImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReq
      */
     private boolean validAndCheck(SocketEntity socketEntity) {
         byte[] bytes = socketEntity.getBytes();
-        //todo 接受和发送的转意规则
         return false;
     }
 
