@@ -81,6 +81,16 @@ public class BaseInfoContainer {
     private static Map<String, List<FrameParaInfo>> devTypeParamMap = new HashMap<>();
 
     /**
+     * 参数map K设备序号 V接口(类型为页面查询接口)
+     */
+    private static Map<String, Interface> devPageItfMap = new HashMap<>();
+
+    /**
+     * 参数map K设备序号 V接口(类型为组装控制接口)
+     */
+    private static Map<String, Interface> devAssConItfMap = new HashMap<>();
+
+    /**
      * @功能：当系统启动时,进行初始化各设备日志
      */
     public static void init(List<BaseInfo> devs,List<ParaInfo> paraInfos,List<Interface> interfaces,List<PrtclFormat> prtclList){
@@ -460,7 +470,14 @@ public class BaseInfoContainer {
             frameParaInfo.setTransRule(paraInfo.getNdpaTransRule()); //内外转换值域
             frameParaInfo.setAlertPara(paraInfo.getNdpaAlertPara()); //状态上报类型
             frameParaInfo.setAlertLevel(paraInfo.getNdpaAlertLevel());
-            frameParaInfos.add(frameParaInfo);
+            frameParaInfo.setSubParaList(new ArrayList<>());
+            if(paraInfo.getNdpaCmplexLevel().equals(PARA_COMPLEX_LEVEL_SUB)){
+                frameParaInfos.stream().filter(paraInfo1 -> paraInfo.getNdpaParentNo().equals(paraInfo1.getParaNo()) && paraInfo.getDevType().equals(paraInfo1.getDevType())).collect(Collectors.toList()).forEach(frameParaInfo1 -> {
+                    frameParaInfo1.addSubPara(frameParaInfo);
+                });
+            }else{
+                frameParaInfos.add(frameParaInfo);
+            }
         });
         return frameParaInfos;
     }
@@ -497,7 +514,7 @@ public class BaseInfoContainer {
                     .collect(Collectors.toList()));
             //如果为组合接口则填充子接口列表：递归方法
             List<DevInterParam> subList = new ArrayList<>();
-            if(INTERFACE_TYPE_PACK.equals(anInterface.getItfType())){
+            if(INTERFACE_TYPE_PACK_QUERY.equals(anInterface.getItfType())){
                 //查找所属当前接口的所有子接口
                 List<Interface> interfaceList = subItfs.stream().filter(anInterface1 -> anInterface.getDevType().equals(anInterface1.getDevType()) && anInterface.getItfId().equals(anInterface1.getItfParentId())).collect(Collectors.toList());
                 //开始递归
