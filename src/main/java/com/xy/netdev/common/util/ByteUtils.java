@@ -295,6 +295,11 @@ public class ByteUtils {
         }
     }
 
+    /**
+     * 数组转十六进制字符串并补全
+     * @param num
+     * @return
+     */
     public static String numToHexStr(long num){
         return StringUtils.leftPad(HexUtil.toHex(num), 2,'0').toUpperCase();
     }
@@ -338,6 +343,19 @@ public class ByteUtils {
 
     public static String byteToBinary(byte b){
         return byteToBinary(b, 8);
+    }
+
+    /**
+     * 合并两个byte[]
+     * @param bytes1 数组1
+     * @param bytes2 数组2
+     * @return 合并的数组
+     */
+    public static byte[] bytesMerge(byte[] bytes1,byte[] bytes2){
+        byte[] bytes = new byte[bytes1.length + bytes2.length];
+        System.arraycopy(bytes1, 0, bytes, 0, bytes1.length);
+        System.arraycopy(bytes2, 0, bytes, bytes1.length, bytes2.length);
+        return bytes;
     }
 
 }

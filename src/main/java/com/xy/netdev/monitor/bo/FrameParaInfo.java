@@ -87,8 +87,14 @@ public class FrameParaInfo {
     @ApiModelProperty(value = "数值类型")
     private String dataType;
 
+    @ApiModelProperty(value = "备注一描述")
+    private String ndpaRemark1Desc;
+
+    @ApiModelProperty(value = "备注一数据")
+    private String ndpaRemark1Data;
+
     /**
-     *  下拉框显示数据,当显示模式 是0024002 需要赋值下拉框列表
+     * 下拉框显示数据,当显示模式 是0024002 需要赋值下拉框列表
      */
     @ApiModelProperty(value = "下拉值域")
     private Map<String,Object> selectMap;
