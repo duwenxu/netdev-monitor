@@ -104,6 +104,8 @@ public class BaseInfoContainer {
         addDevTypeParaMap(frameParaInfos);
         //加载设备参数信息
         addParaMap(frameParaInfos);
+        //加载页面查询接口和组合控制接口缓存
+        addDevNoItfMap(devs,interfaces);
         //加载设备接口参数信息
         //获取非子接口
         List<Interface> iftParents = interfaces.stream().filter(anInterface -> anInterface.getItfParentId() == null).collect(Collectors.toList());
@@ -167,6 +169,29 @@ public class BaseInfoContainer {
         //循环设备类型
         devTypes.forEach(devType->{
             devTypeParamMap.put(devType,paraList.stream().filter(paraInfo -> paraInfo.getDevType().equals(devType)).collect(Collectors.toList()));
+        });
+    }
+
+    /**
+     * @功能：添加设备序号对应的页面查询接口
+     * @param devList  设备列表
+     * @param interfaces  接口列表
+     * @return
+     */
+    public static void addDevNoItfMap(List<BaseInfo> devList, List<Interface> interfaces) {
+        devList.forEach(baseInfo -> {
+            try {
+                List<Interface> pageInterfaces = interfaces.stream().filter(anInterface -> baseInfo.getDevType().equals(anInterface.getDevType()) && INTERFACE_TYPE_PAGE_QUERY.equals(anInterface.getItfType())).collect(Collectors.toList());
+                if(pageInterfaces.size() > 0){
+                    devPageItfMap.put(baseInfo.getDevNo(),pageInterfaces.get(0));
+                }
+                List<Interface> ctrlInterfaces = interfaces.stream().filter(anInterface -> baseInfo.getDevType().equals(anInterface.getDevType()) && INTERFACE_TYPE_PACK_CTRL.equals(anInterface.getItfType())).collect(Collectors.toList());
+                if(ctrlInterfaces.size() >0){
+                    devAssConItfMap.put(baseInfo.getDevNo(),ctrlInterfaces.get(0));
+                }
+            } catch (Exception e) {
+                log.error("设备["+baseInfo.getDevName()+"]设备编号存在异常，请检查:"+e.getMessage());
+            }
         });
     }
 
@@ -241,6 +266,24 @@ public class BaseInfoContainer {
      */
     public static List<Interface> getInterfacesByDevType(String devType) {
         return devTypeInterMap.get(devType) != null ? devTypeInterMap.get(devType) : new ArrayList<>();
+    }
+
+    /**
+     * @功能：根据设备序号 获取页面查询接口
+     * @param devNo   设备序号
+     * @return  接口列表
+     */
+    public static Interface getPageItfInfo(String devNo) {
+        return devPageItfMap.get(devNo) != null ? devPageItfMap.get(devNo) : new Interface();
+    }
+
+    /**
+     * @功能：根据设备序号 获取组装控制接口
+     * @param devNo   设备序号
+     * @return  接口列表
+     */
+    public static Interface getCtrlItfInfo(String devNo) {
+        return devAssConItfMap.get(devNo) != null ? devAssConItfMap.get(devNo) : new Interface();
     }
 
     /**

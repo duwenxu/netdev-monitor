@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xy.common.query.QueryGenerator;
+import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.monitor.bo.TransUiData;
+import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.entity.ParaInfo;
 import com.xy.netdev.monitor.mapper.InterfaceMapper;
@@ -75,6 +77,22 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
     @Override
     public List<TransUiData> getUnlinkedParams(String id) {
         return formatTransUiData(id,false,false);
+    }
+
+    /**
+     * 查询设备的页面查询接口参数实时信息
+     */
+    @Override
+    public void getPageItfInfo(BaseInfo baseInfo) {
+        BaseInfoContainer.getPageItfInfo(baseInfo.getDevNo());
+    }
+
+    /**
+     * 查询设备的页面查询接口参数实时信息
+     */
+    @Override
+    public void getCtrlItfInfo(BaseInfo baseInfo) {
+        BaseInfoContainer.getCtrlItfInfo(baseInfo.getDevNo());
     }
 
     /**
