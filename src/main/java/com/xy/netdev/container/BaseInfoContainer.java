@@ -87,12 +87,12 @@ public class BaseInfoContainer {
     /**
      * 参数map K设备序号 V接口(类型为页面查询接口)
      */
-    private static Map<String, Interface> devPageItfMap = new HashMap<>();
+    private static Map<String, List<Interface>> devPageItfMap = new HashMap<>();
 
     /**
      * 参数map K设备序号 V接口(类型为组装控制接口)
      */
-    private static Map<String, Interface> devAssConItfMap = new HashMap<>();
+    private static Map<String, List<Interface>> devAssConItfMap = new HashMap<>();
 
     /**
      * @功能：当系统启动时,进行初始化各设备日志
@@ -197,16 +197,12 @@ public class BaseInfoContainer {
                         .filter(anInterface -> baseInfo.getDevType().equals(anInterface.getDevType())
                                 && INTERFACE_TYPE_PAGE_QUERY.equals(anInterface.getItfType()))
                         .collect(Collectors.toList());
-                if (pageInterfaces.size() > 0) {
-                    devPageItfMap.put(baseInfo.getDevNo(), pageInterfaces.get(0));
-                }
+                devPageItfMap.put(baseInfo.getDevNo(), pageInterfaces);
                 List<Interface> ctrlInterfaces = interfaces.stream()
                         .filter(anInterface -> baseInfo.getDevType().equals(anInterface.getDevType())
                                 && INTERFACE_TYPE_PACK_CTRL.equals(anInterface.getItfType()))
                         .collect(Collectors.toList());
-                if (ctrlInterfaces.size() > 0) {
-                    devAssConItfMap.put(baseInfo.getDevNo(), ctrlInterfaces.get(0));
-                }
+                devAssConItfMap.put(baseInfo.getDevNo(), ctrlInterfaces);
             } catch (Exception e) {
                 log.error("设备[" + baseInfo.getDevName() + "]设备编号存在异常，请检查:" + e.getMessage());
             }
@@ -292,8 +288,8 @@ public class BaseInfoContainer {
      * @return 接口列表
      * @功能：根据设备序号 获取页面查询接口
      */
-    public static Interface getPageItfInfo(String devNo) {
-        return devPageItfMap.get(devNo) != null ? devPageItfMap.get(devNo) : new Interface();
+    public static List<Interface> getPageItfInfo(String devNo) {
+        return devPageItfMap.get(devNo) != null ? devPageItfMap.get(devNo) : new ArrayList();
     }
 
     /**
@@ -301,8 +297,8 @@ public class BaseInfoContainer {
      * @return 接口列表
      * @功能：根据设备序号 获取组装控制接口
      */
-    public static Interface getCtrlItfInfo(String devNo) {
-        return devAssConItfMap.get(devNo) != null ? devAssConItfMap.get(devNo) : new Interface();
+    public static List<Interface> getCtrlItfInfo(String devNo) {
+        return devAssConItfMap.get(devNo) != null ? devAssConItfMap.get(devNo) : new ArrayList();
     }
 
     /**

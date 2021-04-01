@@ -43,10 +43,10 @@ public interface IInterfaceService extends IService<Interface> {
     /**
      * 查询设备的页面查询接口参数实时信息
      */
-    Map<String,Object> getPageItfInfo(BaseInfo baseInfo);
+    List getPageItfInfo(BaseInfo baseInfo);
 
     /**
      * 查询设备的组装控制接口参数实时信息
      */
-    Map<String,Object> getCtrlItfInfo(BaseInfo baseInfo);
+    List getCtrlItfInfo(BaseInfo baseInfo);
 }

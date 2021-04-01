@@ -23,12 +23,12 @@ public class PageInfoContainer {
     /**
      * @功能：添加页面缓存信息
      * @param devNo           设备编号
-     * @param interCode       接口编码
+     * @param cmdMark       命令标识
      * @param contextStr      设备告警信息
      * @return 是否变化 true 变化  false 未变化
      */
-    public synchronized static boolean addPageInfo(String devNo,String interCode,String contextStr) {
-        String key = ParaHandlerUtil.genLinkKey(devNo, interCode);
+    public synchronized static boolean addPageInfo(String devNo,String cmdMark,String contextStr) {
+        String key = ParaHandlerUtil.genLinkKey(devNo, cmdMark);
         if(pageInfoMap.containsKey(key)){
             if(!pageInfoMap.get(key).equals(contextStr)){
                 pageInfoMap.put(key,contextStr);
@@ -45,15 +45,15 @@ public class PageInfoContainer {
 
     /**
      * @功能：根据设备编号 和 接口编码 获取最新的自定义页面缓存信息
-     * @param devNo           设备编号
-     * @param interCode       接口编码
+     * @param devNo         设备编号
+     * @param cmdMark       命令标识
      * @return  自定义页面缓存信息
      */
-    public static String  getPageInfo(String devNo,String interCode){
-        String key = ParaHandlerUtil.genLinkKey(devNo, interCode);
+    public static String  getPageInfo(String devNo,String cmdMark){
+        String key = ParaHandlerUtil.genLinkKey(devNo, cmdMark);
         if(pageInfoMap.containsKey(key)){
             return pageInfoMap.get(key);
         }
-        throw new BaseException("设备编号:"+devNo+" 页面接口编码:"+interCode+"没有页面信息!");
+        throw new BaseException("设备编号:"+devNo+" 命令标识:"+cmdMark+"没有页面信息!");
     }
 }
