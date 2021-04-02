@@ -144,15 +144,19 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
                 //给type节点增加属性值
                 typeMap.put("-name",sysParamService.getParaName(parainfo.getNdpaDatatype()));
                 //当数据类型为字符串指定字符串的len
-                if("0023004".equals(parainfo.getNdpaDatatype())){
+                if(SysConfigConstant.PARA_DATA_TYPE_STR.equals(parainfo.getNdpaDatatype())){
                     typeMap.put("-len",parainfo.getNdpaStrLen());
                 }
                 paraMap.put("type",typeMap);
                 /***********************增加showModel节点****************************/
                 Map<String,Object> showMap = new LinkedHashMap<>();
                 showMap.put("-name", ParaHandlerUtil.generateEmptyStr(sysParamService.getParaRemark1(parainfo.getNdpaShowMode())));
-                if ("0024002".equals(parainfo.getNdpaShowMode())) {
+                if (SysConfigConstant.PARA_SHOW_MODEL.equals(parainfo.getNdpaShowMode())) {
                     List modelList = new ArrayList();
+                    if(StringUtils.isBlank(parainfo.getNdpaSelectData())){
+                        //throw new BaseException("参数["+parainfo.getNdpaName()+"]的下拉框值域存在异常，请检查！");
+                        return; //foreach中的return相当于continue
+                    }
                     JSONArray.parseArray(parainfo.getNdpaSelectData(), ParaSpinnerInfo.class).forEach(paraSpinnerInfo -> {
                         Map<String, Object> modelMap = new LinkedHashMap<>();
                         //给type节点增加属性值

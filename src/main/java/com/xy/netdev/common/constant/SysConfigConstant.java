@@ -397,5 +397,13 @@ public interface SysConfigConstant {
      */
     String INTERFACE_TYPE_SUB = "0027006";
 
+    /**
+     * 参数数据类型--str
+     */
+    String PARA_DATA_TYPE_STR = "0023004";
 
+    /**
+     * 显示模式--下拉框
+     */
+    String PARA_SHOW_MODEL = "0024002";
 }
