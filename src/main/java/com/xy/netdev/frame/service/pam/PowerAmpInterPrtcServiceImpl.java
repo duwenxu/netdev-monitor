@@ -96,11 +96,11 @@ public class PowerAmpInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
                         Byte statusByte = bytesToNum(bytes, 21, 1, ByteBuf::readByte);
                         //分别对应第 7，6，5位
                         if ("9".equals(paraNo)) {
-                            paraInfo.setParaVal(String.valueOf(statusByte & 1));
+                            paraInfo.setParaVal(String.valueOf(statusByte & 0b1));
                         } else if ("10".equals(paraNo)) {
-                            paraInfo.setParaVal(String.valueOf(statusByte & 8));
+                            paraInfo.setParaVal(String.valueOf(statusByte & 0b1000));
                         } else if ("11".equals(paraNo)) {
-                            paraInfo.setParaVal(String.valueOf(statusByte & 64));
+                            paraInfo.setParaVal(String.valueOf(statusByte & 0b1000000));
                         }
                     }
                     return paraInfo;

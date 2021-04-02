@@ -2,6 +2,7 @@ package com.xy.netdev.sendrecv.base;
 
 import cn.hutool.core.util.HexUtil;
 import com.alibaba.fastjson.JSON;
+import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.factory.ParaPrtclFactory;
@@ -38,6 +39,8 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
 
     @Autowired
     private IDataSendService dataSendService;
+    @Autowired
+    private ISysParamService sysParamService;
 
     @Override
     public void socketRequest(T t, ProtocolRequestEnum requestEnum) {
@@ -170,7 +173,7 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
     protected Optional<ChannelFuture> sendData(T t, byte[] bytes) {
         BaseInfo devInfo = BaseInfoContainer.getDevInfoByNo(t.getDevNo());
         int port = Integer.parseInt(devInfo.getDevPort());
-        return NettyUtil.sendMsg(bytes, port, devInfo.getDevIpAddr(), port, Integer.parseInt(devInfo.getDevNetPtcl()));
+        return NettyUtil.sendMsg(bytes, port, devInfo.getDevIpAddr(), port, Integer.parseInt(sysParamService.getParaRemark1(devInfo.getDevNetPtcl())));
     }
 
     /**

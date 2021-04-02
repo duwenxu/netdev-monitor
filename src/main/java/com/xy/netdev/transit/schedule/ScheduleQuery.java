@@ -12,6 +12,7 @@ import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.entity.PrtclFormat;
 import com.xy.netdev.transit.IDevCmdSendService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -72,6 +73,10 @@ public class ScheduleQuery implements ApplicationRunner {
                     continue;
                 }
                 String cmdMark = frameParaInfo.getCmdMark();
+                if (StringUtils.isEmpty(cmdMark)){
+                    log.warn("设备编号：{}--参数编号：{}的cmdMark为空",base.getDevNo(),frameParaInfo.getParaNo());
+                    continue;
+                }
                 FrameParaData paraData = FrameParaData.builder()
                         .devNo(base.getDevNo())
                         .devType(base.getDevType())
@@ -93,6 +98,10 @@ public class ScheduleQuery implements ApplicationRunner {
             for (Interface item : queryIntersByDevType) {
                 //获取接口对应的格式协议及处理类
                 String cmdMark = item.getItfCmdMark();
+                if (StringUtils.isEmpty(cmdMark)){
+                    log.warn("接口编号：{}的cmdMark为空",item.getItfId());
+                    continue;
+                }
                 PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterface(base.getDevType(), cmdMark);
                 if (prtclFormat == null) {
                     continue;

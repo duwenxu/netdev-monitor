@@ -20,6 +20,7 @@ import com.xy.netdev.rpt.service.IDevStatusReportService;
 import com.xy.netdev.rpt.service.IUpRptPrtclAnalysisService;
 import com.xy.netdev.transit.util.DataHandlerHelper;
 import com.xy.netdev.websocket.send.DevIfeMegSend;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Slf4j
 public class DevStatusReportService implements IDevStatusReportService {
 
     @Autowired
@@ -221,6 +223,7 @@ public class DevStatusReportService implements IDevStatusReportService {
             paraInfo.setParaVal(respData.getParaVal());
             BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(respData.getDevNo());
             String alertDesc = DataHandlerHelper.genAlertDesc(baseInfo,paraInfo);
+            log.warn("告警信息：{}",alertDesc);
             AlertInfo alertInfo = new AlertInfo().builder()
                     .devType(respData.getDevType())
                     .alertLevel(sysParamService.getParaRemark1(paraInfo.getAlertLevel()))
