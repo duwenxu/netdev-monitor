@@ -16,6 +16,7 @@ import com.xy.netdev.monitor.entity.PrtclFormat;
 import com.xy.netdev.network.NettyUtil;
 import com.xy.netdev.sendrecv.base.service.ProtocolPackService;
 import com.xy.netdev.sendrecv.entity.SocketEntity;
+import com.xy.netdev.sendrecv.enums.CallbackTypeEnum;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import com.xy.netdev.transit.IDataSendService;
 import io.netty.channel.ChannelFuture;
@@ -133,8 +134,13 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
             r.setAccessType(SysConfigConstant.ACCESS_TYPE_PARAM);
             iParaPrtclAnalysisService = ParaPrtclFactory.genHandler(prtclFormat.getFmtHandlerClass());
         }else {
-            r.setAccessType(SysConfigConstant.ACCESS_TYPE_INTERF);
-            queryInterPrtclAnalysisService = QueryInterPrtcllFactory.genHandler(prtclFormat.getFmtHandlerClass());
+            switch (getCallbackType(socketEntity.getBytes())){
+                default:
+                    r.setAccessType(SysConfigConstant.ACCESS_TYPE_INTERF);
+                    queryInterPrtclAnalysisService = QueryInterPrtcllFactory.genHandler(prtclFormat.getFmtHandlerClass());
+                    break;
+            }
+
         }
         setReceiveOriginalData(r, socketEntity.getBytes());
         r.setCmdMark(cmdHexStr);
@@ -150,6 +156,16 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
      * @return 转换的cmd
      */
     public String cmdMarkConvert(FrameRespData frameRespData){return frameRespData.getCmdMark();}
+
+
+    /**
+     * 获取头部返回值类型
+     * @param bytes 返回字节
+     * @return 返回值
+     */
+    protected CallbackTypeEnum getCallbackType(byte[] bytes){
+        return CallbackTypeEnum.DEFAULT;
+    }
 
 
     /**
