@@ -38,4 +38,8 @@ public class DevInterParam {
 
     @ApiModelProperty(value = "子接口列表")
     private List<DevInterParam> subItfList;
+
+    public void addFramePara(FrameParaInfo frameParaInfo){
+        devParamList.add(frameParaInfo);
+    }
 }

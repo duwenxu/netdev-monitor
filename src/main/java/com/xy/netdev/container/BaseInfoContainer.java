@@ -574,12 +574,13 @@ public class BaseInfoContainer {
                 devInterParam.setInterfacePrtcl(prtclFormats.get(0));
             }
             //参数列表
+            devInterParam.setDevParamList(new ArrayList());
             List<String> paraIds = StringUtils.isBlank(anInterface.getItfDataFormat()) ? new ArrayList<>() : Arrays.asList(anInterface.getItfDataFormat().split(","));
-            //参数list
+            Map<Integer, FrameParaInfo> frameParaInfoMap = frameParaInfos.stream().collect(Collectors.toMap(FrameParaInfo::getParaId,FrameParaInfo -> FrameParaInfo));
+            paraIds.forEach(paraId->{
+                devInterParam.addFramePara(frameParaInfoMap.get(Integer.valueOf(paraId)));
+            });
             devInterParam.setDevParamList(frameParaInfos.stream().filter(paraInfo -> paraIds.contains(paraInfo.getParaId().toString()))
-                    //此处需要倒叙则增加使用.sorted(Comparator.comparing(FrameParaInfo::getParaNo).reversed())
-                    //此处按照参数序号排序因为设置下标用到
-                    .sorted(Comparator.comparing(paraInfo-> Integer.valueOf(paraInfo.getParaNo())))
                     .collect(Collectors.toList()));
             //如果为组合接口则填充子接口列表：递归方法
             List<DevInterParam> subList = new ArrayList<>();
