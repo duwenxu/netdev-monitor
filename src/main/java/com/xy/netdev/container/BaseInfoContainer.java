@@ -1,6 +1,7 @@
 package com.xy.netdev.container;
 
 import com.alibaba.fastjson.JSONArray;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.xy.common.exception.BaseException;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.util.ParaHandlerUtil;
@@ -11,6 +12,7 @@ import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.entity.ParaInfo;
 import com.xy.netdev.monitor.entity.PrtclFormat;
+import com.xy.netdev.monitor.service.IBaseInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +45,15 @@ public class BaseInfoContainer {
     @Autowired
     public void setSysParamService(ISysParamService sysParamService) {
         this.sysParamService = sysParamService;
+    }
+
+    /**
+     * 设备信息服务类
+     */
+    private static IBaseInfoService baseInfoService;
+    @Autowired
+    public void setBaseInfoService(IBaseInfoService baseInfoService) {
+        this.baseInfoService = baseInfoService;
     }
 
     public static ISysParamService getSysParamService() {
@@ -242,6 +253,20 @@ public class BaseInfoContainer {
             }
             InterLinkParaMap.put(devInterParam.getId(), devInterParam);
         });
+    }
+
+    /**
+     * @param devNo 设备序号
+     * @功能：根据设备IP地址 更改设备信息
+     */
+    public static void updateBaseInfo(String devNo) {
+        BaseInfo baseInfo = baseInfoService.getById(devNo);
+        if(devMap.containsKey(baseInfo.getDevIpAddr()) || devNoMap.containsKey(baseInfo.getDevNo())){
+            devNoMap.put(baseInfo.getDevNo(), baseInfo);
+            devMap.put(baseInfo.getDevIpAddr(), baseInfo);
+        }else{
+            throw new BaseException("缓存中不存在设备["+baseInfo.getDevName()+"]信息！");
+        }
     }
 
     /**
