@@ -39,16 +39,17 @@ public class ReportStatusImpl implements RequestService {
             tempList.add(ByteUtils.objToBytes(devStatusInfo.getDevNo(), 1));
             //设备状态
             String binaryStr = "000"+
-                    //是否中断
-                    devStatusInfo.getIsInterrupt() +
-                    //是否告警
-                    devStatusInfo.getIsAlarm() +
-                    //是否启用主备
-                    devStatusInfo.getIsUseStandby() +
+                    //工作状态
+                    devStatusInfo.getWorkStatus() +
                     //主用还是备用
                     devStatusInfo.getMasterOrSlave() +
-                    //工作状态
-                    devStatusInfo.getWorkStatus();
+                    //是否启用主备
+                    devStatusInfo.getIsUseStandby() +
+                    //是否告警
+                    devStatusInfo.getIsAlarm() +
+                    //是否中断
+                    devStatusInfo.getIsInterrupt() ;
+
             tempList.add(ByteUtils.objToBytes(Integer.parseInt(binaryStr, 2), 1));
         });
         return ByteUtils.listToBytes(tempList);

@@ -12,8 +12,6 @@ import io.netty.buffer.Unpooled;
 import io.netty.util.ReferenceCountUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.checkerframework.checker.units.qual.C;
-import org.springframework.util.DigestUtils;
 
 import java.io.*;
 import java.math.BigInteger;
@@ -27,11 +25,6 @@ import java.util.function.Function;
 
 @Slf4j
 public class ByteUtils {
-
-
-    public static String mD5(byte[] bytes){
-        return DigestUtils.md5DigestAsHex(bytes);
-    }
 
     public static long intToUnsignedLong(int i){
         return Long.parseUnsignedLong(HexUtil.toHex(i), 16);
@@ -220,7 +213,6 @@ public class ByteUtils {
                 num = at.favre.lib.bytes.Bytes.from(Objects.requireNonNull(byteArrayCopy(bytes, offset, length))).toDouble();
                 break;
             default:
-                log.warn("转换失败, 数据长度{}不匹配", length);
                 break;
         }
         return num;

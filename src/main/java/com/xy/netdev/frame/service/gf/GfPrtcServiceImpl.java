@@ -1,8 +1,11 @@
 package com.xy.netdev.frame.service.gf;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.StrUtil;
+import com.google.common.primitives.Ints;
 import com.xy.netdev.admin.service.ISysParamService;
+import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
@@ -54,6 +57,16 @@ public class GfPrtcServiceImpl implements IParaPrtclAnalysisService {
     @Override
     public FrameRespData ctrlParaResponse(FrameRespData respData) {
         FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(), respData.getCmdMark());
+        String data = HexUtil.encodeHexStr(respData.getParamBytes());
+        String success = sysParamService.getParaRemark1(SysConfigConstant.CONTROL_SUCCESS);
+        String fail = sysParamService.getParaRemark1(SysConfigConstant.CONTROL_FAIL);
+        respData.setRespCode(data);
+        if (success.equals(data)){
+            respData.setRespCode(success);
+        }
+        if (fail.equals(data)){
+            respData.setRespCode(fail);
+        }
         return setRespData(respData, frameParaInfo,0);
     }
 
