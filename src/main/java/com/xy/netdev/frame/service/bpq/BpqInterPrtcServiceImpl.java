@@ -53,7 +53,6 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
         sb.append(BpqPrtcServiceImpl.SEND_START_MARK).append(localAddr).append("/")
                 .append(reqInfo.getCmdMark());
         String command = sb.toString();
-        reqInfo.setAccessType(SysConfigConstant.ACCESS_TYPE_PARAM);
         reqInfo.setParamBytes(command.getBytes());
         socketMutualService.request(reqInfo, ProtocolRequestEnum.QUERY);
     }
