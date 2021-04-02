@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.xy.netdev.monitor.bo.TransUiData;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.Interface;
+import com.xy.netdev.monitor.entity.ParaInfo;
+
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
@@ -49,4 +51,9 @@ public interface IInterfaceService extends IService<Interface> {
      * 查询设备的组装控制接口参数实时信息
      */
     List getCtrlItfInfo(BaseInfo baseInfo);
+
+    /**
+     * 删除掉指定的接口绑定的参数
+     */
+    void clearParaById(ParaInfo paraInfo);
 }
