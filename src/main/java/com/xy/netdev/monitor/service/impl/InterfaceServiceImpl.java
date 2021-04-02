@@ -2,10 +2,14 @@ package com.xy.netdev.monitor.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.BeanUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xy.common.query.QueryGenerator;
-import com.xy.netdev.common.constant.SysConfigConstant;
+import com.xy.netdev.container.BaseInfoContainer;
+import com.xy.netdev.container.PageInfoContainer;
+import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.bo.TransUiData;
+import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.entity.ParaInfo;
 import com.xy.netdev.monitor.mapper.InterfaceMapper;
@@ -16,10 +20,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
+import static com.xy.netdev.common.constant.SysConfigConstant.*;
 
 /**
  * 设备接口 服务实现类
@@ -48,7 +51,11 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
         interfaceInfo.setItfFlag(null);
         QueryWrapper<Interface> queryWrapper = QueryGenerator.initQueryWrapper(interfaceInfo, req.getParameterMap());
         if(!"-1".equals(iftFlag)){
-            queryWrapper.isNull("ITF_PARENT_ID");
+            //查询非子接口
+            queryWrapper.notIn("ITF_TYPE",INTERFACE_TYPE_SUB);
+        }else{
+            //查询子接口
+            queryWrapper.in("ITF_TYPE",INTERFACE_TYPE_SUB);
         }
         return this.page(page, queryWrapper);
     }
@@ -74,6 +81,40 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
     }
 
     /**
+     * 查询设备的页面查询接口参数实时信息
+     */
+    @Override
+    public List getPageItfInfo(BaseInfo baseInfo) {
+        List list = new ArrayList();
+        Map<String,Object> map = new HashMap<>();
+        //合并设备信息
+        map.putAll(BeanUtils.beanToMap(baseInfo));
+        //合并接口信息
+        List<Interface> interfaces = BaseInfoContainer.getPageItfInfo(baseInfo.getDevNo());
+        map.putAll(BeanUtils.beanToMap(interfaces));
+        //存放数据
+        //map.put("data", PageInfoContainer.getPageInfo(baseInfo.getDevNo(),anInterface.getItfCode()));
+        return list;
+    }
+
+    /**
+     * 查询设备的组装控制接口参数实时信息
+     */
+    @Override
+    public List getCtrlItfInfo(BaseInfo baseInfo) {
+        List list = new ArrayList();
+        Map<String,Object> map = new HashMap<>();
+        //合并设备信息
+        map.putAll(BeanUtils.beanToMap(baseInfo));
+        //合并接口信息
+        List<Interface> interfaces = BaseInfoContainer.getCtrlItfInfo(baseInfo.getDevNo());
+        map.putAll(BeanUtils.beanToMap(interfaces));
+        //存放数据
+        //map.put("data", PageInfoContainer.getPageInfo(baseInfo.getDevNo(),anInterface.getItfCode()));
+        return list;
+    }
+
+    /**
      * 设备接口参数绑定数据转换
      * @param id 设备接口id
      * @param isSelect
@@ -89,13 +130,18 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
         }
         //获取有效的非子参数的和接口设备类型相同的设备参数列表
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("NDPA_STATUS",SysConfigConstant.STATUS_OK);
+        queryWrapper.eq("NDPA_STATUS",STATUS_OK);
         queryWrapper.eq("DEV_TYPE",anInterface.getDevType());
-        queryWrapper.ne("NDPA_CMPLEX_LEVEL",SysConfigConstant.PARA_COMPLEX_LEVEL_SUB);
+        queryWrapper.ne("NDPA_CMPLEX_LEVEL",PARA_COMPLEX_LEVEL_SUB);
         List<ParaInfo> paraInfos = paraInfoService.list(queryWrapper);
+        Map<Integer, ParaInfo> frameParaInfoMap = paraInfos.stream().collect(Collectors.toMap(ParaInfo::getNdpaId, ParaInfo -> ParaInfo));
         List<String> finalParaIds = paraIds;
         if(isBing){
-            paraInfos = paraInfos.stream().filter(paraInfo -> finalParaIds.contains(paraInfo.getNdpaId().toString())).collect(Collectors.toList());
+            //置空重新添加数据
+            paraInfos.clear();
+            for (String paraId : finalParaIds){
+                paraInfos.add(frameParaInfoMap.get(Integer.valueOf(paraId)));
+            }
         }else{
             paraInfos = paraInfos.stream().filter(paraInfo -> !finalParaIds.contains(paraInfo.getNdpaId().toString())).collect(Collectors.toList());
         }

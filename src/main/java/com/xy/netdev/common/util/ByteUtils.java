@@ -1,6 +1,9 @@
 package com.xy.netdev.common.util;
 
 import cn.hutool.core.codec.BCD;
+import cn.hutool.core.lang.Assert;
+import cn.hutool.core.lang.Pair;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.HexUtil;
 import com.google.common.primitives.Bytes;
 import io.netty.buffer.ByteBuf;
@@ -9,10 +12,9 @@ import io.netty.buffer.Unpooled;
 import io.netty.util.ReferenceCountUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.checkerframework.checker.units.qual.C;
-import org.springframework.util.DigestUtils;
 
 import java.io.*;
+import java.math.BigInteger;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -23,11 +25,6 @@ import java.util.function.Function;
 
 @Slf4j
 public class ByteUtils {
-
-
-    public static String mD5(byte[] bytes){
-        return DigestUtils.md5DigestAsHex(bytes);
-    }
 
     public static long intToUnsignedLong(int i){
         return Long.parseUnsignedLong(HexUtil.toHex(i), 16);
@@ -103,7 +100,7 @@ public class ByteUtils {
     public static byte[] objToBytes(Object obj, int len, boolean isFloat){
         byte [] data;
         if (len == 1){
-            return new byte[]{Byte.parseByte(obj.toString())};
+            return new byte[]{(byte)Integer.parseInt(obj.toString())};
         }
         ByteOrder byteOrder = Unpooled.BIG_ENDIAN;
 //        if (order != 1) {
@@ -193,17 +190,17 @@ public class ByteUtils {
         Number num = null;
         switch (length){
             case 1:
-                num = bytesToNum(bytes, offset, length, ByteBuf::readByte);
+                num = bytesToNum(bytes, offset, length, ByteBuf::readByte, ByteBuf::readUnsignedByte, isUnsigned);
                 break;
             case 2:
-                num = bytesToNum(bytes, offset, length, ByteBuf::readShort, ByteBuf::readUnsignedByte, isUnsigned);
+                num = bytesToNum(bytes, offset, length, ByteBuf::readShort, ByteBuf::readUnsignedShort, isUnsigned);
                 break;
             case 3:
-                num = bytesToNum(bytes, offset, length, ByteBuf::readMedium, ByteBuf::readUnsignedShort, isUnsigned);
+                num = bytesToNum(bytes, offset, length, ByteBuf::readMedium, ByteBuf::readUnsignedMedium, isUnsigned);
                 break;
             case 4:
                 if (!isFloat){
-                    num = bytesToNum(bytes, offset, length, ByteBuf::readInt, ByteBuf::readUnsignedMedium, isUnsigned);
+                    num = bytesToNum(bytes, offset, length, ByteBuf::readInt, ByteBuf::readUnsignedInt, isUnsigned);
                     break;
                 }
                 num = at.favre.lib.bytes.Bytes.from(Objects.requireNonNull(byteArrayCopy(bytes, offset, length))).toFloat();
@@ -216,7 +213,6 @@ public class ByteUtils {
                 num = at.favre.lib.bytes.Bytes.from(Objects.requireNonNull(byteArrayCopy(bytes, offset, length))).toDouble();
                 break;
             default:
-                log.warn("转换失败, 数据长度{}不匹配", length);
                 break;
         }
         return num;
@@ -295,6 +291,11 @@ public class ByteUtils {
         }
     }
 
+    /**
+     * 数组转十六进制字符串并补全
+     * @param num
+     * @return
+     */
     public static String numToHexStr(long num){
         return StringUtils.leftPad(HexUtil.toHex(num), 2,'0').toUpperCase();
     }
@@ -340,4 +341,110 @@ public class ByteUtils {
         return byteToBinary(b, 8);
     }
 
+    /**
+     * 合并两个byte[]
+     * @param bytes1 数组1
+     * @param bytes2 数组2
+     * @return 合并的数组
+     */
+    public static byte[] bytesMerge(byte[] bytes1,byte[] bytes2){
+        byte[] bytes = new byte[bytes1.length + bytes2.length];
+        System.arraycopy(bytes1, 0, bytes, 0, bytes1.length);
+        System.arraycopy(bytes2, 0, bytes, bytes1.length, bytes2.length);
+        return bytes;
+    }
+
+    /**
+     * 字节替换
+     * @param bytes byte数组
+     * @param pairs 替换字节
+     * @return 替换字节
+     */
+    @SafeVarargs
+    public static byte[] byteReplace(byte[] bytes, Pair<String, String>... pairs){
+        if (ArrayUtil.isEmpty(pairs)){
+            return bytes;
+        }
+        return byteReplace(bytes, pairs[0].getKey().length(), pairs);
+    }
+
+    /**
+     * 字节替换
+     * @param bytes byte数组
+     * @param offset 起始位
+     * @param len 长度
+     * @param pairs 替换字节
+     * @return 校验字节
+     */
+    @SafeVarargs
+    public static byte[] byteReplace(byte[] bytes, int offset, int len, Pair<String, String>... pairs){
+        if (len == bytes.length){
+            return byteReplace(bytes, pairs);
+        }
+        byte[] beginBytes = null;
+        if (offset != 0){
+            beginBytes = byteArrayCopy(bytes, 0, offset);
+        }
+        byte[] checkBytes = byteArrayCopy(bytes, offset, len - offset);
+        byte[] endBytes = byteArrayCopy(bytes, len, bytes.length - len);
+        byte[] resultBytes = byteReplace(checkBytes, pairs);
+        if (beginBytes != null && endBytes != null){
+            return Bytes.concat(beginBytes, resultBytes, endBytes);
+        }
+        if (beginBytes != null){
+            return Bytes.concat(beginBytes, resultBytes);
+        }
+        if (endBytes != null){
+            return Bytes.concat(resultBytes, endBytes);
+        }
+        return resultBytes;
+    }
+
+
+    /**
+     * 字节替换
+     * @param bytes byte数组
+     * @param skip 步长
+     * @param pairs 替换字节序
+     * @return 替换字节序
+     */
+    @SafeVarargs
+    public static byte[] byteReplace(byte[] bytes, int skip, Pair<String, String>... pairs){
+        if (ArrayUtil.isEmpty(pairs)){
+            return bytes;
+        }
+        for (Pair<String, String> pair : pairs) {
+            Assert.isTrue(pair.getKey().length() == skip);
+        }
+        StringBuilder stringBuilder = new StringBuilder();
+        int skipSize = skip / 2;
+        for (int i = 0; i < bytes.length; i = i + skipSize) {
+            byte[] bytesTemp = new byte[skipSize];
+            if (skipSize >= 0) {
+                System.arraycopy(bytes, i, bytesTemp, 0, skipSize);
+            }
+            String encodeHexStr = HexUtil.encodeHexStr(bytesTemp);
+            boolean ifReplace = false;
+            for (Pair<String, String> pair : pairs) {
+                if (pair.getKey().equalsIgnoreCase(encodeHexStr)) {
+                    stringBuilder.append(pair.getValue());
+                    ifReplace = true;
+                    break;
+                }
+            }
+            if (!ifReplace){
+                stringBuilder.append(encodeHexStr);
+            }
+        }
+        return HexUtil.decodeHex(stringBuilder.toString());
+    }
+
+    public static void main(String[] args) {
+        String str = "7E7E7D7E";
+        byte[] bytes = HexUtil.decodeHex(str);
+        byte[] byteReplace = byteReplace(bytes, 1, bytes.length - 1, Pair.of("7E", "7D5E"), Pair.of("7D", "7D5D"));
+        System.out.println(HexUtil.encodeHexStr(byteReplace).toUpperCase());
+        byte[] replace = byteReplace(byteReplace, 1, byteReplace.length - 1, Pair.of("7D5E", "7E"), Pair.of("7D5D", "7D"));
+        System.out.println(HexUtil.encodeHexStr(replace).toUpperCase());
+    }
 }

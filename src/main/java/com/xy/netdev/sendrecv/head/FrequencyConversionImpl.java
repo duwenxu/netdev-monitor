@@ -27,7 +27,7 @@ public class FrequencyConversionImpl extends AbsDeviceSocketHandler<SocketEntity
                          IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService) {
         frameRespData.setReciveOriginalData(StrUtil.str(frameRespData.getParamBytes(), Charset.defaultCharset()));
         if(iParaPrtclAnalysisService != null){
-            iParaPrtclAnalysisService.ctrlParaResponse(frameRespData);
+            iParaPrtclAnalysisService.queryParaResponse(frameRespData);
         }
         if(iQueryInterPrtclAnalysisService != null){
             iQueryInterPrtclAnalysisService.queryParaResponse(frameRespData);
@@ -37,6 +37,7 @@ public class FrequencyConversionImpl extends AbsDeviceSocketHandler<SocketEntity
     @Override
     public FrameRespData unpack(SocketEntity socketEntity, FrameRespData frameRespData) {
         String data = new String(socketEntity.getBytes(), Charset.defaultCharset());
+        log.error("------------------origin data:"+data);
         int beginOffset;
         char errorMark = '?';
         if (StrUtil.contains(data, errorMark)){
@@ -61,10 +62,10 @@ public class FrequencyConversionImpl extends AbsDeviceSocketHandler<SocketEntity
     @Override
     public String cmdMarkConvert(FrameRespData frameRespData) {
         //获取设备CMD信息, '/'为调制解调器特殊格式, 因为调制解调器cmd为字符串, 不能进行十六进制转换, 所以特殊区分
-        if (!StrUtil.contains(frameRespData.getCmdMark(), '/')) {
+        if (!StrUtil.contains(frameRespData.getCmdMark(), '/') && !StrUtil.contains(frameRespData.getCmdMark(), '?')) {
             return Integer.toHexString(Integer.parseInt(frameRespData.getCmdMark(), 16));
         } else {
-            return StrUtil.removeAll(frameRespData.getCmdMark(), '/');
+            return StrUtil.removeAll(frameRespData.getCmdMark(), '/','?');
         }
     }
 

@@ -8,8 +8,8 @@ import com.xy.common.model.Result;
 import com.xy.netdev.common.util.JwtUtil;
 import com.xy.netdev.container.BaseContainerLoader;
 import com.xy.netdev.monitor.bo.InterCtrlInfo;
-import com.xy.netdev.monitor.bo.ParaViewInfo;
 import com.xy.netdev.monitor.bo.TransUiData;
+import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.entity.ParaInfo;
 import com.xy.netdev.monitor.service.IInterfaceService;
@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 设备接口 前端控制器
@@ -136,6 +137,26 @@ public class InterfaceController {
     public Result<ParaInfo> paraCtrl(InterCtrlInfo interCtrlInfo) {
         devCmdSendService.interfaceCtrSend(interCtrlInfo);
         return ControllerResultWrapper.genUpdateResult();
+    }
+
+    /**
+     * 查询设备的页面查询接口参数实时信息
+     */
+    @ApiOperation(value = "查询设备的页面查询接口", notes = "查询设备的页面查询接口")
+    @PutMapping(value = "/getPageItfInfo")
+    public Result<List> getPageItfInfo(BaseInfo baseInfo) {
+        List list = targetService.getPageItfInfo(baseInfo);
+        return ControllerResultWrapper.genGetOneResult(list);
+    }
+
+    /**
+     * 查询设备的组装控制接口参数实时信息
+     */
+    @ApiOperation(value = "查询设备的组装控制接口", notes = "查询设备的组装控制接口")
+    @PutMapping(value = "/getCtrlItfInfo")
+    public Result<List> getCtrlItfInfo(BaseInfo baseInfo) {
+        List list = targetService.getCtrlItfInfo(baseInfo);
+        return ControllerResultWrapper.genGetOneResult(list);
     }
 
 }

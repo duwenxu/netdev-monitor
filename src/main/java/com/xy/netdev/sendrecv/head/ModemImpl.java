@@ -6,15 +6,15 @@ import cn.hutool.core.util.StrUtil;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
-import com.xy.netdev.sendrecv.base.AbsDeviceSocketHandler;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
-import com.xy.netdev.sendrecv.entity.SocketEntity;
-import com.xy.netdev.sendrecv.entity.device.ModemEntity;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.modem.ModemPrtcServiceImpl;
 import com.xy.netdev.monitor.entity.PrtclFormat;
+import com.xy.netdev.sendrecv.base.AbsDeviceSocketHandler;
+import com.xy.netdev.sendrecv.entity.SocketEntity;
+import com.xy.netdev.sendrecv.entity.device.ModemEntity;
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -35,7 +35,7 @@ import static com.xy.netdev.common.util.ByteUtils.*;
 public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData>{
 
     /**响应标识数组，用来校验响应帧结构*/
-    private static final String[] RESPONSE_SIGNS = {"13","01"};
+    private static final String[] RESPONSE_SIGNS = {"53","41"};
 
     @Autowired
     private ModemPrtcServiceImpl prtcService;
@@ -68,16 +68,16 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
         int len = bytesToNum(bytes, 1, 2, ByteBuf::readShort) - 4;
         //响应数据类型标识   查询0X53 控制0X41
         Byte respType = bytesToNum(bytes, 5, 1, ByteBuf::readByte);
-        String hexRespType = lefPadNumToHexStr(Long.valueOf(respType));
+        String hexRespType = numToHexStr(Long.valueOf(respType));
         if (!Arrays.asList(RESPONSE_SIGNS).contains(hexRespType)){
-            log.error("收到包含错误响应标识的帧结构，标识字节：{}----数据体：{}",hexRespType,bytes);
+            log.error("收到包含错误响应标识的帧结构，标识字节：{}----数据体：{}",hexRespType,HexUtil.encodeHexStr(bytes));
         }
 
         //参数命令标识
         Byte cmd = bytesToNum(bytes, 6, 1, ByteBuf::readByte);
         //数据体
         byte[] paramBytes = byteArrayCopy(bytes, 6, len);
-        String hexCmd = lefPadNumToHexStr(Long.valueOf(cmd));
+        String hexCmd = numToHexStr(Long.valueOf(cmd));
 
         //获取操作类型
         PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameRespData.getDevType(), hexCmd);
@@ -91,7 +91,7 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
     @Override
     public byte[] pack(FrameReqData frameReqData) {
         byte[] paramBytes = frameReqData.getParamBytes();
-        int len = paramBytes.length + 8;
+        int len = paramBytes.length + 4;
 
         PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByPara(frameReqData.getDevType(), frameReqData.getCmdMark());
         String keyword;
@@ -139,7 +139,6 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
         return addDiv(
                 byteToInt(modemEntity.getNum())
                 , byteToInt(modemEntity.getDeviceType())
-                , byteToInt(modemEntity.getDeviceType())
                 , byteToInt(modemEntity.getDeviceAddress())
                 , byteToInt(modemEntity.getCmd())
                 , byteToInt(modemEntity.getParams())
@@ -152,7 +151,7 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
      * @return 校验位
      */
     private static byte addDiv(int... values){
-        double div = NumberUtil.div(Arrays.stream(values).sum(), 256);
+        double div = (Arrays.stream(values).sum()) % 256;
         return (byte)Double.valueOf(div).intValue();
     }
 
@@ -164,5 +163,4 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
     private static String lefPadNumToHexStr(long num){
         return StringUtils.leftPad(HexUtil.toHex(num), 2,'0').toUpperCase();
     }
-
 }

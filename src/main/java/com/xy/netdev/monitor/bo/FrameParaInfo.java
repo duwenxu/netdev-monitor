@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import java.util.List;
 import java.util.Map;
 
 
@@ -86,12 +87,26 @@ public class FrameParaInfo {
     @ApiModelProperty(value = "数值类型")
     private String dataType;
 
+    @ApiModelProperty(value = "备注一描述")
+    private String ndpaRemark1Desc;
+
+    @ApiModelProperty(value = "备注一数据")
+    private String ndpaRemark1Data;
+
     /**
-     *  下拉框显示数据,当显示模式 是0024002 需要赋值下拉框列表
+     * 下拉框显示数据,当显示模式 是0024002 需要赋值下拉框列表
      */
     @ApiModelProperty(value = "下拉值域")
     private Map<String,Object> selectMap;
 
+    @ApiModelProperty(value = "子参数列表")
+    private List<FrameParaInfo> subParaList;
 
-
+    /**
+     * 增加参数的子参数
+     * @param frameParaInfo
+     */
+    public void addSubPara(FrameParaInfo frameParaInfo){
+        subParaList.add(frameParaInfo);
+    }
 }

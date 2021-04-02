@@ -2,6 +2,8 @@ package com.xy.netdev.rpt.service;
 
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.HexUtil;
+import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.util.BeanFactoryUtil;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
@@ -28,6 +30,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import static com.xy.netdev.common.util.ByteUtils.*;
+import static com.xy.netdev.container.BaseInfoContainer.genRptBaseInfo;
 
 /**
  * 站控支持
@@ -40,6 +43,9 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
     @Autowired
     @Qualifier("IDownRptPrtclAnalysisServiceImpl")
     private IDownRptPrtclAnalysisService iDownRptPrtclAnalysisService;
+
+    @Autowired
+    private ISysParamService sysParamService;
 
     @Setter
     @Getter
@@ -137,7 +143,7 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
                 //数据字段
                 , bodyBytes);
         NettyUtil.sendMsg(bytes, port, stationInfo.getDevIpAddr(), port, Integer.parseInt(stationInfo.getDevNetPtcl()));
-        log.info("发送站控数据, 目标地址:{}:{}, 数据体:{}",  stationInfo.getDevIpAddr(), port, bytes);
+        log.info("发送站控数据, 目标地址:{}:{}, 数据体:{}",  stationInfo.getDevIpAddr(), port, HexUtil.encodeHexStr(bytes));
     }
 
 

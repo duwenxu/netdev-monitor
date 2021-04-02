@@ -111,6 +111,7 @@ public class DevParaInfoContainer {
     public synchronized static boolean   handlerRespDevPara(FrameRespData respData){
         List<FrameParaData> frameParaList = respData.getFrameParaList();
         boolean isUpadte = false;
+        int num = 0;
         if(frameParaList!=null&&!frameParaList.isEmpty()){
             for(FrameParaData frameParaData:frameParaList) {
                 String devNo = frameParaData.getDevNo();
@@ -118,11 +119,11 @@ public class DevParaInfoContainer {
                 ParaViewInfo paraViewInfo = devParaMap.get(devNo).get(ParaHandlerUtil.genLinkKey(devNo, paraNo));
                 if (paraViewInfo!=null&&!frameParaData.getParaVal().equals(paraViewInfo.getParaVal())) {
                     paraViewInfo.setParaVal(frameParaData.getParaVal());
-                    isUpadte = true;
+                    num++;
                 }
             }
         }
-        return isUpadte;
+        return num>0;
     }
 
 }

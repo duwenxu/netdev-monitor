@@ -378,9 +378,32 @@ public interface SysConfigConstant {
     String PARA_ALERT_TYPE_NULL = "0029006";
 
     /**
-     * 接口类型--组装接口
+     * 接口类型--页面查询接口
      */
-    String INTERFACE_TYPE_PACK = "0027004";
+    String INTERFACE_TYPE_PAGE_QUERY = "0027003";
 
+    /**
+     * 接口类型--组装查询接口
+     */
+    String INTERFACE_TYPE_PACK_QUERY = "0027004";
 
+    /**
+     * 接口类型--组装控制接口
+     */
+    String INTERFACE_TYPE_PACK_CTRL = "0027005";
+
+    /**
+     * 接口类型--子接口
+     */
+    String INTERFACE_TYPE_SUB = "0027006";
+
+    /**
+     * 参数数据类型--str
+     */
+    String PARA_DATA_TYPE_STR = "0023004";
+
+    /**
+     * 显示模式--下拉框
+     */
+    String PARA_SHOW_MODEL = "0024002";
 }

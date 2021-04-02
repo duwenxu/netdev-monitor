@@ -1,11 +1,13 @@
 package com.xy.netdev.rpt.service.impl;
 
+import at.favre.lib.bytes.Bytes;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.monitor.bo.DevStatusInfo;
 import com.xy.netdev.rpt.bo.RptHeadDev;
 import com.xy.netdev.rpt.service.RequestService;
 import org.springframework.stereotype.Service;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
