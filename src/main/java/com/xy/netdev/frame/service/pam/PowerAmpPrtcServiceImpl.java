@@ -19,8 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static com.xy.netdev.common.util.ByteUtils.bytesToNum;
-import static com.xy.netdev.common.util.ByteUtils.numToHexStr;
+import static com.xy.netdev.common.util.ByteUtils.*;
 import static com.xy.netdev.monitor.constant.MonitorConstants.BYTE;
 import static com.xy.netdev.monitor.constant.MonitorConstants.STR;
 
@@ -63,15 +62,20 @@ public class PowerAmpPrtcServiceImpl implements IParaPrtclAnalysisService {
         FrameParaData paraData = paraList.get(0);
         FrameParaInfo paraInfoByNo = BaseInfoContainer.getParaInfoByNo(paraData.getDevType(), paraData.getParaNo());
         String dataType = paraInfoByNo.getDataType();
-        byte[] bytes = new byte[0];
+        byte[] bytes = HexUtil.decodeHex(reqInfo.getCmdMark());
         //此处只有 衰减可设置
-        if (dataType.equals(STR)) {
-            bytes = StrUtil.bytes(paraData.getParaVal());
-        } else if (dataType.equals(BYTE)) {
-            //功放开关设置 直接发送状态位 80关/81开
-            String byteVal = "0".equals(paraData.getParaVal())? "80":"81";
-            String dataBody = reqInfo.getCmdMark() + byteVal;
-            bytes = HexUtil.decodeHex(dataBody);
+        switch (dataType) {
+            case STR:
+                byte[] valBytes = StrUtil.bytes(paraData.getParaVal());
+                bytes = bytesMerge(bytes, valBytes);
+                break;
+            case BYTE:
+                //功放开关设置 直接发送状态位 80关/81开
+                String byteVal = "0".equals(paraData.getParaVal()) ? "80" : "81";
+                String dataBody = reqInfo.getCmdMark() + byteVal;
+                bytes = HexUtil.decodeHex(dataBody);
+                break;
+            default:break;
         }
         reqInfo.setParamBytes(bytes);
         socketMutualService.request(reqInfo, ProtocolRequestEnum.CONTROL);
@@ -96,7 +100,6 @@ public class PowerAmpPrtcServiceImpl implements IParaPrtclAnalysisService {
         dataReciveService.paraCtrRecive(respData);
         return respData;
     }
-
 
     public static void main(String[] args) {
         byte[] bytes = {0x32, 0x30, 0x2E, 0x30, 0x30};

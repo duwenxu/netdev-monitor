@@ -6,18 +6,17 @@ import cn.hutool.core.util.StrUtil;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
-import com.xy.netdev.sendrecv.base.AbsDeviceSocketHandler;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
-import com.xy.netdev.sendrecv.entity.SocketEntity;
-import com.xy.netdev.sendrecv.entity.device.ModemEntity;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.modem.ModemPrtcServiceImpl;
 import com.xy.netdev.monitor.entity.PrtclFormat;
+import com.xy.netdev.sendrecv.base.AbsDeviceSocketHandler;
+import com.xy.netdev.sendrecv.entity.SocketEntity;
+import com.xy.netdev.sendrecv.entity.device.ModemEntity;
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -68,7 +67,7 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
         int len = bytesToNum(bytes, 1, 2, ByteBuf::readShort) - 4;
         //响应数据类型标识   查询0X53 控制0X41
         Byte respType = bytesToNum(bytes, 5, 1, ByteBuf::readByte);
-        String hexRespType = lefPadNumToHexStr(Long.valueOf(respType));
+        String hexRespType = numToHexStr(Long.valueOf(respType));
         if (!Arrays.asList(RESPONSE_SIGNS).contains(hexRespType)){
             log.error("收到包含错误响应标识的帧结构，标识字节：{}----数据体：{}",hexRespType,bytes);
         }
@@ -77,7 +76,7 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
         Byte cmd = bytesToNum(bytes, 6, 1, ByteBuf::readByte);
         //数据体
         byte[] paramBytes = byteArrayCopy(bytes, 6, len);
-        String hexCmd = lefPadNumToHexStr(Long.valueOf(cmd));
+        String hexCmd = numToHexStr(Long.valueOf(cmd));
 
         //获取操作类型
         PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameRespData.getDevType(), hexCmd);
@@ -154,15 +153,6 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
     private static byte addDiv(int... values){
         double div = NumberUtil.div(Arrays.stream(values).sum(), 256);
         return (byte)Double.valueOf(div).intValue();
-    }
-
-    /**
-     * 数组转十六进制字符串并补全
-     * @param num
-     * @return
-     */
-    private static String lefPadNumToHexStr(long num){
-        return StringUtils.leftPad(HexUtil.toHex(num), 2,'0').toUpperCase();
     }
 
 }

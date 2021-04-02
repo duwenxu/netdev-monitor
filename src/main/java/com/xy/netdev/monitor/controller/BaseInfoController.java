@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xy.common.helper.ControllerHelper;
 import com.xy.common.model.Result;
+import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.JwtUtil;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.service.IBaseInfoService;
@@ -78,6 +79,7 @@ public class BaseInfoController {
     @PostMapping
     public Result<BaseInfo> add(BaseInfo data,HttpServletRequest req) {
         Integer userId = JwtUtil.getUserIdByToken(req);
+        data.setDevUseStatus(SysConfigConstant.DEV_USE_STATUS_INUSE);
         Result<BaseInfo> result = ControllerHelper.add(data, baseInfoService);
         ThreadUtil.execAsync(() ->baseInfoService.devStatusUpdate(data.getDevNo(), null));
         return result;

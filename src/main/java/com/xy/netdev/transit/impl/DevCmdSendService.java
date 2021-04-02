@@ -1,29 +1,22 @@
 package com.xy.netdev.transit.impl;
 
-import cn.hutool.core.convert.Convert;
-import cn.hutool.core.convert.Converter;
 import com.xy.common.exception.BaseException;
-import com.xy.common.util.ConvertUtils;
 import com.xy.netdev.common.constant.SysConfigConstant;
-import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.bo.InterCtrlInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
-import com.xy.netdev.monitor.entity.Interface;
-import com.xy.netdev.monitor.entity.ParaInfo;
-import com.xy.netdev.monitor.service.IInterfaceService;
 import com.xy.netdev.transit.IDataSendService;
 import com.xy.netdev.transit.IDevCmdSendService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * <p>

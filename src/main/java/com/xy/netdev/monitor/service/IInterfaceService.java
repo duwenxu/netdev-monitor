@@ -3,9 +3,11 @@ package com.xy.netdev.monitor.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.xy.netdev.monitor.bo.TransUiData;
+import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.Interface;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 设备接口 服务类
@@ -37,4 +39,14 @@ public interface IInterfaceService extends IService<Interface> {
      * @return
      */
     List<TransUiData> getUnlinkedParams(String id);
+
+    /**
+     * 查询设备的页面查询接口参数实时信息
+     */
+    List getPageItfInfo(BaseInfo baseInfo);
+
+    /**
+     * 查询设备的组装控制接口参数实时信息
+     */
+    List getCtrlItfInfo(BaseInfo baseInfo);
 }
