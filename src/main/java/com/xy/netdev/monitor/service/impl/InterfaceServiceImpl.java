@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xy.common.query.QueryGenerator;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.container.PageInfoContainer;
+import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.bo.TransUiData;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.Interface;
@@ -133,9 +134,14 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
         queryWrapper.eq("DEV_TYPE",anInterface.getDevType());
         queryWrapper.ne("NDPA_CMPLEX_LEVEL",PARA_COMPLEX_LEVEL_SUB);
         List<ParaInfo> paraInfos = paraInfoService.list(queryWrapper);
+        Map<Integer, ParaInfo> frameParaInfoMap = paraInfos.stream().collect(Collectors.toMap(ParaInfo::getNdpaId, ParaInfo -> ParaInfo));
         List<String> finalParaIds = paraIds;
         if(isBing){
-            paraInfos = paraInfos.stream().filter(paraInfo -> finalParaIds.contains(paraInfo.getNdpaId().toString())).collect(Collectors.toList());
+            //置空重新添加数据
+            paraInfos.clear();
+            for (String paraId : finalParaIds){
+                paraInfos.add(frameParaInfoMap.get(Integer.valueOf(paraId)));
+            }
         }else{
             paraInfos = paraInfos.stream().filter(paraInfo -> !finalParaIds.contains(paraInfo.getNdpaId().toString())).collect(Collectors.toList());
         }
