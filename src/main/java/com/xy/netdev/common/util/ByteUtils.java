@@ -1,6 +1,7 @@
 package com.xy.netdev.common.util;
 
 import cn.hutool.core.codec.BCD;
+import cn.hutool.core.lang.Assert;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.HexUtil;
