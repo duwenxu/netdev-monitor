@@ -605,8 +605,6 @@ public class BaseInfoContainer {
             paraIds.forEach(paraId->{
                 devInterParam.addFramePara(frameParaInfoMap.get(Integer.valueOf(paraId)));
             });
-            devInterParam.setDevParamList(frameParaInfos.stream().filter(paraInfo -> paraIds.contains(paraInfo.getParaId().toString()))
-                    .collect(Collectors.toList()));
             //如果为组合接口则填充子接口列表：递归方法
             List<DevInterParam> subList = new ArrayList<>();
             if (INTERFACE_TYPE_PACK_QUERY.equals(anInterface.getItfType())) {
