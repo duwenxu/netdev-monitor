@@ -8,6 +8,7 @@ import com.xy.common.model.Result;
 import com.xy.netdev.common.util.JwtUtil;
 import com.xy.netdev.monitor.bo.ParaViewInfo;
 import com.xy.netdev.monitor.entity.ParaInfo;
+import com.xy.netdev.monitor.service.IInterfaceService;
 import com.xy.netdev.monitor.service.IParaInfoService;
 import com.xy.netdev.transit.IDevCmdSendService;
 import io.swagger.annotations.Api;
@@ -34,6 +35,8 @@ public class ParaInfoController {
 
     @Autowired
     private IDevCmdSendService devCmdSendService;
+    @Autowired
+    private IInterfaceService interfaceService;
     /**
     * 获取分页数据
     *
@@ -111,6 +114,8 @@ public class ParaInfoController {
     @ApiOperation(value = "删除设备参数", notes = "删除设备参数")
     @DeleteMapping("/{id}")
     public Result<ParaInfo> delete(@PathVariable String id) {
+        //清除接口中绑定的参数id
+        interfaceService.clearParaById(targetService.getById(id));
         return ControllerHelper.delete(id,targetService);
     }
 

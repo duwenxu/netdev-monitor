@@ -100,7 +100,7 @@ public class ByteUtils {
     public static byte[] objToBytes(Object obj, int len, boolean isFloat){
         byte [] data;
         if (len == 1){
-            return new byte[]{Byte.parseByte(obj.toString())};
+            return new byte[]{(byte)Integer.parseInt(obj.toString())};
         }
         ByteOrder byteOrder = Unpooled.BIG_ENDIAN;
 //        if (order != 1) {

@@ -111,4 +111,9 @@ public class GfPrtcServiceImpl implements IParaPrtclAnalysisService {
         }
         return Integer.parseInt(isFloat) == 2;
     }
+
+    public static void main(String[] args) {
+        byte b = (byte) 128;
+        System.out.println(b);
+    }
 }
