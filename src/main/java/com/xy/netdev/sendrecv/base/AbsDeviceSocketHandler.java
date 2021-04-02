@@ -60,7 +60,6 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
         }
     }
 
-    @SneakyThrows
     @Override
     public void doQuery(T t) {
         //数据封包
@@ -156,8 +155,8 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
     /**
      * 回调别的模块数据
      * @param r 设备数据已发送至对应模块
-     * @param iParaPrtclAnalysisService
-     * @param iQueryInterPrtclAnalysisService
+     * @param iParaPrtclAnalysisService 参数对象
+     * @param iQueryInterPrtclAnalysisService 接口对象
      */
     public abstract void callback(R r, IParaPrtclAnalysisService iParaPrtclAnalysisService,
                                   IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService);
