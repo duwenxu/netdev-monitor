@@ -56,8 +56,6 @@ public class ModemScmmInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSe
         //获取接口单元的参数信息
         List<FrameParaInfo> frameParaInfos = BaseInfoContainer
                 .getInterLinkParaList(respData.getDevType(), hexUnit);
-
-
         return null;
     }
 }

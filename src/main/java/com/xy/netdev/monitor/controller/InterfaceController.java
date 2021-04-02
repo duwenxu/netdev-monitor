@@ -144,9 +144,9 @@ public class InterfaceController {
      */
     @ApiOperation(value = "查询设备的页面查询接口", notes = "查询设备的组装控制接口")
     @PutMapping(value = "/getPageItfInfo")
-    public Result<Map<String,Object>> getPageItfInfo(BaseInfo baseInfo) {
-        Map<String,Object> map = targetService.getPageItfInfo(baseInfo);
-        return ControllerResultWrapper.genGetOneResult(map);
+    public Result<List> getPageItfInfo(BaseInfo baseInfo) {
+        List list = targetService.getPageItfInfo(baseInfo);
+        return ControllerResultWrapper.genGetOneResult(list);
     }
 
     /**
@@ -154,9 +154,9 @@ public class InterfaceController {
      */
     @ApiOperation(value = "查询设备的组装控制接口", notes = "查询设备的组装控制接口")
     @PutMapping(value = "/getCtrlItfInfo")
-    public Result<ParaInfo> getCtrlItfInfo(BaseInfo baseInfo) {
-        targetService.getCtrlItfInfo(baseInfo);
-        return ControllerResultWrapper.genUpdateResult();
+    public Result<List> getCtrlItfInfo(BaseInfo baseInfo) {
+        List list = targetService.getCtrlItfInfo(baseInfo);
+        return ControllerResultWrapper.genGetOneResult(list);
     }
 
 }

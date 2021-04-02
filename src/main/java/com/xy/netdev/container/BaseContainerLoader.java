@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 /**
  * <p>
- *基础信息容器装载类
+ * 基础信息容器装载类
  * </p>
  *
  * @author sunchao
@@ -46,7 +46,7 @@ public class BaseContainerLoader {
      * 初始化信息加载
      */
     @PostConstruct
-    public void load(){
+    public void load() {
         log.info("开始更新容器信息！");
         long time = System.currentTimeMillis();
         //初始化基础信息
@@ -59,47 +59,51 @@ public class BaseContainerLoader {
         initDevParam();
         //初始化设备状态容器
         DevStatusContainer.init(sysParamService);
-        log.info("容器信息更新完成，耗时:["+(System.currentTimeMillis()-time)+"ms]");
+        log.info("容器信息更新完成，耗时:[" + (System.currentTimeMillis() - time) + "ms]");
     }
 
     /**
      * 加载基础信息容器
      */
-    public void initBaseInfo(){
+    public void initBaseInfo() {
         //查询有效的设备列表
-        List<BaseInfo> devs = baseInfoService.list().stream().filter(baseInfo -> !baseInfo.getDevStatus().equals(SysConfigConstant.DEV_STATUS_REPAIR)).collect(Collectors.toList());
+        List<BaseInfo> devs = baseInfoService.list().stream().
+                filter(baseInfo -> !baseInfo.getDevStatus().equals(SysConfigConstant.DEV_STATUS_REPAIR))
+                .collect(Collectors.toList());
         //查询有效的参数列表:根据NDPA_CMPLEX_LEVEL对list：用来生成参数的上下级关系
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("NDPA_STATUS",SysConfigConstant.STATUS_OK);
+        queryWrapper.eq("NDPA_STATUS", SysConfigConstant.STATUS_OK);
         queryWrapper.orderByAsc("NDPA_CMPLEX_LEVEL");
         List<ParaInfo> paraInfos = paraInfoService.list(queryWrapper);
         paraInfos.forEach(paraInfo -> {
             paraInfo.setDevTypeCode(sysParamService.getParaRemark1(paraInfo.getDevType()));
         });
         //查询有效的接口列表
-        List<Interface> interfaces = interfaceService.list().stream().filter(anInterface -> anInterface.getItfStatus().equals(SysConfigConstant.STATUS_OK)).collect(Collectors.toList());
+        List<Interface> interfaces = interfaceService.list().stream().
+                filter(anInterface -> anInterface.getItfStatus().equals(SysConfigConstant.STATUS_OK))
+                .collect(Collectors.toList());
         //查询协议列表
         List<PrtclFormat> prtclList = prtclFormatService.list();
         //初始化基础容器的数据
-        BaseInfoContainer.init(devs,paraInfos,interfaces,prtclList);
+        BaseInfoContainer.init(devs, paraInfos, interfaces, prtclList);
     }
 
     /**
      * 加载设备参数信息
      */
-    private void initDevParam(){
+    private void initDevParam() {
         //查询有效的参数列表:根据NDPA_CMPLEX_LEVEL对list：用来生成参数的上下级关系
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("NDPA_STATUS",SysConfigConstant.STATUS_OK);
+        queryWrapper.eq("NDPA_STATUS", SysConfigConstant.STATUS_OK);
         queryWrapper.orderByAsc("NDPA_CMPLEX_LEVEL");
         List<ParaInfo> paraInfos = paraInfoService.list(queryWrapper);
-        DevParaInfoContainer.initData(paraInfos,sysParamService);
+        DevParaInfoContainer.initData(paraInfos, sysParamService);
     }
 
     /**
      * 加载设备日志容器
      */
-    private void initDevLog(){
+    private void initDevLog() {
         int devLogSize = Integer.parseInt(sysParamService.getParaRemark1(SysConfigConstant.DEV_LOG_VIEW_SZIE));
         //初始化各设备日志
         DevLogInfoContainer.init(devLogSize);
@@ -108,7 +112,7 @@ public class BaseContainerLoader {
     /**
      * 加载设备日志容器
      */
-    private void initDevAlert(){
+    private void initDevAlert() {
         int devAlertInfoSize = Integer.parseInt(sysParamService.getParaRemark1(SysConfigConstant.DEV_ALERT_INFO_SZIE));
         //初始化各设备日志
         DevAlertInfoContainer.init(devAlertInfoSize);

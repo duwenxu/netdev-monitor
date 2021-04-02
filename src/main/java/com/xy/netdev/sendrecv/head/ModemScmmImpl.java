@@ -32,6 +32,12 @@ import static com.xy.netdev.common.util.ByteUtils.*;
 @Service
 @Slf4j
 public class ModemScmmImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData> {
+    /**
+     * 查询/控制响应命令标识
+     */
+    private static final String CONTROL_RES = "81";
+    private static final String QUERY = "82";
+    private static final String QUERY_RES = "83";
 
     @Override
     public void callback(FrameRespData frameRespData, IParaPrtclAnalysisService iParaPrtclAnalysisService, IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService) {
@@ -95,6 +101,7 @@ public class ModemScmmImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReq
         //获取参数协议
         PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameReqData.getDevType(), frameReqData.getCmdMark());
         FrameParaInfo paraInfo = BaseInfoContainer.getParaInfoByCmd(frameReqData.getDevType(), frameReqData.getCmdMark());
+        //todo 设备参数添加所属子单元
         //备注1 单元编码
         String unitCode = paraInfo.getNdpaRemark1Data();
         if (prtclFormat == null || prtclFormat.getFmtId() == null) {
@@ -116,7 +123,6 @@ public class ModemScmmImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReq
         //累加校验和
         byte checkSum = addGetBottom(modemScmmEntity);
         modemScmmEntity.setCheck(checkSum);
-        //TODO 转义
         return pack(modemScmmEntity);
     }
 
@@ -160,6 +166,7 @@ public class ModemScmmImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReq
      */
     private boolean validAndCheck(SocketEntity socketEntity) {
         byte[] bytes = socketEntity.getBytes();
+        //todo 接受和发送的转意规则
         return false;
     }
 

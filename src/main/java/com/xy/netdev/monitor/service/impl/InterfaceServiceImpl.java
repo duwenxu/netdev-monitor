@@ -83,32 +83,34 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
      * 查询设备的页面查询接口参数实时信息
      */
     @Override
-    public Map<String,Object> getPageItfInfo(BaseInfo baseInfo) {
+    public List getPageItfInfo(BaseInfo baseInfo) {
+        List list = new ArrayList();
         Map<String,Object> map = new HashMap<>();
         //合并设备信息
         map.putAll(BeanUtils.beanToMap(baseInfo));
         //合并接口信息
-        Interface anInterface = BaseInfoContainer.getPageItfInfo(baseInfo.getDevNo());
-        map.putAll(BeanUtils.beanToMap(anInterface));
+        List<Interface> interfaces = BaseInfoContainer.getPageItfInfo(baseInfo.getDevNo());
+        map.putAll(BeanUtils.beanToMap(interfaces));
         //存放数据
-        map.put("data", PageInfoContainer.getPageInfo(baseInfo.getDevNo(),anInterface.getItfCode()));
-        return map;
+        //map.put("data", PageInfoContainer.getPageInfo(baseInfo.getDevNo(),anInterface.getItfCode()));
+        return list;
     }
 
     /**
      * 查询设备的组装控制接口参数实时信息
      */
     @Override
-    public Map<String,Object> getCtrlItfInfo(BaseInfo baseInfo) {
+    public List getCtrlItfInfo(BaseInfo baseInfo) {
+        List list = new ArrayList();
         Map<String,Object> map = new HashMap<>();
         //合并设备信息
         map.putAll(BeanUtils.beanToMap(baseInfo));
         //合并接口信息
-        Interface anInterface = BaseInfoContainer.getCtrlItfInfo(baseInfo.getDevNo());
-        map.putAll(BeanUtils.beanToMap(anInterface));
+        List<Interface> interfaces = BaseInfoContainer.getCtrlItfInfo(baseInfo.getDevNo());
+        map.putAll(BeanUtils.beanToMap(interfaces));
         //存放数据
-        map.put("data", PageInfoContainer.getPageInfo(baseInfo.getDevNo(),anInterface.getItfCode()));
-        return map;
+        //map.put("data", PageInfoContainer.getPageInfo(baseInfo.getDevNo(),anInterface.getItfCode()));
+        return list;
     }
 
     /**

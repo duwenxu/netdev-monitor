@@ -13,6 +13,7 @@ import org.checkerframework.checker.units.qual.C;
 import org.springframework.util.DigestUtils;
 
 import java.io.*;
+import java.math.BigInteger;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -193,17 +194,17 @@ public class ByteUtils {
         Number num = null;
         switch (length){
             case 1:
-                num = bytesToNum(bytes, offset, length, ByteBuf::readByte);
+                num = bytesToNum(bytes, offset, length, ByteBuf::readByte, ByteBuf::readUnsignedByte, isUnsigned);
                 break;
             case 2:
-                num = bytesToNum(bytes, offset, length, ByteBuf::readShort, ByteBuf::readUnsignedByte, isUnsigned);
+                num = bytesToNum(bytes, offset, length, ByteBuf::readShort, ByteBuf::readUnsignedShort, isUnsigned);
                 break;
             case 3:
-                num = bytesToNum(bytes, offset, length, ByteBuf::readMedium, ByteBuf::readUnsignedShort, isUnsigned);
+                num = bytesToNum(bytes, offset, length, ByteBuf::readMedium, ByteBuf::readUnsignedMedium, isUnsigned);
                 break;
             case 4:
                 if (!isFloat){
-                    num = bytesToNum(bytes, offset, length, ByteBuf::readInt, ByteBuf::readUnsignedMedium, isUnsigned);
+                    num = bytesToNum(bytes, offset, length, ByteBuf::readInt, ByteBuf::readUnsignedInt, isUnsigned);
                     break;
                 }
                 num = at.favre.lib.bytes.Bytes.from(Objects.requireNonNull(byteArrayCopy(bytes, offset, length))).toFloat();

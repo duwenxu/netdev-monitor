@@ -21,7 +21,6 @@ import java.util.List;
 import static com.xy.netdev.common.util.ByteUtils.*;
 import static com.xy.netdev.monitor.constant.MonitorConstants.BYTE;
 import static com.xy.netdev.monitor.constant.MonitorConstants.STR;
-
 /**
  * SCMM-2300调制解调器 参数协议内容解析
  *

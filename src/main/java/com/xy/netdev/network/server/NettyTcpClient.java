@@ -102,7 +102,7 @@ public class NettyTcpClient implements Runnable {
                                 if (obj instanceof IdleStateEvent) {
                                     IdleStateEvent event = (IdleStateEvent) obj;
                                     if (IdleState.WRITER_IDLE.equals(event.state())) {
-                                        ctx.channel().writeAndFlush(HEARTBEAT_SEQUENCE.duplicate());
+//                                        ctx.channel().writeAndFlush(HEARTBEAT_SEQUENCE.duplicate());
                                     }
                                 }
                             }
