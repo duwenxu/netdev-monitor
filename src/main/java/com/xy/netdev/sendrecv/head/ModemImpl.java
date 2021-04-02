@@ -17,6 +17,7 @@ import com.xy.netdev.sendrecv.entity.SocketEntity;
 import com.xy.netdev.sendrecv.entity.device.ModemEntity;
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -69,7 +70,7 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
         Byte respType = bytesToNum(bytes, 5, 1, ByteBuf::readByte);
         String hexRespType = numToHexStr(Long.valueOf(respType));
         if (!Arrays.asList(RESPONSE_SIGNS).contains(hexRespType)){
-            log.error("收到包含错误响应标识的帧结构，标识字节：{}----数据体：{}",hexRespType,bytes);
+            log.error("收到包含错误响应标识的帧结构，标识字节：{}----数据体：{}",hexRespType,HexUtil.encodeHexStr(bytes));
         }
 
         //参数命令标识
@@ -90,7 +91,7 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
     @Override
     public byte[] pack(FrameReqData frameReqData) {
         byte[] paramBytes = frameReqData.getParamBytes();
-        int len = paramBytes.length + 8;
+        int len = paramBytes.length + 4;
 
         PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByPara(frameReqData.getDevType(), frameReqData.getCmdMark());
         String keyword;
@@ -138,7 +139,6 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
         return addDiv(
                 byteToInt(modemEntity.getNum())
                 , byteToInt(modemEntity.getDeviceType())
-                , byteToInt(modemEntity.getDeviceType())
                 , byteToInt(modemEntity.getDeviceAddress())
                 , byteToInt(modemEntity.getCmd())
                 , byteToInt(modemEntity.getParams())
@@ -151,8 +151,16 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
      * @return 校验位
      */
     private static byte addDiv(int... values){
-        double div = NumberUtil.div(Arrays.stream(values).sum(), 256);
+        double div = (Arrays.stream(values).sum()) % 256;
         return (byte)Double.valueOf(div).intValue();
     }
 
+    /**
+     * 数组转十六进制字符串并补全
+     * @param num
+     * @return
+     */
+    private static String lefPadNumToHexStr(long num){
+        return StringUtils.leftPad(HexUtil.toHex(num), 2,'0').toUpperCase();
+    }
 }

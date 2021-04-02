@@ -38,8 +38,7 @@ public class ReportStatusImpl implements RequestService {
             //设备编号
             tempList.add(ByteUtils.objToBytes(devStatusInfo.getDevNo(), 1));
             //设备状态
-            String binaryStr =
-                    "000"+
+            String binaryStr = "000"+
                     //是否中断
                     devStatusInfo.getIsInterrupt() +
                     //是否告警
@@ -49,8 +48,7 @@ public class ReportStatusImpl implements RequestService {
                     //主用还是备用
                     devStatusInfo.getMasterOrSlave() +
                     //工作状态
-                    devStatusInfo.getWorkStatus()
-                    ;
+                    devStatusInfo.getWorkStatus();
             tempList.add(ByteUtils.objToBytes(Integer.parseInt(binaryStr, 2), 1));
         });
         return ByteUtils.listToBytes(tempList);
