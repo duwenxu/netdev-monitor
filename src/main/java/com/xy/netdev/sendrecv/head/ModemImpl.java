@@ -35,7 +35,7 @@ import static com.xy.netdev.common.util.ByteUtils.*;
 public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData>{
 
     /**响应标识数组，用来校验响应帧结构*/
-    private static final String[] RESPONSE_SIGNS = {"13","01"};
+    private static final String[] RESPONSE_SIGNS = {"53","41"};
 
     @Autowired
     private ModemPrtcServiceImpl prtcService;

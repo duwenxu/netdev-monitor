@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.xy.netdev.common.constant.SysConfigConstant.*;
@@ -575,11 +574,13 @@ public class BaseInfoContainer {
                 devInterParam.setInterfacePrtcl(prtclFormats.get(0));
             }
             //参数列表
+            devInterParam.setDevParamList(new ArrayList());
             List<String> paraIds = StringUtils.isBlank(anInterface.getItfDataFormat()) ? new ArrayList<>() : Arrays.asList(anInterface.getItfDataFormat().split(","));
-            //参数list
+            Map<Integer, FrameParaInfo> frameParaInfoMap = frameParaInfos.stream().collect(Collectors.toMap(FrameParaInfo::getParaId,FrameParaInfo -> FrameParaInfo));
+            paraIds.forEach(paraId->{
+                devInterParam.addFramePara(frameParaInfoMap.get(Integer.valueOf(paraId)));
+            });
             devInterParam.setDevParamList(frameParaInfos.stream().filter(paraInfo -> paraIds.contains(paraInfo.getParaId().toString()))
-                    //此处需要倒叙则增加使用.sorted(Comparator.comparing(FrameParaInfo::getParaNo).reversed())
-                    .sorted(Comparator.comparing(faraInfo -> Integer.parseInt(faraInfo.getParaNo())))
                     .collect(Collectors.toList()));
             //如果为组合接口则填充子接口列表：递归方法
             List<DevInterParam> subList = new ArrayList<>();

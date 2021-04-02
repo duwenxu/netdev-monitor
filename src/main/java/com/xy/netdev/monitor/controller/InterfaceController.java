@@ -142,7 +142,7 @@ public class InterfaceController {
     /**
      * 查询设备的页面查询接口参数实时信息
      */
-    @ApiOperation(value = "查询设备的页面查询接口", notes = "查询设备的组装控制接口")
+    @ApiOperation(value = "查询设备的页面查询接口", notes = "查询设备的页面查询接口")
     @PutMapping(value = "/getPageItfInfo")
     public Result<List> getPageItfInfo(BaseInfo baseInfo) {
         List list = targetService.getPageItfInfo(baseInfo);
