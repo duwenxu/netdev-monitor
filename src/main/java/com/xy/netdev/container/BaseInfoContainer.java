@@ -603,7 +603,9 @@ public class BaseInfoContainer {
             List<String> paraIds = StringUtils.isBlank(anInterface.getItfDataFormat()) ? new ArrayList<>() : Arrays.asList(anInterface.getItfDataFormat().split(","));
             Map<Integer, FrameParaInfo> frameParaInfoMap = frameParaInfos.stream().collect(Collectors.toMap(FrameParaInfo::getParaId,FrameParaInfo -> FrameParaInfo));
             paraIds.forEach(paraId->{
-                devInterParam.addFramePara(frameParaInfoMap.get(Integer.valueOf(paraId)));
+                if(frameParaInfoMap.containsKey(Integer.valueOf(paraId))){
+                    devInterParam.addFramePara(frameParaInfoMap.get(Integer.valueOf(paraId)));
+                }
             });
             //如果为组合接口则填充子接口列表：递归方法
             List<DevInterParam> subList = new ArrayList<>();
