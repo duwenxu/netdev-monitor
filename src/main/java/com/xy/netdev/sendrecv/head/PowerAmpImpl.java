@@ -5,6 +5,7 @@ import com.xy.common.exception.BaseException;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
+import com.xy.netdev.frame.service.ICtrlInterPrtclAnalysisService;
 import com.xy.netdev.sendrecv.base.AbsDeviceSocketHandler;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
@@ -45,13 +46,13 @@ public class PowerAmpImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqD
 
     /**
      * 数据接收解析回调
-     *
-     * @param frameRespData                   数据帧结构与
+     *  @param frameRespData                   数据帧结构与
      * @param iParaPrtclAnalysisService       参数响应处理类
      * @param iQueryInterPrtclAnalysisService 接口响应处理类
+     * @param ctrlInterPrtclAnalysisService
      */
     @Override
-    public void callback(FrameRespData frameRespData, IParaPrtclAnalysisService iParaPrtclAnalysisService, IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService) {
+    public void callback(FrameRespData frameRespData, IParaPrtclAnalysisService iParaPrtclAnalysisService, IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService, ICtrlInterPrtclAnalysisService ctrlInterPrtclAnalysisService) {
         String operType = frameRespData.getOperType();
         switch (operType) {
             case OPREATE_QUERY_RESP:

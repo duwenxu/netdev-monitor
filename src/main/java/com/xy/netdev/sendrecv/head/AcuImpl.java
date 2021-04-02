@@ -3,6 +3,7 @@ package com.xy.netdev.sendrecv.head;
 import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.StrUtil;
 import com.xy.netdev.common.util.ByteUtils;
+import com.xy.netdev.frame.service.ICtrlInterPrtclAnalysisService;
 import com.xy.netdev.sendrecv.base.AbsDeviceSocketHandler;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
@@ -26,7 +27,7 @@ public class AcuImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, 
 
     @Override
     public void callback(FrameRespData frameRespData, IParaPrtclAnalysisService iParaPrtclAnalysisService,
-                         IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService) {
+                         IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService, ICtrlInterPrtclAnalysisService ctrlInterPrtclAnalysisService) {
         if (iParaPrtclAnalysisService != null){
             iParaPrtclAnalysisService.ctrlParaResponse(frameRespData);
             return;
