@@ -54,6 +54,7 @@ public class ModemScmmPrtcServiceImpl implements IParaPrtclAnalysisService {
         String dataType = paraInfoByNo.getDataType();
         byte[] bytes = HexUtil.decodeHex(reqInfo.getCmdMark());
         //按数据类型处理
+        //todo
         switch (dataType){
             case STR:
                 byte[] valBytes = StrUtil.bytes(paraData.getParaVal());
