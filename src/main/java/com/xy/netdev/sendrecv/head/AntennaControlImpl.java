@@ -1,7 +1,9 @@
 package com.xy.netdev.sendrecv.head;
 
 import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.StrUtil;
+import com.google.common.primitives.Bytes;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.sendrecv.base.AbsDeviceSocketHandler;
 import com.xy.netdev.frame.bo.FrameReqData;
@@ -12,6 +14,7 @@ import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.transit.IDataReciveService;
 import io.netty.buffer.ByteBuf;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +29,7 @@ import static com.xy.netdev.common.util.ByteUtils.listToBytes;
  * @author cc
  */
 @Service
+@Slf4j
 public class AntennaControlImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData> {
 
     @Autowired
@@ -45,20 +49,35 @@ public class AntennaControlImpl extends AbsDeviceSocketHandler<SocketEntity, Fra
 
     @Override
     public FrameRespData unpack(SocketEntity socketEntity, FrameRespData frameRespData) {
-        byte[] originalReceiveBytes = socketEntity.getBytes();
+        byte[] bytes = socketEntity.getBytes();
         //数据体长度
-        Byte length = bytesToNum(originalReceiveBytes, 1, 1, ByteBuf::readByte);
+        Byte length = bytesToNum(bytes, 1, 1, ByteBuf::readByte);
         //命令
-        Byte cmd = bytesToNum(originalReceiveBytes, 3, 1, ByteBuf::readByte);
+        Byte cmd = bytesToNum(bytes, 3, 1, ByteBuf::readByte);
 
-        Byte respCode = bytesToNum(originalReceiveBytes, 4, 1, ByteBuf::readByte);
+        //
+        Byte respCode = bytesToNum(bytes, 4, 1, ByteBuf::readByte);
         //数据体
-        byte[] paramData = ByteUtils.byteArrayCopy(originalReceiveBytes, 4, length  - 6);
+        byte[] paramData = ByteUtils.byteArrayCopy(bytes, 4, length  - 6);
         frameRespData.setCmdMark(Integer.toHexString(cmd));
         frameRespData.setParamBytes(paramData);
         frameRespData.setRespCode(respCode.toString());
-        bytesToNum(originalReceiveBytes, 4, 1, ByteBuf::readByte);
-        //数据体解析
+        bytesToNum(bytes, 4, 1, ByteBuf::readByte);
+
+        //目的地址
+//        Byte sad = bytesToNum(originalReceiveBytes, 2, 1, ByteBuf::readByte);
+        //校验字
+//        byte check = bytesToNum(originalReceiveBytes, originalReceiveBytes.length - 2, 1, ByteBuf::readByte);
+//        AntennaControlEntity antennaControlEntity = AntennaControlEntity.builder()
+//                .lc(length)
+//                .sad(sad)
+//                .cmd(cmd)
+//                .data(paramData)
+//                .build();
+//        byte vs = xor(antennaControlEntity);
+//        if (vs != check){
+//            log.warn("40公放校验字不匹配！！！, 期待值：{}， 实际值：{}", vs, check);
+//        }
         return frameRespData;
     }
 

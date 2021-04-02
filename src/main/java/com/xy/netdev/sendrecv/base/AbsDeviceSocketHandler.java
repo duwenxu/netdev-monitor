@@ -60,7 +60,6 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
         }
     }
 
-    @SneakyThrows
     @Override
     public void doQuery(T t) {
         //数据封包

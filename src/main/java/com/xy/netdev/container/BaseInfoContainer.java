@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.xy.netdev.common.constant.SysConfigConstant.*;
@@ -578,8 +579,7 @@ public class BaseInfoContainer {
             //参数list
             devInterParam.setDevParamList(frameParaInfos.stream().filter(paraInfo -> paraIds.contains(paraInfo.getParaId().toString()))
                     //此处需要倒叙则增加使用.sorted(Comparator.comparing(FrameParaInfo::getParaNo).reversed())
-                    //此处按照参数序号排序因为设置下标用到
-                    .sorted(Comparator.comparing(paraInfo-> Integer.valueOf(paraInfo.getParaNo())))
+                    .sorted(Comparator.comparing(faraInfo -> Integer.parseInt(faraInfo.getParaNo())))
                     .collect(Collectors.toList()));
             //如果为组合接口则填充子接口列表：递归方法
             List<DevInterParam> subList = new ArrayList<>();
