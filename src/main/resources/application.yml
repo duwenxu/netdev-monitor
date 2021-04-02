@@ -7,7 +7,7 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     password: 123456
-    url: jdbc:mysql://localhost:3306/netdevice?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf-8
+    url: jdbc:mysql://172.23.0.60:3306/netdevice-dev?useUnicode=true&characterEncoding=utf8&useSSL=false
     username: root
   websocket:
     #整个项目中此端口不可占用，否导致websocket不可用
