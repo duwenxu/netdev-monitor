@@ -42,7 +42,6 @@ public class DeviceSocketServer {
         tcpList = new ArrayList<>();
         Collection<BaseInfo> devInfos = getDevInfos();
         ThreadUtil.execute(() -> run(devInfos));
-        ThreadUtil.execute(() -> new NettyTcpClient("172.21.2.66", 10001, 10000, new SimpleTcpMessage()).run());
     }
 
     @SneakyThrows
