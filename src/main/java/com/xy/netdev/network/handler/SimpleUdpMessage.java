@@ -55,9 +55,9 @@ public class SimpleUdpMessage extends SimpleChannelInboundHandler<DatagramPacket
         InetSocketAddress localAddress = (InetSocketAddress) ctx.channel().localAddress();
         int remotePort = msg.sender().getPort();
         //过滤相同端口数据
-        if (remotePort == localAddress.getPort()){
-            return;
-        }
+//        if (remotePort == localAddress.getPort()){
+//            return;
+//        }
         byte[] bytes = ByteBufUtil.getBytes(msg.content());
         SocketEntity socketEntity = SocketEntity.SocketEntityFactory.cloneable();
         socketEntity.setLocalPort(localAddress.getPort());
