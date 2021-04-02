@@ -161,6 +161,8 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
         baseInfo.setDevNo(devNo);
         baseInfo.setDevLocalAddr(value);
         baseInfoService.updateById(baseInfo);
+        BaseInfoContainer.updateBaseInfo(devNo);
+
     }
 
 }
