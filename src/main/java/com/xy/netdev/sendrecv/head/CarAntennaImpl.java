@@ -6,11 +6,11 @@ import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
+import com.xy.netdev.frame.service.ICtrlInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.dzt.DztCtrlInterPrtcServiceImpl;
 import com.xy.netdev.frame.service.dzt.DztQueryInterPrtcServiceImpl;
-import com.xy.netdev.frame.service.modem.ModemPrtcServiceImpl;
 import com.xy.netdev.monitor.entity.PrtclFormat;
 import com.xy.netdev.sendrecv.base.AbsDeviceSocketHandler;
 import com.xy.netdev.sendrecv.entity.SocketEntity;
@@ -45,7 +45,7 @@ public class CarAntennaImpl extends AbsDeviceSocketHandler<SocketEntity, FrameRe
     private DztQueryInterPrtcServiceImpl queryInterService;
 
     @Override
-    public void callback(FrameRespData respData, IParaPrtclAnalysisService iParaPrtclAnalysisService, IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService) {
+    public void callback(FrameRespData respData, IParaPrtclAnalysisService iParaPrtclAnalysisService, IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService, ICtrlInterPrtclAnalysisService ctrlInterPrtclAnalysisService) {
         switch (respData.getOperType()) {
             case SysConfigConstant.OPREATE_QUERY_RESP:
                 queryInterService.queryParaResponse(respData);

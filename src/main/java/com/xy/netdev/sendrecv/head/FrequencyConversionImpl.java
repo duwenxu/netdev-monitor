@@ -2,6 +2,7 @@ package com.xy.netdev.sendrecv.head;
 
 import cn.hutool.core.util.StrUtil;
 import com.xy.netdev.common.constant.SysConfigConstant;
+import com.xy.netdev.frame.service.ICtrlInterPrtclAnalysisService;
 import com.xy.netdev.sendrecv.base.AbsDeviceSocketHandler;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
@@ -24,7 +25,7 @@ public class FrequencyConversionImpl extends AbsDeviceSocketHandler<SocketEntity
 
     @Override
     public void callback(FrameRespData frameRespData, IParaPrtclAnalysisService iParaPrtclAnalysisService,
-                         IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService) {
+                         IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService, ICtrlInterPrtclAnalysisService ctrlInterPrtclAnalysisService) {
         frameRespData.setReciveOriginalData(StrUtil.str(frameRespData.getParamBytes(), Charset.defaultCharset()));
         if(iParaPrtclAnalysisService != null){
             iParaPrtclAnalysisService.queryParaResponse(frameRespData);
