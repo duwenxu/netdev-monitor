@@ -1,31 +1,28 @@
 package com.xy.netdev.sendrecv.base;
 
 import cn.hutool.core.util.HexUtil;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.core.util.TypeUtil;
 import com.alibaba.fastjson.JSON;
+import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.factory.ParaPrtclFactory;
 import com.xy.netdev.factory.QueryInterPrtcllFactory;
-import com.xy.netdev.sendrecv.base.service.ProtocolPackService;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
-import com.xy.netdev.sendrecv.entity.SocketEntity;
-import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
-import com.xy.netdev.monitor.constant.MonitorConstants;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.PrtclFormat;
 import com.xy.netdev.network.NettyUtil;
+import com.xy.netdev.sendrecv.base.service.ProtocolPackService;
+import com.xy.netdev.sendrecv.entity.SocketEntity;
+import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import com.xy.netdev.transit.IDataSendService;
 import io.netty.channel.ChannelFuture;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import sun.reflect.misc.ReflectUtil;
 
 import java.util.Optional;
 
@@ -42,6 +39,8 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
 
     @Autowired
     private IDataSendService dataSendService;
+    @Autowired
+    private ISysParamService sysParamService;
 
     @Override
     public void socketRequest(T t, ProtocolRequestEnum requestEnum) {
@@ -174,7 +173,7 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
     protected Optional<ChannelFuture> sendData(T t, byte[] bytes) {
         BaseInfo devInfo = BaseInfoContainer.getDevInfoByNo(t.getDevNo());
         int port = Integer.parseInt(devInfo.getDevPort());
-        return NettyUtil.sendMsg(bytes, port, devInfo.getDevIpAddr(), port, Integer.parseInt(devInfo.getDevNetPtcl()));
+        return NettyUtil.sendMsg(bytes, port, devInfo.getDevIpAddr(), port, Integer.parseInt(sysParamService.getParaRemark1(devInfo.getDevNetPtcl())));
     }
 
     /**

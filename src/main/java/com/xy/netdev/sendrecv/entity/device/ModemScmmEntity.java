@@ -5,40 +5,34 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-
 /**
- * Ku4000W功率放大器协议头对象
+ * SCMM-2300调制解调器协议头对象
+ * @author duwenxu
+ * @create 2021-03-30 11:12
  */
-@Setter
 @Getter
+@Setter
 @Builder
-public class PowerAmpEntity {
+public class ModemScmmEntity {
 
     @ApiModelProperty("起始字节")
     private Byte beginOffset;
 
-    @ApiModelProperty("设备类型")
-    private Byte devType;
-
-    @ApiModelProperty("设备型号")
-    private Byte devSubType;
-
-    @ApiModelProperty("设备地址")
-    private byte[] deviceAddress;
-
     @ApiModelProperty("长度")
-    private byte[] length;
+    private Byte length;
 
-    @ApiModelProperty("命令")
+    @ApiModelProperty("命令字编码")
     private Byte cmd;
 
-    @ApiModelProperty("参数")
-    private byte[] params;
+    @ApiModelProperty("设置单元")
+    private Byte unit;
+
+    @ApiModelProperty("参数信息(关键字+信息体)")
+    private byte[] value;
 
     @ApiModelProperty("校验字节")
     private Byte check;
 
     @ApiModelProperty("结束符")
     private Byte end;
-
 }

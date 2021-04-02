@@ -491,7 +491,7 @@ public class BaseInfoContainer {
             //参数list
             devInterParam.setDevParamList(frameParaInfos.stream().filter(paraInfo -> paraIds.contains(paraInfo.getParaId().toString()))
                     //此处需要倒叙则增加使用.sorted(Comparator.comparing(FrameParaInfo::getParaNo).reversed())
-                    .sorted(Comparator.comparing(FrameParaInfo::getParaNo))
+                    .sorted(Comparator.comparing(frameParaInfo -> Integer.parseInt(frameParaInfo.getParaNo())))
                     .collect(Collectors.toList()));
             //如果为组合接口则填充子接口列表：递归方法
             List<DevInterParam> subList = new ArrayList<>();

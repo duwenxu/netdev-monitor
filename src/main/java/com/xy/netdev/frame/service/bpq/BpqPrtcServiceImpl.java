@@ -1,6 +1,7 @@
 package com.xy.netdev.frame.service.bpq;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
@@ -73,13 +74,17 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
         String respStr = new String(respData.getParamBytes());
         int beginIdx = respStr.indexOf("/");
         int endIdx = respStr.indexOf("_");
-        String cmdMark = respStr.substring(beginIdx+1,endIdx);
-        String value = respStr.substring(endIdx+1,respStr.indexOf("\\r"));
+        String value = respStr.substring(endIdx+1,respStr.indexOf(StrUtil.CRLF));
         List<FrameParaData> frameParas = new ArrayList<>();
         FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),respData.getCmdMark());
         FrameParaData frameParaData = new FrameParaData();
-        frameParaData.setParaVal(value);
+        String cmdMark = respData.getCmdMark();
+        if(cmdMark.equals(SET_ADDR_CMD)) {
+            setDevLocalAddr(respData,value);
+        }
         BeanUtil.copyProperties(frameParaInfo, frameParaData, true);
+        frameParaData.setDevNo(respData.getDevNo());
+        frameParaData.setParaVal(value);
         frameParas.add(frameParaData);
         respData.setFrameParaList(frameParas);
         dataReciveService.paraQueryRecive(respData);
@@ -111,7 +116,7 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
         String respStr = new String(respData.getParamBytes());
         int beginIdx = respStr.indexOf("/");
         int endIdx = respStr.indexOf("_");
-        String value = respStr.substring(endIdx+1,respStr.indexOf("\\r"));
+        String value = respStr.substring(endIdx+1,respStr.indexOf(StrUtil.CRLF));
         String cmdMark = respData.getCmdMark();
         if(cmdMark.equals(SET_ADDR_CMD)) {
             setDevLocalAddr(respData,value);

@@ -55,7 +55,7 @@ public class AcuInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
                     BeanUtil.copyProperties(respData, paraInfo, true);
                     paraInfo.setLen(Integer.parseInt(frameParaInfo.getParaByteLen()));
                     paraInfo.setParaVal(
-                            byteToNumber(bytes, frameParaInfo.getParaStartPoint() - 1,
+                            byteToNumber(bytes, frameParaInfo.getParaStartPoint(),
                                     Integer.parseInt(frameParaInfo.getParaByteLen())
                             ,isUnsigned(sysParamService, frameParaInfo.getAlertPara())
                             ,isFloat(sysParamService, frameParaInfo.getAlertPara())
