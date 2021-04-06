@@ -1,10 +1,10 @@
 package com.xy.netdev.websocket.send;
 
+import cn.hutool.db.Page;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.xy.netdev.container.DevLogInfoContainer;
-import com.xy.netdev.container.DevParaInfoContainer;
-import com.xy.netdev.container.DevStatusContainer;
+import com.xy.netdev.common.util.ParaHandlerUtil;
+import com.xy.netdev.container.*;
 import com.xy.netdev.websocket.config.ChannelCache;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
@@ -57,6 +57,32 @@ public class DevIfeMegSend {
         if( channels != null){
             //此处加SerializerFeature.WriteMapNullValue是为了让数据中属性值为null的属性不被忽略
             String msg = JSONObject.toJSONString(DevStatusContainer.getAllDevStatusInfoList(),SerializerFeature.WriteMapNullValue);
+            TextWebSocketFrame textWebSocketFrame = new TextWebSocketFrame(msg);
+            channels.writeAndFlush(textWebSocketFrame);
+        }
+    }
+
+    /**
+     * 推送组合控制接口信息
+     */
+    public static void sendDevCtrlItfInfosToDev(String devNo){
+        ChannelGroup channels = ChannelCache.getInstance().getChannels("DevCtrlItfInfos",devNo);
+        if( channels != null){
+            //此处加SerializerFeature.WriteMapNullValue是为了让数据中属性值为null的属性不被忽略
+            String msg = JSONObject.toJSONString(DevCtrlInterInfoContainer.getDevCtrInterList(devNo),SerializerFeature.WriteMapNullValue);
+            TextWebSocketFrame textWebSocketFrame = new TextWebSocketFrame(msg);
+            channels.writeAndFlush(textWebSocketFrame);
+        }
+    }
+
+    /**
+     * 推送所有页面接口信息
+     */
+    public static void sendPageInfoToDev(String devNo,String cmdMark){
+        ChannelGroup channels = ChannelCache.getInstance().getChannels("DevPageInfos", ParaHandlerUtil.genLinkKey(devNo, cmdMark));
+        if( channels != null){
+            //此处加SerializerFeature.WriteMapNullValue是为了让数据中属性值为null的属性不被忽略
+            String msg = JSONObject.toJSONString(PageInfoContainer.getPageInfo(devNo,cmdMark),SerializerFeature.WriteMapNullValue);
             TextWebSocketFrame textWebSocketFrame = new TextWebSocketFrame(msg);
             channels.writeAndFlush(textWebSocketFrame);
         }

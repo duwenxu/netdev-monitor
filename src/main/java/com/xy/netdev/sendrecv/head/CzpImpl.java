@@ -30,6 +30,9 @@ public class CzpImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, 
 
     @Autowired
     private CzpPrtcServiceImpl czpPrtcService;
+    /**查询/控制响应命令标识*/
+    private static final String QUERY_RES = "83";
+    private static final String CONTROL_RES = "81";
 
     /**
      * 回滚
@@ -69,12 +72,18 @@ public class CzpImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, 
             return frameRespData;
         }
         //获取16进制命令字
-        String hexRespType = HexUtil.toHex(bytesToNum(bytes, 6, 1, ByteBuf::readUnsignedByte));
-        //获取操作类型
-        PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameRespData.getDevType(), hexRespType);
-        String operateType = BaseInfoContainer.getOptByPrtcl(prtclFormat, hexRespType);
-        frameRespData.setCmdMark(hexRespType);
-        frameRespData.setOperType(operateType);
+        String hexRespType = HexUtil.toHex(bytesToNum(bytes, 7, 1, ByteBuf::readUnsignedByte));
+        //判断操作类型赋值
+        if (QUERY_RES.equals(hexRespType)){
+            frameRespData.setCmdMark(hexRespType);
+            frameRespData.setOperType(OPREATE_QUERY_RESP);
+        }else if (CONTROL_RES.equals(hexRespType)){
+            frameRespData.setOperType(OPREATE_CONTROL_RESP);
+            //参数关键字
+            Byte cmd = bytesToNum(bytes, 8, 1, ByteBuf::readByte);
+            String hexCmd = numToHexStr(Long.valueOf(cmd));
+            frameRespData.setCmdMark(hexCmd);
+        }
         //数据体
         byte[] paramBytes = byteArrayCopy(bytes, 8, bytes.length - 8);
         frameRespData.setParamBytes(paramBytes);
@@ -106,7 +115,8 @@ public class CzpImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, 
         //设备类型:1
         System.arraycopy(new byte[]{0x29}, 0, frameByte, 1, 1);
         //设备型号:1
-        String devSubType = BaseInfoContainer.getDevInfoByNo(frameReqData.getDevNo()).getDevSubType();
+        /*String devSubType = BaseInfoContainer.getDevInfoByNo(frameReqData.getDevNo()).getDevSubType();*/
+        String devSubType = "16";  //固定值为16
         System.arraycopy(objToBytes(devSubType, 1), 0, frameByte, 2, 1);
         List<byte[]> lists = new ArrayList<>();
         //设备地址:2
