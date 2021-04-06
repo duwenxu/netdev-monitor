@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.BeanUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xy.common.query.QueryGenerator;
+import com.xy.netdev.container.BaseContainerLoader;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.monitor.bo.TransUiData;
 import com.xy.netdev.monitor.entity.BaseInfo;
@@ -36,6 +37,8 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
 
     @Autowired
     private IParaInfoService paraInfoService;
+    @Autowired
+    private BaseContainerLoader baseContainerLoader;
 
     /**
      * 获取所有 非子接口的 接口分页
