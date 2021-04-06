@@ -86,7 +86,7 @@ public class DevLogInfoContainer {
     /**
      * @功能：设备参数发送前初始化响应状态
      * @param devNo             设备编号
-     * @param paraNo            设备参数编号     *
+     * @param paraNo            设备参数编号
      * @return
      */
     public synchronized static void initParaRespStatus(String devNo,String paraNo) {

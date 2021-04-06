@@ -46,7 +46,7 @@ public class DztQueryInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
     private IDataReciveService dataReciveService;
 
     /** 全查询响应命令字*/
-    public static final int QUERY_ALL_MARK = 83;
+    public static final String QUERY_ALL_MARK = "83";
     /** 单查询响应命令字*/
     public static final String QUERY_SINGLE_MARK = "85";
     /**查询应答帧分隔符*/
