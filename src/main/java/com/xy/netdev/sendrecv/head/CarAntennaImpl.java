@@ -46,17 +46,19 @@ public class CarAntennaImpl extends AbsDeviceSocketHandler<SocketEntity, FrameRe
 
     @Override
     public void callback(FrameRespData respData, IParaPrtclAnalysisService iParaPrtclAnalysisService, IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService, ICtrlInterPrtclAnalysisService ctrlInterPrtclAnalysisService) {
-        switch (respData.getOperType()) {
-            case SysConfigConstant.OPREATE_QUERY_RESP:
-                queryInterService.queryParaResponse(respData);
-                break;
-            case SysConfigConstant.OPREATE_CONTROL_RESP:
-                ctrlInterService.ctrlParaResponse(respData);
-                break;
-            default:
-                log.warn("设备:{},未知车载卫星天线参数类型:{}", respData.getDevNo(), respData.getCmdMark());
-                break;
+
+        if(respData.getOperType().equals(SysConfigConstant.OPREATE_CONTROL_RESP)) {
+            if (ctrlInterPrtclAnalysisService != null) {
+                ctrlInterPrtclAnalysisService.ctrlParaResponse(respData);
+            } else {
+                iParaPrtclAnalysisService.ctrlParaResponse(respData);
+            }
+        }else{
+            if(iQueryInterPrtclAnalysisService!=null){
+                iQueryInterPrtclAnalysisService.queryParaResponse(respData);
+            }
         }
+
     }
 
     @Override
