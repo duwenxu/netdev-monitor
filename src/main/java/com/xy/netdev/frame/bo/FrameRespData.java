@@ -54,6 +54,10 @@ public class FrameRespData {
     @ApiModelProperty(value = "接收到的原始数据")
     private String reciveOriginalData;
 
+    @ApiModelProperty(value = "页面查询接口数据")
+    private String pageQueryJsonStr;
+
+
     @ApiModelProperty(value = "帧参数列表")
     private List<FrameParaData> frameParaList;
 

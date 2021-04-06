@@ -22,6 +22,7 @@ import com.xy.netdev.sendrecv.enums.CallbackTypeEnum;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import com.xy.netdev.transit.IDataSendService;
 import io.netty.channel.ChannelFuture;
+import jdk.nashorn.internal.codegen.CompilerConstants;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,7 +117,7 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
         R unpackBytes = unpack((Q) socketEntity, r);
         //转16进制，用来获取协议解析类
         String cmdHexStr = cmdMarkConvert(r);
-
+        r.setCmdMark(cmdHexStr);
         //根据cmd和设备类型获取具体的数据处理类
         PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(r.getDevType(), cmdHexStr);
         if (prtclFormat == null){
@@ -137,7 +138,7 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
             r.setAccessType(SysConfigConstant.ACCESS_TYPE_PARAM);
             iParaPrtclAnalysisService = ParaPrtclFactory.genHandler(prtclFormat.getFmtHandlerClass());
         }else {
-            switch (getCallbackType(socketEntity.getBytes())){
+            switch (getCallbackType(unpackBytes)){
                 case ICTRLINTER_PRTCL:
                     iCtrlInterPrtclAnalysisService = CtrlInterPrtcllFactory.genHandler(prtclFormat.getFmtHandlerClass());
                     break;
@@ -146,11 +147,8 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
                     queryInterPrtclAnalysisService = QueryInterPrtcllFactory.genHandler(prtclFormat.getFmtHandlerClass());
                     break;
             }
-
         }
         setReceiveOriginalData(r, socketEntity.getBytes());
-        r.setCmdMark(cmdHexStr);
-
         //执行回调方法
         this.callback(unpackBytes, iParaPrtclAnalysisService, queryInterPrtclAnalysisService, iCtrlInterPrtclAnalysisService);
         log.debug("设备数据已发送至对应模块, 数据体:{}", JSON.toJSONString(unpackBytes));
@@ -166,11 +164,19 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
 
     /**
      * 获取头部返回值类型
-     * @param bytes 返回字节
+     * @param r 返回字节
      * @return 返回值
      */
-    protected CallbackTypeEnum getCallbackType(byte[] bytes){
-        return CallbackTypeEnum.DEFAULT;
+    protected CallbackTypeEnum getCallbackType(R r){
+        String cmdMark = r.getCmdMark();
+        switch (cmdMark){
+            //81：车载卫星天线接口设置响应命令字
+            case "81":
+                return CallbackTypeEnum.ICTRLINTER_PRTCL;
+            default:
+                return CallbackTypeEnum.DEFAULT;
+        }
+
     }
 
 

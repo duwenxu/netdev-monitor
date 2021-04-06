@@ -143,7 +143,7 @@ public class InterfaceController {
      * 查询设备的页面查询接口参数实时信息
      */
     @ApiOperation(value = "查询设备的页面查询接口", notes = "查询设备的页面查询接口")
-    @PutMapping(value = "/getPageItfInfo")
+    @PostMapping(value = "/getPageItfInfo")
     public Result<List> getPageItfInfo(BaseInfo baseInfo) {
         List list = targetService.getPageItfInfo(baseInfo);
         return ControllerResultWrapper.genGetOneResult(list);
@@ -153,7 +153,7 @@ public class InterfaceController {
      * 查询设备的组装控制接口参数实时信息
      */
     @ApiOperation(value = "查询设备的组装控制接口", notes = "查询设备的组装控制接口")
-    @PutMapping(value = "/getCtrlItfInfo")
+    @PostMapping(value = "/getCtrlItfInfo")
     public Result<List> getCtrlItfInfo(BaseInfo baseInfo) {
         List list = targetService.getCtrlItfInfo(baseInfo);
         return ControllerResultWrapper.genGetOneResult(list);

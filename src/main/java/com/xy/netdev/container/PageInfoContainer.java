@@ -23,8 +23,8 @@ public class PageInfoContainer {
     /**
      * @功能：添加页面缓存信息
      * @param devNo           设备编号
-     * @param cmdMark       命令标识
-     * @param contextStr      设备告警信息
+     * @param cmdMark         命令标识
+     * @param contextStr      页面查询接口数据
      * @return 是否变化 true 变化  false 未变化
      */
     public synchronized static boolean addPageInfo(String devNo,String cmdMark,String contextStr) {
