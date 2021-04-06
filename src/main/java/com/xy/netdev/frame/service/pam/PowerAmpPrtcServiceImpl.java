@@ -7,10 +7,10 @@ import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
-import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
+import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import com.xy.netdev.transit.IDataReciveService;
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
@@ -37,8 +37,10 @@ public class PowerAmpPrtcServiceImpl implements IParaPrtclAnalysisService {
     private SocketMutualService socketMutualService;
     @Autowired
     private IDataReciveService dataReciveService;
-    /**分隔符 ASCII码为 0x2C*/
-    private static final String SPLIT=",";
+    /**
+     * 分隔符 ASCII码为 0x2C
+     */
+    private static final String SPLIT = ",";
 
     @Override
     public void queryPara(FrameReqData reqInfo) {
@@ -51,7 +53,8 @@ public class PowerAmpPrtcServiceImpl implements IParaPrtclAnalysisService {
 
     /**
      * Ku400w功放 参数控制
-     * @param  reqInfo   请求参数信息
+     *
+     * @param reqInfo 请求参数信息
      */
     @Override
     public void ctrlPara(FrameReqData reqInfo) {
@@ -75,7 +78,8 @@ public class PowerAmpPrtcServiceImpl implements IParaPrtclAnalysisService {
                 String dataBody = reqInfo.getCmdMark() + byteVal;
                 bytes = HexUtil.decodeHex(dataBody);
                 break;
-            default:break;
+            default:
+                break;
         }
         reqInfo.setParamBytes(bytes);
         socketMutualService.request(reqInfo, ProtocolRequestEnum.CONTROL);
@@ -83,7 +87,8 @@ public class PowerAmpPrtcServiceImpl implements IParaPrtclAnalysisService {
 
     /**
      * Ku400w功放 参数控制响应
-     * @param  respData   协议解析响应数据
+     *
+     * @param respData 协议解析响应数据
      * @return 响应结果
      */
     @Override
@@ -102,8 +107,11 @@ public class PowerAmpPrtcServiceImpl implements IParaPrtclAnalysisService {
     }
 
     public static void main(String[] args) {
-        byte[] bytes = {0x32, 0x30, 0x2E, 0x30, 0x30};
+//        byte[] bytes = {0x56, 0x32, 0x2E, 0x30, 0x2D, 0x31, 0x39, 0x30, 0x39, 0x32, 0x33};
+        byte[] bytes = {0x50, 0x00};
         String str = StrUtil.str(bytes, Charsets.UTF_8);
+//        String str = BCD.bcdToStr(bytes);
+//        String str = ParamDecoder.BCD(bytes, 2);
         System.out.println(str);
     }
 }
