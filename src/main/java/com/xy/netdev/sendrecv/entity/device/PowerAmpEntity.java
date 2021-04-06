@@ -8,6 +8,7 @@ import lombok.Setter;
 
 /**
  * Ku4000W功率放大器协议头对象
+ * C中频切换矩阵协议头对象(因一致所以此处用一个实体类)  sunchao
  */
 @Setter
 @Getter
