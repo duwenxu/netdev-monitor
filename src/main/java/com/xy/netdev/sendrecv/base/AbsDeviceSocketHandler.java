@@ -147,7 +147,6 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
                     queryInterPrtclAnalysisService = QueryInterPrtcllFactory.genHandler(prtclFormat.getFmtHandlerClass());
                     break;
             }
-
         }
         setReceiveOriginalData(r, socketEntity.getBytes());
         //执行回调方法

@@ -10,6 +10,7 @@ import com.xy.netdev.frame.service.ICtrlInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.dzt.DztCtrlInterPrtcServiceImpl;
+import com.xy.netdev.frame.service.dzt.DztPrtcServiceImpl;
 import com.xy.netdev.frame.service.dzt.DztQueryInterPrtcServiceImpl;
 import com.xy.netdev.monitor.entity.PrtclFormat;
 import com.xy.netdev.sendrecv.base.AbsDeviceSocketHandler;
@@ -43,6 +44,8 @@ public class CarAntennaImpl extends AbsDeviceSocketHandler<SocketEntity, FrameRe
     private DztCtrlInterPrtcServiceImpl ctrlInterService;
     @Autowired
     private DztQueryInterPrtcServiceImpl queryInterService;
+    @Autowired
+    private DztPrtcServiceImpl dztPrtcService;
 
     @Override
     public void callback(FrameRespData respData, IParaPrtclAnalysisService iParaPrtclAnalysisService, IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService, ICtrlInterPrtclAnalysisService ctrlInterPrtclAnalysisService) {
