@@ -15,6 +15,7 @@ import com.xy.netdev.monitor.constant.MonitorConstants;
 import com.xy.netdev.monitor.entity.PrtclFormat;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import com.xy.netdev.transit.IDataReciveService;
+import io.netty.buffer.Unpooled;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +48,7 @@ public class DztQueryInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
     /** 全查询响应命令字*/
     public static final int QUERY_ALL_MARK = 83;
     /** 单查询响应命令字*/
-    public static final int QUERY_SINGLE_MARK = 85;
+    public static final String QUERY_SINGLE_MARK = "85";
     /**查询应答帧分隔符*/
     private static final String SPLIT = "2c";
 
@@ -65,33 +66,23 @@ public class DztQueryInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
         String devType = respData.getDevType();
         String bytesData = HexUtil.encodeHexStr(respData.getParamBytes());
         String[] dataList = bytesData.toLowerCase().split(SPLIT.toLowerCase());
-        //拆分后根据关键字获取参数
+        String cmdMark = respData.getCmdMark();
         List<FrameParaData> frameParaDataList = new ArrayList<>();
-        for (String data : dataList) {
-            String paraCmk = data.substring(0, 2);
-            String paraValueStr = data.substring(2);
-            byte[] paraValBytes = HexUtil.decodeHex(paraValueStr);
-            FrameParaInfo currentPara = BaseInfoContainer.getParaInfoByCmd(devType, paraCmk);
+        //拆分后根据关键字获取参数
+        if(cmdMark.equals(QUERY_ALL_MARK)){
+            for (String data : dataList) {
+                String paraCmk = data.substring(0, 1);
+                String paraValueStr = data.substring(1);
+                List<FrameParaInfo> paraInfos =  BaseInfoContainer.getInterLinkParaList(devType, paraCmk);
+                genFrameParaInfo(frameParaDataList,respData,paraInfos,paraValueStr);
 
-            if (StringUtils.isEmpty(currentPara.getParaNo())){ continue;}
-            FrameParaData frameParaData = FrameParaData.builder()
-                    .devType(devType)
-                    .devNo(respData.getDevNo())
-                    .paraNo(currentPara.getParaNo())
-                    .build();
-            //根据是否为String类型采取不同的处理方式
-            boolean isStr = MonitorConstants.STRING_CODE.equals(currentPara.getDataType());
-            if (isStr){
-                frameParaData.setParaVal(paraValueStr);
-            }else {
-                //单个参数值转换
-                frameParaData.setParaVal(byteToNumber(paraValBytes, 0,
-                        Integer.parseInt(currentPara.getParaByteLen())
-                        ,isUnsigned(sysParamService, currentPara.getDataType())
-                        ,isFloat(sysParamService, currentPara.getDataType())
-                ).toString());
             }
-            frameParaDataList.add(frameParaData);
+        }else{
+            List<FrameParaInfo> paraInfos =  BaseInfoContainer.getInterLinkParaList(devType, QUERY_SINGLE_MARK);
+            for (String data : dataList) {
+                String paraValueStr = data.substring(1);
+                genFrameParaInfo(frameParaDataList,respData,paraInfos,paraValueStr);
+            }
         }
         respData.setFrameParaList(frameParaDataList);
         //参数查询响应结果接收
@@ -100,5 +91,41 @@ public class DztQueryInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
     }
 
 
+    /**
+     * 生成数据帧参数数据
+     * @param frameParaDataList
+     * @param respData
+     * @param paraInfos
+     * @param paraValueStr
+     */
+    private void genFrameParaInfo(List<FrameParaData> frameParaDataList,FrameRespData respData,List<FrameParaInfo> paraInfos,String paraValueStr){
+        String devType = respData.getDevType();
+        String bytesData = HexUtil.encodeHexStr(respData.getParamBytes());
+        byte[] paraValBytes = HexUtil.decodeHex(paraValueStr);
+        Integer startIndex = 0;
+        for (FrameParaInfo paraInfo : paraInfos) {
+            Integer endIndex = startIndex +  Integer.parseInt(paraInfo.getParaByteLen());
+            if (StringUtils.isEmpty(paraInfo.getParaNo())){ continue;}
+            FrameParaData frameParaData = FrameParaData.builder()
+                    .devType(devType)
+                    .devNo(respData.getDevNo())
+                    .paraNo(paraInfo.getParaNo())
+                    .build();
+            //根据是否为String类型采取不同的处理方式
+            boolean isStr = MonitorConstants.STRING_CODE.equals(paraInfo.getDataType());
+            if (isStr){
+                frameParaData.setParaVal(paraValueStr.substring(startIndex,endIndex));
+            }else {
+                //单个参数值转换
+                frameParaData.setParaVal(byteToNumber(paraValBytes, startIndex,
+                        Integer.parseInt(paraInfo.getParaByteLen())
+                        ,isUnsigned(sysParamService, paraInfo.getDataType())
+                        ,isFloat(sysParamService, paraInfo.getDataType())
+                ).toString());
+            }
+            startIndex = endIndex;
+            frameParaDataList.add(frameParaData);
+        }
+    }
 
 }
