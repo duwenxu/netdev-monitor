@@ -88,16 +88,9 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
      */
     @Override
     public List getPageItfInfo(BaseInfo baseInfo) {
-        List list = new ArrayList();
-        Map<String,Object> map = new HashMap<>();
-        //合并设备信息
-        map.putAll(BeanUtils.beanToMap(baseInfo));
         //合并接口信息
         List<Interface> interfaces = BaseInfoContainer.getPageItfInfo(baseInfo.getDevNo());
-        map.putAll(BeanUtils.beanToMap(interfaces));
-        //存放数据
-        //map.put("data", PageInfoContainer.getPageInfo(baseInfo.getDevNo(),anInterface.getItfCode()));
-        return list;
+        return interfaces;
     }
 
     /**
@@ -105,16 +98,12 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
      */
     @Override
     public List getCtrlItfInfo(BaseInfo baseInfo) {
-        List list = new ArrayList();
         Map<String,Object> map = new HashMap<>();
         //合并设备信息
         map.putAll(BeanUtils.beanToMap(baseInfo));
         //合并接口信息
         List<Interface> interfaces = BaseInfoContainer.getCtrlItfInfo(baseInfo.getDevNo());
-        map.putAll(BeanUtils.beanToMap(interfaces));
-        //存放数据
-        //map.put("data", PageInfoContainer.getPageInfo(baseInfo.getDevNo(),anInterface.getItfCode()));
-        return list;
+        return interfaces;
     }
 
     /**
