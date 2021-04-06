@@ -94,15 +94,24 @@ public class DevIfeMegSend {
      * @param devNo 设备编号
      */
     public static void sendFirstData(Object interfaceMark,Object devNo){
-        if(devNo == null){
-            sendDevStatusToDev();
-            //推送所有设备的状态
-        }else if(interfaceMark.toString().equals("DevLogInfos")){
-            //发送日志信息
-            sendLogToDev(devNo.toString());
-        }else if(interfaceMark.toString().equals("DevParaInfos")){
-            //发送参数信息
-            sendParaToDev(devNo.toString());
+        switch (interfaceMark.toString()){
+            case "DevLogInfos" :
+                //发送日志信息
+                sendLogToDev(devNo.toString());
+                break;
+            case "DevParaInfos" :
+                //发送参数信息
+                sendParaToDev(devNo.toString());
+                break;
+            case "DevCtrlItfInfos" :
+                //发送组合控制接口信息
+                sendDevCtrlItfInfosToDev(devNo.toString());
+            case "DevPageInfos" :
+                //发送页面信息接口数据
+                sendDevCtrlItfInfosToDev(devNo.toString());
+            default:
+                sendDevStatusToDev();
+                break;
         }
     }
 }
