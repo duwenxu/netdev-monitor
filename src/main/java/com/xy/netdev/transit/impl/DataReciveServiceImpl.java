@@ -46,6 +46,7 @@ public class DataReciveServiceImpl implements IDataReciveService {
         respData.setOperType(SysConfigConstant.OPREATE_QUERY_RESP);
         if(DevParaInfoContainer.handlerRespDevPara(respData)){
             DevIfeMegSend.sendParaToDev(respData.getDevNo());//如果设备参数变化,websocet推前台
+            sendCtrlInter(respData);;
         }
         DevLogInfoContainer.handlerRespDevPara(respData);//记录日志
         DevIfeMegSend.sendLogToDev(respData.getDevNo());//操作日志websocet推前台
@@ -61,6 +62,7 @@ public class DataReciveServiceImpl implements IDataReciveService {
         respData.setOperType(SysConfigConstant.OPREATE_CONTROL_RESP);
         if(DevParaInfoContainer.handlerRespDevPara(respData)){
             DevIfeMegSend.sendParaToDev(respData.getDevNo());//如果设备参数变化,websocet推前台
+            sendCtrlInter(respData);;
         }
         DevLogInfoContainer.handlerRespDevPara(respData);//记录日志
         DevIfeMegSend.sendLogToDev(respData.getDevNo());//操作日志websocet推前台
@@ -76,10 +78,11 @@ public class DataReciveServiceImpl implements IDataReciveService {
         respData.setOperType(SysConfigConstant.OPREATE_QUERY_RESP);
         if(DevParaInfoContainer.handlerRespDevPara(respData)){
             DevIfeMegSend.sendParaToDev(respData.getDevNo());//如果设备参数变化,websocet推前台
+            sendCtrlInter(respData);
         }
         if(!StringUtils.isEmpty(respData.getPageQueryJsonStr())){
             if(PageInfoContainer.addPageInfo(respData.getDevNo(),respData.getCmdMark(),respData.getPageQueryJsonStr())){
-
+                DevIfeMegSend.sendPageInfoToDev(respData.getDevNo(),respData.getCmdMark());//如果页面查询接口数据发送变化,推送前台数据
             }
         }
         DevLogInfoContainer.handlerRespDevPara(respData);//记录日志
@@ -96,10 +99,20 @@ public class DataReciveServiceImpl implements IDataReciveService {
         respData.setOperType(SysConfigConstant.OPREATE_CONTROL_RESP);
         if(DevParaInfoContainer.handlerRespDevPara(respData)){
             DevIfeMegSend.sendParaToDev(respData.getDevNo());//如果设备参数变化,websocet推前台
+            sendCtrlInter(respData);
         }
         DevLogInfoContainer.handlerRespDevPara(respData);//记录日志
         DevIfeMegSend.sendLogToDev(respData.getDevNo());//操作日志websocet推前台
         handlerAlertInfo(respData);//处理报警信息
+    }
+    /**
+     * webSokcet推送接口控制数据
+     * @param  respData   协议解析响应数据
+     */
+    private  void sendCtrlInter(FrameRespData respData){
+        if(!BaseInfoContainer.getCtrlItfInfo(respData.getDevNo()).isEmpty()){
+            DevIfeMegSend.sendDevCtrlItfInfosToDev(respData.getDevNo());
+        }
     }
 
     /**
