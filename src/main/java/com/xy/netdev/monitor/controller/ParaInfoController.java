@@ -5,7 +5,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xy.common.helper.ControllerHelper;
 import com.xy.common.helper.ControllerResultWrapper;
 import com.xy.common.model.Result;
+import com.xy.netdev.common.util.BeanFactoryUtil;
 import com.xy.netdev.common.util.JwtUtil;
+import com.xy.netdev.frame.service.ParamCodec;
 import com.xy.netdev.monitor.bo.ParaViewInfo;
 import com.xy.netdev.monitor.entity.ParaInfo;
 import com.xy.netdev.monitor.service.IInterfaceService;
@@ -18,6 +20,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 设备参数 前端控制器
@@ -127,5 +131,18 @@ public class ParaInfoController {
     public Result<ParaInfo> paraCtrl(ParaViewInfo data) {
         devCmdSendService.paraCtrSend(data.getDevNo(),data.getParaCmdMark(), data.getParaVal());
         return ControllerResultWrapper.genUpdateResult();
+    }
+
+    /**
+     * 设备参数处理类列表
+     */
+    @ApiOperation(value = "设置参数处理类", notes = "设置参数处理类")
+    @GetMapping(value = "/paraCodec")
+    public Result<Set<String>> paraCodec() {
+        Set<String> codecSet = BeanFactoryUtil.getBeansOfType(ParamCodec.class).keySet();
+        Result<Set<String>> result = new Result<>();
+        result.ok();
+        result.setResult(codecSet);
+        return result;
     }
 }

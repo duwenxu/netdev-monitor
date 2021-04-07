@@ -544,6 +544,10 @@ public class BaseInfoContainer {
             frameParaInfo.setDataType(paraInfo.getNdpaDatatype());//数值类型
             frameParaInfo.setNdpaRemark1Desc(paraInfo.getNdpaRemark1Desc());//备注1
             frameParaInfo.setNdpaRemark1Data(paraInfo.getNdpaRemark1Data());//数据1
+            frameParaInfo.setNdpaRemark2Desc(paraInfo.getNdpaRemark2Desc());//备注2
+            frameParaInfo.setNdpaRemark2Data(paraInfo.getNdpaRemark2Data());//数据2
+            frameParaInfo.setNdpaRemark3Desc(paraInfo.getNdpaRemark3Desc());//备注3
+            frameParaInfo.setNdpaRemark3Data(paraInfo.getNdpaRemark3Data());//数据3
             Map map = new HashMap();
             if (!StringUtils.isBlank(paraInfo.getNdpaSelectData())) {
                 JSONArray.parseArray(paraInfo.getNdpaSelectData(), ParaSpinnerInfo.class).forEach(paraSpinnerInfo -> map.put(paraSpinnerInfo.getCode(), paraSpinnerInfo.getName()));

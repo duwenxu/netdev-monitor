@@ -2,6 +2,7 @@ package com.xy.netdev.frame.service.codec;
 
 import cn.hutool.core.util.HexUtil;
 import com.xy.netdev.frame.service.ParamCodec;
+import org.springframework.stereotype.Component;
 
 /**
  * 16进制byte[]直接转换
@@ -9,6 +10,7 @@ import com.xy.netdev.frame.service.ParamCodec;
  * @author duwenxu
  * @create 2021-04-02 17:08
  */
+@Component
 public class DirectParamCodec implements ParamCodec {
 
     @Override
@@ -18,6 +20,6 @@ public class DirectParamCodec implements ParamCodec {
 
     @Override
     public byte[] encode(String value, Object... objects) {
-        return new byte[0];
+        return HexUtil.decodeHex(value);
     }
 }
