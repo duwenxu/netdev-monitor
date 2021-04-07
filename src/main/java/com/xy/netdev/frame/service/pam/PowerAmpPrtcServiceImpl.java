@@ -1,5 +1,6 @@
 package com.xy.netdev.frame.service.pam;
 
+import cn.hutool.core.codec.BCD;
 import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.StrUtil;
 import com.google.common.base.Charsets;
@@ -108,11 +109,13 @@ public class PowerAmpPrtcServiceImpl implements IParaPrtclAnalysisService {
 
     public static void main(String[] args) {
 //        byte[] bytes = {0x56, 0x32, 0x2E, 0x30, 0x2D, 0x31, 0x39, 0x30, 0x39, 0x32, 0x33};
-        byte[] bytes = {0x50, 0x00};
-        String str = StrUtil.str(bytes, Charsets.UTF_8);
-//        String str = BCD.bcdToStr(bytes);
+        byte[] bytes = {0x02, 0x05};
+//        String str = StrUtil.str(bytes, Charsets.UTF_8);
+//        String str = byteToBinary((byte) 0x50);
+        String s = "0205";
+        String str = BCD.bcdToStr(bytes);
 //        String str = ParamDecoder.BCD(bytes, 2);
-        System.out.println(str);
+        System.out.println(BCD.strToBcd(s));
     }
 }
 

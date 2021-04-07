@@ -439,6 +439,15 @@ public class ByteUtils {
         return HexUtil.decodeHex(stringBuilder.toString());
     }
 
+    /**
+     * 数组转十六进制字符串并补全
+     * @param num
+     * @return
+     */
+    public static String lefPadNumToHexStr(long num){
+        return StringUtils.leftPad(HexUtil.toHex(num), 2,'0').toUpperCase();
+    }
+
     public static void main(String[] args) {
         String str = "7E7E7D7E";
         byte[] bytes = HexUtil.decodeHex(str);

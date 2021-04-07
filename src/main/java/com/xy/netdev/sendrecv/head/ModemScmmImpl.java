@@ -1,5 +1,6 @@
 package com.xy.netdev.sendrecv.head;
 
+import cn.hutool.core.lang.Pair;
 import cn.hutool.core.util.HexUtil;
 import com.xy.common.exception.BaseException;
 import com.xy.netdev.common.util.ByteUtils;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static com.xy.netdev.common.constant.SysConfigConstant.*;
 import static com.xy.netdev.common.util.ByteUtils.*;
@@ -64,25 +66,35 @@ public class ModemScmmImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReq
             log.warn("SCMM-2300调制解调器数据帧异常, 响应数据长度错误, 数据体长度:{}, 数据体:{}", bytes.length, HexUtil.encodeHexStr(bytes));
             return frameRespData;
         }
-        //TODO 转义校验
-        if (!validAndCheck(socketEntity)) {
+        //转义校验并获取转义后的新 bytes
+        Pair<Boolean, byte[]> validAndCheck = convertAndCheck(socketEntity);
+        if (!validAndCheck.getKey()) {
             log.warn("SCMM-2300调制解调器数据帧异常，校验和校验错误,  数据体长度:{}, 数据体:{}", bytes.length, HexUtil.encodeHexStr(bytes));
             return frameRespData;
         }
+        bytes = validAndCheck.getValue();
         //按协议中指定的位置获取数据体长度
-        int len = bytesToNum(bytes, 1, 1, ByteBuf::readShort);
+        int len = bytesToNum(bytes, 1, 1, ByteBuf::readUnsignedByte);
         int hexLen = Integer.parseInt(HexUtil.toHex(len));
         //响应类型标识
         Short respType = bytesToNum(bytes, 2, 1, ByteBuf::readUnsignedByte);
         String hexRespType = HexUtil.toHex(respType);
         //参数关键字
-        Short cmd = bytesToNum(bytes, 4, 1, ByteBuf::readUnsignedByte);
-        String hexCmd = HexUtil.toHex(cmd);
-        //数据体   去掉 命令体+校验字的长度(设置单元-信息体)
+        if (CONTROL_RES.equals(hexRespType)){
+            Short cmd = bytesToNum(bytes, 4, 1, ByteBuf::readUnsignedByte);
+            String hexCmd = HexUtil.toHex(cmd);
+            frameRespData.setCmdMark(hexCmd);
+            frameRespData.setOperType(OPREATE_CONTROL_RESP);
+        }else {
+            //查询响应设置单元作为关键字
+            Short unit = bytesToNum(bytes, 3, 1, ByteBuf::readUnsignedByte);
+            String hexUnit = lefPadNumToHexStr(unit);
+            frameRespData.setCmdMark(hexUnit);
+            frameRespData.setOperType(OPREATE_QUERY_RESP);
+        }
+        //数据体   去掉 命令体+校验字的长度(设置单元+信息体)
         byte[] paramBytes = byteArrayCopy(bytes, 3, hexLen - 2);
         frameRespData.setParamBytes(paramBytes);
-        frameRespData.setCmdMark(hexCmd);
-        frameRespData.setOperType(hexRespType);
         return frameRespData;
     }
 
@@ -102,7 +114,6 @@ public class ModemScmmImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReq
         //获取参数协议
         PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameReqData.getDevType(), frameReqData.getCmdMark());
         FrameParaInfo paraInfo = BaseInfoContainer.getParaInfoByCmd(frameReqData.getDevType(), frameReqData.getCmdMark());
-        //todo 设备参数添加所属子单元
         //备注1 单元编码
         String unitCode = paraInfo.getNdpaRemark1Data();
         if (prtclFormat == null || prtclFormat.getFmtId() == null) {
@@ -124,7 +135,9 @@ public class ModemScmmImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReq
         //累加校验和
         byte checkSum = addGetBottom(modemScmmEntity);
         modemScmmEntity.setCheck(checkSum);
-        return pack(modemScmmEntity);
+        byte[] pack = pack(modemScmmEntity);
+        //转义
+        return byteReplace(pack, 1, pack.length - 1, Pair.of("7E", "7D5E"), Pair.of("7D", "7D5D"));
     }
 
     /**
@@ -165,10 +178,15 @@ public class ModemScmmImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReq
      * @param socketEntity 接收到的数据帧结构体
      * @return 校验和是否正确
      */
-    private boolean validAndCheck(SocketEntity socketEntity) {
+    private Pair<Boolean, byte[]> convertAndCheck(SocketEntity socketEntity) {
+        boolean flag = false;
         byte[] bytes = socketEntity.getBytes();
-        //todo 接受和发送的转意规则
-        return false;
+        byte[] realBytes = byteReplace(bytes, 1, bytes.length - 1, Pair.of("7D5E", "7E"), Pair.of("7D5D", "7D"));
+        byte receiveCheckByte = Objects.requireNonNull(byteArrayCopy(realBytes, realBytes.length - 2, 1))[0];
+        byte checkByte = ByteUtils.addGetBottom(realBytes, 1, bytes.length - 3);
+        if (checkByte==receiveCheckByte){
+            flag = true;
+        }
+        return Pair.of(flag, realBytes);
     }
-
 }

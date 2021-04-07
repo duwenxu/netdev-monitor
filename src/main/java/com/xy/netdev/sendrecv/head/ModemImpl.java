@@ -155,12 +155,4 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
         return (byte)Double.valueOf(div).intValue();
     }
 
-    /**
-     * 数组转十六进制字符串并补全
-     * @param num
-     * @return
-     */
-    private static String lefPadNumToHexStr(long num){
-        return StringUtils.leftPad(HexUtil.toHex(num), 2,'0').toUpperCase();
-    }
 }
