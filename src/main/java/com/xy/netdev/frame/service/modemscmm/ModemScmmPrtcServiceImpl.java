@@ -2,6 +2,7 @@ package com.xy.netdev.frame.service.modemscmm;
 
 import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.StrUtil;
+import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
@@ -34,6 +35,8 @@ public class ModemScmmPrtcServiceImpl implements IParaPrtclAnalysisService {
     private IDataReciveService dataReciveService;
     @Autowired
     private SocketMutualService socketMutualService;
+    @Autowired
+    private ISysParamService sysParamService;
 
     @Override
     public void queryPara(FrameReqData reqInfo) {

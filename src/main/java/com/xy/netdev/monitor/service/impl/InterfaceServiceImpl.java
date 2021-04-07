@@ -5,9 +5,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.BeanUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xy.common.query.QueryGenerator;
+import com.xy.netdev.container.BaseContainerLoader;
 import com.xy.netdev.container.BaseInfoContainer;
-import com.xy.netdev.container.PageInfoContainer;
-import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.bo.TransUiData;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.Interface;
@@ -15,6 +14,7 @@ import com.xy.netdev.monitor.entity.ParaInfo;
 import com.xy.netdev.monitor.mapper.InterfaceMapper;
 import com.xy.netdev.monitor.service.IInterfaceService;
 import com.xy.netdev.monitor.service.IParaInfoService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,12 +30,15 @@ import static com.xy.netdev.common.constant.SysConfigConstant.*;
  * @author admin
  * @date 2021-03-05
  */
+@Slf4j
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface> implements IInterfaceService {
 
     @Autowired
     private IParaInfoService paraInfoService;
+    @Autowired
+    private BaseContainerLoader baseContainerLoader;
 
     /**
      * 获取所有 非子接口的 接口分页
@@ -85,16 +88,9 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
      */
     @Override
     public List getPageItfInfo(BaseInfo baseInfo) {
-        List list = new ArrayList();
-        Map<String,Object> map = new HashMap<>();
-        //合并设备信息
-        map.putAll(BeanUtils.beanToMap(baseInfo));
         //合并接口信息
         List<Interface> interfaces = BaseInfoContainer.getPageItfInfo(baseInfo.getDevNo());
-        map.putAll(BeanUtils.beanToMap(interfaces));
-        //存放数据
-        //map.put("data", PageInfoContainer.getPageInfo(baseInfo.getDevNo(),anInterface.getItfCode()));
-        return list;
+        return interfaces;
     }
 
     /**
@@ -102,16 +98,35 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
      */
     @Override
     public List getCtrlItfInfo(BaseInfo baseInfo) {
-        List list = new ArrayList();
         Map<String,Object> map = new HashMap<>();
         //合并设备信息
         map.putAll(BeanUtils.beanToMap(baseInfo));
         //合并接口信息
         List<Interface> interfaces = BaseInfoContainer.getCtrlItfInfo(baseInfo.getDevNo());
-        map.putAll(BeanUtils.beanToMap(interfaces));
-        //存放数据
-        //map.put("data", PageInfoContainer.getPageInfo(baseInfo.getDevNo(),anInterface.getItfCode()));
-        return list;
+        return interfaces;
+    }
+
+    /**
+     * 删除掉指定的接口绑定的参数
+     * @param paraInfo
+     */
+    @Override
+    public void clearParaById(ParaInfo paraInfo) {
+        log.warn("参数{}删除，执行接口绑定参数剔除！",paraInfo.getNdpaName());
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("DEV_TYPE",paraInfo.getDevType());
+        List<Interface> interfaces = this.list(queryWrapper);
+        //需要更新的接口list
+        List list = new ArrayList();
+        interfaces.forEach(anInterface -> {
+            String iftDataFormat = anInterface.getItfDataFormat();
+            if(iftDataFormat.contains(paraInfo.getNdpaId().toString())){
+                iftDataFormat = iftDataFormat.replace(paraInfo.getNdpaId().toString()+",","");
+                anInterface.setItfDataFormat(iftDataFormat);
+                list.add(anInterface);
+            }
+        });
+        this.updateBatchById(list);
     }
 
     /**

@@ -417,7 +417,9 @@ public class BaseInfoContainer {
     public static PrtclFormat getPrtclByInterface(String devType, String cmdMark) {
         DevInterParam devInterParam = InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType, cmdMark));
         if (devInterParam != null) {
-            return devInterParam.getInterfacePrtcl();
+            PrtclFormat prtclFormat= devInterParam.getInterfacePrtcl();
+            prtclFormat.setIsPrtclParam(1);
+            return prtclFormat;
         }
         return new PrtclFormat();
     }
@@ -431,7 +433,9 @@ public class BaseInfoContainer {
     public static PrtclFormat getPrtclByPara(String devType, String cmdMark) {
         FrameParaInfo frameParaInfo = paramCmdMap.get(ParaHandlerUtil.genLinkKey(devType, cmdMark));
         if (frameParaInfo != null) {
-            return frameParaInfo.getInterfacePrtcl();
+            PrtclFormat prtclFormat= frameParaInfo.getInterfacePrtcl();
+            prtclFormat.setIsPrtclParam(0);
+            return prtclFormat;
         }
         return new PrtclFormat();
     }
@@ -603,9 +607,7 @@ public class BaseInfoContainer {
             List<String> paraIds = StringUtils.isBlank(anInterface.getItfDataFormat()) ? new ArrayList<>() : Arrays.asList(anInterface.getItfDataFormat().split(","));
             Map<Integer, FrameParaInfo> frameParaInfoMap = frameParaInfos.stream().collect(Collectors.toMap(FrameParaInfo::getParaId,FrameParaInfo -> FrameParaInfo));
             paraIds.forEach(paraId->{
-                if(frameParaInfoMap.containsKey(Integer.valueOf(paraId))){
-                    devInterParam.addFramePara(frameParaInfoMap.get(Integer.valueOf(paraId)));
-                }
+                devInterParam.addFramePara(frameParaInfoMap.get(Integer.valueOf(paraId)));
             });
             //如果为组合接口则填充子接口列表：递归方法
             List<DevInterParam> subList = new ArrayList<>();

@@ -1,6 +1,7 @@
 package com.xy.netdev.websocket.config;
 
 import com.alibaba.fastjson.JSON;
+import com.xy.netdev.common.util.ParaHandlerUtil;
 import com.xy.netdev.websocket.send.DevIfeMegSend;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -45,6 +46,8 @@ public class WSHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
         Map map = JSON.parseObject(content);
         Object interfaceMark = map.get("interfaceMark");
         Object devCd = map.get("devNo");
+        Object iftCode  = map.get("iftCode");
+
         //获取接收到消息的通道
         Channel channel = channelHandlerContext.channel();
         //判断此通道是否存在缓存中：若不存在，则增加
@@ -53,6 +56,9 @@ public class WSHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
                 cache.setChannel(channel);
                 //存放到接口和设备的关系缓存
                 if(interfaceMark != null && devCd != null){
+                    if(iftCode != null){
+                        devCd = ParaHandlerUtil.genLinkKey(devCd.toString(), iftCode.toString());
+                    }
                     cache.setChannelUser(interfaceMark.toString(),devCd.toString(),channelHandlerContext.channel());
                 }else{
                     //存放接口和所有设备的关系

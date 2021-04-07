@@ -93,6 +93,12 @@ public class FrameParaInfo {
     @ApiModelProperty(value = "备注一数据")
     private String ndpaRemark1Data;
 
+    @ApiModelProperty(value = "备注二描述")
+    private String ndpaRemark2Desc;
+
+    @ApiModelProperty(value = "备注二数据")
+    private String ndpaRemark2Data;
+
     /**
      * 下拉框显示数据,当显示模式 是0024002 需要赋值下拉框列表
      */

@@ -130,7 +130,8 @@ public class ParaViewInfo {
 
     /**
      * 仅复杂级别为0019004-子参数时有效
-     * 0018001-独立参数 0018002-值关联
+     * 0018001-独立参数 0018002-值关联  0018003-数据组合
+     * 0018003 需要再页面显示父参数  框 子参数
      */
     @ApiModelProperty(value = "子参数关联类型")
     private String subParaLinkType;
