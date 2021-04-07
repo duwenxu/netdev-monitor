@@ -15,6 +15,7 @@ import com.xy.netdev.monitor.entity.PrtclFormat;
 import com.xy.netdev.monitor.service.IBaseInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -607,7 +608,10 @@ public class BaseInfoContainer {
             List<String> paraIds = StringUtils.isBlank(anInterface.getItfDataFormat()) ? new ArrayList<>() : Arrays.asList(anInterface.getItfDataFormat().split(","));
             Map<Integer, FrameParaInfo> frameParaInfoMap = frameParaInfos.stream().collect(Collectors.toMap(FrameParaInfo::getParaId,FrameParaInfo -> FrameParaInfo));
             paraIds.forEach(paraId->{
-                devInterParam.addFramePara(frameParaInfoMap.get(Integer.valueOf(paraId)));
+                //解决是一个实体类导致的数据属性同步变化
+                FrameParaInfo frameParaInfo = new FrameParaInfo();
+                BeanUtils.copyProperties(frameParaInfoMap.get(Integer.valueOf(paraId)),frameParaInfo);
+                devInterParam.addFramePara(frameParaInfo);
             });
             //如果为组合接口则填充子接口列表：递归方法
             List<DevInterParam> subList = new ArrayList<>();
