@@ -1,11 +1,9 @@
 package com.xy.netdev.frame.service.modemscmm;
 
 import cn.hutool.core.util.HexUtil;
-import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.util.BeanFactoryUtil;
-import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.ExtParamConf;
 import com.xy.netdev.frame.bo.FrameParaData;
@@ -27,9 +25,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 import static com.xy.netdev.common.util.ByteUtils.*;
-import static com.xy.netdev.common.util.ByteUtils.bytesMerge;
-import static com.xy.netdev.monitor.constant.MonitorConstants.BYTE;
-import static com.xy.netdev.monitor.constant.MonitorConstants.STR;
 /**
  * SCMM-2300调制解调器 参数协议内容解析
  *
