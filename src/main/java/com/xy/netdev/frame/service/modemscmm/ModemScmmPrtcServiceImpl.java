@@ -2,24 +2,32 @@ package com.xy.netdev.frame.service.modemscmm;
 
 import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSON;
 import com.xy.netdev.admin.service.ISysParamService;
+import com.xy.netdev.common.util.BeanFactoryUtil;
+import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
+import com.xy.netdev.frame.bo.ExtParamConf;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
+import com.xy.netdev.frame.service.ParamCodec;
 import com.xy.netdev.frame.service.SocketMutualService;
+import com.xy.netdev.frame.service.codec.DirectParamCodec;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import com.xy.netdev.transit.IDataReciveService;
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 import static com.xy.netdev.common.util.ByteUtils.*;
+import static com.xy.netdev.common.util.ByteUtils.bytesMerge;
 import static com.xy.netdev.monitor.constant.MonitorConstants.BYTE;
 import static com.xy.netdev.monitor.constant.MonitorConstants.STR;
 /**
@@ -54,23 +62,27 @@ public class ModemScmmPrtcServiceImpl implements IParaPrtclAnalysisService {
         //控制参数信息拼接
         FrameParaData paraData = paraList.get(0);
         FrameParaInfo paraInfoByNo = BaseInfoContainer.getParaInfoByNo(paraData.getDevType(), paraData.getParaNo());
-        String dataType = paraInfoByNo.getDataType();
-        byte[] bytes = HexUtil.decodeHex(reqInfo.getCmdMark());
-        //按数据类型处理
-        //todo
-        switch (dataType){
-            case STR:
-                byte[] valBytes = StrUtil.bytes(paraData.getParaVal());
-                bytes = bytesMerge(bytes,valBytes); break;
-            case BYTE:
-                String byteVal = "0".equals(paraData.getParaVal())? "80":"81";
-                String dataBody = reqInfo.getCmdMark() + byteVal;
-                bytes = HexUtil.decodeHex(dataBody);
-                break;
-            default:
-                break;
+        String configClass = paraInfoByNo.getNdpaRemark2Data();
+        String configParams = paraInfoByNo.getNdpaRemark3Data();
+        ParamCodec handler = new DirectParamCodec();
+        Object[] params = new Object[0];
+        ExtParamConf paramConf = new ExtParamConf();
+        if (!StringUtils.isBlank(configParams)) {
+            paramConf = JSON.parseObject(configParams, ExtParamConf.class);
         }
-        reqInfo.setParamBytes(bytes);
+        //构造参数
+        if (paramConf.getPoint() != null && paramConf.getStart() != null) {
+            params = new Integer[]{paramConf.getStart(), paramConf.getPoint()};
+        } else if (paramConf.getExt() != null){
+            params =paramConf.getExt().toArray();
+        }
+        if (StringUtils.isNotBlank(configClass)){
+            handler = BeanFactoryUtil.getBean(configClass);
+        }
+        byte[] bytes = HexUtil.decodeHex(reqInfo.getCmdMark());
+        byte[] valueBytes = handler.encode(paraData.getParaVal(), params);
+        byte[] bytesMerge = bytesMerge(bytes, valueBytes);
+        reqInfo.setParamBytes(bytesMerge);
         socketMutualService.request(reqInfo, ProtocolRequestEnum.CONTROL);
     }
 
