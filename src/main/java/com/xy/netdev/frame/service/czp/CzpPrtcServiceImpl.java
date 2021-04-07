@@ -1,9 +1,6 @@
 package com.xy.netdev.frame.service.czp;
 
 import cn.hutool.core.util.HexUtil;
-import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSON;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.ByteUtils;
@@ -23,8 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.xy.netdev.common.util.ByteUtils.byteToNumber;
@@ -141,8 +138,9 @@ public class CzpPrtcServiceImpl  implements IParaPrtclAnalysisService {
      */
     @Override
     public FrameRespData ctrlParaResponse(FrameRespData respData) {
-        log.info("C中频切换矩阵设置设备参数响应执行！");
-        String data = HexUtil.encodeHexStr(respData.getParamBytes());
+        log.info("C中频切换矩阵控制响应执行！");
+        byte[] bytes =respData.getParamBytes();
+        String data = HexUtil.encodeHexStr(bytes);
         String controlSuccessCode = sysParamService.getParaRemark1(SysConfigConstant.CONTROL_SUCCESS);
         String controlFailCode = sysParamService.getParaRemark1(SysConfigConstant.CONTROL_FAIL);
         if (data.contains(controlSuccessCode)) {
@@ -150,8 +148,19 @@ public class CzpPrtcServiceImpl  implements IParaPrtclAnalysisService {
         } else if (data.contains(controlFailCode)) {
             respData.setRespCode(controlFailCode);
         } else {
-            throw new IllegalStateException("调制解调器控制响应异常，数据字节：" + data);
+            throw new IllegalStateException("C中频切换矩阵控制响应异常，数据字节：" + data);
         }
+        //参数列表
+        FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),respData.getCmdMark());
+        if (StringUtils.isNotEmpty(frameParaInfo.getParaNo())){
+            FrameParaData frameParaData = FrameParaData.builder()
+                    .devType(respData.getDevType())
+                    .devNo(respData.getDevNo())
+                    .paraNo(frameParaInfo.getParaNo())
+                    .build();
+            respData.setFrameParaList(Arrays.asList(frameParaData));
+        }
+        dataReciveService.paraCtrRecive(respData);
         return respData;
     }
 }

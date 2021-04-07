@@ -9,6 +9,7 @@ import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.monitor.bo.ParaSpinnerInfo;
 import com.xy.netdev.monitor.bo.ParaViewInfo;
 import com.xy.netdev.monitor.entity.ParaInfo;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -126,7 +127,7 @@ public class DevParaInfoContainer {
                 String devNo = frameParaData.getDevNo();
                 String paraNo = frameParaData.getParaNo();
                 ParaViewInfo paraViewInfo = devParaMap.get(devNo).get(ParaHandlerUtil.genLinkKey(devNo, paraNo));
-                if (paraViewInfo!=null&&!frameParaData.getParaVal().equals(paraViewInfo.getParaVal())) {
+                if (paraViewInfo!=null&&StringUtils.isNotEmpty(frameParaData.getParaVal()) && frameParaData.getParaVal().equals(paraViewInfo.getParaVal())) {
                     paraViewInfo.setParaVal(frameParaData.getParaVal());
                     num++;
                 }

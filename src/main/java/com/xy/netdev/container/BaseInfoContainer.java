@@ -417,7 +417,9 @@ public class BaseInfoContainer {
     public static PrtclFormat getPrtclByInterface(String devType, String cmdMark) {
         DevInterParam devInterParam = InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType, cmdMark));
         if (devInterParam != null) {
-            return devInterParam.getInterfacePrtcl();
+            PrtclFormat prtclFormat= devInterParam.getInterfacePrtcl();
+            prtclFormat.setIsPrtclParam(1);
+            return prtclFormat;
         }
         return new PrtclFormat();
     }
@@ -431,7 +433,9 @@ public class BaseInfoContainer {
     public static PrtclFormat getPrtclByPara(String devType, String cmdMark) {
         FrameParaInfo frameParaInfo = paramCmdMap.get(ParaHandlerUtil.genLinkKey(devType, cmdMark));
         if (frameParaInfo != null) {
-            return frameParaInfo.getInterfacePrtcl();
+            PrtclFormat prtclFormat= frameParaInfo.getInterfacePrtcl();
+            prtclFormat.setIsPrtclParam(0);
+            return prtclFormat;
         }
         return new PrtclFormat();
     }
