@@ -9,6 +9,7 @@ import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.monitor.bo.ParaSpinnerInfo;
 import com.xy.netdev.monitor.bo.ParaViewInfo;
 import com.xy.netdev.monitor.entity.ParaInfo;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -104,20 +105,29 @@ public class DevParaInfoContainer {
     }
 
     /**
+     * @功能：根据设备编号和参数编号 返回参数显示信息
+     * @param devNo        设备编号
+     * @param paraNo       参数编号
+     * @return  设备参数显示信息
+     */
+    public static ParaViewInfo   getDevParaView(String devNo,String paraNo){
+        return devParaMap.get(devNo).get(ParaHandlerUtil.genLinkKey(devNo,paraNo));
+    }
+    /**
      * @功能：设置设备响应参数信息
      * @param respData        协议解析响应数据
      * @return 数据是否发生变化
      */
     public synchronized static boolean   handlerRespDevPara(FrameRespData respData){
         List<FrameParaData> frameParaList = respData.getFrameParaList();
-        boolean isUpadte = false;
+
         int num = 0;
         if(frameParaList!=null&&!frameParaList.isEmpty()){
             for(FrameParaData frameParaData:frameParaList) {
                 String devNo = frameParaData.getDevNo();
                 String paraNo = frameParaData.getParaNo();
                 ParaViewInfo paraViewInfo = devParaMap.get(devNo).get(ParaHandlerUtil.genLinkKey(devNo, paraNo));
-                if (paraViewInfo!=null&&!frameParaData.getParaVal().equals(paraViewInfo.getParaVal())) {
+                if (paraViewInfo!=null&&StringUtils.isNotEmpty(frameParaData.getParaVal()) && frameParaData.getParaVal().equals(paraViewInfo.getParaVal())) {
                     paraViewInfo.setParaVal(frameParaData.getParaVal());
                     num++;
                 }

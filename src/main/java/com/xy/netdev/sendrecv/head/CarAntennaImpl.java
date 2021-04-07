@@ -10,6 +10,7 @@ import com.xy.netdev.frame.service.ICtrlInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.dzt.DztCtrlInterPrtcServiceImpl;
+import com.xy.netdev.frame.service.dzt.DztPrtcServiceImpl;
 import com.xy.netdev.frame.service.dzt.DztQueryInterPrtcServiceImpl;
 import com.xy.netdev.monitor.entity.PrtclFormat;
 import com.xy.netdev.sendrecv.base.AbsDeviceSocketHandler;
@@ -43,20 +44,24 @@ public class CarAntennaImpl extends AbsDeviceSocketHandler<SocketEntity, FrameRe
     private DztCtrlInterPrtcServiceImpl ctrlInterService;
     @Autowired
     private DztQueryInterPrtcServiceImpl queryInterService;
+    @Autowired
+    private DztPrtcServiceImpl dztPrtcService;
 
     @Override
     public void callback(FrameRespData respData, IParaPrtclAnalysisService iParaPrtclAnalysisService, IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService, ICtrlInterPrtclAnalysisService ctrlInterPrtclAnalysisService) {
-        switch (respData.getOperType()) {
-            case SysConfigConstant.OPREATE_QUERY_RESP:
-                queryInterService.queryParaResponse(respData);
-                break;
-            case SysConfigConstant.OPREATE_CONTROL_RESP:
-                ctrlInterService.ctrlParaResponse(respData);
-                break;
-            default:
-                log.warn("设备:{},未知车载卫星天线参数类型:{}", respData.getDevNo(), respData.getCmdMark());
-                break;
+
+        if(respData.getOperType().equals(SysConfigConstant.OPREATE_CONTROL_RESP)) {
+            if (ctrlInterPrtclAnalysisService != null) {
+                ctrlInterPrtclAnalysisService.ctrlParaResponse(respData);
+            } else {
+                iParaPrtclAnalysisService.ctrlParaResponse(respData);
+            }
+        }else{
+            if(iQueryInterPrtclAnalysisService!=null){
+                iQueryInterPrtclAnalysisService.queryParaResponse(respData);
+            }
         }
+
     }
 
     @Override

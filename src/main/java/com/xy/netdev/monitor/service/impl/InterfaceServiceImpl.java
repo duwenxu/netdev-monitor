@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.BeanUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xy.common.query.QueryGenerator;
+import com.xy.netdev.container.BaseContainerLoader;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.monitor.bo.TransUiData;
 import com.xy.netdev.monitor.entity.BaseInfo;
@@ -36,6 +37,8 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
 
     @Autowired
     private IParaInfoService paraInfoService;
+    @Autowired
+    private BaseContainerLoader baseContainerLoader;
 
     /**
      * 获取所有 非子接口的 接口分页
@@ -85,16 +88,9 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
      */
     @Override
     public List getPageItfInfo(BaseInfo baseInfo) {
-        List list = new ArrayList();
-        Map<String,Object> map = new HashMap<>();
-        //合并设备信息
-        map.putAll(BeanUtils.beanToMap(baseInfo));
         //合并接口信息
         List<Interface> interfaces = BaseInfoContainer.getPageItfInfo(baseInfo.getDevNo());
-        map.putAll(BeanUtils.beanToMap(interfaces));
-        //存放数据
-        //map.put("data", PageInfoContainer.getPageInfo(baseInfo.getDevNo(),anInterface.getItfCode()));
-        return list;
+        return interfaces;
     }
 
     /**
@@ -102,16 +98,12 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
      */
     @Override
     public List getCtrlItfInfo(BaseInfo baseInfo) {
-        List list = new ArrayList();
         Map<String,Object> map = new HashMap<>();
         //合并设备信息
         map.putAll(BeanUtils.beanToMap(baseInfo));
         //合并接口信息
         List<Interface> interfaces = BaseInfoContainer.getCtrlItfInfo(baseInfo.getDevNo());
-        map.putAll(BeanUtils.beanToMap(interfaces));
-        //存放数据
-        //map.put("data", PageInfoContainer.getPageInfo(baseInfo.getDevNo(),anInterface.getItfCode()));
-        return list;
+        return interfaces;
     }
 
     /**

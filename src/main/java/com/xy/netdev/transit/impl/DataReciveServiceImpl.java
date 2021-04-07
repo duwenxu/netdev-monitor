@@ -6,6 +6,7 @@ import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.container.DevLogInfoContainer;
 import com.xy.netdev.container.DevParaInfoContainer;
+import com.xy.netdev.container.PageInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
@@ -14,6 +15,7 @@ import com.xy.netdev.rpt.service.IDevStatusReportService;
 import com.xy.netdev.transit.IDataReciveService;
 import com.xy.netdev.websocket.send.DevIfeMegSend;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -44,6 +46,7 @@ public class DataReciveServiceImpl implements IDataReciveService {
         respData.setOperType(SysConfigConstant.OPREATE_QUERY_RESP);
         if(DevParaInfoContainer.handlerRespDevPara(respData)){
             DevIfeMegSend.sendParaToDev(respData.getDevNo());//如果设备参数变化,websocet推前台
+            sendCtrlInter(respData);;
         }
         DevLogInfoContainer.handlerRespDevPara(respData);//记录日志
         DevIfeMegSend.sendLogToDev(respData.getDevNo());//操作日志websocet推前台
@@ -59,6 +62,7 @@ public class DataReciveServiceImpl implements IDataReciveService {
         respData.setOperType(SysConfigConstant.OPREATE_CONTROL_RESP);
         if(DevParaInfoContainer.handlerRespDevPara(respData)){
             DevIfeMegSend.sendParaToDev(respData.getDevNo());//如果设备参数变化,websocet推前台
+            sendCtrlInter(respData);;
         }
         DevLogInfoContainer.handlerRespDevPara(respData);//记录日志
         DevIfeMegSend.sendLogToDev(respData.getDevNo());//操作日志websocet推前台
@@ -74,6 +78,12 @@ public class DataReciveServiceImpl implements IDataReciveService {
         respData.setOperType(SysConfigConstant.OPREATE_QUERY_RESP);
         if(DevParaInfoContainer.handlerRespDevPara(respData)){
             DevIfeMegSend.sendParaToDev(respData.getDevNo());//如果设备参数变化,websocet推前台
+            sendCtrlInter(respData);
+        }
+        if(!StringUtils.isEmpty(respData.getPageQueryJsonStr())){
+            if(PageInfoContainer.addPageInfo(respData.getDevNo(),respData.getCmdMark(),respData.getPageQueryJsonStr())){
+                DevIfeMegSend.sendPageInfoToDev(respData.getDevNo(),respData.getCmdMark());//如果页面查询接口数据发送变化,推送前台数据
+            }
         }
         DevLogInfoContainer.handlerRespDevPara(respData);//记录日志
         DevIfeMegSend.sendLogToDev(respData.getDevNo());//操作日志websocet推前台
@@ -89,10 +99,20 @@ public class DataReciveServiceImpl implements IDataReciveService {
         respData.setOperType(SysConfigConstant.OPREATE_CONTROL_RESP);
         if(DevParaInfoContainer.handlerRespDevPara(respData)){
             DevIfeMegSend.sendParaToDev(respData.getDevNo());//如果设备参数变化,websocet推前台
+            sendCtrlInter(respData);
         }
         DevLogInfoContainer.handlerRespDevPara(respData);//记录日志
         DevIfeMegSend.sendLogToDev(respData.getDevNo());//操作日志websocet推前台
         handlerAlertInfo(respData);//处理报警信息
+    }
+    /**
+     * webSokcet推送接口控制数据
+     * @param  respData   协议解析响应数据
+     */
+    private  void sendCtrlInter(FrameRespData respData){
+        if(!BaseInfoContainer.getCtrlItfInfo(respData.getDevNo()).isEmpty()){
+            DevIfeMegSend.sendDevCtrlItfInfosToDev(respData.getDevNo());
+        }
     }
 
     /**

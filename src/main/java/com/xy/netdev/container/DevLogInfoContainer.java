@@ -86,7 +86,7 @@ public class DevLogInfoContainer {
     /**
      * @功能：设备参数发送前初始化响应状态
      * @param devNo             设备编号
-     * @param paraNo            设备参数编号     *
+     * @param paraNo            设备参数编号
      * @return
      */
     public synchronized static void initParaRespStatus(String devNo,String paraNo) {
@@ -196,7 +196,9 @@ public class DevLogInfoContainer {
             logContent.append(" 传送参数为:");
             frameParaList.forEach(frameParaData -> {
                 String paraName = BaseInfoContainer.getParaInfoByNo(frameParaData.getDevType(),frameParaData.getParaNo()).getParaName();
-                logContent.append(paraName+"["+ frameParaData.getParaVal()+"]|");
+                String paraVal = StringUtils.isNotBlank(frameParaData.getParaVal())?"["+frameParaData.getParaVal()+"]|": "";
+                // logContent.append(paraName+"["+ frameParaData.getParaVal()+"]|");
+                logContent.append(paraName+paraVal);
             });
             return logContent.toString();
         }
