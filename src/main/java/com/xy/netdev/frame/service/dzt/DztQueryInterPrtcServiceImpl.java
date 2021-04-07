@@ -2,8 +2,9 @@ package com.xy.netdev.frame.service.dzt;
 
 
 import cn.hutool.core.util.HexUtil;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.xy.netdev.admin.service.ISysParamService;
-import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
@@ -12,10 +13,8 @@ import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.constant.MonitorConstants;
-import com.xy.netdev.monitor.entity.PrtclFormat;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import com.xy.netdev.transit.IDataReciveService;
-import io.netty.buffer.Unpooled;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,15 +73,32 @@ public class DztQueryInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
                 String paraCmk = data.substring(0, 1);
                 String paraValueStr = data.substring(1);
                 List<FrameParaInfo> paraInfos =  BaseInfoContainer.getInterLinkParaList(devType, paraCmk);
-                genFrameParaInfo(frameParaDataList,respData,paraInfos,paraValueStr);
-
+                frameParaDataList.addAll(genFrameParaInfo(respData,paraInfos,paraValueStr));
             }
         }else{
             List<FrameParaInfo> paraInfos =  BaseInfoContainer.getInterLinkParaList(devType, QUERY_SINGLE_MARK);
+            JSONArray array = new JSONArray();
             for (String data : dataList) {
                 String paraValueStr = data.substring(1);
-                genFrameParaInfo(frameParaDataList,respData,paraInfos,paraValueStr);
+                String paraCmk = data.substring(0, 1);
+                Integer number = Integer.parseInt(paraCmk,16)-95;
+                List<FrameParaData> framParas = genFrameParaInfo(respData,paraInfos,paraValueStr);
+                JSONObject object = new JSONObject();
+                for (FrameParaData framPara : framParas) {
+                    FrameParaInfo paraDetail = BaseInfoContainer.getParaInfoByNo(devType,framPara.getParaNo());
+                    String paraName = paraDetail.getParaName();
+                    String newName = "卫星"+ number;
+                    if(paraName.contains("卫星")){
+                        paraName.replace("卫星",newName);
+                    }else{
+                        paraName = newName+paraName;
+                    }
+                    object.put(paraName,framPara.getParaVal());
+                }
+                array.add(object);
+                frameParaDataList.addAll(framParas);
             }
+            respData.setPageQueryJsonStr(array.toJSONString());
         }
         respData.setFrameParaList(frameParaDataList);
         //参数查询响应结果接收
@@ -93,14 +109,13 @@ public class DztQueryInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
 
     /**
      * 生成数据帧参数数据
-     * @param frameParaDataList
      * @param respData
      * @param paraInfos
      * @param paraValueStr
      */
-    private void genFrameParaInfo(List<FrameParaData> frameParaDataList,FrameRespData respData,List<FrameParaInfo> paraInfos,String paraValueStr){
+    private List<FrameParaData> genFrameParaInfo(FrameRespData respData,List<FrameParaInfo> paraInfos,String paraValueStr){
+        List<FrameParaData> frameParaDataList = new ArrayList<>();
         String devType = respData.getDevType();
-        String bytesData = HexUtil.encodeHexStr(respData.getParamBytes());
         byte[] paraValBytes = HexUtil.decodeHex(paraValueStr);
         Integer startIndex = 0;
         for (FrameParaInfo paraInfo : paraInfos) {
@@ -126,6 +141,7 @@ public class DztQueryInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
             startIndex = endIndex;
             frameParaDataList.add(frameParaData);
         }
+        return frameParaDataList;
     }
 
 }
