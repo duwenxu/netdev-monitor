@@ -85,7 +85,7 @@ public class CzpImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, 
             frameRespData.setCmdMark(hexCmd);
         }
         //数据体
-        byte[] paramBytes = byteArrayCopy(bytes, 8, bytes.length - 8);
+        byte[] paramBytes = byteArrayCopy(bytes, 8, bytes.length - 10);
         frameRespData.setParamBytes(paramBytes);
         return frameRespData;
     }
@@ -116,8 +116,7 @@ public class CzpImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, 
         System.arraycopy(new byte[]{0x29}, 0, frameByte, 1, 1);
         //设备型号:1
         /*String devSubType = BaseInfoContainer.getDevInfoByNo(frameReqData.getDevNo()).getDevSubType();*/
-        String devSubType = "16";  //固定值为16
-        System.arraycopy(objToBytes(devSubType, 1), 0, frameByte, 2, 1);
+        System.arraycopy(new byte[]{0x16}, 0, frameByte, 2, 1);
         List<byte[]> lists = new ArrayList<>();
         //设备地址:2
         lists.add(new byte[]{0x00, 0x01});
