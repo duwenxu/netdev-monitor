@@ -52,7 +52,7 @@ public class ModemScmmInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSe
     public FrameRespData queryParaResponse(FrameRespData respData) {
         byte[] bytes = respData.getParamBytes();
         if (ObjectUtil.isNull(bytes)) {
-            log.warn("400W功放查询响应异常, 未获取到数据体, 信息:{}", JSON.toJSONString(respData));
+            log.warn("2300调制解调器查询响应异常, 未获取到数据体, 信息:{}", JSON.toJSONString(respData));
             return respData;
         }
         //单元信息
@@ -117,18 +117,4 @@ public class ModemScmmInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSe
         return respData;
     }
 
-    /**
-     * 获取byte中指定bit的字符串
-     *
-     * @param byt   字节
-     * @param start 起始位置
-     * @param range 长度范围
-     * @return bit字符串
-     */
-    public String bitStrByPoint(byte byt, int start, int range) {
-        if (start > 7 || range > 8) {
-            log.warn("输入bit范围错误：起始位置:{}.长度：{}", start, range);
-        }
-        return byteToBinary(byt).substring(start, start + range);
-    }
 }
