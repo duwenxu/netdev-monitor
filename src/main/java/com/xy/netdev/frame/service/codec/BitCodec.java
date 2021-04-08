@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+import static com.xy.netdev.common.util.ByteUtils.byteToBinary;
+
 /**
  * 位参数转换
  *
@@ -19,14 +21,12 @@ import java.io.IOException;
 @Component
 @Slf4j
 public class BitCodec implements ParamCodec {
-    @Autowired
-    private ModemScmmInterPrtcServiceImpl service;
 
     @Override
     public String decode(byte[] bytes, Object... objects) {
         int start = (int) objects[0];
         int point = (int) objects[1];
-        return service.bitStrByPoint(bytes[0], start, point);
+        return bitStrByPoint(bytes[0], start, point);
     }
 
     @Override
@@ -46,5 +46,20 @@ public class BitCodec implements ParamCodec {
             sb.append('0');
         }
         return ByteUtils.objToBytes(Integer.parseInt(sb.toString(), 2), 2);
+    }
+
+    /**
+     * 获取byte中指定bit的字符串
+     *
+     * @param byt   字节
+     * @param start 起始位置
+     * @param range 长度范围
+     * @return bit字符串
+     */
+    public String bitStrByPoint(byte byt, int start, int range) {
+        if (start > 7 || range > 8) {
+            log.warn("输入bit范围错误：起始位置:{}.长度：{}", start, range);
+        }
+        return byteToBinary(byt).substring(start, start + range);
     }
 }
