@@ -19,6 +19,7 @@ import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -54,9 +55,17 @@ public class DztCtrlInterPrtcServiceImpl implements ICtrlInterPrtclAnalysisServi
         for (String str : format) {
             Integer paraId = Integer.parseInt(str);
             for (FrameParaData frameParaData : reqData.getFrameParaList()) {
-                FrameParaInfo paraInfo = BaseInfoContainer.getParaInfoByNo(reqData.getDevType(),frameParaData.getParaNo());
-                if(paraId.equals(paraInfo.getParaId())){
-                    byteList.add(ByteUtils.objToBytes(frameParaData.getParaVal(),frameParaData.getLen()));
+                FrameParaInfo param = BaseInfoContainer.getParaInfoByNo(reqData.getDevType(),frameParaData.getParaNo());
+                if(paraId.equals(param.getParaId())){
+                    String value = frameParaData.getParaVal();
+                    String desc = param.getNdpaRemark2Desc();
+                    String data = param.getNdpaRemark3Data();
+                    if(StringUtils.isNotEmpty(desc) && desc.equals("倍数") && StringUtils.isNotEmpty(data)){
+                        Integer multiple = Integer.parseInt(data);
+                        float temp = Float.parseFloat(value)*multiple;
+                        value = String.valueOf(temp);
+                    }
+                    byteList.add(ByteUtils.objToBytes(value,frameParaData.getLen()));
                 }
             }
         }
