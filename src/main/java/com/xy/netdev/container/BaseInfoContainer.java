@@ -549,8 +549,12 @@ public class BaseInfoContainer {
             frameParaInfo.setNdpaRemark3Desc(paraInfo.getNdpaRemark3Desc());//备注3
             frameParaInfo.setNdpaRemark3Data(paraInfo.getNdpaRemark3Data());//数据3
             Map map = new HashMap();
-            if (!StringUtils.isBlank(paraInfo.getNdpaSelectData())) {
-                JSONArray.parseArray(paraInfo.getNdpaSelectData(), ParaSpinnerInfo.class).forEach(paraSpinnerInfo -> map.put(paraSpinnerInfo.getCode(), paraSpinnerInfo.getName()));
+            try {
+                if (!StringUtils.isBlank(paraInfo.getNdpaSelectData())) {
+                    JSONArray.parseArray(paraInfo.getNdpaSelectData(), ParaSpinnerInfo.class).forEach(paraSpinnerInfo -> map.put(paraSpinnerInfo.getCode(), paraSpinnerInfo.getName()));
+                }
+            } catch (Exception e) {
+                log.error("参数下拉值域解析错误：设备类型：{}，参数编号：{}",paraInfo.getDevType(),paraInfo.getNdpaNo());
             }
             frameParaInfo.setSelectMap(map);//下拉值域
             frameParaInfo.setDevType(paraInfo.getDevType());      //设备类型

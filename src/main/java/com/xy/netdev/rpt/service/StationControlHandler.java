@@ -127,7 +127,7 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
     @Override
     public void queryParaResponse(RptHeadDev headDev) {
         setAchieveClass(headDev);
-        BaseInfo stationInfo = BaseInfoContainer.getDevInfoByNo(headDev.getDevNo());
+        BaseInfo stationInfo = BaseInfoContainer.genRptBaseInfo();
         RequestService requestService = BeanFactoryUtil.getBean(headDev.getAchieveClassNameEnum().getClassName());
         byte[] bodyBytes = requestService.pack(headDev);
         int port = Integer.parseInt(stationInfo.getDevPort());
@@ -142,7 +142,7 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
                 , ByteUtils.objToBytes(0, 4)
                 //数据字段
                 , bodyBytes);
-        NettyUtil.sendMsg(bytes, port, stationInfo.getDevIpAddr(), port, Integer.parseInt(stationInfo.getDevNetPtcl()));
+        NettyUtil.sendMsg(bytes, port, stationInfo.getDevIpAddr(), port, Integer.parseInt(sysParamService.getParaRemark1(stationInfo.getDevNetPtcl())));
         log.info("发送站控数据, 目标地址:{}:{}, 数据体:{}",  stationInfo.getDevIpAddr(), port, HexUtil.encodeHexStr(bytes));
     }
 

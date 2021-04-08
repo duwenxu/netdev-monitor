@@ -70,12 +70,13 @@ public class ModemScmmImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReq
         Pair<Boolean, byte[]> validAndCheck = convertAndCheck(socketEntity);
         if (!validAndCheck.getKey()) {
             log.warn("SCMM-2300调制解调器数据帧异常，校验和校验错误,  数据体长度:{}, 数据体:{}", bytes.length, HexUtil.encodeHexStr(bytes));
-            return frameRespData;
+//            return frameRespData;
         }
         bytes = validAndCheck.getValue();
         //按协议中指定的位置获取数据体长度
         int len = bytesToNum(bytes, 1, 1, ByteBuf::readUnsignedByte);
-        int hexLen = Integer.parseInt(HexUtil.toHex(len));
+        int hexLen = Integer.parseInt(HexUtil.toHex(len),16);
+        //TODO 长度校验
         //响应类型标识
         Short respType = bytesToNum(bytes, 2, 1, ByteBuf::readUnsignedByte);
         String hexRespType = HexUtil.toHex(respType);
