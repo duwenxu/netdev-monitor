@@ -14,13 +14,18 @@ import com.xy.netdev.rpt.bo.RptHeadDev;
 import com.xy.netdev.rpt.enums.StationCtlRequestEnums;
 import com.xy.netdev.rpt.service.IDownRptPrtclAnalysisService;
 import com.xy.netdev.transit.impl.DevCmdSendService;
+import io.swagger.models.auth.In;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
+
+import static com.xy.netdev.common.constant.SysConfigConstant.IS_DEFAULT_TRUE;
 
 /**
  * 站控 参数查询/设置 实现
@@ -65,17 +70,18 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
         String cmdMarkHexStr = headDev.getCmdMarkHexStr();
         RptHeadDev resBody = new RptHeadDev();
         try {
-            switch (cmdMarkHexStr) {
-                case "0003":
-                    resBody = doQuerySetCache(headDev);
-                    break;
-                case "0005":
+            switch (Integer.parseInt(cmdMarkHexStr)) {
+                case 3:
                     resBody = doQueryNewCache(headDev);
                     break;
-                case "0007":
+                case 5:
+                    resBody = doQuerySetCache(headDev);
+                    break;
+                case 7:
                     resBody = doParaWarnQueryAction((headDev));
                     break;
                 default:
+                    resBody = headDev;
                     break;
             }
         } catch (Exception e) {
@@ -87,6 +93,7 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
 
     /**
      * 查询控制响应结果
+     *
      * @param rptHeadDev 参数设置结构体
      * @return 控制响应结果
      */
@@ -112,8 +119,15 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
     private void doParaSetAction(RptHeadDev headDev) {
         Thread.currentThread().setName(headDev.getDevNo() + "doParaSetAction-thread");
         List<RptBodyDev> rptBodyDev = (List<RptBodyDev>) headDev.getParam();
+        //过滤参数长度不为空的设置参数
+        List<RptBodyDev> realRptBody = new CopyOnWriteArrayList<>();
+        for (RptBodyDev bodyDev : rptBodyDev) {
+            List<FrameParaData> currentList = bodyDev.getDevParaList().stream().filter(param -> param.getLen() != null && param.getLen() != 0).collect(Collectors.toList());
+            bodyDev.setDevParaList(currentList);
+            realRptBody.add(bodyDev);
+        }
         //阻塞式的进行参数设置调用
-        rptBodyDev.forEach(rptBody -> {
+        realRptBody.forEach(rptBody -> {
             String devNo = rptBody.getDevNo();
             //请求间隔
             Integer intervalTime = BaseInfoContainer.getDevInfoByNo(devNo).getDevIntervalTime();
@@ -167,9 +181,10 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
         List<RptBodyDev> rptBodyDev = (List<RptBodyDev>) headDev.getParam();
         rptBodyDev.forEach(rptBody -> {
             String devNo = rptBody.getDevNo();
-            //获取指定设备当前可读的参数列表
+            //获取指定设备当前可读且可以对外上报的参数列表
             List<ParaViewInfo> devParaViewList = DevParaInfoContainer.getDevParaViewList(devNo).stream()
-                    .filter(paraView -> !SysConfigConstant.ONLY_WRITE.equals(paraView.getAccessRight())).collect(Collectors.toList());
+                    .filter(paraView -> !SysConfigConstant.ONLY_WRITE.equals(paraView.getAccessRight()) && IS_DEFAULT_TRUE.equals(paraView.getNdpaOutterStatus()))
+                    .collect(Collectors.toList());
             //当前设备的查询响应参数列表
             List<FrameParaData> resFrameParaList = new ArrayList<>();
             for (FrameParaData para : rptBody.getDevParaList()) {

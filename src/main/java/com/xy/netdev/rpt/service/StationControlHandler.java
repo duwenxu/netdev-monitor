@@ -30,7 +30,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import static com.xy.netdev.common.util.ByteUtils.*;
-import static com.xy.netdev.container.BaseInfoContainer.genRptBaseInfo;
 
 /**
  * 站控支持
@@ -59,8 +58,6 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
 
         private byte[] paramData;
 
-        private String className;
-
     }
 
     /**
@@ -82,7 +79,7 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
         byte[] bytes = socketEntity.getBytes();
         int cmdMark = bytesToNum(bytes, 0, 2, ByteBuf::readShort);
         int len = bytesToNum(bytes, 2, 2, ByteBuf::readShort);
-        byte[] paramData = byteArrayCopy(bytes, 8, len - 8);
+        byte[] paramData = byteArrayCopy(bytes, 8, len);
         StationControlHeadEntity stationControlHeadEntity = new StationControlHeadEntity();
         stationControlHeadEntity.setBaseInfo(devInfo);
         stationControlHeadEntity.setCmdMark(Integer.toHexString(cmdMark));
@@ -103,20 +100,18 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
         setAchieveClass(rptHeadDev);
         ResponseService responseService = BeanFactoryUtil.getBean(rptHeadDev.getAchieveClassNameEnum().getClassName());
         //数据解析
-        Object param = responseService.unpackBody(stationControlHeadEntity);
-        //数据发送中心
-        rptHeadDev.setParam(param);
-
+        rptHeadDev = responseService.unpackBody(stationControlHeadEntity, rptHeadDev);
         //执行设备查询/设置流程
         iDownRptPrtclAnalysisService.doAction(rptHeadDev);
         //等待一秒获取缓存更新结果
+        RptHeadDev finalRptHeadDev = rptHeadDev;
         ThreadUtil.execute(() -> {
             try {
                 TimeUnit.SECONDS.sleep(1);
                 //重新获取缓存
-                iDownRptPrtclAnalysisService.queryNewCache(rptHeadDev);
+                RptHeadDev headDev = iDownRptPrtclAnalysisService.queryNewCache(finalRptHeadDev);
                 //调用数据外发
-                this.queryParaResponse(rptHeadDev);
+                this.queryParaResponse(headDev);
             } catch (InterruptedException e) {
                 log.error("站控等待返回缓存结果异常中断, 中断原因:{}", e.getMessage(), e);
             }
@@ -178,11 +173,12 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
     /**
      * 查询/设置 公共解析头
      * @param stationControlHeadEntity
+     * @param rptHeadDev
      * @param function
      * @return
      */
-    public static RptHeadDev unpackCommonHead(StationControlHandler.StationControlHeadEntity stationControlHeadEntity,
-                                              Function<byte[],  List<RptBodyDev>> function) {
+    public static RptHeadDev unpackCommonHead(StationControlHeadEntity stationControlHeadEntity,
+                                              RptHeadDev rptHeadDev, Function<byte[], List<RptBodyDev>> function) {
         byte[] paramData = stationControlHeadEntity.getParamData();
         //查询标识
         int cmdMark = ByteUtils.byteToNumber(paramData, 4, 1).intValue();
@@ -193,7 +189,6 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
         //参数
         byte[] dataBytes = ByteUtils.byteArrayCopy(paramData, 7, paramData.length - 7);
         List<RptBodyDev> rptBodyDevs = function.apply(dataBytes);
-        RptHeadDev rptHeadDev = new RptHeadDev();
         rptHeadDev.setStationNo(String.valueOf(stationNo));
         rptHeadDev.setCmdMarkHexStr(Integer.toHexString(cmdMark));
         rptHeadDev.setParam(rptBodyDevs);

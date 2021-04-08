@@ -1,13 +1,10 @@
 package com.xy.netdev.network.handler;
 
-import cn.hutool.core.clone.CloneSupport;
-import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.util.NetUtil;
 import com.xy.netdev.common.util.BeanFactoryUtil;
 import com.xy.netdev.container.BaseInfoContainer;
+import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.sendrecv.disruptor.DisruptorHandler;
 import com.xy.netdev.sendrecv.entity.SocketEntity;
-import com.xy.netdev.monitor.entity.BaseInfo;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -17,11 +14,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.xy.netdev.network.NettyUtil.HOST_CHANNEL_MAP;
-import static com.xy.netdev.network.NettyUtil.SOCKET_QUEUE;
 
 
 /**
@@ -49,9 +44,9 @@ public class SimpleUdpMessage extends SimpleChannelInboundHandler<DatagramPacket
     protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket msg) {
         String remoteAddress= msg.sender().getAddress().getHostAddress();
         //过滤非ip配置中的数据
-        if (!ipFilter.contains(remoteAddress)){
-            return;
-        }
+//        if (!ipFilter.contains(remoteAddress)){
+//            return;
+//        }
         InetSocketAddress localAddress = (InetSocketAddress) ctx.channel().localAddress();
         int remotePort = msg.sender().getPort();
         //过滤相同端口数据
