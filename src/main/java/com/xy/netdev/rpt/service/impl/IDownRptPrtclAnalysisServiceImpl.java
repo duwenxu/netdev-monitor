@@ -68,10 +68,10 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
         try {
             switch (Integer.parseInt(cmdMarkHexStr)) {
                 case 3:
-                    resBody = doQuerySetCache(headDev);
+                    resBody = doQueryNewCache(headDev);
                     break;
                 case 5:
-                    resBody = doQueryNewCache(headDev);
+                    resBody = doQuerySetCache(headDev);
                     break;
                 case 7:
                     resBody = doParaWarnQueryAction((headDev));
@@ -81,7 +81,7 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
                     break;
             }
         } catch (Exception e) {
-            log.error("站控指令响应查询异常...devNo={},cmdMark={}", headDev.getDevNo(), headDev.getCmdMarkHexStr());
+            log.error("站控指令响应查询异常...devNo={},cmdMark={}, 异常原因:{}", headDev.getDevNo(), headDev.getCmdMarkHexStr(), e);
         }
         return resBody;
     }
@@ -94,11 +94,10 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
      */
     private RptHeadDev doQuerySetCache(RptHeadDev rptHeadDev) {
         List<RptBodyDev> rptBodyDev = (List<RptBodyDev>) rptHeadDev.getParam();
-        String devNo = rptHeadDev.getDevNo();
         //遍历参数设置值
         rptBodyDev.forEach(body -> {
             body.getDevParaList().forEach(para -> {
-                String respStatus = DevLogInfoContainer.getDevParaRespStatus(devNo, para.getParaNo());
+                String respStatus = DevLogInfoContainer.getDevParaRespStatus(body.getDevNo(), para.getParaNo());
                 para.setParaSetRes(respStatus);
             });
         });
@@ -168,9 +167,8 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
     private RptHeadDev doQueryNewCache(RptHeadDev headDev) {
         List<RptBodyDev> rptBodyDev = (List<RptBodyDev>) headDev.getParam();
         rptBodyDev.forEach(rptBody -> {
-            String devNo = rptBody.getDevNo();
             //获取指定设备当前可读的参数列表
-            List<ParaViewInfo> devParaViewList = DevParaInfoContainer.getDevParaViewList(devNo).stream()
+            List<ParaViewInfo> devParaViewList = DevParaInfoContainer.getDevParaViewList(rptBody.getDevNo()).stream()
                     .filter(paraView -> !SysConfigConstant.ONLY_WRITE.equals(paraView.getAccessRight())).collect(Collectors.toList());
             //当前设备的查询响应参数列表
             List<FrameParaData> resFrameParaList = new ArrayList<>();
