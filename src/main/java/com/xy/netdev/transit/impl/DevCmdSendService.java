@@ -88,6 +88,10 @@ public class DevCmdSendService implements IDevCmdSendService {
      */
     @Override
     public void interfaceCtrSend(InterCtrlInfo interCtrlInfo) {
+        BaseInfo devInfo = BaseInfoContainer.getDevInfoByNo(interCtrlInfo.getDevNo());
+        if(devInfo.getDevType().equals("0020011")){
+
+        }
         FrameReqData frameReqData = genFrameReqData(interCtrlInfo.getDevNo(),interCtrlInfo.getCmdMark());
         String devType = frameReqData.getDevType();
         for (FrameParaData para : interCtrlInfo.getParaInfos()) {
