@@ -14,6 +14,7 @@ import com.xy.netdev.rpt.bo.RptHeadDev;
 import com.xy.netdev.rpt.enums.StationCtlRequestEnums;
 import com.xy.netdev.rpt.service.IDownRptPrtclAnalysisService;
 import com.xy.netdev.transit.impl.DevCmdSendService;
+import io.swagger.models.auth.In;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -65,17 +66,18 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
         String cmdMarkHexStr = headDev.getCmdMarkHexStr();
         RptHeadDev resBody = new RptHeadDev();
         try {
-            switch (cmdMarkHexStr) {
-                case "0003":
+            switch (Integer.parseInt(cmdMarkHexStr)) {
+                case 3:
                     resBody = doQuerySetCache(headDev);
                     break;
-                case "0005":
+                case 5:
                     resBody = doQueryNewCache(headDev);
                     break;
-                case "0007":
+                case 7:
                     resBody = doParaWarnQueryAction((headDev));
                     break;
                 default:
+                    resBody = headDev;
                     break;
             }
         } catch (Exception e) {

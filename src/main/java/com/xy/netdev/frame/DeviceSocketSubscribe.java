@@ -62,6 +62,7 @@ public class DeviceSocketSubscribe {
                     , socketEntity.getRemotePort()
                     , HexUtil.encodeHexStr(socketEntity.getBytes()).toUpperCase());
             stationControlHandler.stationControlReceive(socketEntity);
+            return;
         }
 
         //执行设备数据响应
