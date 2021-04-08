@@ -3,6 +3,7 @@ package com.xy.netdev.monitor.controller;
 import cn.hutool.core.thread.ThreadUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.xy.common.exception.BaseException;
 import com.xy.common.helper.ControllerHelper;
 import com.xy.common.model.Result;
 import com.xy.netdev.common.constant.SysConfigConstant;
@@ -145,8 +146,8 @@ public class BaseInfoController {
      */
     @ApiOperation(value = "设备模型文件下载", notes = "设备模型文件下载")
     @PostMapping("/downDevFile")
-    public Result<Object> downDevFile(HttpServletResponse response) {
-        Map<String, Object> map = baseInfoService.downDevFile();
+    public void downDevFile(HttpServletResponse response,BaseInfo baseInfo) {
+        Map<String, Object> map = baseInfoService.downDevFile(baseInfo.getDevNo());
         //浏览器下载excel
         response.addHeader("fileName",map.get("fileName").toString());
         //解决前端拿不到存放的文件参数:将新增的两个参数暴露出来
@@ -159,9 +160,8 @@ public class BaseInfoController {
             outputStream.flush();
             outputStream.close();
         } catch (IOException e) {
-            return new Result<>().error500(e.getMessage());
+            throw new BaseException("设备模型文件下载发生异常！");
         }
-        return null;
     }
 
 }

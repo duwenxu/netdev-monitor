@@ -23,7 +23,7 @@ public interface IBaseInfoService extends IService<BaseInfo> {
      * 下载设备模型文件
      * @return
      */
-    Map<String, Object> downDevFile();
+    Map<String, Object> downDevFile(String devNo);
 
     /**
      * 切换设备为主设备
