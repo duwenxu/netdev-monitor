@@ -22,9 +22,9 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static com.xy.netdev.common.util.ByteUtils.*;
 
@@ -62,54 +62,61 @@ public class ModemScmmInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSe
         System.arraycopy(bytes,1,realBytes,0,bytes.length-1);
         //获取接口单元的参数信息
         List<FrameParaInfo> frameParaInfos = BaseInfoContainer.getInterLinkParaList(respData.getDevType(), hexUnit);
-        List<FrameParaData> frameParaDataList = frameParaInfos.stream().filter(Objects::nonNull)
-                .map(param -> {
-                    //构造返回信息体 paraInfo
-                    FrameParaData paraInfo = new FrameParaData();
-                    BeanUtil.copyProperties(param, paraInfo, true);
-                    BeanUtil.copyProperties(respData, paraInfo, true);
-                    Integer startPoint = param.getParaStartPoint();
-                    String byteLen = param.getParaByteLen();
+        //对于位参数记录上一个参数的bytes
+        byte[] previousBytes = new byte[0];
+        List<FrameParaData> frameParaDataList = new ArrayList<>(frameParaInfos.size());
+        for (FrameParaInfo param : frameParaInfos) {
+            if (Objects.nonNull(param)){
+                //构造返回信息体 paraInfo
+                FrameParaData paraInfo = new FrameParaData();
+                BeanUtil.copyProperties(param, paraInfo, true);
+                BeanUtil.copyProperties(respData, paraInfo, true);
+                Integer startPoint = param.getParaStartPoint();
+                String byteLen = param.getParaByteLen();
 
-                    //同一字节中不同位处理取同一个字节
-                    int paraByteLen;
-                    if (StringUtils.isNotBlank(byteLen)) {
-                        paraByteLen = Integer.parseInt(byteLen);
-                        paraInfo.setLen(paraByteLen);
-                    }else {
-                        paraByteLen = 1;
-                    }
+                //字节长度位空或者0时，直接取上一次的字节
+                int paraByteLen;
+                byte[] targetBytes;
+                if (StringUtils.isNotBlank(byteLen)) {
+                    paraByteLen = Integer.parseInt(byteLen);
+                    paraInfo.setLen(paraByteLen);
                     //获取参数字节
-                    byte[] targetBytes = byteArrayCopy(realBytes, startPoint, paraByteLen);
-                    //获取参数解析配置信息
-                    String confClass = param.getNdpaRemark2Data();
-                    String confParams = param.getNdpaRemark3Data();
-                    //默认直接转换
-                    ParamCodec codec = new DirectParamCodec();
-                    ExtParamConf paramConf = new ExtParamConf();
-                    Object[] params = new Object[0];
-                    if (!StringUtils.isBlank(confParams)) {
-                        paramConf = JSON.parseObject(confParams, ExtParamConf.class);
-                    }
-                    //按配置的解析方式解析
-                    if (!StringUtils.isBlank(confClass)) {
-                        codec = BeanFactoryUtil.getBean(confClass);
-                    }
-                    //构造参数
-                    if (paramConf.getPoint() != null && paramConf.getStart() != null) {
-                        params = new Integer[]{paramConf.getStart(), paramConf.getPoint()};
-                    } else if (paramConf.getExt() != null){
-                        params =paramConf.getExt().toArray();
-                    }
-                    String value = null;
-                    try {
-                        value = codec.decode(targetBytes, params);
-                    } catch (Exception e) {
-                        log.error("参数解析异常：{}",paraInfo);
-                    }
-                    paraInfo.setParaVal(value);
-                    return paraInfo;
-                }).collect(Collectors.toList());
+                    targetBytes = byteArrayCopy(realBytes, startPoint, paraByteLen);
+                    previousBytes = targetBytes;
+                }else {
+                    targetBytes = previousBytes;
+                }
+
+                //获取参数解析配置信息
+                String confClass = param.getNdpaRemark2Data();
+                String confParams = param.getNdpaRemark3Data();
+                //默认直接转换
+                ParamCodec codec = new DirectParamCodec();
+                ExtParamConf paramConf = new ExtParamConf();
+                Object[] params = new Object[0];
+                if (!StringUtils.isBlank(confParams)) {
+                    paramConf = JSON.parseObject(confParams, ExtParamConf.class);
+                }
+                //按配置的解析方式解析
+                if (!StringUtils.isBlank(confClass)) {
+                    codec = BeanFactoryUtil.getBean(confClass);
+                }
+                //构造参数
+                if (paramConf.getPoint() != null && paramConf.getStart() != null) {
+                    params = new Integer[]{paramConf.getStart(), paramConf.getPoint()};
+                } else if (paramConf.getExt() != null){
+                    params =paramConf.getExt().toArray();
+                }
+                String value = null;
+                try {
+                    value = codec.decode(targetBytes, params);
+                } catch (Exception e) {
+                    log.error("参数解析异常：{}",paraInfo);
+                }
+                paraInfo.setParaVal(value);
+                frameParaDataList.add(paraInfo);
+            }
+        }
         //接口参数查询响应固定为 查询成功
         respData.setRespCode("0");
         respData.setFrameParaList(frameParaDataList);
