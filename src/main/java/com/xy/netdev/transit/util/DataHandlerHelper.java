@@ -12,6 +12,8 @@ import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.PrtclFormat;
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.Map;
 
 /**
@@ -22,6 +24,7 @@ import java.util.Map;
  * @author tangxl
  * @since 2021-03-11
  */
+@Slf4j
 public class DataHandlerHelper {
     /**
      * 获取参数服务
@@ -41,10 +44,16 @@ public class DataHandlerHelper {
      */
     public static IQueryInterPrtclAnalysisService getQueryInterPrtclAnalysisService(FrameReqData frameReqData){
         PrtclFormat  prtclFormat =BaseInfoContainer.getPrtclByInterfaceOrPara(frameReqData.getDevType(),frameReqData.getCmdMark());
-        if (prtclFormat != null) {
-            return QueryInterPrtcllFactory.genHandler(prtclFormat.getFmtHandlerClass());
+        IQueryInterPrtclAnalysisService  service = null;
+        try{
+            if (prtclFormat != null) {
+                service =  QueryInterPrtcllFactory.genHandler(prtclFormat.getFmtHandlerClass());
+            }
+        }catch (Exception e){
+            log.error("设备编号"+frameReqData.getDevNo()+"标识符是"+frameReqData.getCmdMark()+"的接口未配置协议格式!");
+            throw new BaseException("设备编号"+frameReqData.getDevNo()+"标识符是"+frameReqData.getCmdMark()+"的接口未配置协议格式!");
         }
-        throw new BaseException("设备编号"+frameReqData.getDevNo()+"标识符是"+frameReqData.getCmdMark()+"的接口未配置协议格式!");
+        return service;
     }
 
     /**
