@@ -66,16 +66,17 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
         RptHeadDev resBody = new RptHeadDev();
         try {
             switch (cmdMarkHexStr) {
-                case "0003":
+                case "3":
                     resBody = doQuerySetCache(headDev);
                     break;
-                case "0005":
+                case "5":
                     resBody = doQueryNewCache(headDev);
                     break;
-                case "0007":
+                case "7":
                     resBody = doParaWarnQueryAction((headDev));
                     break;
                 default:
+                    resBody = headDev;
                     break;
             }
         } catch (Exception e) {
