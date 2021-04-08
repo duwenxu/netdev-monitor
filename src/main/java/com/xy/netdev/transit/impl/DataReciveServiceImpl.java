@@ -137,7 +137,7 @@ public class DataReciveServiceImpl implements IDataReciveService {
                     throw new BaseException("参数状态转换规则有误");
                 }
                 if(rules!=null){
-                    devStatusReportService.reportWarningAndStaus(rules,param,respData.getRespCode());
+                    devStatusReportService.reportWarningAndStaus(rules,param);
                 }
             }
 
