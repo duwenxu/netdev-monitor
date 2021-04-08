@@ -131,12 +131,19 @@ public class DztQueryInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
             if (isStr){
                 frameParaData.setParaVal(paraValueStr.substring(startIndex,endIndex));
             }else {
-                //单个参数值转换
-                frameParaData.setParaVal(byteToNumber(paraValBytes, startIndex,
+
+               Float paraVal = byteToNumber(paraValBytes, startIndex,
                         Integer.parseInt(paraInfo.getParaByteLen())
                         ,isUnsigned(sysParamService, paraInfo.getDataType())
-                        ,isFloat(sysParamService, paraInfo.getDataType())
-                ).toString());
+                        ,isFloat(sysParamService, paraInfo.getDataType())).floatValue();
+                String desc = paraInfo.getNdpaRemark2Desc();
+                String data = paraInfo.getNdpaRemark3Data();
+                if(org.apache.commons.lang3.StringUtils.isNotEmpty(desc) && desc.equals("倍数") && org.apache.commons.lang3.StringUtils.isNotEmpty(data)){
+                    Integer multiple = Integer.parseInt(data);
+                    paraVal = paraVal/multiple;
+                }
+                //单个参数值转换
+                frameParaData.setParaVal(String.valueOf(paraVal));
             }
             startIndex = endIndex;
             frameParaDataList.add(frameParaData);

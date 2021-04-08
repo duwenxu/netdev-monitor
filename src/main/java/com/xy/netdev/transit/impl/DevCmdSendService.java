@@ -89,8 +89,12 @@ public class DevCmdSendService implements IDevCmdSendService {
     @Override
     public void interfaceCtrSend(InterCtrlInfo interCtrlInfo) {
         BaseInfo devInfo = BaseInfoContainer.getDevInfoByNo(interCtrlInfo.getDevNo());
-        if(devInfo.getDevType().equals("0020011")){
-
+        //车载卫星天线本控状态不能进行设置
+        if(devInfo.getDevType().equals(SysConfigConstant.DEVICE_CAR_ANTENNA)){
+            FrameParaInfo paraInfo = BaseInfoContainer.getParaInfoByCmd(devInfo.getDevType(),"56_7");
+            if(paraInfo.getParaVal().equals("1")){
+                throw new BaseException("本控状态下，站控设备的全查询命令无效！");
+            }
         }
         FrameReqData frameReqData = genFrameReqData(interCtrlInfo.getDevNo(),interCtrlInfo.getCmdMark());
         String devType = frameReqData.getDevType();
