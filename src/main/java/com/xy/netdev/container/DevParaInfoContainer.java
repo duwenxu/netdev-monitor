@@ -1,5 +1,6 @@
 package com.xy.netdev.container;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
@@ -10,6 +11,7 @@ import com.xy.netdev.monitor.bo.ParaSpinnerInfo;
 import com.xy.netdev.monitor.bo.ParaViewInfo;
 import com.xy.netdev.monitor.entity.ParaInfo;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.BeanUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -44,6 +46,29 @@ public class DevParaInfoContainer {
             String devType = BaseInfoContainer.getDevInfoByNo(devNo).getDevType();
             devParaMap.put(devNo,assembleViewList(devNo,paraMapByDevType.get(devType)));
         });
+        //todo test
+        ParaViewInfo paraViewInfo1 = new ParaViewInfo();
+        paraViewInfo1.setDevType("0020012");
+        paraViewInfo1.setParaNo("1");
+        paraViewInfo1.setParaVal("1450.0000");
+        paraViewInfo1.setDevNo("19");
+        paraViewInfo1.setParaStrLen("8");
+        String linkKey1 = ParaHandlerUtil.genLinkKey(paraViewInfo1.getDevNo(), paraViewInfo1.getParaNo());
+
+        ParaViewInfo viewInfo1 = devParaMap.get(paraViewInfo1.getDevNo()).get(linkKey1);
+        BeanUtil.copyProperties(viewInfo1,paraViewInfo1,true);
+        devParaMap.get(paraViewInfo1.getDevNo()).put(linkKey1,paraViewInfo1);
+
+        ParaViewInfo paraViewInfo2 = new ParaViewInfo();
+        paraViewInfo2.setDevType("0020012");
+        paraViewInfo2.setParaNo("2");
+        paraViewInfo2.setParaVal("2.5");
+        paraViewInfo2.setDevNo("19");
+        paraViewInfo2.setParaStrLen("3");
+        String linkKey2 = ParaHandlerUtil.genLinkKey(paraViewInfo2.getDevNo(), paraViewInfo2.getParaNo());
+        ParaViewInfo viewInfo2 = devParaMap.get(paraViewInfo2.getDevNo()).get(linkKey2);
+        BeanUtil.copyProperties(viewInfo2,paraViewInfo2,true);
+        devParaMap.get(paraViewInfo2.getDevNo()).put(linkKey2,paraViewInfo2);
     }
     /**
      * @功能：根据设备类型对应的参数信息  生成设备显示列表
