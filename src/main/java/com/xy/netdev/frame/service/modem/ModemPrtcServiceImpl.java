@@ -26,7 +26,7 @@ import static com.xy.netdev.frame.service.gf.GfPrtcServiceImpl.isFloat;
 import static com.xy.netdev.frame.service.gf.GfPrtcServiceImpl.isUnsigned;
 
 /**
- * 650型号 调制解调器
+ * 650型号 调制解调器参数 查询控制 实现
  *
  * @author duwenxu
  * @create 2021-03-11 14:23
@@ -39,61 +39,22 @@ public class ModemPrtcServiceImpl implements IParaPrtclAnalysisService {
     private SocketMutualService socketMutualService;
     @Autowired
     ISysParamService sysParamService;
-    @Autowired
-    private IDataReciveService dataReciveService;
-    /**查询应答帧 分隔符*/
-    private static final String SPLIT = "5f";
 
     @Override
     public void queryPara(FrameReqData reqInfo) {
-        //暂时是单个参数查询 cmdMark为单个参数的命令标识
-        byte[] bytes = HexUtil.decodeHex(reqInfo.getCmdMark());
-        reqInfo.setParamBytes(bytes);
-        socketMutualService.request(reqInfo, ProtocolRequestEnum.QUERY);
     }
 
     @Override
     public FrameRespData queryParaResponse(FrameRespData respData) {
-        String bytesData = HexUtil.encodeHexStr(respData.getParamBytes());
-        String[] dataList = bytesData.toLowerCase().split(SPLIT.toLowerCase());
-        String devType = respData.getDevType();
-        //拆分后根据关键字获取参数
-        List<FrameParaData> frameParaDataList = new ArrayList<>();
-        for (String data : dataList) {
-            String paraCmk = data.substring(0, 2);
-            String paraValueStr = data.substring(2);
-            byte[] paraValBytes = HexUtil.decodeHex(paraValueStr);
-            FrameParaInfo currentPara = BaseInfoContainer.getParaInfoByCmd(devType, paraCmk);
-            if (StringUtils.isEmpty(currentPara.getParaNo())){ continue;}
-            FrameParaData frameParaData = FrameParaData.builder()
-                    .devType(devType)
-                    .devNo(respData.getDevNo())
-                    .paraNo(currentPara.getParaNo())
-                    .build();
-            //根据是否为String类型采取不同的处理方式
-            boolean isStr = MonitorConstants.STRING_CODE.equals(currentPara.getDataType());
-            if (isStr){
-                frameParaData.setParaVal(paraValueStr);
-            }else {
-                //单个参数值转换
-                frameParaData.setParaVal(byteToNumber(paraValBytes, 0,
-                        Integer.parseInt(currentPara.getParaByteLen())
-                        ,isUnsigned(sysParamService, currentPara.getDataType())
-                        ,isFloat(sysParamService, currentPara.getDataType())
-                ).toString());
-            }
-            frameParaDataList.add(frameParaData);
-        }
-        respData.setFrameParaList(frameParaDataList);
-        //参数查询响应结果接收
-        dataReciveService.paraQueryRecive(respData);
-        return respData;
+        return null;
     }
 
     @Override
     public void ctrlPara(FrameReqData reqInfo) {
         List<FrameParaData> paraList = reqInfo.getFrameParaList();
-        if (paraList == null||paraList.isEmpty()){ return; }
+        if (paraList == null || paraList.isEmpty()) {
+            return;
+        }
         String paraVal = paraList.get(0).getParaVal();
         String dataBody = reqInfo.getCmdMark() + paraVal;
         byte[] bytes = HexUtil.decodeHex(dataBody);
@@ -103,7 +64,8 @@ public class ModemPrtcServiceImpl implements IParaPrtclAnalysisService {
 
     /**
      * 调制解调器参数控制响应
-     * @param  respData   协议解析响应数据
+     *
+     * @param respData 协议解析响应数据
      * @return 响应结果数据
      */
     @Override
