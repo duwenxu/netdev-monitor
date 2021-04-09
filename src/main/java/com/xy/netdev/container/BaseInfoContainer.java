@@ -548,6 +548,7 @@ public class BaseInfoContainer {
             frameParaInfo.setNdpaRemark2Data(paraInfo.getNdpaRemark2Data());//数据2
             frameParaInfo.setNdpaRemark3Desc(paraInfo.getNdpaRemark3Desc());//备注3
             frameParaInfo.setNdpaRemark3Data(paraInfo.getNdpaRemark3Data());//数据3
+            frameParaInfo.setCmplexLevel(paraInfo.getNdpaCmplexLevel());//复杂级别
             Map map = new HashMap();
             try {
                 if (!StringUtils.isBlank(paraInfo.getNdpaSelectData())) {
