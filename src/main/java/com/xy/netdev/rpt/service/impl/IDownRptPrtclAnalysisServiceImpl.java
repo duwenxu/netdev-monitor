@@ -1,5 +1,6 @@
 package com.xy.netdev.rpt.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.container.DevAlertInfoContainer;
@@ -85,7 +86,7 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
                     break;
             }
         } catch (Exception e) {
-            log.error("站控指令响应查询异常...devNo={},cmdMark={}", headDev.getDevNo(), headDev.getCmdMarkHexStr());
+            log.error("站控指令响应查询异常...devNo={},cmdMark={}, 异常原因:{}", headDev.getDevNo(), headDev.getCmdMarkHexStr(), e);
         }
         return resBody;
     }
@@ -99,11 +100,10 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
      */
     private RptHeadDev doQuerySetCache(RptHeadDev rptHeadDev) {
         List<RptBodyDev> rptBodyDev = (List<RptBodyDev>) rptHeadDev.getParam();
-        String devNo = rptHeadDev.getDevNo();
         //遍历参数设置值
         rptBodyDev.forEach(body -> {
             body.getDevParaList().forEach(para -> {
-                String respStatus = DevLogInfoContainer.getDevParaRespStatus(devNo, para.getParaNo());
+                String respStatus = DevLogInfoContainer.getDevParaRespStatus(body.getDevNo(), para.getParaNo());
                 para.setParaSetRes(respStatus);
             });
         });
@@ -128,9 +128,8 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
         }
         //阻塞式的进行参数设置调用
         realRptBody.forEach(rptBody -> {
-            String devNo = rptBody.getDevNo();
             //请求间隔
-            Integer intervalTime = BaseInfoContainer.getDevInfoByNo(devNo).getDevIntervalTime();
+            Integer intervalTime = BaseInfoContainer.getDevInfoByNo(rptBody.getDevNo()).getDevIntervalTime();
             //参数设置请求初始化
             List<FrameParaData> canBeWriteFrameDataList = initParaSetAction(rptBody);
             for (FrameParaData paraData : canBeWriteFrameDataList) {
@@ -141,7 +140,7 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
                 }
                 String cmkMark = BaseInfoContainer.getParaInfoByNo(paraData.getDevType(), paraData.getParaNo()).getCmdMark();
                 //参数控制
-                devCmdSendService.paraCtrSend(devNo, cmkMark, paraData.getParaVal());
+                devCmdSendService.paraCtrSend(rptBody.getDevNo(), cmkMark, paraData.getParaVal());
             }
         });
     }
@@ -154,9 +153,8 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
      */
     private List<FrameParaData> initParaSetAction(RptBodyDev rptBody) {
         List<FrameParaData> devParaList = rptBody.getDevParaList();
-        String devNo = rptBody.getDevNo();
         //初始化设置响应
-        devParaList.forEach(para -> DevLogInfoContainer.initParaRespStatus(devNo, para.getParaNo()));
+        devParaList.forEach(para -> DevLogInfoContainer.initParaRespStatus(para.getDevNo(), para.getParaNo()));
         devParaList = devParaList.stream().filter(para -> {
             String paraNo = para.getParaNo();
             FrameParaInfo targetParaInfo = BaseInfoContainer.getParaInfoByNo(para.getDevType(), paraNo);
@@ -164,7 +162,7 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
             //若为只读参数则不可写
             boolean canBeWrite = SysConfigConstant.READ_WRITE.equals(accessRight) || SysConfigConstant.ONLY_WRITE.equals(accessRight);
             if (!canBeWrite) {
-                DevLogInfoContainer.setParaRespIllegalStatus(devNo, paraNo);
+                DevLogInfoContainer.setParaRespIllegalStatus(para.getDevNo(), paraNo);
             }
             return canBeWrite;
         }).collect(Collectors.toList());
@@ -180,9 +178,8 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
     private RptHeadDev doQueryNewCache(RptHeadDev headDev) {
         List<RptBodyDev> rptBodyDev = (List<RptBodyDev>) headDev.getParam();
         rptBodyDev.forEach(rptBody -> {
-            String devNo = rptBody.getDevNo();
             //获取指定设备当前可读且可以对外上报的参数列表
-            List<ParaViewInfo> devParaViewList = DevParaInfoContainer.getDevParaViewList(devNo).stream()
+            List<ParaViewInfo> devParaViewList = DevParaInfoContainer.getDevParaViewList(rptBody.getDevNo()).stream()
                     .filter(paraView -> !SysConfigConstant.ONLY_WRITE.equals(paraView.getAccessRight()) && IS_DEFAULT_TRUE.equals(paraView.getNdpaOutterStatus()))
                     .collect(Collectors.toList());
             //当前设备的查询响应参数列表
@@ -213,13 +210,15 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
     }
 
     private FrameParaData frameParaDataWrapper(ParaViewInfo paraView) {
-        return FrameParaData.builder()
+        FrameParaData.FrameParaDataBuilder frameParaDataBuilder = FrameParaData.builder()
                 .paraNo(paraView.getParaNo())
                 .paraVal(paraView.getParaVal())
                 .devType(paraView.getDevType())
-                .devNo(paraView.getDevNo())
-                .len(Integer.parseInt(paraView.getParaStrLen()))
-                .build();
+                .devNo(paraView.getDevNo());
+        if (StrUtil.isNotBlank(paraView.getParaStrLen())){
+            frameParaDataBuilder.len(Integer.parseInt(paraView.getParaStrLen()));
+        }
+        return frameParaDataBuilder.build();
     }
 
     private FrameParaData frameParaDataWrapper(AlertInfo alertInfo) {
@@ -241,9 +240,8 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
         List<RptBodyDev> rptBodyDev = (List<RptBodyDev>) headDev.getParam();
         List<AlertInfo> alertInfoList = new ArrayList<>();
         rptBodyDev.forEach(rptBody -> {
-            String devNo = rptBody.getDevNo();
             //获取指定设备的报警信息
-            List<AlertInfo> alertInfoLists = DevAlertInfoContainer.getDevAlertInfoList(devNo);
+            List<AlertInfo> alertInfoLists = DevAlertInfoContainer.getDevAlertInfoList(rptBody.getDevNo());
             alertInfoList.addAll(alertInfoLists);
         });
         headDev.setParam(alertInfoList);

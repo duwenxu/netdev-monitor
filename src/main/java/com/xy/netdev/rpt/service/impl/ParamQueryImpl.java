@@ -1,14 +1,17 @@
 package com.xy.netdev.rpt.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.rpt.bo.RptBodyDev;
 import com.xy.netdev.rpt.bo.RptHeadDev;
 import com.xy.netdev.rpt.service.RequestService;
 import com.xy.netdev.rpt.service.ResponseService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static com.xy.netdev.rpt.service.StationControlHandler.*;
 
@@ -17,6 +20,7 @@ import static com.xy.netdev.rpt.service.StationControlHandler.*;
  * @author cc
  */
 @Service
+@Slf4j
 public class ParamQueryImpl implements RequestService, ResponseService {
 
 
@@ -44,7 +48,7 @@ public class ParamQueryImpl implements RequestService, ResponseService {
         rptBodyDev.setDevTypeCode(String.valueOf(devTypeCode));
         //参数都是一字节, 数量==长度
         byte[] paramBytes = ByteUtils.byteArrayCopy(dataBytes, 4, paramNum);
-        int index = getIndex(list, rptBodyDev, paramBytes, paramBytes.length, 4);
+        int index = getIndex(list, rptBodyDev, Objects.requireNonNull(paramBytes), paramBytes.length, 4);
         return paramBuilder(ByteUtils.byteArrayCopy(dataBytes, index, dataBytes.length - index), list);
     }
 
@@ -52,6 +56,9 @@ public class ParamQueryImpl implements RequestService, ResponseService {
     public byte[] pack(RptHeadDev rptHeadDev) {
         return commonPack(rptHeadDev, (devParaList, tempList) -> {
             devParaList.forEach(frameParaData -> {
+                if (frameParaData.getLen() == null){
+                log.warn("参数查询命令生成失败:{}",JSON.toJSONString(frameParaData));
+                }
                 //参数编号
                 tempList.add(ByteUtils.objToBytes(frameParaData.getParaNo(), 1));
                 //数据长度
