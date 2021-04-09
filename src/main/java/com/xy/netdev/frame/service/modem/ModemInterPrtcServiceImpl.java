@@ -85,7 +85,7 @@ public class ModemInterPrtcServiceImpl implements IQueryInterPrtclAnalysisServic
         }
         respData.setFrameParaList(frameParaDataList);
         //参数查询响应结果接收
-        dataReciveService.paraQueryRecive(respData);
+        dataReciveService.interfaceQueryRecive(respData);
         return respData;
     }
 }
