@@ -52,7 +52,7 @@ public class NetdevApplicationTest {
     @Autowired
     private ISysParamService sysParamService;
 
-    public static byte[] pack(int cmd, byte[] bytes){
+    private static byte[] pack(int cmd, byte[] bytes){
        return ArrayUtil.addAll(
                 //信息类别
                 ByteUtils.objToBytes(cmd, 2)
@@ -81,7 +81,7 @@ public class NetdevApplicationTest {
         //站号
         list.add(ByteUtils.objToBytes(stationNo, 1));
         //设备数量
-        list.add(ByteUtils.objToBytes(stationNum, 1));
+        list.add(ByteUtils.objToBytes(1, 1));
         devInfos.stream()
                 .filter(baseInfo -> baseInfo.getDevNo().equals("19"))
                 .findFirst().ifPresent(baseInfo ->{
@@ -123,7 +123,7 @@ public class NetdevApplicationTest {
         //站号
         list.add(ByteUtils.objToBytes(stationNo, 1));
         //设备数量
-        list.add(ByteUtils.objToBytes(stationNum, 1));
+        list.add(ByteUtils.objToBytes(1, 1));
         devInfos.stream()
                 .filter(baseInfo -> baseInfo.getDevNo().equals("19"))
                 .findFirst().ifPresent(baseInfo ->{
@@ -137,23 +137,22 @@ public class NetdevApplicationTest {
                 list.add(ByteUtils.objToBytes(devNo, 1));
                 //设备参数数量
                 list.add(ByteUtils.objToBytes(size, 1));
-                frameParaInfos.forEach(frameParaInfo -> {
-                    if (frameParaInfo.getParaByteLen() != null && frameParaInfo.getParaVal() != null){
-                        //参数编号
-                        list.add(ByteUtils.objToBytes(frameParaInfo.getParaNo(), 1));
-                        //设备数据长度
-                        list.add(ByteUtils.objToBytes(frameParaInfo.getParaByteLen(), 2));
-                        //数据内容
-                        list.add(ByteUtils.objToBytes(frameParaInfo.getParaVal(), Integer.parseInt(frameParaInfo.getParaByteLen())));
-                    }
-
+                frameParaInfos
+                        .stream().filter(frameParaInfo -> frameParaInfo.getParaNo().equals("1") || frameParaInfo.getParaNo().equals("2") )
+                        .forEach(frameParaInfo -> {
+                    //参数编号
+                    list.add(ByteUtils.objToBytes(frameParaInfo.getParaNo(), 1));
+                    //设备数据长度
+                    list.add(ByteUtils.objToBytes(1, 2));
+                    //数据内容
+                    list.add(ByteUtils.objToBytes(1, 1));
                 });
             }
         });
         byte[] bytes = ByteUtils.listToBytes(list);
         byte[] pack = pack(0x0005, bytes);
         System.out.println(HexUtil.encodeHexStr(pack(0x0005, pack)));
-        UdpClientUtil.send(TEST_ADDRESS, TEST_PORT, pack);
+//        UdpClientUtil.send(TEST_ADDRESS, TEST_PORT, pack);
     }
 
 
@@ -170,7 +169,7 @@ public class NetdevApplicationTest {
         //站号
         list.add(ByteUtils.objToBytes(stationNo, 1));
         //设备数量
-        list.add(ByteUtils.objToBytes(stationNum, 1));
+        list.add(ByteUtils.objToBytes(1, 1));
         devInfos.stream()
                 .filter(baseInfo -> baseInfo.getDevNo().equals("8"))
                 .findFirst().ifPresent(baseInfo ->{
