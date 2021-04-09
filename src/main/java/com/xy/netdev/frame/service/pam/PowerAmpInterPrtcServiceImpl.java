@@ -108,7 +108,7 @@ public class PowerAmpInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
         //接口参数查询响应固定为 查询成功
         respData.setRespCode("0");
         respData.setFrameParaList(frameParaDataList);
-        dataReciveService.paraQueryRecive(respData);
+        dataReciveService.interfaceQueryRecive(respData);
         return respData;
     }
 }
