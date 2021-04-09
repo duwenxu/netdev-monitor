@@ -1,6 +1,8 @@
 package com.xy.netdev.monitor.bo;
 
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.xy.common.annotation.Param;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -66,6 +68,12 @@ public class ParaViewInfo {
      */
     @ApiModelProperty(value = "参数长度")
     private String paraStrLen;
+
+    @ApiModelProperty(value = "是否该字段提供给54所访问")
+    private String ndpaOutterStatus;
+
+    @ApiModelProperty(value = "字节长度")
+    private String paraByteLen;
 
     /**
      * 0024001 文本框  0024002 下拉框

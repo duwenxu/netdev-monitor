@@ -132,7 +132,7 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
         List paraList = new ArrayList();
         //获取指定设备的参数并过滤生成可提供给54所的参数用来生成文件
         String devType = BaseInfoContainer.getDevInfoByNo(baseInfo.getDevNo()).getDevType();
-        paraInfos.stream().filter(paraInfo -> devType.equals(paraInfo.getDevType())).forEach(parainfo -> {
+        paraInfos.stream().filter(paraInfo -> devType.equals(paraInfo.getDevType()) && paraInfo.getNdpaOutterStatus().equals(IS_DEFAULT_TRUE)).forEach(parainfo -> {
             Map<String, Object> paraMap = new LinkedHashMap<>();
             //给param节点增加属性值
             paraMap.put("-no", ParaHandlerUtil.generateEmptyStr(parainfo.getNdpaNo()));

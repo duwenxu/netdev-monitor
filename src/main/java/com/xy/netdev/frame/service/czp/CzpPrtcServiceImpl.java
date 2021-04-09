@@ -55,7 +55,7 @@ public class CzpPrtcServiceImpl  implements IParaPrtclAnalysisService {
      */
     @Override
     public void ctrlPara(FrameReqData reqInfo) {
-        log.info("C中频切换矩阵查询设置设备参数执行,接收到原始数据：["+reqInfo.getSendOriginalData()+"]");
+        log.info("C中频切换矩阵设置参数执行,接收到原始数据：["+reqInfo.getSendOriginalData()+"]");
         if(reqInfo.getFrameParaList() == null && reqInfo.getFrameParaList().isEmpty()){
             log.info("C中频切换矩阵无参数，设置设备参数取消！");
             return ;
@@ -63,7 +63,11 @@ public class CzpPrtcServiceImpl  implements IParaPrtclAnalysisService {
         List<byte[]> list = new ArrayList<>();
         reqInfo.getFrameParaList().forEach(frameParaData->{
             FrameParaInfo paraInfoByNo = BaseInfoContainer.getParaInfoByNo(frameParaData.getDevType(), frameParaData.getParaNo());
-            String dataBody = paraInfoByNo.getCmdMark() + frameParaData.getParaVal();
+            String newVal = frameParaData.getParaVal().replaceAll("[^0-9]","");
+            //赋值处理后的参数值
+            frameParaData.setParaVal(newVal);
+            String dataBody = paraInfoByNo.getCmdMark() + newVal;
+            //处理复杂参数:利用正则表达式过滤数字
             list.add(HexUtil.decodeHex(dataBody));
         });
         reqInfo.setParamBytes(ByteUtils.listToBytes(list));

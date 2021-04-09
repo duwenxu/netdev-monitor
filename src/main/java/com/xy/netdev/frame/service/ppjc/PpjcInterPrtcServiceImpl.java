@@ -1,4 +1,4 @@
-package com.xy.netdev.frame.service.czp;
+package com.xy.netdev.frame.service.ppjc;
 
 import cn.hutool.core.util.HexUtil;
 import com.xy.netdev.admin.service.ISysParamService;
@@ -25,14 +25,14 @@ import static com.xy.netdev.frame.service.gf.GfPrtcServiceImpl.isFloat;
 import static com.xy.netdev.frame.service.gf.GfPrtcServiceImpl.isUnsigned;
 
 /**
- * C中频切换矩阵
+ * 频谱监测设备
  *
  * @author sunchao
- * @create 2021-04-07 09:30
+ * @create 2021-04-08 16:10
  */
 @Service
 @Slf4j
-public class CzpInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
+public class PpjcInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
 
     @Autowired
     private SocketMutualService socketMutualService;
@@ -40,6 +40,8 @@ public class CzpInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
     private ISysParamService sysParamService;
     @Autowired
     private IDataReciveService dataReciveService;
+    //频谱监测设备协议分隔符
+    private static String separator = "2c";
 
     /**
      * 查询设备参数
@@ -47,7 +49,7 @@ public class CzpInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
      */
     @Override
     public void queryPara(FrameReqData reqInfo) {
-        log.info("C中频切换矩阵参数查询执行,接收到原始数据：["+reqInfo.getSendOriginalData()+"]");
+        log.info("频谱监测设备参数查询执行！");
         socketMutualService.request(reqInfo, ProtocolRequestEnum.QUERY);
     }
 
@@ -58,15 +60,15 @@ public class CzpInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
      */
     @Override
     public FrameRespData queryParaResponse(FrameRespData respData) {
-        log.info("C中频切换矩阵参数查询响应执行,接收到原始数据：["+respData.getReciveOriginalData()+"]");
-        String bytesData = HexUtil.encodeHexStr(respData.getParamBytes());
+        log.info("频谱监测设备查询响应执行,接收到原始数据：["+respData.getReciveOriginalData()+"]");
+        String[] bytesData = HexUtil.encodeHexStr(respData.getParamBytes()).split(separator);
         //全查询：按容器中的参数顺序解析
         String devType = respData.getDevType();
         List<FrameParaInfo> frameParaInfos = BaseInfoContainer.getInterLinkParaList(devType,respData.getCmdMark());
         List<FrameParaData> frameParaDataList = new ArrayList<>();
         for (FrameParaInfo frameParaInfo : frameParaInfos){
             //参数下标--->参数下标+参数字节长度+关键字（2）
-            String data = bytesData.substring(frameParaInfo.getParaStartPoint(),frameParaInfo.getParaStartPoint()+Integer.valueOf(frameParaInfo.getParaByteLen())+2);
+            String data = bytesData[frameParaInfo.getParaSeq()-1];
             String paraCmk = data.substring(0, 2);
             String paraValueStr = data.substring(2);
             byte[] paraValBytes = HexUtil.decodeHex(paraValueStr);
