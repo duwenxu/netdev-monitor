@@ -102,7 +102,6 @@ public class DevAlertInfoContainer {
         for(String paraNo:devMap.keySet()){
             alertInfoList.add(getDevParaAlertInfo(devNo,paraNo));
         }
-        //return new ArrayList(devAlertInfoMap.get(devNo).getMap().tailMap(baseTime).values());
         return alertInfoList;
     }
 
