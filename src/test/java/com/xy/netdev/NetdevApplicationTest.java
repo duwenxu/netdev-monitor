@@ -39,6 +39,8 @@ public class NetdevApplicationTest {
 
 //    设备主备切换状态上报：Recv:>010/ONLINE_1\r\n]
 //    设备告警状态上报+告警上报：Recv:>010/SAS_FT\r\n]
+//    状态上报：http://localhost:8080/rpt/test/status?devNo=8&type=1&status=0
+//    告警上报：http://localhost:8080/rpt/test/warning
 
     private static final String TEST_ADDRESS = "172.21.2.66";
 
@@ -80,7 +82,9 @@ public class NetdevApplicationTest {
         list.add(ByteUtils.objToBytes(stationNo, 1));
         //设备数量
         list.add(ByteUtils.objToBytes(stationNum, 1));
-        devInfos.stream().findFirst().ifPresent(baseInfo ->{
+        devInfos.stream()
+                .filter(baseInfo -> baseInfo.getDevNo().equals("19"))
+                .findFirst().ifPresent(baseInfo ->{
             String devNo = baseInfo.getDevNo();
             List<FrameParaInfo> frameParaInfos = BaseInfoContainer.getParasByDevType(baseInfo.getDevType());
             int size = frameParaInfos.size();
@@ -120,7 +124,9 @@ public class NetdevApplicationTest {
         list.add(ByteUtils.objToBytes(stationNo, 1));
         //设备数量
         list.add(ByteUtils.objToBytes(stationNum, 1));
-        devInfos.stream().findFirst().ifPresent(baseInfo ->{
+        devInfos.stream()
+                .filter(baseInfo -> baseInfo.getDevNo().equals("19"))
+                .findFirst().ifPresent(baseInfo ->{
             String devNo = baseInfo.getDevNo();
             List<FrameParaInfo> frameParaInfos = BaseInfoContainer.getParasByDevType(baseInfo.getDevType());
             int size = frameParaInfos.size();

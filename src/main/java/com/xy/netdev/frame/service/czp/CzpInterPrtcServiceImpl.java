@@ -92,8 +92,8 @@ public class CzpInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
             frameParaDataList.add(frameParaData);
         }
         respData.setFrameParaList(frameParaDataList);
-        //参数查询响应结果接收
-        dataReciveService.paraQueryRecive(respData);
+        //接口查询响应结果接收
+        dataReciveService.interfaceQueryRecive(respData);
         return respData;
     }
 }
