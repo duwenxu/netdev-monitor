@@ -26,16 +26,26 @@ public class UdpClientUtil {
         return (serverAddress == null)?new InetSocketAddress(host, port):serverAddress;
     }
 
-    public static void send(String host, int port,String msg) throws IOException {
+    public static void send(String host, int port,String msg) {
         try {
             log.info("UDP发送数据:"+msg);
-//            byte[] data = msg.getBytes(CHARSET_NAME);
-            byte[] data = HexUtil.decodeHex(msg);
+            byte[] data = msg.getBytes(CHARSET_NAME);
             DatagramPacket packet = new DatagramPacket(data, data.length, getInetSocketAddress(host,  port));
             getDatagramSocket().send(packet);
             log.info("发送完毕");
             getDatagramSocket().close();
-        } catch (UnsupportedEncodingException e) {
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void send(String host, int port, byte[] bytes){
+        try {
+            DatagramPacket packet = new DatagramPacket(bytes, bytes.length, getInetSocketAddress(host,  port));
+            getDatagramSocket().send(packet);
+            log.info("发送完毕");
+            getDatagramSocket().close();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

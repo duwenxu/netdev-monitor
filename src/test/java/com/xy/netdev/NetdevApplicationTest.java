@@ -10,6 +10,7 @@ import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.service.IBaseInfoService;
+import com.xy.netdev.network.util.UdpClientUtil;
 import com.xy.netdev.rpt.service.IDevStatusReportService;
 import io.swagger.models.auth.In;
 import lombok.val;
@@ -38,6 +39,10 @@ public class NetdevApplicationTest {
 
 //    设备主备切换状态上报：Recv:>010/ONLINE_1\r\n]
 //    设备告警状态上报+告警上报：Recv:>010/SAS_FT\r\n]
+
+    private static final String TEST_ADDRESS = "172.21.2.66";
+
+    private static final Integer TEST_PORT = 9900;
 
     @Autowired
     private IBaseInfoService baseInfoService;
@@ -93,7 +98,9 @@ public class NetdevApplicationTest {
             }
         });
         byte[] bytes = ByteUtils.listToBytes(list);
-        System.out.println(HexUtil.encodeHexStr(pack(0x0003, bytes)));
+        byte[] pack = pack(0x0003, bytes);
+        System.out.println(HexUtil.encodeHexStr(pack(0x0003, pack)));
+        UdpClientUtil.send(TEST_ADDRESS, TEST_PORT, pack);
     }
 
     /**
@@ -138,7 +145,9 @@ public class NetdevApplicationTest {
             }
         });
         byte[] bytes = ByteUtils.listToBytes(list);
-        System.out.println(HexUtil.encodeHexStr(pack(0x0005, bytes)));
+        byte[] pack = pack(0x0005, bytes);
+        System.out.println(HexUtil.encodeHexStr(pack(0x0005, pack)));
+        UdpClientUtil.send(TEST_ADDRESS, TEST_PORT, pack);
     }
 
 
@@ -174,7 +183,9 @@ public class NetdevApplicationTest {
             }
         });
         byte[] bytes = ByteUtils.listToBytes(list);
-        System.out.println(HexUtil.encodeHexStr(pack(0x0007, bytes)));
+        byte[] pack = pack(0x0007, bytes);
+        System.out.println(HexUtil.encodeHexStr(pack));
+        UdpClientUtil.send(TEST_ADDRESS, TEST_PORT, pack);
     }
 
 }
