@@ -226,34 +226,14 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
      */
     private RptHeadDev doParaWarnQueryAction(RptHeadDev headDev) {
         List<RptBodyDev> rptBodyDev = (List<RptBodyDev>) headDev.getParam();
+        List<AlertInfo> alertInfoList = new ArrayList<>();
         rptBodyDev.forEach(rptBody -> {
             String devNo = rptBody.getDevNo();
-            //获取指定设备当前可读的参数列表
-            List<AlertInfo> alertInfoList = DevAlertInfoContainer.getDevAlertInfoList(devNo);
-            //当前设备的查询响应参数列表
-            List<FrameParaData> resFrameParaList = new ArrayList<>();
-            //当前设备的查询响应参数列表
-            for (FrameParaData para : rptBody.getDevParaList()) {
-                String paraNo = para.getParaNo();
-                //参数编号为0,查询所有
-                if (ALL_PARAS_QUERY.equals(paraNo)) {
-                    alertInfoList.forEach(alertInfo -> {
-                        FrameParaData frameParaData = frameParaDataWrapper(alertInfo);
-                        resFrameParaList.add(frameParaData);
-                    });
-                    break;
-                }
-                //获取单个参数信息
-                alertInfoList.stream()
-                        .filter(alertInfo -> paraNo.equals(alertInfo.getNdpaNo())).findFirst()
-                        .ifPresent(alertInfo -> {
-                            FrameParaData frameParaData = frameParaDataWrapper(alertInfo);
-                            resFrameParaList.add(frameParaData);
-                        });
-            }
-            rptBody.setDevParaList(resFrameParaList);
+            //获取指定设备的报警信息
+            List<AlertInfo> alertInfoLists = DevAlertInfoContainer.getDevAlertInfoList(devNo);
+            alertInfoList.addAll(alertInfoLists);
         });
-        headDev.setParam(rptBodyDev);
+        headDev.setParam(alertInfoList);
         return headDev;
     }
 
