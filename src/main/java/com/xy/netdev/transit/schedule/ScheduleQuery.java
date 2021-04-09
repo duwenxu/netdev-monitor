@@ -51,17 +51,6 @@ public class ScheduleQuery  implements ApplicationRunner{
         } catch (Exception e) {
             log.error("设备状态定时查询异常...", e);
         }
-
-        AlertInfo alertInfo = new AlertInfo().builder()
-                .devType("0020006")
-                .alertLevel("1")
-                .devNo("8")
-                .alertTime(DateUtils.now())
-                .alertNum(1)
-                .ndpaNo("11")
-                .alertStationNo("10")
-                .alertDesc("设备：切换单元参数：变频器总状态报警：error!").build();
-        DevAlertInfoContainer.addAlertInfo(alertInfo);
     }
 
     /**
