@@ -39,6 +39,8 @@ public class ModemPrtcServiceImpl implements IParaPrtclAnalysisService {
     private SocketMutualService socketMutualService;
     @Autowired
     ISysParamService sysParamService;
+    @Autowired
+    private IDataReciveService dataReciveService;
 
     @Override
     public void queryPara(FrameReqData reqInfo) {
@@ -80,6 +82,7 @@ public class ModemPrtcServiceImpl implements IParaPrtclAnalysisService {
         } else {
             throw new IllegalStateException("调制解调器控制响应异常，数据字节：" + data);
         }
+        dataReciveService.paraCtrRecive(respData);
         return respData;
     }
 }

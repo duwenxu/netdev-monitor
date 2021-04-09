@@ -29,7 +29,8 @@ public class DevIfeMegSend {
         ChannelGroup channels = ChannelCache.getInstance().getChannels("DevLogInfos",devNo);
         if( channels != null){
             //此处加SerializerFeature.WriteMapNullValue是为了让数据中属性值为null的属性不被忽略
-            String msg = JSONObject.toJSONString(DevLogInfoContainer.getDevLogList(devNo),SerializerFeature.WriteMapNullValue);
+            //此处加SerializerFeature.DisableCircularReferenceDetect解决相同的对象序列化出错问题
+            String msg = JSONObject.toJSONString(DevLogInfoContainer.getDevLogList(devNo),SerializerFeature.WriteMapNullValue,SerializerFeature.DisableCircularReferenceDetect);
             TextWebSocketFrame textWebSocketFrame = new TextWebSocketFrame(msg);
             channels.writeAndFlush(textWebSocketFrame);
         }
@@ -43,7 +44,8 @@ public class DevIfeMegSend {
         ChannelGroup channels = ChannelCache.getInstance().getChannels("DevParaInfos",devNo);
         if( channels != null){
             //此处加SerializerFeature.WriteMapNullValue是为了让数据中属性值为null的属性不被忽略
-            String msg = JSONObject.toJSONString(DevParaInfoContainer.getDevParaViewList(devNo), SerializerFeature.WriteMapNullValue);
+            //此处加SerializerFeature.DisableCircularReferenceDetect解决相同的对象序列化出错问题
+            String msg = JSONObject.toJSONString(DevParaInfoContainer.getDevParaViewList(devNo), SerializerFeature.WriteMapNullValue,SerializerFeature.DisableCircularReferenceDetect);
             TextWebSocketFrame textWebSocketFrame = new TextWebSocketFrame(msg);
             channels.writeAndFlush(textWebSocketFrame);
         }
@@ -56,7 +58,8 @@ public class DevIfeMegSend {
         ChannelGroup channels = ChannelCache.getInstance().getChannelsByIfe("DevStatusInfos");
         if( channels != null){
             //此处加SerializerFeature.WriteMapNullValue是为了让数据中属性值为null的属性不被忽略
-            String msg = JSONObject.toJSONString(DevStatusContainer.getAllDevStatusInfoList(),SerializerFeature.WriteMapNullValue);
+            //此处加SerializerFeature.DisableCircularReferenceDetect解决相同的对象序列化出错问题
+            String msg = JSONObject.toJSONString(DevStatusContainer.getAllDevStatusInfoList(),SerializerFeature.WriteMapNullValue,SerializerFeature.DisableCircularReferenceDetect);
             TextWebSocketFrame textWebSocketFrame = new TextWebSocketFrame(msg);
             channels.writeAndFlush(textWebSocketFrame);
         }
@@ -69,7 +72,8 @@ public class DevIfeMegSend {
         ChannelGroup channels = ChannelCache.getInstance().getChannels("DevCtrlItfInfos",devNo);
         if( channels != null){
             //此处加SerializerFeature.WriteMapNullValue是为了让数据中属性值为null的属性不被忽略
-            String msg = JSONObject.toJSONString(DevCtrlInterInfoContainer.getDevCtrInterList(devNo),SerializerFeature.WriteMapNullValue);
+            //此处加SerializerFeature.DisableCircularReferenceDetect解决相同的对象序列化出错问题
+            String msg = JSONObject.toJSONString(DevCtrlInterInfoContainer.getDevCtrInterList(devNo),SerializerFeature.WriteMapNullValue,SerializerFeature.DisableCircularReferenceDetect);
             TextWebSocketFrame textWebSocketFrame = new TextWebSocketFrame(msg);
             channels.writeAndFlush(textWebSocketFrame);
         }
@@ -82,7 +86,8 @@ public class DevIfeMegSend {
         ChannelGroup channels = ChannelCache.getInstance().getChannels("DevPageInfos",devNo);
         if( channels != null){
             //此处加SerializerFeature.WriteMapNullValue是为了让数据中属性值为null的属性不被忽略
-            String msg = JSONObject.toJSONString(PageInfoContainer.getPageInfo(devNo,cmdMark),SerializerFeature.WriteMapNullValue);
+            //此处加SerializerFeature.DisableCircularReferenceDetect解决相同的对象序列化出错问题
+            String msg = JSONObject.toJSONString(PageInfoContainer.getPageInfo(devNo,cmdMark),SerializerFeature.WriteMapNullValue,SerializerFeature.DisableCircularReferenceDetect);
             TextWebSocketFrame textWebSocketFrame = new TextWebSocketFrame(msg);
             channels.writeAndFlush(textWebSocketFrame);
         }
