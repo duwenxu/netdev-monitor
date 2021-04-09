@@ -165,7 +165,9 @@ public class NetdevApplicationTest {
         list.add(ByteUtils.objToBytes(stationNo, 1));
         //设备数量
         list.add(ByteUtils.objToBytes(stationNum, 1));
-        devInfos.stream().findFirst().ifPresent(baseInfo ->{
+        devInfos.stream()
+                .filter(baseInfo -> baseInfo.getDevNo().equals("8"))
+                .findFirst().ifPresent(baseInfo ->{
             String devNo = baseInfo.getDevNo();
             List<FrameParaInfo> frameParaInfos = BaseInfoContainer.getParasByDevType(baseInfo.getDevType());
             int size = frameParaInfos.size();
