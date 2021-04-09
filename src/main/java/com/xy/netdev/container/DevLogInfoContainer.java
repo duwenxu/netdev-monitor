@@ -91,6 +91,9 @@ public class DevLogInfoContainer {
      */
     public synchronized static void initParaRespStatus(String devNo,String paraNo) {
         devParaSetRespStatusMap.get(devNo).put(paraNo,PARA_REPS_STATUS_NORESP);
+        //todo test
+        devParaSetRespStatusMap.get("19").put("1", "0");
+        devParaSetRespStatusMap.get("19").put("2", "0");
     }
     /**
      * @功能：设备参数设置前效验为只读,设置为不合法设置状态
