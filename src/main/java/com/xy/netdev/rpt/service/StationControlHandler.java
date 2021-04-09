@@ -107,6 +107,7 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
         RptHeadDev finalRptHeadDev = rptHeadDev;
         ThreadUtil.execute(() -> {
             try {
+                //等等缓存更新
                 TimeUnit.SECONDS.sleep(1);
                 //重新获取缓存
                 RptHeadDev headDev = iDownRptPrtclAnalysisService.queryNewCache(finalRptHeadDev);
