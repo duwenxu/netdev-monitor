@@ -67,6 +67,7 @@ public class NetdevApplicationTest {
 
     /**
      * 参数查询命令
+     * 000300440000000000000000030a014e2c13392425262728292a2b2c2d2e2f303132333435363738390102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20212223
      */
     @Test
     public void queryParam(){
@@ -103,12 +104,13 @@ public class NetdevApplicationTest {
         });
         byte[] bytes = ByteUtils.listToBytes(list);
         byte[] pack = pack(0x0003, bytes);
-        System.out.println(HexUtil.encodeHexStr(pack(0x0003, pack)));
+        System.out.println(HexUtil.encodeHexStr(pack));
         UdpClientUtil.send(TEST_ADDRESS, TEST_PORT, pack);
     }
 
     /**
      * 参数设置命令
+     * 0005000e0000000000000000050a014e2c1301010101
      */
     @Test
     public void setParam(){
@@ -136,14 +138,14 @@ public class NetdevApplicationTest {
                 //设备编号
                 list.add(ByteUtils.objToBytes(devNo, 1));
                 //设备参数数量
-                list.add(ByteUtils.objToBytes(size, 1));
+                list.add(ByteUtils.objToBytes(1, 1));
                 frameParaInfos
-                        .stream().filter(frameParaInfo -> frameParaInfo.getParaNo().equals("1") || frameParaInfo.getParaNo().equals("2") )
+                        .stream().filter(frameParaInfo -> frameParaInfo.getParaNo().equals("1"))
                         .forEach(frameParaInfo -> {
                     //参数编号
                     list.add(ByteUtils.objToBytes(frameParaInfo.getParaNo(), 1));
                     //设备数据长度
-                    list.add(ByteUtils.objToBytes(1, 2));
+                    list.add(ByteUtils.objToBytes(1, 1));
                     //数据内容
                     list.add(ByteUtils.objToBytes(1, 1));
                 });
@@ -151,11 +153,14 @@ public class NetdevApplicationTest {
         });
         byte[] bytes = ByteUtils.listToBytes(list);
         byte[] pack = pack(0x0005, bytes);
-        System.out.println(HexUtil.encodeHexStr(pack(0x0005, pack)));
+        System.out.println(HexUtil.encodeHexStr(pack));
 //        UdpClientUtil.send(TEST_ADDRESS, TEST_PORT, pack);
     }
 
-
+    /**
+     * 警告
+     * 0007001d0000000000000000070a014e2608120105060708090b0d0e0f1011131214151604
+     */
     @Test
     public void paramWarning(){
         //获取设备信息
