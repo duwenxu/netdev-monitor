@@ -86,33 +86,8 @@ public class ModemScmmInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSe
                 }else {
                     targetBytes = previousBytes;
                 }
+                String value = doGetValue(param, paraInfo, targetBytes);
 
-                //获取参数解析配置信息
-                String confClass = param.getNdpaRemark2Data();
-                String confParams = param.getNdpaRemark3Data();
-                //默认直接转换
-                ParamCodec codec = new DirectParamCodec();
-                ExtParamConf paramConf = new ExtParamConf();
-                Object[] params = new Object[0];
-                if (!StringUtils.isBlank(confParams)) {
-                    paramConf = JSON.parseObject(confParams, ExtParamConf.class);
-                }
-                //按配置的解析方式解析
-                if (!StringUtils.isBlank(confClass)) {
-                    codec = BeanFactoryUtil.getBean(confClass);
-                }
-                //构造参数
-                if (paramConf.getPoint() != null && paramConf.getStart() != null) {
-                    params = new Integer[]{paramConf.getStart(), paramConf.getPoint()};
-                } else if (paramConf.getExt() != null){
-                    params =paramConf.getExt().toArray();
-                }
-                String value = null;
-                try {
-                    value = codec.decode(targetBytes, params);
-                } catch (Exception e) {
-                    log.error("参数解析异常：{}",paraInfo);
-                }
                 paraInfo.setParaVal(value);
                 frameParaDataList.add(paraInfo);
             }
@@ -122,6 +97,37 @@ public class ModemScmmInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSe
         respData.setFrameParaList(frameParaDataList);
         dataReciveService.interfaceQueryRecive(respData);
         return respData;
+    }
+
+
+    private String doGetValue(FrameParaInfo param, FrameParaData paraInfo, byte[] targetBytes) {
+        //获取参数解析配置信息
+        String confClass = param.getNdpaRemark2Data();
+        String confParams = param.getNdpaRemark3Data();
+        //默认直接转换
+        ParamCodec codec = new DirectParamCodec();
+        ExtParamConf paramConf = new ExtParamConf();
+        Object[] params = new Object[0];
+        if (!StringUtils.isBlank(confParams)) {
+            paramConf = JSON.parseObject(confParams, ExtParamConf.class);
+        }
+        //按配置的解析方式解析
+        if (!StringUtils.isBlank(confClass)) {
+            codec = BeanFactoryUtil.getBean(confClass);
+        }
+        //构造参数
+        if (paramConf.getPoint() != null && paramConf.getStart() != null) {
+            params = new Integer[]{paramConf.getStart(), paramConf.getPoint()};
+        } else if (paramConf.getExt() != null){
+            params =paramConf.getExt().toArray();
+        }
+        String value = null;
+        try {
+            value = codec.decode(targetBytes, params);
+        } catch (Exception e) {
+            log.error("参数解析异常：{}",paraInfo);
+        }
+        return value;
     }
 
 }
