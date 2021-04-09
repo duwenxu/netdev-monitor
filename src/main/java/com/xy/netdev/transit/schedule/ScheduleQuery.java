@@ -5,6 +5,7 @@ import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseContainerLoader;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.container.DevAlertInfoContainer;
+import com.xy.netdev.container.DevLogInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
@@ -48,6 +49,7 @@ public class ScheduleQuery  implements ApplicationRunner{
         log.info("-----设备状态定时查询开始...");
         try {
             doScheduleQuery();
+            DevLogInfoContainer.initTestStatus();
         } catch (Exception e) {
             log.error("设备状态定时查询异常...", e);
         }

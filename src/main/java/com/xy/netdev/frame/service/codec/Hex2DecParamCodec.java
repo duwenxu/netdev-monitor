@@ -17,7 +17,7 @@ public class Hex2DecParamCodec implements ParamCodec {
     public String decode(byte[] bytes, Object... objects) {
         //默认不做小数点保留
         double divideValue = 1;
-        if (objects != null) {
+        if (objects != null && objects.length != 0) {
             divideValue = Math.pow(10, (int) objects[0]);
         }
         long originValue = Long.parseLong(HexUtil.encodeHexStr(bytes), 16);
@@ -28,17 +28,17 @@ public class Hex2DecParamCodec implements ParamCodec {
     public byte[] encode(String value, Object... objects) {
         //默认不做小数点保留
         double rideValue = 1;
-        if (objects!=null){
+        if (objects != null && objects.length != 0) {
             rideValue = Math.pow(10, (int) objects[0]);
         }
-        String hexStr = String.format("%08X", (long)(Double.parseDouble(value)*rideValue));
+        String hexStr = String.format("%08X", (long) (Double.parseDouble(value) * rideValue));
         return HexUtil.decodeHex(hexStr);
     }
 
     public static void main(String[] args) {
         byte[] bytes = {0x01, 0x43, 0x15, (byte) 0x8D};
         Hex2DecParamCodec hex2DecParamCodec = new Hex2DecParamCodec();
-        String decode = hex2DecParamCodec.decode(bytes,3);
+        String decode = hex2DecParamCodec.decode(bytes, 3);
         System.out.println(decode);
         byte[] encode = hex2DecParamCodec.encode(decode, 3);
         System.out.println(encode);
