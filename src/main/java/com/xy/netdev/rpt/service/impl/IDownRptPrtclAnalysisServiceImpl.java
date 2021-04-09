@@ -1,5 +1,6 @@
 package com.xy.netdev.rpt.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.container.DevAlertInfoContainer;
@@ -198,13 +199,15 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
     }
 
     private FrameParaData frameParaDataWrapper(ParaViewInfo paraView) {
-        return FrameParaData.builder()
+        FrameParaData.FrameParaDataBuilder frameParaDataBuilder = FrameParaData.builder()
                 .paraNo(paraView.getParaNo())
                 .paraVal(paraView.getParaVal())
                 .devType(paraView.getDevType())
-                .devNo(paraView.getDevNo())
-                .len(Integer.parseInt(paraView.getParaStrLen()))
-                .build();
+                .devNo(paraView.getDevNo());
+        if (StrUtil.isNotBlank(paraView.getParaStrLen())){
+            frameParaDataBuilder.len(Integer.parseInt(paraView.getParaStrLen()));
+        }
+        return frameParaDataBuilder.build();
     }
 
     private FrameParaData frameParaDataWrapper(AlertInfo alertInfo) {

@@ -52,12 +52,14 @@ public class ParamQueryImpl implements RequestService, ResponseService {
     public byte[] pack(RptHeadDev rptHeadDev) {
         return commonPack(rptHeadDev, (devParaList, tempList) -> {
             devParaList.forEach(frameParaData -> {
-                //参数编号
-                tempList.add(ByteUtils.objToBytes(frameParaData.getParaNo(), 1));
-                //数据长度
-                tempList.add(ByteUtils.objToBytes(frameParaData.getLen(), 2));
-                //数据体内容
-                tempList.add(ByteUtils.objToBytes(frameParaData.getParaVal(), frameParaData.getLen()));
+                if (frameParaData.getLen() != null){
+                    //参数编号
+                    tempList.add(ByteUtils.objToBytes(frameParaData.getParaNo(), 1));
+                    //数据长度
+                    tempList.add(ByteUtils.objToBytes(frameParaData.getLen(), 2));
+                    //数据体内容
+                    tempList.add(ByteUtils.objToBytes(frameParaData.getParaVal(), frameParaData.getLen()));
+                }
             });
         });
     }
