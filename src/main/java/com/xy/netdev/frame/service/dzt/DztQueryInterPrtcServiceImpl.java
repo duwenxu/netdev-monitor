@@ -81,6 +81,7 @@ public class DztQueryInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
             for (String data : dataList) {
                 String paraValueStr = data.substring(1);
                 String paraCmk = data.substring(0, 1);
+                //参数关键字从0x60递增
                 Integer number = Integer.parseInt(paraCmk,16)-95;
                 List<FrameParaData> framParas = genFrameParaInfo(respData,paraInfos,paraValueStr);
                 JSONObject object = new JSONObject();

@@ -127,8 +127,8 @@ public class CzpImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, 
         List<byte[]> lists = new ArrayList<>();
         //设备地址:2
         lists.add(new byte[]{0x00, 0x01});
-        //长度:2
-        lists.add(ByteUtils.objToBytes(frameLen, 2));
+        //长度:2   命令字+参数体
+        lists.add(ByteUtils.objToBytes(frameLen-9, 2));
         //命令字 :1
         lists.add(new byte[]{(byte) Integer.parseInt(keyWord, 16)});
         //参数体 :n

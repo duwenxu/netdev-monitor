@@ -17,12 +17,16 @@ import com.xy.netdev.rpt.service.IDownRptPrtclAnalysisService;
 import com.xy.netdev.transit.impl.DevCmdSendService;
 import io.swagger.models.auth.In;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
+
+import static com.xy.netdev.common.constant.SysConfigConstant.IS_DEFAULT_TRUE;
 
 /**
  * 站控 参数查询/设置 实现
@@ -90,6 +94,7 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
 
     /**
      * 查询控制响应结果
+     *
      * @param rptHeadDev 参数设置结构体
      * @return 控制响应结果
      */
@@ -114,11 +119,17 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
     private void doParaSetAction(RptHeadDev headDev) {
         Thread.currentThread().setName(headDev.getDevNo() + "doParaSetAction-thread");
         List<RptBodyDev> rptBodyDev = (List<RptBodyDev>) headDev.getParam();
+        //过滤参数长度不为空的设置参数
+        List<RptBodyDev> realRptBody = new CopyOnWriteArrayList<>();
+        for (RptBodyDev bodyDev : rptBodyDev) {
+            List<FrameParaData> currentList = bodyDev.getDevParaList().stream().filter(param -> param.getLen() != null && param.getLen() != 0).collect(Collectors.toList());
+            bodyDev.setDevParaList(currentList);
+            realRptBody.add(bodyDev);
+        }
         //阻塞式的进行参数设置调用
-        rptBodyDev.forEach(rptBody -> {
-            String devNo = rptBody.getDevNo();
+        realRptBody.forEach(rptBody -> {
             //请求间隔
-            Integer intervalTime = BaseInfoContainer.getDevInfoByNo(devNo).getDevIntervalTime();
+            Integer intervalTime = BaseInfoContainer.getDevInfoByNo(rptBody.getDevNo()).getDevIntervalTime();
             //参数设置请求初始化
             List<FrameParaData> canBeWriteFrameDataList = initParaSetAction(rptBody);
             for (FrameParaData paraData : canBeWriteFrameDataList) {
@@ -129,7 +140,7 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
                 }
                 String cmkMark = BaseInfoContainer.getParaInfoByNo(paraData.getDevType(), paraData.getParaNo()).getCmdMark();
                 //参数控制
-                devCmdSendService.paraCtrSend(devNo, cmkMark, paraData.getParaVal());
+                devCmdSendService.paraCtrSend(rptBody.getDevNo(), cmkMark, paraData.getParaVal());
             }
         });
     }
@@ -142,9 +153,8 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
      */
     private List<FrameParaData> initParaSetAction(RptBodyDev rptBody) {
         List<FrameParaData> devParaList = rptBody.getDevParaList();
-        String devNo = rptBody.getDevNo();
         //初始化设置响应
-        devParaList.forEach(para -> DevLogInfoContainer.initParaRespStatus(devNo, para.getParaNo()));
+        devParaList.forEach(para -> DevLogInfoContainer.initParaRespStatus(para.getDevNo(), para.getParaNo()));
         devParaList = devParaList.stream().filter(para -> {
             String paraNo = para.getParaNo();
             FrameParaInfo targetParaInfo = BaseInfoContainer.getParaInfoByNo(para.getDevType(), paraNo);
@@ -152,7 +162,7 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
             //若为只读参数则不可写
             boolean canBeWrite = SysConfigConstant.READ_WRITE.equals(accessRight) || SysConfigConstant.ONLY_WRITE.equals(accessRight);
             if (!canBeWrite) {
-                DevLogInfoContainer.setParaRespIllegalStatus(devNo, paraNo);
+                DevLogInfoContainer.setParaRespIllegalStatus(para.getDevNo(), paraNo);
             }
             return canBeWrite;
         }).collect(Collectors.toList());
@@ -168,9 +178,10 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
     private RptHeadDev doQueryNewCache(RptHeadDev headDev) {
         List<RptBodyDev> rptBodyDev = (List<RptBodyDev>) headDev.getParam();
         rptBodyDev.forEach(rptBody -> {
-            //获取指定设备当前可读的参数列表
+            //获取指定设备当前可读且可以对外上报的参数列表
             List<ParaViewInfo> devParaViewList = DevParaInfoContainer.getDevParaViewList(rptBody.getDevNo()).stream()
-                    .filter(paraView -> !SysConfigConstant.ONLY_WRITE.equals(paraView.getAccessRight())).collect(Collectors.toList());
+                    .filter(paraView -> !SysConfigConstant.ONLY_WRITE.equals(paraView.getAccessRight()) && IS_DEFAULT_TRUE.equals(paraView.getNdpaOutterStatus()))
+                    .collect(Collectors.toList());
             //当前设备的查询响应参数列表
             List<FrameParaData> resFrameParaList = new ArrayList<>();
             for (FrameParaData para : rptBody.getDevParaList()) {
@@ -227,34 +238,13 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
      */
     private RptHeadDev doParaWarnQueryAction(RptHeadDev headDev) {
         List<RptBodyDev> rptBodyDev = (List<RptBodyDev>) headDev.getParam();
+        List<AlertInfo> alertInfoList = new ArrayList<>();
         rptBodyDev.forEach(rptBody -> {
-            String devNo = rptBody.getDevNo();
-            //获取指定设备当前可读的参数列表
-            List<AlertInfo> alertInfoList = DevAlertInfoContainer.getDevAlertInfoList(devNo);
-            //当前设备的查询响应参数列表
-            List<FrameParaData> resFrameParaList = new ArrayList<>();
-            //当前设备的查询响应参数列表
-            for (FrameParaData para : rptBody.getDevParaList()) {
-                String paraNo = para.getParaNo();
-                //参数编号为0,查询所有
-                if (ALL_PARAS_QUERY.equals(paraNo)) {
-                    alertInfoList.forEach(alertInfo -> {
-                        FrameParaData frameParaData = frameParaDataWrapper(alertInfo);
-                        resFrameParaList.add(frameParaData);
-                    });
-                    break;
-                }
-                //获取单个参数信息
-                alertInfoList.stream()
-                        .filter(alertInfo -> paraNo.equals(alertInfo.getNdpaNo())).findFirst()
-                        .ifPresent(alertInfo -> {
-                            FrameParaData frameParaData = frameParaDataWrapper(alertInfo);
-                            resFrameParaList.add(frameParaData);
-                        });
-            }
-            rptBody.setDevParaList(resFrameParaList);
+            //获取指定设备的报警信息
+            List<AlertInfo> alertInfoLists = DevAlertInfoContainer.getDevAlertInfoList(rptBody.getDevNo());
+            alertInfoList.addAll(alertInfoLists);
         });
-        headDev.setParam(rptBodyDev);
+        headDev.setParam(alertInfoList);
         return headDev;
     }
 

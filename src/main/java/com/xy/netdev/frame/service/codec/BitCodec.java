@@ -1,14 +1,9 @@
 package com.xy.netdev.frame.service.codec;
 
-import cn.hutool.core.util.HexUtil;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.frame.service.ParamCodec;
-import com.xy.netdev.frame.service.modemscmm.ModemScmmInterPrtcServiceImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
 
 import static com.xy.netdev.common.util.ByteUtils.byteToBinary;
 
