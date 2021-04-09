@@ -131,7 +131,7 @@ public class BaseInfoContainer {
         List<Interface> subParents = interfaces.stream()
                 .filter(anInterface -> !iftParents.contains(anInterface))
                 .collect(Collectors.toList());
-        addInterLinkParaMap(genDevInterParam(iftParents, subParents, frameParaInfos, prtclList));
+        addInterLinkParaMap(genDevInterParam(interfaces, subParents, frameParaInfos, prtclList));
     }
 
     /**
@@ -588,15 +588,15 @@ public class BaseInfoContainer {
     /**
      * 生成设备接口参数实体list（运用递归方式处理组装接口）
      *
-     * @param parentItfs     所有的上级接口
+     * @param interfaces     所有的接口
      * @param subItfs        所有的子接口
      * @param frameParaInfos
      * @param prtclList
      * @return
      */
-    private static List<DevInterParam> genDevInterParam(List<Interface> parentItfs, List<Interface> subItfs, List<FrameParaInfo> frameParaInfos, List<PrtclFormat> prtclList) {
+    private static List<DevInterParam> genDevInterParam(List<Interface> interfaces, List<Interface> subItfs, List<FrameParaInfo> frameParaInfos, List<PrtclFormat> prtclList) {
         List<DevInterParam> devInterParams = new ArrayList<>();
-        parentItfs.forEach(anInterface -> {
+        interfaces.forEach(anInterface -> {
             DevInterParam devInterParam = new DevInterParam();
             //id
             devInterParam.setId(ParaHandlerUtil.genLinkKey(anInterface.getDevType(), anInterface.getItfCmdMark()));
@@ -623,7 +623,7 @@ public class BaseInfoContainer {
             });
             //如果为组合接口则填充子接口列表：递归方法
             List<DevInterParam> subList = new ArrayList<>();
-            if (INTERFACE_TYPE_PACK_QUERY.equals(anInterface.getItfType())) {
+            if (INTERFACE_TYPE_PACK_QUERY.equals(anInterface.getItfType()) || INTERFACE_TYPE_PACK_CTRL.equals(anInterface.getItfType())) {
                 //查找所属当前接口的所有子接口
                 List<Interface> interfaceList = subItfs.stream()
                         .filter(anInterface1 -> anInterface.getDevType().equals(anInterface1.getDevType())

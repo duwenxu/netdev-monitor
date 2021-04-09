@@ -1,26 +1,21 @@
 package com.xy.netdev.sendrecv.head;
 
 import cn.hutool.core.util.HexUtil;
-import com.xy.netdev.common.util.ByteUtils;
-import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.service.ICtrlInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.ppjc.PpjcInterPrtcServiceImpl;
-import com.xy.netdev.monitor.entity.PrtclFormat;
 import com.xy.netdev.sendrecv.base.AbsDeviceSocketHandler;
 import com.xy.netdev.sendrecv.entity.SocketEntity;
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.xy.netdev.common.constant.SysConfigConstant.*;
-import static com.xy.netdev.common.util.ByteUtils.*;
+import static com.xy.netdev.common.constant.SysConfigConstant.OPREATE_QUERY_RESP;
+import static com.xy.netdev.common.util.ByteUtils.byteArrayCopy;
+import static com.xy.netdev.common.util.ByteUtils.bytesToNum;
 
 /**
  * 频谱监测设备
@@ -31,9 +26,6 @@ public class PpjcImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData,
 
     @Autowired
     private PpjcInterPrtcServiceImpl ppjcInterPrtcService;
-    /**查询/控制响应命令标识*/
-    private static final String QUERY_RES = "83";
-    private static final String QUERY_CMD ="82";
 
     /**
      * 回滚
@@ -73,10 +65,8 @@ public class PpjcImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData,
         //获取16进制命令字
         String hexRespType = HexUtil.toHex(bytesToNum(bytes, 2, 1, ByteBuf::readUnsignedByte));
         //判断操作类型赋值
-        if (QUERY_RES.equals(hexRespType)){
-            frameRespData.setCmdMark(QUERY_CMD);
-            frameRespData.setOperType(OPREATE_QUERY_RESP);
-        }
+        frameRespData.setCmdMark(hexRespType);
+        frameRespData.setOperType(OPREATE_QUERY_RESP);
         //数据体
         byte[] paramBytes = byteArrayCopy(bytes, 3, bytes.length - 5);
         frameRespData.setParamBytes(paramBytes);
