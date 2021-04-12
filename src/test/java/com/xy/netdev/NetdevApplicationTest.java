@@ -2,8 +2,8 @@ package com.xy.netdev;
 
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.HexUtil;
+import cn.hutool.core.util.NumberUtil;
 import com.xy.netdev.admin.service.ISysParamService;
-import com.xy.netdev.common.annotation.AutoLog;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
@@ -11,20 +11,14 @@ import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.service.IBaseInfoService;
 import com.xy.netdev.network.util.UdpClientUtil;
-import com.xy.netdev.rpt.service.IDevStatusReportService;
-import io.swagger.models.auth.In;
-import lombok.val;
-import lombok.var;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author duwenxu
@@ -199,5 +193,19 @@ public class NetdevApplicationTest {
         System.out.println(HexUtil.encodeHexStr(pack));
         UdpClientUtil.send(TEST_ADDRESS, TEST_PORT, pack);
     }
+
+    public static void main(String[] args) {
+        int n = 5;
+        int count = 0;
+        while(n>0){
+            if((n&1)>0){
+                System.out.println((n&1));
+                count++;
+            }
+            n=n>>1;
+        }
+        System.out.println(count);
+    }
+
 
 }

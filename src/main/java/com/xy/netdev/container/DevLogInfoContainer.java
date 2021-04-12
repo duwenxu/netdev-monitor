@@ -140,7 +140,7 @@ public class DevLogInfoContainer {
      */
     public static void   handlerRespDevPara(FrameRespData respData) {
         ISysParamService sysParamService =BaseInfoContainer.getSysParamService();
-        OperLog devLog =new OperLog();`
+        OperLog devLog =new OperLog();
         devLog.setDevType(respData.getDevType());
         devLog.setDevNo(respData.getDevNo());
         devLog.setLogAccessType(respData.getAccessType());
