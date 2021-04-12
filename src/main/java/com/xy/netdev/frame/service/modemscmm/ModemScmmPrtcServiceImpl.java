@@ -54,6 +54,14 @@ public class ModemScmmPrtcServiceImpl implements IParaPrtclAnalysisService {
         if (paraList == null || paraList.isEmpty()) { return; }
         //控制参数信息拼接
         FrameParaData paraData = paraList.get(0);
+        byte[] valueBytes = doGetFrameBytes(paraData);
+        byte[] bytes = HexUtil.decodeHex(reqInfo.getCmdMark());
+        byte[] bytesMerge = bytesMerge(bytes, valueBytes);
+        reqInfo.setParamBytes(bytesMerge);
+        socketMutualService.request(reqInfo, ProtocolRequestEnum.CONTROL);
+    }
+
+    public byte[] doGetFrameBytes(FrameParaData paraData) {
         FrameParaInfo paraInfoByNo = BaseInfoContainer.getParaInfoByNo(paraData.getDevType(), paraData.getParaNo());
         String configClass = paraInfoByNo.getNdpaRemark2Data();
         String configParams = paraInfoByNo.getNdpaRemark3Data();
@@ -72,11 +80,7 @@ public class ModemScmmPrtcServiceImpl implements IParaPrtclAnalysisService {
         if (StringUtils.isNotBlank(configClass)){
             handler = BeanFactoryUtil.getBean(configClass);
         }
-        byte[] bytes = HexUtil.decodeHex(reqInfo.getCmdMark());
-        byte[] valueBytes = handler.encode(paraData.getParaVal(), params);
-        byte[] bytesMerge = bytesMerge(bytes, valueBytes);
-        reqInfo.setParamBytes(bytesMerge);
-        socketMutualService.request(reqInfo, ProtocolRequestEnum.CONTROL);
+        return handler.encode(paraData.getParaVal(), params);
     }
 
     @Override

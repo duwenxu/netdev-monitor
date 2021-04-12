@@ -224,6 +224,9 @@ public class ByteUtils {
     }
 
     public static int byteToInt(byte[] bytes){
+        if (bytes==null||bytes.length == 0){
+            return 0;
+        }
         String hexStr = HexUtil.encodeHexStr(bytes);
         return Integer.parseInt(hexStr, 16);
     }
