@@ -98,12 +98,9 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
      */
     @Override
     public List getCtrlItfInfo(BaseInfo baseInfo) {
-        Map<String,Object> map = new HashMap<>();
-        //合并设备信息
-        map.putAll(BeanUtils.beanToMap(baseInfo));
         //合并接口信息
         List<Interface> interfaces = BaseInfoContainer.getCtrlItfInfo(baseInfo.getDevNo());
-        return interfaces;
+         return interfaces;
     }
 
     /**

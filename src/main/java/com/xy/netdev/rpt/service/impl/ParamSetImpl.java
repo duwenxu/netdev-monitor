@@ -5,11 +5,11 @@ import com.xy.netdev.rpt.bo.RptBodyDev;
 import com.xy.netdev.rpt.bo.RptHeadDev;
 import com.xy.netdev.rpt.service.RequestService;
 import com.xy.netdev.rpt.service.ResponseService;
-import com.xy.netdev.rpt.service.StationControlHandler;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static com.xy.netdev.rpt.service.StationControlHandler.*;
 
@@ -21,13 +21,13 @@ import static com.xy.netdev.rpt.service.StationControlHandler.*;
 public class ParamSetImpl implements RequestService, ResponseService {
 
     @Override
-    public RptHeadDev unpackBody(StationControlHandler.StationControlHeadEntity stationControlHeadEntity) {
-        return unpackCommonHead(stationControlHeadEntity, bytes ->  paramBuilder(bytes, new ArrayList<>()));
+    public RptHeadDev unpackBody(StationControlHeadEntity stationControlHeadEntity, RptHeadDev headDev) {
+        return unpackCommonHead(stationControlHeadEntity, headDev, bytes ->  paramBuilder(bytes, new ArrayList<>()));
     }
 
 
     private List<RptBodyDev> paramBuilder(byte[] dataBytes, List<RptBodyDev> list){
-        if (dataBytes.length == 0){
+        if (dataBytes == null || dataBytes.length == 0){
             return list;
         }
         //设备型号
@@ -37,7 +37,7 @@ public class ParamSetImpl implements RequestService, ResponseService {
         //设备参数数量
         int paramNum = ByteUtils.byteToNumber(dataBytes, 3, 1).intValue();
         //设备数据长度
-        int devParamLen = ByteUtils.byteToNumber(dataBytes, 4, 2).intValue();
+        int devParamLen = ByteUtils.byteToNumber(dataBytes, 4, 1).intValue();
 
         //数据体解析
         RptBodyDev rptBodyDev = new RptBodyDev();
@@ -45,10 +45,8 @@ public class ParamSetImpl implements RequestService, ResponseService {
         rptBodyDev.setDevParaTotal(String.valueOf(paramNum));
         rptBodyDev.setDevTypeCode(String.valueOf(devTypeCode));
         rptBodyDev.setDevParamLen(devParamLen);
-
         byte[] paramBytes = ByteUtils.byteArrayCopy(dataBytes, 6, devParamLen);
-
-        int index = getIndex(list, rptBodyDev, paramBytes, paramBytes.length, 6);
+        int index = getIndex(list, rptBodyDev, Objects.requireNonNull(paramBytes), paramBytes.length, 6);
         return paramBuilder(ByteUtils.byteArrayCopy(dataBytes, index, dataBytes.length - index), list);
     }
 

@@ -1,17 +1,18 @@
 package com.xy.netdev.rpt.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.monitor.entity.AlertInfo;
 import com.xy.netdev.rpt.bo.RptBodyDev;
 import com.xy.netdev.rpt.bo.RptHeadDev;
 import com.xy.netdev.rpt.service.RequestService;
 import com.xy.netdev.rpt.service.ResponseService;
-import com.xy.netdev.rpt.service.StationControlHandler;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static com.xy.netdev.rpt.service.StationControlHandler.*;
 
@@ -23,13 +24,13 @@ import static com.xy.netdev.rpt.service.StationControlHandler.*;
 public class ParamWarnImpl implements RequestService, ResponseService {
 
     @Override
-    public RptHeadDev unpackBody(StationControlHandler.StationControlHeadEntity stationControlHeadEntity) {
-        return unpackCommonHead(stationControlHeadEntity, bytes ->  paramBuilder(bytes, new ArrayList<>()));
+    public RptHeadDev unpackBody(StationControlHeadEntity stationControlHeadEntity, RptHeadDev headDev) {
+        return unpackCommonHead(stationControlHeadEntity, headDev, bytes ->  paramBuilder(bytes, new ArrayList<>()));
     }
 
 
     private List<RptBodyDev> paramBuilder(byte[] dataBytes, List<RptBodyDev> list) {
-        if (dataBytes.length == 0){
+        if (dataBytes == null || dataBytes.length == 0){
             return list;
         }
         //设备型号
@@ -46,7 +47,7 @@ public class ParamWarnImpl implements RequestService, ResponseService {
         rptBodyDev.setDevTypeCode(String.valueOf(devTypeCode));
         //参数都是一字节, 数量==长度
         byte[] paramBytes = ByteUtils.byteArrayCopy(dataBytes, 4, paramNum);
-        int index = getIndex(list, rptBodyDev, paramBytes, paramBytes.length, 4);
+        int index = getIndex(list, rptBodyDev, Objects.requireNonNull(paramBytes), paramBytes.length, 4);
         return paramBuilder(ByteUtils.byteArrayCopy(dataBytes, index, dataBytes.length - index), list);
     }
 

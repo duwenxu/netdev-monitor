@@ -1,11 +1,16 @@
 package com.xy.netdev.transit.schedule;
 
+import com.xy.common.util.DateUtils;
 import com.xy.netdev.common.constant.SysConfigConstant;
+import com.xy.netdev.container.BaseContainerLoader;
 import com.xy.netdev.container.BaseInfoContainer;
+import com.xy.netdev.container.DevAlertInfoContainer;
+import com.xy.netdev.container.DevLogInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.constant.MonitorConstants;
+import com.xy.netdev.monitor.entity.AlertInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.entity.PrtclFormat;
@@ -43,7 +48,8 @@ public class ScheduleQuery  implements ApplicationRunner{
     public void run(ApplicationArguments args) throws Exception {
         log.info("-----设备状态定时查询开始...");
         try {
-//            doScheduleQuery();
+            doScheduleQuery();
+            DevLogInfoContainer.initTestStatus();
         } catch (Exception e) {
             log.error("设备状态定时查询异常...", e);
         }
@@ -53,8 +59,8 @@ public class ScheduleQuery  implements ApplicationRunner{
      * 设备参数定时查询
      */
     public void doScheduleQuery() {
-//        List<BaseInfo> baseInfos = ScheduleQueryHelper.getAvailableBases().stream().filter(base -> base.getDevType().equals("0020006")).collect(Collectors.toList());
-        List<BaseInfo> baseInfos = ScheduleQueryHelper.getAvailableBases();
+        List<BaseInfo> baseInfos = ScheduleQueryHelper.getAvailableBases().stream().filter(base -> base.getDevType().equals("0020006")).collect(Collectors.toList());
+//        List<BaseInfo> baseInfos = ScheduleQueryHelper.getAvailableBases();
         //单个设备所有查询对象的封装list映射
         Map<BaseInfo, List<FrameReqData>> scheduleReqBodyMap = new ConcurrentHashMap<>(20);
         baseInfos.forEach(base -> {

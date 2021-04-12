@@ -1,11 +1,12 @@
 package com.xy.netdev.frame.service.modemscmm;
 
-import cn.hutool.core.util.HexUtil;
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson.JSON;
-import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.util.BeanFactoryUtil;
 import com.xy.netdev.container.BaseInfoContainer;
+import com.xy.netdev.frame.bo.ExtParamConf;
+import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
@@ -21,13 +22,11 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
-import static com.xy.netdev.common.util.ByteUtils.byteArrayCopy;
-import static com.xy.netdev.common.util.ByteUtils.bytesToNum;
+import static com.xy.netdev.common.util.ByteUtils.*;
 
 /**
  * SCMM-2300调制解调器 接口协议内容解析
@@ -41,8 +40,6 @@ public class ModemScmmInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSe
     @Autowired
     private SocketMutualService socketMutualService;
     @Autowired
-    private ISysParamService sysParamService;
-    @Autowired
     private IDataReciveService dataReciveService;
 
     @Override
@@ -55,32 +52,82 @@ public class ModemScmmInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSe
     public FrameRespData queryParaResponse(FrameRespData respData) {
         byte[] bytes = respData.getParamBytes();
         if (ObjectUtil.isNull(bytes)) {
-            log.warn("400W功放查询响应异常, 未获取到数据体, 信息:{}", JSON.toJSONString(respData));
+            log.warn("2300调制解调器查询响应异常, 未获取到数据体, 信息:{}", JSON.toJSONString(respData));
             return respData;
         }
         //单元信息
-        Short unit = bytesToNum(bytes, 0, 1, ByteBuf::readShort);
-        String hexUnit = HexUtil.toHex(unit);
+        Short unit = bytesToNum(bytes, 0, 1, ByteBuf::readUnsignedByte);
+        String hexUnit = lefPadNumToHexStr(unit);
+        byte[] realBytes = new byte[bytes.length-1];
+        System.arraycopy(bytes,1,realBytes,0,bytes.length-1);
         //获取接口单元的参数信息
         List<FrameParaInfo> frameParaInfos = BaseInfoContainer.getInterLinkParaList(respData.getDevType(), hexUnit);
-        frameParaInfos.stream().filter(Objects::nonNull)
-                .map(param->{
-                    Integer startPoint = param.getParaStartPoint();
-                    String byteLen = param.getParaByteLen();
-                    int paraByteLen = 0;
-                    if (StringUtils.isNotBlank(byteLen)) {
-                        paraByteLen = Integer.parseInt(byteLen);
-                    }
-                    byte[] targetBytes = byteArrayCopy(bytes, startPoint, paraByteLen);
-                    String[] config = param.getNdpaRemark2Data().split(",");
-                    //默认直接转换
-                    ParamCodec codec = new DirectParamCodec();
-                    if (config.length>1){
-                        codec = BeanFactoryUtil.getBean(config[0]);
-//                        config = System.arraycopy(config,1,new String[], 0, config.length-1);
-                    }
-                    return codec.decode(bytes, config);
-                }).collect(Collectors.toList());
-        return null;
+        //对于位参数记录上一个参数的bytes
+        byte[] previousBytes = new byte[0];
+        List<FrameParaData> frameParaDataList = new ArrayList<>(frameParaInfos.size());
+        for (FrameParaInfo param : frameParaInfos) {
+            if (Objects.nonNull(param)){
+                //构造返回信息体 paraInfo
+                FrameParaData paraInfo = new FrameParaData();
+                BeanUtil.copyProperties(param, paraInfo, true);
+                BeanUtil.copyProperties(respData, paraInfo, true);
+                Integer startPoint = param.getParaStartPoint();
+                String byteLen = param.getParaByteLen();
+
+                //字节长度位空或者0时，直接取上一次的字节
+                int paraByteLen;
+                byte[] targetBytes;
+                if (StringUtils.isNotBlank(byteLen)) {
+                    paraByteLen = Integer.parseInt(byteLen);
+                    paraInfo.setLen(paraByteLen);
+                    //获取参数字节
+                    targetBytes = byteArrayCopy(realBytes, startPoint, paraByteLen);
+                    previousBytes = targetBytes;
+                }else {
+                    targetBytes = previousBytes;
+                }
+                String value = doGetValue(param, paraInfo, targetBytes);
+
+                paraInfo.setParaVal(value);
+                frameParaDataList.add(paraInfo);
+            }
+        }
+        //接口参数查询响应固定为 查询成功
+        respData.setRespCode("0");
+        respData.setFrameParaList(frameParaDataList);
+        dataReciveService.interfaceQueryRecive(respData);
+        return respData;
     }
+
+
+    private String doGetValue(FrameParaInfo param, FrameParaData paraInfo, byte[] targetBytes) {
+        //获取参数解析配置信息
+        String confClass = param.getNdpaRemark2Data();
+        String confParams = param.getNdpaRemark3Data();
+        //默认直接转换
+        ParamCodec codec = new DirectParamCodec();
+        ExtParamConf paramConf = new ExtParamConf();
+        Object[] params = new Object[0];
+        if (!StringUtils.isBlank(confParams)) {
+            paramConf = JSON.parseObject(confParams, ExtParamConf.class);
+        }
+        //按配置的解析方式解析
+        if (!StringUtils.isBlank(confClass)) {
+            codec = BeanFactoryUtil.getBean(confClass);
+        }
+        //构造参数
+        if (paramConf.getPoint() != null && paramConf.getStart() != null) {
+            params = new Integer[]{paramConf.getStart(), paramConf.getPoint()};
+        } else if (paramConf.getExt() != null){
+            params =paramConf.getExt().toArray();
+        }
+        String value = null;
+        try {
+            value = codec.decode(targetBytes, params);
+        } catch (Exception e) {
+            log.error("参数解析异常：{}",paraInfo);
+        }
+        return value;
+    }
+
 }

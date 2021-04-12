@@ -1,15 +1,21 @@
 package com.xy.netdev.rpt.service.impl;
 
+import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSON;
+import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.rpt.bo.RptBodyDev;
 import com.xy.netdev.rpt.bo.RptHeadDev;
 import com.xy.netdev.rpt.service.RequestService;
 import com.xy.netdev.rpt.service.ResponseService;
-import com.xy.netdev.rpt.service.StationControlHandler;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static com.xy.netdev.rpt.service.StationControlHandler.*;
 
@@ -18,17 +24,20 @@ import static com.xy.netdev.rpt.service.StationControlHandler.*;
  * @author cc
  */
 @Service
+@Slf4j
 public class ParamQueryImpl implements RequestService, ResponseService {
 
+    @Autowired
+    private ISysParamService iSysParamService;
 
     @Override
-    public RptHeadDev unpackBody(StationControlHandler.StationControlHeadEntity stationControlHeadEntity) {
-        return unpackCommonHead(stationControlHeadEntity, bytes ->  paramBuilder(bytes, new ArrayList<>()));
+    public RptHeadDev unpackBody(StationControlHeadEntity stationControlHeadEntity, RptHeadDev headDev) {
+        return unpackCommonHead(stationControlHeadEntity, headDev, bytes ->  paramBuilder(bytes, new ArrayList<>()));
     }
 
 
     private List<RptBodyDev> paramBuilder(byte[] dataBytes, List<RptBodyDev> list) {
-        if (dataBytes.length == 0){
+        if (dataBytes == null || dataBytes.length == 0){
             return list;
         }
         //设备型号
@@ -45,7 +54,7 @@ public class ParamQueryImpl implements RequestService, ResponseService {
         rptBodyDev.setDevTypeCode(String.valueOf(devTypeCode));
         //参数都是一字节, 数量==长度
         byte[] paramBytes = ByteUtils.byteArrayCopy(dataBytes, 4, paramNum);
-        int index = getIndex(list, rptBodyDev, paramBytes, paramBytes.length, 4);
+        int index = getIndex(list, rptBodyDev, Objects.requireNonNull(paramBytes), paramBytes.length, 4);
         return paramBuilder(ByteUtils.byteArrayCopy(dataBytes, index, dataBytes.length - index), list);
     }
 
@@ -53,12 +62,18 @@ public class ParamQueryImpl implements RequestService, ResponseService {
     public byte[] pack(RptHeadDev rptHeadDev) {
         return commonPack(rptHeadDev, (devParaList, tempList) -> {
             devParaList.forEach(frameParaData -> {
-                //参数编号
-                tempList.add(ByteUtils.objToBytes(frameParaData.getParaNo(), 1));
-                //数据长度
-                tempList.add(ByteUtils.objToBytes(frameParaData.getLen(), 2));
-                //数据体内容
-                tempList.add(ByteUtils.objToBytes(frameParaData.getParaVal(), frameParaData.getLen()));
+                if (frameParaData.getLen() == null){
+                log.warn("参数查询命令生成失败:{}",JSON.toJSONString(frameParaData));
+                }
+                if (StrUtil.isNotBlank(frameParaData.getParaVal())){
+                    //参数编号
+                    tempList.add(ByteUtils.objToBytes(frameParaData.getParaNo(), 1));
+                    //数据长度
+                    tempList.add(ByteUtils.objToBytes(frameParaData.getLen(), 2));
+                    //数据体内容 todo 测试时暂时这样
+                    tempList.add(frameParaData.getParaVal().getBytes(Charset.forName("GB2312")));
+//                    tempList.add( ByteUtils.objToBytes(frameParaData.getParaVal(), frameParaData.getLen()));
+                }
             });
         });
     }

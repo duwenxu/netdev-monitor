@@ -64,6 +64,13 @@ public class FrameParaInfo {
     private String ndpaAccessRight;
 
     /**
+     * 参数表中 0019 中编码
+     * sunchao
+     */
+    @ApiModelProperty(value = "复杂级别")
+    private String CmplexLevel;
+
+    /**
      * 参数表中 0020 中编码
      */
     @ApiModelProperty(value = "设备类型编码")
@@ -98,6 +105,12 @@ public class FrameParaInfo {
 
     @ApiModelProperty(value = "备注二数据")
     private String ndpaRemark2Data;
+
+    @ApiModelProperty(value = "备注三描述")
+    private String ndpaRemark3Desc;
+
+    @ApiModelProperty(value = "备注三数据")
+    private String ndpaRemark3Data;
 
     /**
      * 下拉框显示数据,当显示模式 是0024002 需要赋值下拉框列表

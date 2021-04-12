@@ -8,6 +8,7 @@ import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.service.ICtrlInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
+import com.xy.netdev.frame.service.czp.CzpInterPrtcServiceImpl;
 import com.xy.netdev.frame.service.czp.CzpPrtcServiceImpl;
 import com.xy.netdev.monitor.entity.PrtclFormat;
 import com.xy.netdev.sendrecv.base.AbsDeviceSocketHandler;
@@ -30,9 +31,12 @@ public class CzpImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, 
 
     @Autowired
     private CzpPrtcServiceImpl czpPrtcService;
+    @Autowired
+    private CzpInterPrtcServiceImpl czpInterPrtcService;
     /**查询/控制响应命令标识*/
     private static final String QUERY_RES = "83";
     private static final String CONTROL_RES = "81";
+    private static final String QUERY_CMD ="82";
 
     /**
      * 回滚
@@ -46,7 +50,7 @@ public class CzpImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, 
     public void callback(FrameRespData frameRespData, IParaPrtclAnalysisService iParaPrtclAnalysisService, IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService, ICtrlInterPrtclAnalysisService ctrlInterPrtclAnalysisService) {
         switch (frameRespData.getOperType()) {
             case OPREATE_QUERY_RESP:  //查询响应
-                czpPrtcService.queryParaResponse(frameRespData);
+                czpInterPrtcService.queryParaResponse(frameRespData);
                 break;
             case OPREATE_CONTROL_RESP:  //控制响应
                 czpPrtcService.ctrlParaResponse(frameRespData);
@@ -75,7 +79,7 @@ public class CzpImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, 
         String hexRespType = HexUtil.toHex(bytesToNum(bytes, 7, 1, ByteBuf::readUnsignedByte));
         //判断操作类型赋值
         if (QUERY_RES.equals(hexRespType)){
-            frameRespData.setCmdMark(hexRespType);
+            frameRespData.setCmdMark(QUERY_CMD);
             frameRespData.setOperType(OPREATE_QUERY_RESP);
         }else if (CONTROL_RES.equals(hexRespType)){
             frameRespData.setOperType(OPREATE_CONTROL_RESP);
@@ -98,11 +102,14 @@ public class CzpImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, 
      */
     @Override
     public byte[] pack(FrameReqData frameReqData) {
+        if(frameReqData.getParamBytes() == null){
+            frameReqData.setParamBytes(new byte[]{});
+        }
         byte[] bytes = frameReqData.getParamBytes();
         //c中频切换矩阵数据帧总长= 参数体长度 + 固定字节长度10
         int frameLen = bytes.length + 10;
         //获取操作关键字： 查询关键字/控制关键字
-        PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByPara(frameReqData.getDevType(), frameReqData.getCmdMark());
+        PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameReqData.getDevType(), frameReqData.getCmdMark());
         //默认为查询
         String keyWord = prtclFormat.getFmtSkey();
         if (OPREATE_CONTROL.equals(frameReqData.getOperType())) {
@@ -120,8 +127,8 @@ public class CzpImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, 
         List<byte[]> lists = new ArrayList<>();
         //设备地址:2
         lists.add(new byte[]{0x00, 0x01});
-        //长度:2
-        lists.add(ByteUtils.objToBytes(frameLen, 2));
+        //长度:2   命令字+参数体
+        lists.add(ByteUtils.objToBytes(frameLen-9, 2));
         //命令字 :1
         lists.add(new byte[]{(byte) Integer.parseInt(keyWord, 16)});
         //参数体 :n

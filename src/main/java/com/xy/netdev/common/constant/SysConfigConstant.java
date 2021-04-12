@@ -406,4 +406,9 @@ public interface SysConfigConstant {
      * 显示模式--下拉框
      */
     String PARA_SHOW_MODEL = "0024002";
+
+    /**
+     * 设备类型--车载卫星天线
+     */
+    String  DEVICE_CAR_ANTENNA = "0020011";
 }

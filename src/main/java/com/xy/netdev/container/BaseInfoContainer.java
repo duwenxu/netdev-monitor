@@ -15,6 +15,7 @@ import com.xy.netdev.monitor.entity.PrtclFormat;
 import com.xy.netdev.monitor.service.IBaseInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -130,7 +131,7 @@ public class BaseInfoContainer {
         List<Interface> subParents = interfaces.stream()
                 .filter(anInterface -> !iftParents.contains(anInterface))
                 .collect(Collectors.toList());
-        addInterLinkParaMap(genDevInterParam(iftParents, subParents, frameParaInfos, prtclList));
+        addInterLinkParaMap(genDevInterParam(interfaces, subParents, frameParaInfos, prtclList));
     }
 
     /**
@@ -543,9 +544,18 @@ public class BaseInfoContainer {
             frameParaInfo.setDataType(paraInfo.getNdpaDatatype());//数值类型
             frameParaInfo.setNdpaRemark1Desc(paraInfo.getNdpaRemark1Desc());//备注1
             frameParaInfo.setNdpaRemark1Data(paraInfo.getNdpaRemark1Data());//数据1
+            frameParaInfo.setNdpaRemark2Desc(paraInfo.getNdpaRemark2Desc());//备注2
+            frameParaInfo.setNdpaRemark2Data(paraInfo.getNdpaRemark2Data());//数据2
+            frameParaInfo.setNdpaRemark3Desc(paraInfo.getNdpaRemark3Desc());//备注3
+            frameParaInfo.setNdpaRemark3Data(paraInfo.getNdpaRemark3Data());//数据3
+            frameParaInfo.setCmplexLevel(paraInfo.getNdpaCmplexLevel());//复杂级别
             Map map = new HashMap();
-            if (!StringUtils.isBlank(paraInfo.getNdpaSelectData())) {
-                JSONArray.parseArray(paraInfo.getNdpaSelectData(), ParaSpinnerInfo.class).forEach(paraSpinnerInfo -> map.put(paraSpinnerInfo.getCode(), paraSpinnerInfo.getName()));
+            try {
+                if (!StringUtils.isBlank(paraInfo.getNdpaSelectData())) {
+                    JSONArray.parseArray(paraInfo.getNdpaSelectData(), ParaSpinnerInfo.class).forEach(paraSpinnerInfo -> map.put(paraSpinnerInfo.getCode(), paraSpinnerInfo.getName()));
+                }
+            } catch (Exception e) {
+                log.error("参数下拉值域解析错误：设备类型：{}，参数编号：{}",paraInfo.getDevType(),paraInfo.getNdpaNo());
             }
             frameParaInfo.setSelectMap(map);//下拉值域
             frameParaInfo.setDevType(paraInfo.getDevType());      //设备类型
@@ -579,15 +589,15 @@ public class BaseInfoContainer {
     /**
      * 生成设备接口参数实体list（运用递归方式处理组装接口）
      *
-     * @param parentItfs     所有的上级接口
+     * @param interfaces     所有的接口
      * @param subItfs        所有的子接口
      * @param frameParaInfos
      * @param prtclList
      * @return
      */
-    private static List<DevInterParam> genDevInterParam(List<Interface> parentItfs, List<Interface> subItfs, List<FrameParaInfo> frameParaInfos, List<PrtclFormat> prtclList) {
+    private static List<DevInterParam> genDevInterParam(List<Interface> interfaces, List<Interface> subItfs, List<FrameParaInfo> frameParaInfos, List<PrtclFormat> prtclList) {
         List<DevInterParam> devInterParams = new ArrayList<>();
-        parentItfs.forEach(anInterface -> {
+        interfaces.forEach(anInterface -> {
             DevInterParam devInterParam = new DevInterParam();
             //id
             devInterParam.setId(ParaHandlerUtil.genLinkKey(anInterface.getDevType(), anInterface.getItfCmdMark()));
@@ -607,11 +617,14 @@ public class BaseInfoContainer {
             List<String> paraIds = StringUtils.isBlank(anInterface.getItfDataFormat()) ? new ArrayList<>() : Arrays.asList(anInterface.getItfDataFormat().split(","));
             Map<Integer, FrameParaInfo> frameParaInfoMap = frameParaInfos.stream().collect(Collectors.toMap(FrameParaInfo::getParaId,FrameParaInfo -> FrameParaInfo));
             paraIds.forEach(paraId->{
-                devInterParam.addFramePara(frameParaInfoMap.get(Integer.valueOf(paraId)));
+                //解决是一个实体类导致的数据属性同步变化
+                FrameParaInfo frameParaInfo = new FrameParaInfo();
+                BeanUtils.copyProperties(frameParaInfoMap.get(Integer.valueOf(paraId)),frameParaInfo);
+                devInterParam.addFramePara(frameParaInfo);
             });
             //如果为组合接口则填充子接口列表：递归方法
             List<DevInterParam> subList = new ArrayList<>();
-            if (INTERFACE_TYPE_PACK_QUERY.equals(anInterface.getItfType())) {
+            if (INTERFACE_TYPE_PACK_QUERY.equals(anInterface.getItfType()) || INTERFACE_TYPE_PACK_CTRL.equals(anInterface.getItfType())) {
                 //查找所属当前接口的所有子接口
                 List<Interface> interfaceList = subItfs.stream()
                         .filter(anInterface1 -> anInterface.getDevType().equals(anInterface1.getDevType())

@@ -15,6 +15,7 @@ import com.xy.netdev.monitor.entity.OperLog;
 import com.xy.netdev.monitor.entity.PrtclFormat;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.annotation.PostConstruct;
 import java.util.*;
 
 /**
@@ -70,6 +71,12 @@ public class DevLogInfoContainer {
         String logTime = DateTools.getDateTime();
         devLog.setLogTime(logTime);
         devLogInfoMap.get(devLog.getDevNo()).put(logTime,devLog);
+    }
+
+    public synchronized static void initTestStatus(){
+        //todo test
+        devParaSetRespStatusMap.get("19").put("1", "0");
+        devParaSetRespStatusMap.get("19").put("2", "0");
     }
 
     /**
