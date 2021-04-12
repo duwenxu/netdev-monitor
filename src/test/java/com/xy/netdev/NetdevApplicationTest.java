@@ -2,8 +2,8 @@ package com.xy.netdev;
 
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.HexUtil;
+import cn.hutool.core.util.NumberUtil;
 import com.xy.netdev.admin.service.ISysParamService;
-import com.xy.netdev.common.annotation.AutoLog;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
@@ -11,20 +11,14 @@ import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.service.IBaseInfoService;
 import com.xy.netdev.network.util.UdpClientUtil;
-import com.xy.netdev.rpt.service.IDevStatusReportService;
-import io.swagger.models.auth.In;
-import lombok.val;
-import lombok.var;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author duwenxu
@@ -52,7 +46,7 @@ public class NetdevApplicationTest {
     @Autowired
     private ISysParamService sysParamService;
 
-    public static byte[] pack(int cmd, byte[] bytes){
+    private static byte[] pack(int cmd, byte[] bytes){
        return ArrayUtil.addAll(
                 //信息类别
                 ByteUtils.objToBytes(cmd, 2)
@@ -67,6 +61,7 @@ public class NetdevApplicationTest {
 
     /**
      * 参数查询命令
+     * 000300440000000000000000030a014e2c13392425262728292a2b2c2d2e2f303132333435363738390102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20212223
      */
     @Test
     public void queryParam(){
@@ -81,7 +76,7 @@ public class NetdevApplicationTest {
         //站号
         list.add(ByteUtils.objToBytes(stationNo, 1));
         //设备数量
-        list.add(ByteUtils.objToBytes(stationNum, 1));
+        list.add(ByteUtils.objToBytes(1, 1));
         devInfos.stream()
                 .filter(baseInfo -> baseInfo.getDevNo().equals("19"))
                 .findFirst().ifPresent(baseInfo ->{
@@ -103,12 +98,13 @@ public class NetdevApplicationTest {
         });
         byte[] bytes = ByteUtils.listToBytes(list);
         byte[] pack = pack(0x0003, bytes);
-        System.out.println(HexUtil.encodeHexStr(pack(0x0003, pack)));
+        System.out.println(HexUtil.encodeHexStr(pack));
         UdpClientUtil.send(TEST_ADDRESS, TEST_PORT, pack);
     }
 
     /**
      * 参数设置命令
+     * 0005000e0000000000000000050a014e2c1301010101
      */
     @Test
     public void setParam(){
@@ -123,7 +119,7 @@ public class NetdevApplicationTest {
         //站号
         list.add(ByteUtils.objToBytes(stationNo, 1));
         //设备数量
-        list.add(ByteUtils.objToBytes(stationNum, 1));
+        list.add(ByteUtils.objToBytes(1, 1));
         devInfos.stream()
                 .filter(baseInfo -> baseInfo.getDevNo().equals("19"))
                 .findFirst().ifPresent(baseInfo ->{
@@ -136,27 +132,29 @@ public class NetdevApplicationTest {
                 //设备编号
                 list.add(ByteUtils.objToBytes(devNo, 1));
                 //设备参数数量
-                list.add(ByteUtils.objToBytes(size, 1));
-                frameParaInfos.forEach(frameParaInfo -> {
-                    if (frameParaInfo.getParaByteLen() != null && frameParaInfo.getParaVal() != null){
-                        //参数编号
-                        list.add(ByteUtils.objToBytes(frameParaInfo.getParaNo(), 1));
-                        //设备数据长度
-                        list.add(ByteUtils.objToBytes(frameParaInfo.getParaByteLen(), 2));
-                        //数据内容
-                        list.add(ByteUtils.objToBytes(frameParaInfo.getParaVal(), Integer.parseInt(frameParaInfo.getParaByteLen())));
-                    }
-
+                list.add(ByteUtils.objToBytes(1, 1));
+                frameParaInfos
+                        .stream().filter(frameParaInfo -> frameParaInfo.getParaNo().equals("1"))
+                        .forEach(frameParaInfo -> {
+                    //参数编号
+                    list.add(ByteUtils.objToBytes(frameParaInfo.getParaNo(), 1));
+                    //设备数据长度
+                    list.add(ByteUtils.objToBytes(1, 1));
+                    //数据内容
+                    list.add(ByteUtils.objToBytes(1, 1));
                 });
             }
         });
         byte[] bytes = ByteUtils.listToBytes(list);
         byte[] pack = pack(0x0005, bytes);
-        System.out.println(HexUtil.encodeHexStr(pack(0x0005, pack)));
-        UdpClientUtil.send(TEST_ADDRESS, TEST_PORT, pack);
+        System.out.println(HexUtil.encodeHexStr(pack));
+//        UdpClientUtil.send(TEST_ADDRESS, TEST_PORT, pack);
     }
 
-
+    /**
+     * 警告
+     * 0007001d0000000000000000070a014e2608120105060708090b0d0e0f1011131214151604
+     */
     @Test
     public void paramWarning(){
         //获取设备信息
@@ -170,7 +168,7 @@ public class NetdevApplicationTest {
         //站号
         list.add(ByteUtils.objToBytes(stationNo, 1));
         //设备数量
-        list.add(ByteUtils.objToBytes(stationNum, 1));
+        list.add(ByteUtils.objToBytes(1, 1));
         devInfos.stream()
                 .filter(baseInfo -> baseInfo.getDevNo().equals("8"))
                 .findFirst().ifPresent(baseInfo ->{
@@ -195,5 +193,19 @@ public class NetdevApplicationTest {
         System.out.println(HexUtil.encodeHexStr(pack));
         UdpClientUtil.send(TEST_ADDRESS, TEST_PORT, pack);
     }
+
+    public static void main(String[] args) {
+        int n = 5;
+        int count = 0;
+        while(n>0){
+            if((n&1)>0){
+                System.out.println((n&1));
+                count++;
+            }
+            n=n>>1;
+        }
+        System.out.println(count);
+    }
+
 
 }

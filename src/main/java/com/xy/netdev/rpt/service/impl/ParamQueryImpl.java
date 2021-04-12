@@ -1,14 +1,18 @@
 package com.xy.netdev.rpt.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
+import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.rpt.bo.RptBodyDev;
 import com.xy.netdev.rpt.bo.RptHeadDev;
 import com.xy.netdev.rpt.service.RequestService;
 import com.xy.netdev.rpt.service.ResponseService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -23,6 +27,8 @@ import static com.xy.netdev.rpt.service.StationControlHandler.*;
 @Slf4j
 public class ParamQueryImpl implements RequestService, ResponseService {
 
+    @Autowired
+    private ISysParamService iSysParamService;
 
     @Override
     public RptHeadDev unpackBody(StationControlHeadEntity stationControlHeadEntity, RptHeadDev headDev) {
@@ -59,12 +65,15 @@ public class ParamQueryImpl implements RequestService, ResponseService {
                 if (frameParaData.getLen() == null){
                 log.warn("参数查询命令生成失败:{}",JSON.toJSONString(frameParaData));
                 }
-                //参数编号
-                tempList.add(ByteUtils.objToBytes(frameParaData.getParaNo(), 1));
-                //数据长度
-                tempList.add(ByteUtils.objToBytes(frameParaData.getLen(), 2));
-                //数据体内容
-                tempList.add(ByteUtils.objToBytes(frameParaData.getParaVal(), frameParaData.getLen()));
+                if (StrUtil.isNotBlank(frameParaData.getParaVal())){
+                    //参数编号
+                    tempList.add(ByteUtils.objToBytes(frameParaData.getParaNo(), 1));
+                    //数据长度
+                    tempList.add(ByteUtils.objToBytes(frameParaData.getLen(), 2));
+                    //数据体内容 todo 测试时暂时这样
+                    tempList.add(frameParaData.getParaVal().getBytes(Charset.forName("GB2312")));
+//                    tempList.add( ByteUtils.objToBytes(frameParaData.getParaVal(), frameParaData.getLen()));
+                }
             });
         });
     }
