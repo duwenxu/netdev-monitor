@@ -48,7 +48,7 @@ public class ScheduleQuery  implements ApplicationRunner{
     public void run(ApplicationArguments args) throws Exception {
         log.info("-----设备状态定时查询开始...");
         try {
-            doScheduleQuery();
+//            doScheduleQuery();
             DevLogInfoContainer.initTestStatus();
         } catch (Exception e) {
             log.error("设备状态定时查询异常...", e);
@@ -59,7 +59,7 @@ public class ScheduleQuery  implements ApplicationRunner{
      * 设备参数定时查询
      */
     public void doScheduleQuery() {
-        List<BaseInfo> baseInfos = ScheduleQueryHelper.getAvailableBases().stream().filter(base -> base.getDevType().equals("0020006")).collect(Collectors.toList());
+        List<BaseInfo> baseInfos = ScheduleQueryHelper.getAvailableBases().stream().filter(base -> base.getDevType().equals("0020008")).collect(Collectors.toList());
 //        List<BaseInfo> baseInfos = ScheduleQueryHelper.getAvailableBases();
         //单个设备所有查询对象的封装list映射
         Map<BaseInfo, List<FrameReqData>> scheduleReqBodyMap = new ConcurrentHashMap<>(20);
@@ -91,7 +91,7 @@ public class ScheduleQuery  implements ApplicationRunner{
                 frameParaList.add(paraData);
                 FrameReqData frameReqData = frameReqDataWrapper(base, cmdMark, frameParaList);
                 frameReqData.setAccessType(SysConfigConstant.ACCESS_TYPE_PARAM);
-                scheduleReqBodyList.add(frameReqData);
+//                scheduleReqBodyList.add(frameReqData);
             }
 
             //获取所有查询接口
