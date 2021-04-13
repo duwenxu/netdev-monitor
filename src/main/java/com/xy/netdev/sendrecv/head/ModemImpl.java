@@ -1,7 +1,6 @@
 package com.xy.netdev.sendrecv.head;
 
 import cn.hutool.core.util.HexUtil;
-import cn.hutool.core.util.StrUtil;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
@@ -17,13 +16,13 @@ import com.xy.netdev.sendrecv.entity.SocketEntity;
 import com.xy.netdev.sendrecv.entity.device.ModemEntity;
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static com.xy.netdev.common.constant.SysConfigConstant.*;
 import static com.xy.netdev.common.util.ByteUtils.*;
@@ -132,6 +131,40 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
         return pack(modemEntity);
     }
 
+    /**
+     * 校验和  规则：字节累加和模256
+     * @param entity  调制解调器实体类
+     * @return 校验和
+     */
+    private byte check(ModemEntity entity) {
+        List<byte[]> list = new ArrayList<>();
+        list.add(entity.getNum());
+        list.add(new byte[]{entity.getDeviceType()});
+        list.add(new byte[]{entity.getDeviceAddress()});
+        list.add(new byte[]{entity.getCmd()});
+        if (entity.getParams() != null) {
+            list.add(entity.getParams());
+        }
+        byte[] bytes = listToBytes(list);
+        return addGetBottom256(bytes, 0, bytes.length);
+    }
+
+    /**
+     * 校验和  规则：字节累加和模256
+     * @param bytes 原始数组
+     * @param offset 起始位
+     * @param len 长度
+     * @return 低位
+     */
+    public static byte addGetBottom256(byte[] bytes, int offset, int len) {
+        byte[] arrayCopy = byteArrayCopy(bytes, offset, len);
+        int sum = 0;
+        for (byte b : Objects.requireNonNull(arrayCopy)) {
+            sum += (b & 0xFF);
+        }
+        return (byte) Double.valueOf(sum % 256).intValue();
+    }
+
     private byte[] pack(ModemEntity modemEntity){
         List<byte[]> list = new ArrayList<>();
         list.add(new byte[]{modemEntity.getBeginOffset()});
@@ -145,31 +178,6 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
         list.add(new byte[]{modemEntity.getCheck()});
         list.add(new byte[]{modemEntity.getEnd()});
         return listToBytes(list);
-    }
-
-    /**
-     * 生成数据检测位
-     * @param modemEntity 调制解调器模型
-     * @return 校验位
-     */
-    private static byte check(ModemEntity modemEntity){
-        return addDiv(
-                byteToInt(modemEntity.getNum())
-                , byteToInt(modemEntity.getDeviceType())
-                , byteToInt(modemEntity.getDeviceAddress())
-                , byteToInt(modemEntity.getCmd())
-                , byteToLong(modemEntity.getParams())
-                );
-    }
-
-    /**
-     * 累加取模
-     * @param values 数据值
-     * @return 校验位
-     */
-    private static byte addDiv(long... values){
-        double div = (Arrays.stream(values).sum()) % 256;
-        return (byte)Double.valueOf(div).intValue();
     }
 
 }
