@@ -11,13 +11,16 @@
         <result column="LOG_ACCESS_TYPE" property="logAccessType" />
         <result column="LOG_OPER_TYPE" property="logOperType" />
         <result column="LOG_OPER_OBJ" property="logOperObj" />
+        <result column="LOG_OPER_OBJ_NAME" property="logOperObjName" />
+        <result column="LOG_CMD_MARK" property="logCmdMark" />
         <result column="LOG_OPER_CONTENT" property="logOperContent" />
+        <result column="ORGIN_DATA" property="orignData" />
         <result column="LOG_USER_ID" property="logUserId" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        LOG_ID, DEV_TYPE, DEV_NO, LOG_TIME, LOG_ACCESS_TYPE, LOG_OPER_TYPE, LOG_OPER_OBJ, LOG_OPER_CONTENT, LOG_USER_ID
+        LOG_ID, DEV_TYPE, DEV_NO, LOG_TIME, LOG_ACCESS_TYPE, LOG_OPER_TYPE, LOG_OPER_OBJ,LOG_OPER_OBJ_NAME,LOG_CMD_MARK, LOG_OPER_CONTENT,ORGIN_DATA, LOG_USER_ID
     </sql>
 
 
