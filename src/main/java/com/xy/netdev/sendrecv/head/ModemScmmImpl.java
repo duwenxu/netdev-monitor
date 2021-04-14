@@ -102,12 +102,13 @@ public class ModemScmmImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReq
     @Override
     public byte[] pack(FrameReqData frameReqData) {
         byte[] paramBytes = frameReqData.getParamBytes();
-        //业务层内容包括 设置单元 + 关键字 + 信息体
+        //业务层内容包括 关键字 + 信息体
         int dataLen = 0;
         if (paramBytes!=null){
             dataLen = paramBytes.length;
         }
-        int frameLenField = dataLen + 2;
+        //额外的长度信息字节  命令字+设置单元+校验字
+        int frameLenField = dataLen + 3;
 
         String operType = frameReqData.getOperType();
 
