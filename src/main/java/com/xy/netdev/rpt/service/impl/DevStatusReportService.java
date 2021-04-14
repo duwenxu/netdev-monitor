@@ -233,6 +233,8 @@ public class DevStatusReportService implements IDevStatusReportService {
                     .alertStationNo(sysParamService.getParaRemark1(SysConfigConstant.PUBLIC_PARA_STATION_NO))
                     .alertDesc(alertDesc).build();
             DevAlertInfoContainer.addAlertInfo(alertInfo);
+            //利用websocket主动推送告警信息
+            DevIfeMegSend.sendAlertToDev(respData.getDevNo());
             RptHeadDev rptHeadDev = crateRptHeadDev(alertInfo);
             upRptPrtclAnalysisService.queryParaResponse(rptHeadDev);
         }
