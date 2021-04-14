@@ -53,7 +53,7 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
         wrapper.eq("DEV_STATUS", SysConfigConstant.DEV_STATUS_NEW);
         List<BaseInfo> baseInfos = this.baseMapper.selectList(wrapper);
         //顶级菜单设备信息
-        List<BaseInfo> topMenu = baseInfos.stream().filter(base -> StringUtils.isEmpty(base.getDevParentNo())).collect(Collectors.toList());
+        List<BaseInfo> topMenu = baseInfos.stream().filter(base -> StringUtils.isEmpty(base.getDevParentNo())&& SysConfigConstant.DEV_STATUS_NEW.equals(base.getDevStatus())).collect(Collectors.toList());
         LinkedHashMap<String, Object> topMap = new LinkedHashMap<>();
         //递归拼接
         assembleOneMenu(baseInfos, topMenu, topMap);
@@ -74,7 +74,7 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
             //当前设备Map
             LinkedHashMap<String, Object> currentBaseMap = JSONObject.parseObject(JSONObject.toJSONString(menu), LinkedHashMap.class);
             //获取子设备
-            List<BaseInfo> subList = baseInfos.stream().filter(base -> menu.getDevNo().equals(base.getDevParentNo())).collect(Collectors.toList());
+            List<BaseInfo> subList = baseInfos.stream().filter(base -> menu.getDevNo().equals(base.getDevParentNo()) && SysConfigConstant.DEV_STATUS_NEW.equals(base.getDevStatus())).collect(Collectors.toList());
             LinkedHashMap<String, Object> subMap = new LinkedHashMap<>();
             //将子设备列表转换为Map
             subList.forEach(targetInfo -> {

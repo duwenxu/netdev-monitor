@@ -3,6 +3,7 @@ package com.xy.netdev.monitor.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xy.common.helper.ControllerHelper;
+import com.xy.common.helper.ControllerResultWrapper;
 import com.xy.common.model.Result;
 import com.xy.netdev.common.util.JwtUtil;
 import com.xy.netdev.monitor.entity.AlertInfo;
@@ -95,5 +96,17 @@ public class AlertInfoController {
     public Result<AlertInfo> delete(@PathVariable String id) {
         return ControllerHelper.delete(id,targetService);
     }
+
+    /**
+     * 查询指定设备时间范围内的告警信息
+     * @return
+     */
+    @ApiOperation(value = "查询指定设备时间范围内的告警信息", notes = "查询指定设备时间范围内的告警信息")
+    @PostMapping(value = "queryAlterInfo")
+    public Result<List<AlertInfo>> queryAlterInfoByDevNoTime(@RequestParam String devNo, @RequestParam String startTime, @RequestParam String endTime) {
+        List<AlertInfo> alertInfos =targetService.queryAlterInfoByDevNoTime(devNo,startTime,endTime);
+        return ControllerResultWrapper.genListResult(alertInfos);
+    }
+
 
 }

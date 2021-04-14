@@ -94,6 +94,21 @@ public class DevIfeMegSend {
     }
 
     /**
+     * 给指定设备编号  发送所有参数信息
+     * @param devNo 设备编号
+     */
+    public static void sendAlertToDev(String devNo){
+        ChannelGroup channels = ChannelCache.getInstance().getChannels("DevAlertInfos",devNo);
+        if( channels != null){
+            //此处加SerializerFeature.WriteMapNullValue是为了让数据中属性值为null的属性不被忽略
+            //此处加SerializerFeature.DisableCircularReferenceDetect解决相同的对象序列化出错问题
+            String msg = JSONObject.toJSONString(DevAlertInfoContainer.getDevAlertInfoList(devNo), SerializerFeature.WriteMapNullValue,SerializerFeature.DisableCircularReferenceDetect);
+            TextWebSocketFrame textWebSocketFrame = new TextWebSocketFrame(msg);
+            channels.writeAndFlush(textWebSocketFrame);
+        }
+    }
+
+    /**
      * 发送第一次数据方法
      * @param interfaceMark 接口mark
      * @param devNo 设备编号

@@ -57,7 +57,12 @@ public class DeviceSocketServer {
             this.run(devInfos);
         }
 
-        devInfos.forEach(baseInfo -> {
+        devInfos.stream()
+                .filter(baseInfo -> baseInfo.getDevNetPtcl() != null)
+                .filter(baseInfo -> baseInfo.getDevPort() != null)
+                .filter(baseInfo -> baseInfo.getDevLocalAddr() != null)
+                .filter(baseInfo -> baseInfo.getDevPort() != null)
+                .forEach(baseInfo -> {
             if (SysConfigConstant.UDP.equals(baseInfo.getDevNetPtcl())) {
                 udpPort.add(Integer.parseInt(baseInfo.getDevPort()));
             }
