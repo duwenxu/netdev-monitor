@@ -139,7 +139,7 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
             paraMap.put("-name", ParaHandlerUtil.generateEmptyStr(ParaHandlerUtil.generateEmptyStr(parainfo.getNdpaName())));
             //特殊处理：当权限为null(0022004)时全设置为可读
             String access = sysParamService.getParaRemark1(parainfo.getNdpaAccessRight());
-            paraMap.put("-access", StringUtils.isNotBlank(access)?access:"read");
+            paraMap.put("-access", StringUtils.isNotBlank(access) && !access.equals("null")?access:"read");
             paraMap.put("-unit", ParaHandlerUtil.generateEmptyStr(parainfo.getNdpaUnit()));
             /***********************增加type节点********************************/
             Map<String, Object> typeMap = new LinkedHashMap<>();

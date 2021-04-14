@@ -46,7 +46,7 @@ public class WSHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
         Map map = JSON.parseObject(content);
         Object interfaceMark = map.get("interfaceMark");
         Object devCd = map.get("devNo");
-        Object iftCode  = map.get("iftCode");
+        Object cmdMark  = map.get("cmdMark");
 
         //获取接收到消息的通道
         Channel channel = channelHandlerContext.channel();
@@ -56,10 +56,11 @@ public class WSHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
                 cache.setChannel(channel);
                 //存放到接口和设备的关系缓存
                 if(interfaceMark != null && devCd != null){
-                    if(iftCode != null){
-                        devCd = ParaHandlerUtil.genLinkKey(devCd.toString(), iftCode.toString());
+                    Object deviceCd = devCd;
+                    if(cmdMark != null){
+                        deviceCd = ParaHandlerUtil.genLinkKey(devCd.toString(), cmdMark.toString());
                     }
-                    cache.setChannelUser(interfaceMark.toString(),devCd.toString(),channelHandlerContext.channel());
+                    cache.setChannelUser(interfaceMark.toString(),deviceCd.toString(),channelHandlerContext.channel());
                 }else{
                     //存放接口和所有设备的关系
                     cache.setChannelByIfe(interfaceMark.toString(),channelHandlerContext.channel());
@@ -67,7 +68,7 @@ public class WSHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
             }
         }
         //当websocket创立连接的时候进行一次发数
-        DevIfeMegSend.sendFirstData(interfaceMark,devCd);
+        DevIfeMegSend.sendFirstData(interfaceMark,devCd,cmdMark);
     }
 
     /**

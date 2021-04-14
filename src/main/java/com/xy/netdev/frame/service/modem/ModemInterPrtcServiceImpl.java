@@ -1,4 +1,4 @@
-package com.xy.netdev.frame.service.ppjc;
+package com.xy.netdev.frame.service.modem;
 
 import cn.hutool.core.util.HexUtil;
 import com.xy.netdev.admin.service.ISysParamService;
@@ -25,50 +25,40 @@ import static com.xy.netdev.frame.service.gf.GfPrtcServiceImpl.isFloat;
 import static com.xy.netdev.frame.service.gf.GfPrtcServiceImpl.isUnsigned;
 
 /**
- * 频谱监测设备
+ * 650调制解调器接口查询实现
  *
- * @author sunchao
- * @create 2021-04-08 16:10
+ * @author duwenxu
+ * @create 2021-04-09 9:36
  */
 @Service
 @Slf4j
-public class PpjcInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
+public class ModemInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
 
     @Autowired
     private SocketMutualService socketMutualService;
     @Autowired
-    private ISysParamService sysParamService;
+    ISysParamService sysParamService;
     @Autowired
     private IDataReciveService dataReciveService;
-    //频谱监测设备协议分隔符
-    private static String separator = "2c";
+    /**查询应答帧 分隔符*/
+    private static final String SPLIT = "5f";
 
-    /**
-     * 查询设备参数
-     * @param  reqInfo   请求参数信息
-     */
     @Override
     public void queryPara(FrameReqData reqInfo) {
-        log.info("频谱监测设备参数查询执行！");
+        //暂时是单个参数查询 cmdMark为单个参数的命令标识
+        byte[] bytes = HexUtil.decodeHex(reqInfo.getCmdMark());
+        reqInfo.setParamBytes(bytes);
         socketMutualService.request(reqInfo, ProtocolRequestEnum.QUERY);
     }
 
-    /**
-     * 查询设备参数响应
-     * @param  respData   数据传输对象
-     * @return
-     */
     @Override
     public FrameRespData queryParaResponse(FrameRespData respData) {
-        log.info("频谱监测设备查询响应执行,接收到原始数据：["+respData.getReciveOriginalData()+"]");
-        String[] bytesData = HexUtil.encodeHexStr(respData.getParamBytes()).split(separator);
-        //全查询：按容器中的参数顺序解析
+        String bytesData = HexUtil.encodeHexStr(respData.getParamBytes());
+        String[] dataList = bytesData.toLowerCase().split(SPLIT.toLowerCase());
         String devType = respData.getDevType();
-        List<FrameParaInfo> frameParaInfos = BaseInfoContainer.getInterLinkParaList(devType,respData.getCmdMark());
+        //拆分后根据关键字获取参数
         List<FrameParaData> frameParaDataList = new ArrayList<>();
-        for (FrameParaInfo frameParaInfo : frameParaInfos){
-            //参数下标--->参数下标+参数字节长度+关键字（2）
-            String data = bytesData[frameParaInfo.getParaSeq()-1];
+        for (String data : dataList) {
             String paraCmk = data.substring(0, 2);
             String paraValueStr = data.substring(2);
             byte[] paraValBytes = HexUtil.decodeHex(paraValueStr);
@@ -94,7 +84,7 @@ public class PpjcInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService
             frameParaDataList.add(frameParaData);
         }
         respData.setFrameParaList(frameParaDataList);
-        //接口查询响应结果接收
+        //参数查询响应结果接收
         dataReciveService.interfaceQueryRecive(respData);
         return respData;
     }
