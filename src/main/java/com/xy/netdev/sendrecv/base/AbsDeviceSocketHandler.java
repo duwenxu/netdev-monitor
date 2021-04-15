@@ -4,6 +4,8 @@ import cn.hutool.core.util.HexUtil;
 import com.alibaba.fastjson.JSON;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
+import com.xy.netdev.common.util.BeanFactoryUtil;
+import com.xy.netdev.common.util.SpringContextUtils;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.factory.CtrlInterPrtcllFactory;
 import com.xy.netdev.factory.ParaPrtclFactory;
@@ -143,8 +145,15 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
                     iCtrlInterPrtclAnalysisService = CtrlInterPrtcllFactory.genHandler(prtclFormat.getFmtHandlerClass());
                     break;
                 default:
+                    Object handler = SpringContextUtils.getBean(prtclFormat.getFmtHandlerClass());
+                    if (handler instanceof IQueryInterPrtclAnalysisService){
+                        r.setOperType(SysConfigConstant.OPREATE_QUERY_RESP);
+                        queryInterPrtclAnalysisService = (IQueryInterPrtclAnalysisService)handler;
+                    }else if (handler instanceof ICtrlInterPrtclAnalysisService){
+                        r.setOperType(SysConfigConstant.OPREATE_CONTROL_RESP);
+                        iCtrlInterPrtclAnalysisService = (ICtrlInterPrtclAnalysisService)handler;
+                    }
                     r.setAccessType(SysConfigConstant.ACCESS_TYPE_INTERF);
-                    queryInterPrtclAnalysisService = QueryInterPrtcllFactory.genHandler(prtclFormat.getFmtHandlerClass());
                     break;
             }
         }
