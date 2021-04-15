@@ -25,6 +25,10 @@ public class InterfaceViewInfo extends Interface {
     private static final long serialVersionUID=1L;
 
 
+    @ApiModelProperty(value = "设备编号")
+    private String devNo;
+
+
     @ApiModelProperty(value = "接口参数列表")
     private List<ParaViewInfo> subParaList = new ArrayList<>();
 

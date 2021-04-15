@@ -1,9 +1,7 @@
 package com.xy.netdev.websocket.send;
 
-import cn.hutool.db.Page;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.xy.netdev.common.util.ParaHandlerUtil;
 import com.xy.netdev.container.*;
 import com.xy.netdev.websocket.config.ChannelCache;
 import io.netty.channel.group.ChannelGroup;
@@ -94,6 +92,21 @@ public class DevIfeMegSend {
     }
 
     /**
+     * 给指定设备编号  发送所有参数信息
+     * @param devNo 设备编号
+     */
+    public static void sendAlertToDev(String devNo){
+        ChannelGroup channels = ChannelCache.getInstance().getChannels("DevAlertInfos",devNo);
+        if( channels != null){
+            //此处加SerializerFeature.WriteMapNullValue是为了让数据中属性值为null的属性不被忽略
+            //此处加SerializerFeature.DisableCircularReferenceDetect解决相同的对象序列化出错问题
+            String msg = JSONObject.toJSONString(DevAlertInfoContainer.getDevAlertInfoList(devNo), SerializerFeature.WriteMapNullValue,SerializerFeature.DisableCircularReferenceDetect);
+            TextWebSocketFrame textWebSocketFrame = new TextWebSocketFrame(msg);
+            channels.writeAndFlush(textWebSocketFrame);
+        }
+    }
+
+    /**
      * 发送第一次数据方法
      * @param interfaceMark 接口mark
      * @param devNo 设备编号
@@ -111,9 +124,14 @@ public class DevIfeMegSend {
             case "DevCtrlItfInfos" :
                 //发送组合控制接口信息
                 sendDevCtrlItfInfosToDev(devNo.toString());
+                break;
             case "DevPageInfos" :
                 //发送页面信息接口数据
                 sendPageInfoToDev(devNo.toString(),cmdMark.toString());
+                break;
+            case "DevAlertInfos" :
+                sendAlertToDev(devNo.toString());
+                break;
             default:
                 sendDevStatusToDev();
                 break;

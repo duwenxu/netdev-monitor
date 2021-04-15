@@ -6,11 +6,10 @@ import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
-import com.xy.netdev.monitor.bo.InterCtrlInfo;
+import com.xy.netdev.monitor.bo.InterfaceViewInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.transit.IDataSendService;
 import com.xy.netdev.transit.IDevCmdSendService;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -84,26 +83,37 @@ public class DevCmdSendService implements IDevCmdSendService {
 
     /**
      * 接口设置发送
-     * @param  interCtrlInfo 接口参数信息
+     * @param  interfaceViewInfo 接口参数信息
      */
     @Override
-    public void interfaceCtrSend(InterCtrlInfo interCtrlInfo) {
-        BaseInfo devInfo = BaseInfoContainer.getDevInfoByNo(interCtrlInfo.getDevNo());
+    public void interfaceCtrSend(InterfaceViewInfo interfaceViewInfo) {
+        BaseInfo devInfo = BaseInfoContainer.getDevInfoByNo(interfaceViewInfo.getDevNo());
         //车载卫星天线本控状态不能进行设置
         if(devInfo.getDevType().equals(SysConfigConstant.DEVICE_CAR_ANTENNA)){
             FrameParaInfo paraInfo = BaseInfoContainer.getParaInfoByCmd(devInfo.getDevType(),"56_7");
             if(paraInfo.getParaVal().equals("1")){
-                throw new BaseException("本控状态下，站控设备的全查询命令无效！");
+                throw new BaseException("本控状态下，站控设备的设置命令无效！");
             }
         }
-        FrameReqData frameReqData = genFrameReqData(interCtrlInfo.getDevNo(),interCtrlInfo.getCmdMark());
-        String devType = frameReqData.getDevType();
-        for (FrameParaData para : interCtrlInfo.getParaInfos()) {
-            FrameParaInfo detail = BaseInfoContainer.getParaInfoByNo(devType,para.getDevNo());
-            para.setLen(Integer.parseInt(detail.getParaByteLen()));
-            para.setDevNo(interCtrlInfo.getDevNo());
-            para.setDevType(devType);
-        }
+        FrameReqData frameReqData = genFrameReqData(interfaceViewInfo.getDevNo(),interfaceViewInfo.getItfCmdMark());
+        List<FrameParaData>  paraDataList = new ArrayList<>();
+        interfaceViewInfo.getSubParaList().forEach(paraViewInfo -> {
+            if(!paraViewInfo.getAccessRight().equals(SysConfigConstant.CMD_RIGHT)){
+                if(StringUtils.isEmpty(paraViewInfo.getParaVal())){
+                    throw new BaseException("传入的paraVal为空!");
+                }
+            }
+            FrameParaData  frameParaData = new FrameParaData();
+            frameParaData.setDevNo(paraViewInfo.getDevNo());
+            frameParaData.setDevType(paraViewInfo.getDevType());
+            frameParaData.setParaNo(paraViewInfo.getParaNo());
+            frameParaData.setParaVal(paraViewInfo.getParaVal());
+            if(!StringUtils.isEmpty(paraViewInfo.getParaByteLen())){
+                frameParaData.setLen(Integer.parseInt(paraViewInfo.getParaByteLen()));
+            }
+            paraDataList.add(frameParaData);
+        });
+        frameReqData.setFrameParaList(paraDataList);
         dataSendService.interfaceCtrlSend(frameReqData);
     }
 

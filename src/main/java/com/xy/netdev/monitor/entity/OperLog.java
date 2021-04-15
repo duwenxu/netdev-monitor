@@ -79,14 +79,14 @@ public class OperLog extends Model<OperLog> {
      * 前端显示
      */
     @ApiModelProperty(value = "命令标识符")
-    @TableField(exist = false)
+    @TableField(value = "LOG_CMD_MARK")
     private String logCmdMark;
 
     /**
      * 前端显示
      */
     @ApiModelProperty(value = "操作对象名称")
-    @TableField(exist = false)
+    @TableField(value = "LOG_OPER_OBJ_NAME")
     private String logOperObjName;
 
     /**
@@ -104,7 +104,7 @@ public class OperLog extends Model<OperLog> {
      * 前端显示
      */
     @ApiModelProperty(value = "原始数据")
-    @TableField(exist = false)
+    @TableField(value = "ORGIN_DATA")
     private String orignData;
 
 

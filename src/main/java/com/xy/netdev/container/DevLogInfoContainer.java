@@ -13,7 +13,10 @@ import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.entity.OperLog;
 import com.xy.netdev.monitor.entity.PrtclFormat;
+import com.xy.netdev.monitor.service.IOperLogService;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.*;
@@ -26,6 +29,7 @@ import java.util.*;
  * @author tangxl
  * @since 2021-03-08
  */
+@Component
 public class DevLogInfoContainer {
     /**
      * 设备参数设置响应--成功
@@ -53,6 +57,13 @@ public class DevLogInfoContainer {
      */
     private static Map<String, Map<String,String>> devParaSetRespStatusMap = new HashMap<>();
 
+    private static IOperLogService iOperLogService;
+
+    @Autowired
+    public  void setIOperLogService(IOperLogService iOperLogService) {
+        this.iOperLogService = iOperLogService;
+    }
+
     /**
      * @功能：当系统启动时,进行初始化各设备日志
      */
@@ -71,6 +82,7 @@ public class DevLogInfoContainer {
         String logTime = DateTools.getDateTime();
         devLog.setLogTime(logTime);
         devLogInfoMap.get(devLog.getDevNo()).put(logTime,devLog);
+        iOperLogService.save(devLog);
     }
 
     public synchronized static void initTestStatus(){
