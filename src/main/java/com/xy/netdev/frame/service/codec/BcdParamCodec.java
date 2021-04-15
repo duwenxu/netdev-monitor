@@ -1,8 +1,12 @@
 package com.xy.netdev.frame.service.codec;
 
 import cn.hutool.core.codec.BCD;
+import cn.hutool.core.util.HexUtil;
 import com.xy.netdev.frame.service.ParamCodec;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
 
 /**
  * BCD码编解码实现
@@ -17,45 +21,39 @@ public class BcdParamCodec implements ParamCodec {
      * 返回指定小数点位分割的BCD码标识的String
      *
      * @param bytes 原始字节
-     * @param point 小数点位置
      * @return 格式化String
      */
     @Override
     public String decode(byte[] bytes, Object... objects) {
-        int point = (Integer) objects[0];
         String s = BCD.bcdToStr(bytes);
-        StringBuilder sb = new StringBuilder();
-        if (s.length() > point) {
-            String beforePoint = s.substring(0, s.length() - point);
-            String afterPoint = s.substring(s.length() - point);
-            while (beforePoint.startsWith("0") && beforePoint.length() > 1) {
-                beforePoint = beforePoint.substring(1);
-            }
-            while (afterPoint.startsWith("0") && afterPoint.length() > 1) {
-                afterPoint = afterPoint.substring(1);
-            }
-            sb = new StringBuilder(beforePoint).append(".").append(afterPoint);
+        double divideValue = 1;
+        if (objects != null && objects.length != 0) {
+            divideValue = Math.pow(10, (int) objects[0]);
         }
-        return sb.toString();
+        StringBuilder value = new StringBuilder(new BigDecimal(Long.parseLong(s) / divideValue + "").toString());
+        while (value.length()<8){
+            value.append("0");
+        }
+        return value.toString();
     }
 
     @Override
     public byte[] encode(String value, Object... objects) {
-        int point = (Integer) objects[0];
-        String[] split = value.split("\\.");
-        String beforePoint = split[0];
-        StringBuilder sb1 = new StringBuilder();
-        sb1.append(beforePoint);
-        StringBuilder sb2 = new StringBuilder();
-        if (split.length>1){
-            sb2.append(split[1]);
+        //默认不做小数点保留
+        double rideValue = 1;
+        if (objects != null && objects.length != 0) {
+            rideValue = Math.pow(10, (int) objects[0]);
         }
-        while (sb1.length()<point) {
-            sb1 = new StringBuilder().append("0").append(sb1);
-        }
-        while (sb2.length()<point) {
-            sb2 = new StringBuilder().append("0").append(sb2);
-        }
-        return BCD.strToBcd(sb1.append(sb2).toString());
+        String s = new BigDecimal(Double.parseDouble(value) * rideValue).toString();
+        return HexUtil.decodeHex(s);
+    }
+
+    public static void main(String[] args) {
+        BcdParamCodec bcdParamCodec = new BcdParamCodec();
+        byte[] bytes = {0x14, 0x50, 0x00, 0x00};
+        String decode = bcdParamCodec.decode(bytes,5);
+        System.out.println(decode);
+        byte[] encode = bcdParamCodec.encode(decode,5);
+        System.out.println(HexUtil.encodeHexStr(encode).toUpperCase());
     }
 }
