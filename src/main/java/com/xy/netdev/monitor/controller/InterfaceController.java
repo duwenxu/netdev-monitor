@@ -133,7 +133,7 @@ public class InterfaceController {
      */
     @ApiOperation(value = "设置设备接口参数", notes = "设置设备接口参数")
     @PutMapping(value = "/interfaceCtrl")
-    public Result<ParaInfo> paraCtrl(InterfaceViewInfo interfaceViewInfo) {
+    public Result<ParaInfo> paraCtrl(@RequestBody InterfaceViewInfo interfaceViewInfo) {
         devCmdSendService.interfaceCtrSend(interfaceViewInfo);
         return ControllerResultWrapper.genUpdateResult();
     }
