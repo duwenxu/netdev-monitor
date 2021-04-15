@@ -1,9 +1,7 @@
 package com.xy.netdev.websocket.send;
 
-import cn.hutool.db.Page;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.xy.netdev.common.util.ParaHandlerUtil;
 import com.xy.netdev.container.*;
 import com.xy.netdev.websocket.config.ChannelCache;
 import io.netty.channel.group.ChannelGroup;
@@ -126,9 +124,14 @@ public class DevIfeMegSend {
             case "DevCtrlItfInfos" :
                 //发送组合控制接口信息
                 sendDevCtrlItfInfosToDev(devNo.toString());
+                break;
             case "DevPageInfos" :
                 //发送页面信息接口数据
                 sendPageInfoToDev(devNo.toString(),cmdMark.toString());
+                break;
+            case "DevAlertInfos" :
+                sendAlertToDev(devNo.toString());
+                break;
             default:
                 sendDevStatusToDev();
                 break;

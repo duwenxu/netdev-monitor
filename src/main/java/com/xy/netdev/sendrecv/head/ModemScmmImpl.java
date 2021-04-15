@@ -118,7 +118,7 @@ public class ModemScmmImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReq
         FrameParaInfo paraInfo = BaseInfoContainer.getParaInfoByCmd(frameReqData.getDevType(), frameReqData.getCmdMark());
         //备注1 单元编码
         String unitCode = paraInfo.getNdpaRemark1Data();
-        if (prtclFormat == null || prtclFormat.getFmtId() == null) {
+        if (prtclFormat.getFmtId() == null) {
             throw new BaseException("设备类型为" + frameReqData.getDevType() + "，参数命令为" + frameReqData.getCmdMark() + "协议格式获取失败...");
         }
         if (OPREATE_QUERY.equals(operType)) {
