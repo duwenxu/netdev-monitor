@@ -2,6 +2,7 @@ package com.xy.netdev.websocket.send;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.xy.netdev.common.util.ParaHandlerUtil;
 import com.xy.netdev.container.*;
 import com.xy.netdev.websocket.config.ChannelCache;
 import io.netty.channel.group.ChannelGroup;
@@ -81,11 +82,9 @@ public class DevIfeMegSend {
      * 推送所有页面接口信息
      */
     public static void sendPageInfoToDev(String devNo,String cmdMark){
-        ChannelGroup channels = ChannelCache.getInstance().getChannels("DevPageInfos",devNo);
+        ChannelGroup channels = ChannelCache.getInstance().getChannels("DevPageInfos",ParaHandlerUtil.genLinkKey(devNo, cmdMark));
         if( channels != null){
-            //此处加SerializerFeature.WriteMapNullValue是为了让数据中属性值为null的属性不被忽略
-            //此处加SerializerFeature.DisableCircularReferenceDetect解决相同的对象序列化出错问题
-            String msg = JSONObject.toJSONString(PageInfoContainer.getPageInfo(devNo,cmdMark),SerializerFeature.WriteMapNullValue,SerializerFeature.DisableCircularReferenceDetect);
+            String msg = PageInfoContainer.getPageInfo(devNo,cmdMark);
             TextWebSocketFrame textWebSocketFrame = new TextWebSocketFrame(msg);
             channels.writeAndFlush(textWebSocketFrame);
         }
