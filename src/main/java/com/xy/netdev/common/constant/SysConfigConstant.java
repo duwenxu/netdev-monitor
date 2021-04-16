@@ -195,6 +195,11 @@ public interface SysConfigConstant {
      */
     String  DEV_ALERT_INFO_SZIE="0100005";
 
+    /***
+     * 公共参数--设备告警信息保存条数
+     */
+    String  DEV_LOG_SAVE_DAY="0100007";
+
     /**
      * 操作类型--查询
      */
