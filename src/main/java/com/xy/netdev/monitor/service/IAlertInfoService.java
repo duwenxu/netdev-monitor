@@ -1,8 +1,9 @@
 package com.xy.netdev.monitor.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.xy.netdev.monitor.entity.AlertInfo;
-import java.util.List;
 
 /**
  * 告警信息 服务类
@@ -18,5 +19,5 @@ public interface IAlertInfoService extends IService<AlertInfo> {
      * @param startTime
      * @param endTime
      */
-    List<AlertInfo> queryAlterInfoByDevNoTime(String devNo, String startTime, String endTime);
+    IPage<AlertInfo> queryAlterInfoByDevNoTime(String devNo, String startTime, String endTime,Page page);
 }

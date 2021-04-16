@@ -32,7 +32,7 @@ public class AlertInfoController {
 
     /**
     * 获取分页数据
-    *
+    * 暂时没用到（已被方法queryAlertInfoPageByTime替代）
     * @return
     */
     @ApiOperation(value = "获取分页告警信息", notes = "获取分页告警信息")
@@ -103,9 +103,9 @@ public class AlertInfoController {
      */
     @ApiOperation(value = "查询指定设备时间范围内的告警信息", notes = "查询指定设备时间范围内的告警信息")
     @PostMapping(value = "queryAlterInfo")
-    public Result<List<AlertInfo>> queryAlterInfoByDevNoTime(@RequestParam String devNo, @RequestParam String startTime, @RequestParam String endTime) {
-        List<AlertInfo> alertInfos =targetService.queryAlterInfoByDevNoTime(devNo,startTime,endTime);
-        return ControllerResultWrapper.genListResult(alertInfos);
+    public Result<IPage<AlertInfo>> queryAlterInfoByDevNoTime(@RequestParam String devNo, @RequestParam String startTime, @RequestParam String endTime,Page page) {
+        IPage<AlertInfo> alertInfos = targetService.queryAlterInfoByDevNoTime(devNo,startTime,endTime,page);
+        return ControllerResultWrapper.genPageListResult(alertInfos);
     }
 
 
