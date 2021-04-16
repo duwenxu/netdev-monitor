@@ -148,7 +148,7 @@ public class NetdevApplicationTest {
         byte[] bytes = ByteUtils.listToBytes(list);
         byte[] pack = pack(0x0005, bytes);
         System.out.println(HexUtil.encodeHexStr(pack));
-//        UdpClientUtil.send(TEST_ADDRESS, TEST_PORT, pack);
+        UdpClientUtil.send(TEST_ADDRESS, TEST_PORT, pack);
     }
 
     /**
@@ -193,19 +193,4 @@ public class NetdevApplicationTest {
         System.out.println(HexUtil.encodeHexStr(pack));
         UdpClientUtil.send(TEST_ADDRESS, TEST_PORT, pack);
     }
-
-    public static void main(String[] args) {
-        int n = 5;
-        int count = 0;
-        while(n>0){
-            if((n&1)>0){
-                System.out.println((n&1));
-                count++;
-            }
-            n=n>>1;
-        }
-        System.out.println(count);
-    }
-
-
 }
