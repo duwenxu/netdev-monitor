@@ -39,6 +39,7 @@ public class AlertInfoServiceImpl extends ServiceImpl<AlertInfoMapper, AlertInfo
         if(StringUtils.isNotEmpty(endTime)){
             queryWrapper.and(alertInfoQueryWrapper -> alertInfoQueryWrapper.le("ALERT_TIME",endTime));
         }
+        queryWrapper.orderByDesc("ALERT_TIME");
         return this.baseMapper.selectPage(page,queryWrapper);
     }
 }
