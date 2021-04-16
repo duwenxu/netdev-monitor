@@ -1,13 +1,15 @@
 package com.xy.netdev.monitor.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xy.netdev.monitor.entity.AlertInfo;
 import com.xy.netdev.monitor.mapper.AlertInfoMapper;
 import com.xy.netdev.monitor.service.IAlertInfoService;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
 
 /**
  * 告警信息 服务实现类
@@ -26,11 +28,18 @@ public class AlertInfoServiceImpl extends ServiceImpl<AlertInfoMapper, AlertInfo
      * @param endTime
      */
     @Override
-    public List<AlertInfo> queryAlterInfoByDevNoTime(String devNo, String startTime, String endTime) {
+    public IPage<AlertInfo> queryAlterInfoByDevNoTime(String devNo, String startTime, String endTime,Page page) {
         QueryWrapper<AlertInfo> queryWrapper = new QueryWrapper();
-        queryWrapper.eq("DEV_NO",devNo);
-        queryWrapper.ge("ALERT_TIME",startTime);
-        queryWrapper.and(alertInfoQueryWrapper -> alertInfoQueryWrapper.le("ALERT_TIME",endTime));
-        return this.list(queryWrapper);
+        if(StringUtils.isNotEmpty(devNo)){
+            queryWrapper.eq("DEV_NO",devNo);
+        }
+        if(StringUtils.isNotEmpty(startTime)){
+            queryWrapper.ge("ALERT_TIME",startTime);
+        }
+        if(StringUtils.isNotEmpty(endTime)){
+            queryWrapper.and(alertInfoQueryWrapper -> alertInfoQueryWrapper.le("ALERT_TIME",endTime));
+        }
+        queryWrapper.orderByDesc("ALERT_TIME");
+        return this.baseMapper.selectPage(page,queryWrapper);
     }
 }

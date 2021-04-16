@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.xy.common.annotation.Param;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -32,6 +33,7 @@ public class AlertInfo extends Model<AlertInfo> {
     @TableId(value = "ALERT_ID", type = IdType.AUTO)
     private Integer alertId;
 
+    @Param
     @ApiModelProperty(value = "设备类型")
     @TableField(value = "DEV_TYPE")
     private String devType;
@@ -58,12 +60,20 @@ public class AlertInfo extends Model<AlertInfo> {
 
     @ApiModelProperty(value = "告警级别")
     @TableField(value = "ALERT_LEVEL")
+    @Param
     private String alertLevel;
 
     @ApiModelProperty(value = "告警描述")
     @TableField(value = "ALERT_DESC")
     private String alertDesc;
 
+    @ApiModelProperty(value = "设备类型名称(前端用)")
+    @TableField(exist = false)
+    private String devTypeName;
+
+    @ApiModelProperty(value = "告警级别名称(前端用)")
+    @TableField(exist = false)
+    private String alertLevelName;
 
     @Override
     protected Serializable pkVal() {
