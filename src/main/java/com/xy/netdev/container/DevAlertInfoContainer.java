@@ -7,7 +7,10 @@ import com.xy.netdev.common.util.DateTools;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.entity.AlertInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
+import com.xy.netdev.monitor.service.IAlertInfoService;
 import com.xy.netdev.transit.util.DataHandlerHelper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,7 +25,15 @@ import java.util.Map;
  * @author tangxl
  * @since 2021-03-08
  */
+@Component
 public class DevAlertInfoContainer {
+
+    private static IAlertInfoService alertInfoService;
+
+    @Autowired
+    public  void setAlertInfoService(IAlertInfoService alertInfoService) {
+        this.alertInfoService = alertInfoService;
+    }
 
     /**
      * 设备日志信息MAP K设备编号 V按照时间排序的定长告警信息
@@ -55,6 +66,7 @@ public class DevAlertInfoContainer {
             paraAlertMap.put(DateTools.getDateTime(),alertInfo);
             devMap.put(alertInfo.getNdpaNo(),paraAlertMap);
         }
+        alertInfoService.save(alertInfo);
     }
 
 

@@ -51,7 +51,7 @@ public class DevCtrlInterInfoContainer {
      * @return 展示的接口信息
      */
     private static InterfaceViewInfo genInter(String devNo,Interface inter){
-        InterfaceViewInfo  interfaceViewInfo  = genInterBaseInfo(inter);
+        InterfaceViewInfo  interfaceViewInfo  = genInterBaseInfo(devNo,inter);
         genInterParaInfo(devNo,interfaceViewInfo);
         genSubInterList(devNo,interfaceViewInfo);
         return interfaceViewInfo;
@@ -59,11 +59,13 @@ public class DevCtrlInterInfoContainer {
 
     /**
      * @功能：生成展示接口基本信息
+     * @param devNo            设备编号
      * @param inter            设备接口信息
      * @return 展示的接口信息
      */
-    private static InterfaceViewInfo  genInterBaseInfo(Interface inter){
+    private static InterfaceViewInfo  genInterBaseInfo(String devNo,Interface inter){
         InterfaceViewInfo  interfaceViewInfo  = new InterfaceViewInfo();
+        interfaceViewInfo.setDevNo(devNo);
         interfaceViewInfo.setDevType(inter.getDevType());
         interfaceViewInfo.setItfCmdMark(inter.getItfCmdMark());
         interfaceViewInfo.setItfCode(inter.getItfCode());
