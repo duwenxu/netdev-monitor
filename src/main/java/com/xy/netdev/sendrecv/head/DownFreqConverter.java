@@ -97,14 +97,19 @@ public class DownFreqConverter extends AbsDeviceSocketHandler<SocketEntity, Fram
         PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterface(frameReqData.getDevType(), cmdMark);
         String requestHead = StringUtils.isBlank(prtclFormat.getFmtSkey()) ? prtclFormat.getFmtCkey() : prtclFormat.getFmtSkey();
         //内容长度 + 其它固定帧字节长度
-        int msgLen = paramBytes.length + 18;
+        int msgLen = 18;
+        if (paramBytes!=null&& paramBytes.length!=0){
+            msgLen = msgLen+ paramBytes.length;
+        }
         FreqConverterEntity entity = FreqConverterEntity.builder()
                 .head(HexUtil.decodeHex(requestHead))
                 .msgLen(objToBytes(msgLen, 4))
                 .msgId(HexUtil.decodeHex(cmdMark))
-                .params(paramBytes)
                 .end(HexUtil.decodeHex(REQUEST_END))
                 .build();
+        if (paramBytes!=null){
+            entity.setParams(paramBytes);
+        }
         //累加校验和
         byte[] checkSum = addGetBottom(entity);
         entity.setCheck(checkSum);

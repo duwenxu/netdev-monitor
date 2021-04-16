@@ -16,6 +16,7 @@ import com.xy.netdev.frame.service.ICtrlInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
+import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import lombok.extern.slf4j.Slf4j;
@@ -49,6 +50,14 @@ public class DztCtrlInterPrtcServiceImpl implements ICtrlInterPrtclAnalysisServi
 
     @Override
     public void ctrlPara(FrameReqData reqData) {
+        BaseInfo devInfo = BaseInfoContainer.getDevInfoByNo(reqData.getDevNo());
+        //车载卫星天线本控状态不能进行设置
+        if(devInfo.getDevType().equals(SysConfigConstant.DEVICE_CAR_ANTENNA)){
+            FrameParaInfo paraInfo = BaseInfoContainer.getParaInfoByCmd(devInfo.getDevType(),"56_7");
+            if(paraInfo.getParaVal().equals("1")){
+                throw new BaseException("本控状态下，站控设备的设置命令无效！");
+            }
+        }
         List<byte[]> byteList = new ArrayList<>();
         Interface intf = BaseInfoContainer.getInterLinkInterface(reqData.getDevType(),reqData.getCmdMark());
         String[] format = intf.getItfDataFormat().split(",");
@@ -87,11 +96,6 @@ public class DztCtrlInterPrtcServiceImpl implements ICtrlInterPrtclAnalysisServi
         }
         return respData;
     }
-
-
-
-
-
 
 
 }
