@@ -139,7 +139,7 @@ public class DztQueryInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
                         ,isFloat(sysParamService, paraInfo.getDataType())).floatValue();
                 String desc = paraInfo.getNdpaRemark2Desc();
                 String data = paraInfo.getNdpaRemark3Data();
-                if(org.apache.commons.lang3.StringUtils.isNotEmpty(desc) && desc.equals("倍数") && org.apache.commons.lang3.StringUtils.isNotEmpty(data)){
+                if(StringUtils.isNotEmpty(desc) && desc.equals("倍数") && StringUtils.isNotEmpty(data)){
                     Integer multiple = Integer.parseInt(data);
                     paraVal = paraVal/multiple;
                 }
