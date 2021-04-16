@@ -67,6 +67,13 @@ public class AlertInfo extends Model<AlertInfo> {
     @TableField(value = "ALERT_DESC")
     private String alertDesc;
 
+    @ApiModelProperty(value = "设备类型名称(前端用)")
+    @TableField(exist = false)
+    private String devTypeName;
+
+    @ApiModelProperty(value = "告警级别名称(前端用)")
+    @TableField(exist = false)
+    private String alertLevelName;
 
     @Override
     protected Serializable pkVal() {
