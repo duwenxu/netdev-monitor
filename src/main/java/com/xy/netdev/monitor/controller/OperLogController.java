@@ -3,8 +3,10 @@ package com.xy.netdev.monitor.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xy.common.helper.ControllerHelper;
+import com.xy.common.helper.ControllerResultWrapper;
 import com.xy.common.model.Result;
 import com.xy.netdev.common.util.JwtUtil;
+import com.xy.netdev.monitor.entity.AlertInfo;
 import com.xy.netdev.monitor.entity.OperLog;
 import com.xy.netdev.monitor.service.IOperLogService;
 import io.swagger.annotations.Api;
@@ -31,13 +33,24 @@ public class OperLogController {
 
     /**
     * 获取分页数据
-    *
+    * 暂时没用到（已被方法queryOperLog替代）
     * @return
     */
     @ApiOperation(value = "获取分页操作日志信息", notes = "获取分页操作日志信息")
     @PostMapping(value = "/list")
     public Result<IPage<OperLog>> queryPageList(OperLog data,Page page,HttpServletRequest req){
         return ControllerHelper.queryPageList(data, page, req, targetService);
+    }
+
+    /**
+     * 查询指定设备时间范围内的日志信息
+     * @return
+     */
+    @ApiOperation(value = "查询指定设备时间范围内的日志信息", notes = "查询指定设备时间范围内的日志信息")
+    @PostMapping(value = "queryOperLog")
+    public Result<IPage<OperLog>> queryOperLogByDevNoTime(@RequestParam String devNo, @RequestParam String startTime, @RequestParam String endTime, Page page) {
+        IPage<OperLog> alertInfos = targetService.queryOperLogByDevNoTime(devNo,startTime,endTime,page);
+        return ControllerResultWrapper.genPageListResult(alertInfos);
     }
 
     /**
