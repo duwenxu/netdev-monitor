@@ -422,10 +422,14 @@ public class ByteUtils {
         StringBuilder stringBuilder = new StringBuilder();
         int skipSize = skip / 2;
         for (int i = 0; i < bytes.length; i = i + skipSize) {
-            byte[] bytesTemp = new byte[skipSize];
-            if (skipSize >= 0) {
-                System.arraycopy(bytes, i, bytesTemp, 0, skipSize);
+            if (( i + skipSize )> bytes.length){
+                byte[] bytesTemp = new byte[bytes.length - i];
+                System.arraycopy(bytes, i, bytesTemp, 0, bytes.length - i);
+                stringBuilder.append(HexUtil.encodeHexStr(bytesTemp));
+                break;
             }
+            byte[] bytesTemp = new byte[skipSize];
+            System.arraycopy(bytes, i, bytesTemp, 0, skipSize);
             String encodeHexStr = HexUtil.encodeHexStr(bytesTemp);
             boolean ifReplace = false;
             for (Pair<String, String> pair : pairs) {
@@ -451,8 +455,56 @@ public class ByteUtils {
         return StringUtils.leftPad(HexUtil.toHex(num), 2,'0').toUpperCase();
     }
 
+    // 添加检验码
+    public byte[] checkCodeMsg(byte[] src) {
+        byte[] rv = new byte[src.length + 1];
+        int i;
+        int myxor;
+        System.arraycopy(src, 0, rv, 0, src.length);
+        myxor = src[0];
+        for (i = 1; i < src.length; i++) {
+            myxor ^= src[i];
+        }
+        rv[src.length] = (byte) myxor;
+        return rv;
+    }
+
+    //将消息转义编码
+    public static byte[] enCode(byte[] src) {
+        byte[] rv = null;
+        int i = 0;
+        ArrayList<Byte> al = new ArrayList<Byte>(src.length + 32);
+
+        for (i = 0; i < src.length; i++) {
+            if (src[i] == 0x7E) {
+                al.add((byte) 0x7D);
+                al.add((byte) 0x5E);
+            } else if (src[i] == 0x7D) {
+                al.add((byte) 0x7D);
+                al.add((byte) 0x5D);
+            } else {
+                al.add(src[i]);
+            }
+        }
+
+        rv = new byte[al.size()];
+        for (i = 0; i < al.size(); i++) {
+            rv[i] = al.get(i);
+        }
+        return rv;
+    }
+
+    // 收尾添加标志位7E
+    public byte[] packagingMsg(byte[] src) {
+        byte[] rv = new byte[src.length + 2];
+        System.arraycopy(src, 0, rv, 1, src.length);
+        rv[0] = 0x7E;
+        rv[rv.length - 1] = 0x7E;
+        return rv;
+    }
+
     public static void main(String[] args) {
-        String str = "7E7E7D7E";
+        String str = "7E1314000100508560222E00C28ABC0101012C61222E00C28ABC0101012C62222E00C28ABC0101012C63222E00C28ABC0101012C64222E00C28ABC0101012C65222E00C28ABC010101957E";
         byte[] bytes = HexUtil.decodeHex(str);
         byte[] byteReplace = byteReplace(bytes, 1, bytes.length - 1, Pair.of("7E", "7D5E"), Pair.of("7D", "7D5D"));
         System.out.println(HexUtil.encodeHexStr(byteReplace).toUpperCase());

@@ -46,8 +46,8 @@ public class NetdevApplicationTest {
     @Autowired
     private ISysParamService sysParamService;
 
-    private static byte[] pack(int cmd, byte[] bytes){
-       return ArrayUtil.addAll(
+    private static byte[] pack(int cmd, byte[] bytes) {
+        return ArrayUtil.addAll(
                 //信息类别
                 ByteUtils.objToBytes(cmd, 2)
                 //数据字段长度
@@ -64,7 +64,7 @@ public class NetdevApplicationTest {
      * 000300440000000000000000030a014e2c13392425262728292a2b2c2d2e2f303132333435363738390102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20212223
      */
     @Test
-    public void queryParam(){
+    public void queryParam() {
         //获取设备信息
         Collection<BaseInfo> devInfos = BaseInfoContainer.getDevInfos();
         List<byte[]> list = new ArrayList<>();
@@ -79,11 +79,11 @@ public class NetdevApplicationTest {
         list.add(ByteUtils.objToBytes(1, 1));
         devInfos.stream()
                 .filter(baseInfo -> baseInfo.getDevNo().equals("19"))
-                .findFirst().ifPresent(baseInfo ->{
+                .findFirst().ifPresent(baseInfo -> {
             String devNo = baseInfo.getDevNo();
             List<FrameParaInfo> frameParaInfos = BaseInfoContainer.getParasByDevType(baseInfo.getDevType());
             int size = frameParaInfos.size();
-            if (size>0){
+            if (size > 0) {
                 //设备型号
                 list.add(ByteUtils.objToBytes(baseInfo.getDevType(), 2));
                 //设备编号
@@ -107,7 +107,7 @@ public class NetdevApplicationTest {
      * 0005000e0000000000000000050a014e2c1301010101
      */
     @Test
-    public void setParam(){
+    public void setParam() {
         //获取设备信息
         Collection<BaseInfo> devInfos = BaseInfoContainer.getDevInfos();
         List<byte[]> list = new ArrayList<>();
@@ -122,11 +122,11 @@ public class NetdevApplicationTest {
         list.add(ByteUtils.objToBytes(1, 1));
         devInfos.stream()
                 .filter(baseInfo -> baseInfo.getDevNo().equals("19"))
-                .findFirst().ifPresent(baseInfo ->{
+                .findFirst().ifPresent(baseInfo -> {
             String devNo = baseInfo.getDevNo();
             List<FrameParaInfo> frameParaInfos = BaseInfoContainer.getParasByDevType(baseInfo.getDevType());
             int size = frameParaInfos.size();
-            if (size > 0){
+            if (size > 0) {
                 //设备型号
                 list.add(ByteUtils.objToBytes(baseInfo.getDevType(), 2));
                 //设备编号
@@ -136,19 +136,19 @@ public class NetdevApplicationTest {
                 frameParaInfos
                         .stream().filter(frameParaInfo -> frameParaInfo.getParaNo().equals("1"))
                         .forEach(frameParaInfo -> {
-                    //参数编号
-                    list.add(ByteUtils.objToBytes(frameParaInfo.getParaNo(), 1));
-                    //设备数据长度
-                    list.add(ByteUtils.objToBytes(1, 1));
-                    //数据内容
-                    list.add(ByteUtils.objToBytes(1, 1));
-                });
+                            //参数编号
+                            list.add(ByteUtils.objToBytes(frameParaInfo.getParaNo(), 1));
+                            //设备数据长度
+                            list.add(ByteUtils.objToBytes(1, 1));
+                            //数据内容
+                            list.add(ByteUtils.objToBytes(1, 1));
+                        });
             }
         });
         byte[] bytes = ByteUtils.listToBytes(list);
         byte[] pack = pack(0x0005, bytes);
         System.out.println(HexUtil.encodeHexStr(pack));
-//        UdpClientUtil.send(TEST_ADDRESS, TEST_PORT, pack);
+        UdpClientUtil.send(TEST_ADDRESS, TEST_PORT, pack);
     }
 
     /**
@@ -156,7 +156,7 @@ public class NetdevApplicationTest {
      * 0007001d0000000000000000070a014e2608120105060708090b0d0e0f1011131214151604
      */
     @Test
-    public void paramWarning(){
+    public void paramWarning() {
         //获取设备信息
         Collection<BaseInfo> devInfos = BaseInfoContainer.getDevInfos();
         List<byte[]> list = new ArrayList<>();
@@ -171,11 +171,11 @@ public class NetdevApplicationTest {
         list.add(ByteUtils.objToBytes(1, 1));
         devInfos.stream()
                 .filter(baseInfo -> baseInfo.getDevNo().equals("8"))
-                .findFirst().ifPresent(baseInfo ->{
+                .findFirst().ifPresent(baseInfo -> {
             String devNo = baseInfo.getDevNo();
             List<FrameParaInfo> frameParaInfos = BaseInfoContainer.getParasByDevType(baseInfo.getDevType());
             int size = frameParaInfos.size();
-            if (size>0){
+            if (size > 0) {
                 //设备型号
                 list.add(ByteUtils.objToBytes(baseInfo.getDevType(), 2));
                 //设备编号
@@ -193,19 +193,5 @@ public class NetdevApplicationTest {
         System.out.println(HexUtil.encodeHexStr(pack));
         UdpClientUtil.send(TEST_ADDRESS, TEST_PORT, pack);
     }
-
-    public static void main(String[] args) {
-        int n = 5;
-        int count = 0;
-        while(n>0){
-            if((n&1)>0){
-                System.out.println((n&1));
-                count++;
-            }
-            n=n>>1;
-        }
-        System.out.println(count);
-    }
-
 
 }
