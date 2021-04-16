@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.xy.common.annotation.Param;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -32,6 +33,7 @@ public class OperLog extends Model<OperLog> {
     @TableId(value = "LOG_ID", type = IdType.AUTO)
     private Integer logId;
 
+    @Param
     @ApiModelProperty(value = "设备类型")
     @TableField(value = "DEV_TYPE")
     private String devType;
@@ -49,6 +51,7 @@ public class OperLog extends Model<OperLog> {
     /**
      * 参数表中  0025001 参数  0025002 接口
      */
+    @Param
     @ApiModelProperty(value = "访问类型")
     @TableField(value = "LOG_ACCESS_TYPE")
     private String logAccessType;
@@ -60,6 +63,7 @@ public class OperLog extends Model<OperLog> {
     @TableField(exist = false)
     private String logAccessTypeName;
 
+    @Param
     @ApiModelProperty(value = "操作类型")
     @TableField(value = "LOG_OPER_TYPE")
     private String logOperType;

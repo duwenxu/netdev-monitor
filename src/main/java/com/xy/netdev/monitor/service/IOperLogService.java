@@ -1,6 +1,9 @@
 package com.xy.netdev.monitor.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.xy.netdev.monitor.entity.AlertInfo;
 import com.xy.netdev.monitor.entity.OperLog;
 
 /**
@@ -11,4 +14,9 @@ import com.xy.netdev.monitor.entity.OperLog;
  */
 public interface IOperLogService extends IService<OperLog> {
 
+    /**
+     * 查询指定设备时间范围内的日志信息
+     * @return
+     */
+    IPage<OperLog> queryOperLogByDevNoTime(String devNo, String startTime, String endTime, Page page);
 }
