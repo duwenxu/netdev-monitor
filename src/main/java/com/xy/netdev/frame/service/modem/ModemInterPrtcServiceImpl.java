@@ -61,14 +61,11 @@ public class ModemInterPrtcServiceImpl implements IQueryInterPrtclAnalysisServic
         }
         //获取接口单元的参数信息
         List<FrameParaInfo> frameParaInfos = BaseInfoContainer.getInterLinkParaList(respData.getDevType(), respData.getCmdMark());
-        //拆分后根据关键字获取参数
+        //根据关键字获取参数
         List<FrameParaData> frameParaDataList = new ArrayList<>();
         for (FrameParaInfo param :  frameParaInfos) {
             if (Objects.nonNull(param)){
                 //构造返回信息体 paraInfo
-                FrameParaData paraInfo = new FrameParaData();
-                BeanUtil.copyProperties(param, paraInfo, true);
-                BeanUtil.copyProperties(respData, paraInfo, true);
                 Integer startPoint = param.getParaStartPoint();
                 String byteLen = param.getParaByteLen();
 
@@ -91,7 +88,14 @@ public class ModemInterPrtcServiceImpl implements IQueryInterPrtclAnalysisServic
         return respData;
     }
 
-    private FrameParaData doGetParam(FrameRespData respData, byte[] paraValBytes, FrameParaInfo currentPara) {
+    /**
+     * 解析获取指定Bytes的参数值
+     * @param respData  响应数据结构
+     * @param paraValBytes 字节数组
+     * @param currentPara 当前参数信息体
+     * @return  解析出的参数体结构
+     */
+    public FrameParaData doGetParam(FrameRespData respData, byte[] paraValBytes, FrameParaInfo currentPara) {
         if (StringUtils.isEmpty(currentPara.getParaNo())){
             return null;
         }
