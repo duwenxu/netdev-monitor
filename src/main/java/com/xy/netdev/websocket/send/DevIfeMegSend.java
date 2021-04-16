@@ -1,6 +1,5 @@
 package com.xy.netdev.websocket.send;
 
-import cn.hutool.db.Page;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.xy.netdev.common.util.ParaHandlerUtil;
@@ -83,11 +82,24 @@ public class DevIfeMegSend {
      * 推送所有页面接口信息
      */
     public static void sendPageInfoToDev(String devNo,String cmdMark){
-        ChannelGroup channels = ChannelCache.getInstance().getChannels("DevPageInfos",devNo);
+        ChannelGroup channels = ChannelCache.getInstance().getChannels("DevPageInfos",ParaHandlerUtil.genLinkKey(devNo, cmdMark));
+        if( channels != null){
+            String msg = PageInfoContainer.getPageInfo(devNo,cmdMark);
+            TextWebSocketFrame textWebSocketFrame = new TextWebSocketFrame(msg);
+            channels.writeAndFlush(textWebSocketFrame);
+        }
+    }
+
+    /**
+     * 给指定设备编号  发送所有参数信息
+     * @param devNo 设备编号
+     */
+    public static void sendAlertToDev(String devNo){
+        ChannelGroup channels = ChannelCache.getInstance().getChannels("DevAlertInfos",devNo);
         if( channels != null){
             //此处加SerializerFeature.WriteMapNullValue是为了让数据中属性值为null的属性不被忽略
             //此处加SerializerFeature.DisableCircularReferenceDetect解决相同的对象序列化出错问题
-            String msg = JSONObject.toJSONString(PageInfoContainer.getPageInfo(devNo,cmdMark),SerializerFeature.WriteMapNullValue,SerializerFeature.DisableCircularReferenceDetect);
+            String msg = JSONObject.toJSONString(DevAlertInfoContainer.getDevAlertInfoList(devNo), SerializerFeature.WriteMapNullValue,SerializerFeature.DisableCircularReferenceDetect);
             TextWebSocketFrame textWebSocketFrame = new TextWebSocketFrame(msg);
             channels.writeAndFlush(textWebSocketFrame);
         }
@@ -111,9 +123,14 @@ public class DevIfeMegSend {
             case "DevCtrlItfInfos" :
                 //发送组合控制接口信息
                 sendDevCtrlItfInfosToDev(devNo.toString());
+                break;
             case "DevPageInfos" :
                 //发送页面信息接口数据
                 sendPageInfoToDev(devNo.toString(),cmdMark.toString());
+                break;
+            case "DevAlertInfos" :
+                sendAlertToDev(devNo.toString());
+                break;
             default:
                 sendDevStatusToDev();
                 break;

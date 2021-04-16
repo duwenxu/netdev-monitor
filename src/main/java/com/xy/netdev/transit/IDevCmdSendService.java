@@ -1,10 +1,9 @@
 package com.xy.netdev.transit;
 
 
-import com.xy.netdev.monitor.bo.InterCtrlInfo;
-import com.xy.netdev.monitor.entity.ParaInfo;
 
-import java.util.List;
+import com.xy.netdev.monitor.bo.InterfaceViewInfo;
+
 
 /**
  * <p>
@@ -39,9 +38,9 @@ public interface IDevCmdSendService {
 
     /**
      * 接口设置发送
-     * @param  interCtrlInfo 接口设置信息
+     * @param  interfaceViewInfo 接口设置信息
      */
-    void interfaceCtrSend(InterCtrlInfo interCtrlInfo);
+    void interfaceCtrSend(InterfaceViewInfo interfaceViewInfo);
 
 
 }

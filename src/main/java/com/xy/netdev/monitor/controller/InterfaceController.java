@@ -7,7 +7,7 @@ import com.xy.common.helper.ControllerResultWrapper;
 import com.xy.common.model.Result;
 import com.xy.netdev.common.util.JwtUtil;
 import com.xy.netdev.container.BaseContainerLoader;
-import com.xy.netdev.monitor.bo.InterCtrlInfo;
+import com.xy.netdev.monitor.bo.InterfaceViewInfo;
 import com.xy.netdev.monitor.bo.TransUiData;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.Interface;
@@ -18,10 +18,9 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
-import java.util.Map;
+
 
 /**
  * 设备接口 前端控制器
@@ -130,12 +129,12 @@ public class InterfaceController {
     }
 
     /**
-     * 设置设备参数
+     * 设置设备接口参数
      */
-    @ApiOperation(value = "设置设备参数", notes = "设置设备参数")
+    @ApiOperation(value = "设置设备接口参数", notes = "设置设备接口参数")
     @PutMapping(value = "/interfaceCtrl")
-    public Result<ParaInfo> paraCtrl(InterCtrlInfo interCtrlInfo) {
-        devCmdSendService.interfaceCtrSend(interCtrlInfo);
+    public Result<ParaInfo> paraCtrl(@RequestBody InterfaceViewInfo interfaceViewInfo) {
+        devCmdSendService.interfaceCtrSend(interfaceViewInfo);
         return ControllerResultWrapper.genUpdateResult();
     }
 

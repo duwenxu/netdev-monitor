@@ -3,6 +3,7 @@ package com.xy.netdev.monitor.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xy.common.helper.ControllerHelper;
+import com.xy.common.helper.ControllerResultWrapper;
 import com.xy.common.model.Result;
 import com.xy.netdev.common.util.JwtUtil;
 import com.xy.netdev.monitor.entity.AlertInfo;
@@ -31,7 +32,7 @@ public class AlertInfoController {
 
     /**
     * 获取分页数据
-    *
+    * 暂时没用到（已被方法queryAlertInfoPageByTime替代）
     * @return
     */
     @ApiOperation(value = "获取分页告警信息", notes = "获取分页告警信息")
@@ -95,5 +96,17 @@ public class AlertInfoController {
     public Result<AlertInfo> delete(@PathVariable String id) {
         return ControllerHelper.delete(id,targetService);
     }
+
+    /**
+     * 查询指定设备时间范围内的告警信息
+     * @return
+     */
+    @ApiOperation(value = "查询指定设备时间范围内的告警信息", notes = "查询指定设备时间范围内的告警信息")
+    @PostMapping(value = "queryAlterInfo")
+    public Result<IPage<AlertInfo>> queryAlterInfoByDevNoTime(@RequestParam String devNo, @RequestParam String startTime, @RequestParam String endTime,Page page) {
+        IPage<AlertInfo> alertInfos = targetService.queryAlterInfoByDevNoTime(devNo,startTime,endTime,page);
+        return ControllerResultWrapper.genPageListResult(alertInfos);
+    }
+
 
 }

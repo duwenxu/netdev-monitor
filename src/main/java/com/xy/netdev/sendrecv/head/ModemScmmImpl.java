@@ -102,12 +102,13 @@ public class ModemScmmImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReq
     @Override
     public byte[] pack(FrameReqData frameReqData) {
         byte[] paramBytes = frameReqData.getParamBytes();
-        //业务层内容包括 设置单元 + 关键字 + 信息体
+        //业务层内容包括 关键字 + 信息体
         int dataLen = 0;
         if (paramBytes!=null){
             dataLen = paramBytes.length;
         }
-        int frameLenField = dataLen + 2;
+        //额外的长度信息字节  命令字+设置单元+校验字
+        int frameLenField = dataLen + 3;
 
         String operType = frameReqData.getOperType();
 
@@ -117,7 +118,7 @@ public class ModemScmmImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReq
         FrameParaInfo paraInfo = BaseInfoContainer.getParaInfoByCmd(frameReqData.getDevType(), frameReqData.getCmdMark());
         //备注1 单元编码
         String unitCode = paraInfo.getNdpaRemark1Data();
-        if (prtclFormat == null || prtclFormat.getFmtId() == null) {
+        if (prtclFormat.getFmtId() == null) {
             throw new BaseException("设备类型为" + frameReqData.getDevType() + "，参数命令为" + frameReqData.getCmdMark() + "协议格式获取失败...");
         }
         if (OPREATE_QUERY.equals(operType)) {

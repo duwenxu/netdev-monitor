@@ -79,9 +79,6 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
         FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),respData.getCmdMark());
         FrameParaData frameParaData = new FrameParaData();
         String cmdMark = respData.getCmdMark();
-        if(cmdMark.equals(SET_ADDR_CMD)) {
-            setDevLocalAddr(respData,value);
-        }
         BeanUtil.copyProperties(frameParaInfo, frameParaData, true);
         frameParaData.setDevNo(respData.getDevNo());
         frameParaData.setParaVal(value);
@@ -103,6 +100,10 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
                 .append("_").append(reqInfo.getFrameParaList().get(0).getParaVal());
         String command = sb.toString();
         reqInfo.setParamBytes(command.getBytes());
+        String cmdMark = reqInfo.getCmdMark();
+        if(cmdMark.equals(SET_ADDR_CMD)) {
+            setDevLocalAddr(reqInfo);
+        }
         socketMutualService.request(reqInfo, ProtocolRequestEnum.CONTROL);
     }
 
@@ -118,9 +119,6 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
         int endIdx = respStr.indexOf("_");
         String value = respStr.substring(endIdx+1,respStr.indexOf(StrUtil.CRLF));
         String cmdMark = respData.getCmdMark();
-        if(cmdMark.equals(SET_ADDR_CMD)) {
-            setDevLocalAddr(respData,value);
-        }
         FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),cmdMark);
         List<FrameParaData> frameParaDatas = new ArrayList<>();
         FrameParaData frameParaData = new FrameParaData();
@@ -152,17 +150,15 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
 
     /**
      * 设置设备物理地址
-     * @param respData
-     * @param value
+     * @param reqInfo
      */
-    private void setDevLocalAddr(FrameRespData respData,String value){
-        String devNo = respData.getDevNo();
+    private void setDevLocalAddr(FrameReqData reqInfo){
+        String devNo = reqInfo.getDevNo();
         BaseInfo baseInfo = new BaseInfo();
         baseInfo.setDevNo(devNo);
-        baseInfo.setDevLocalAddr(value);
+        baseInfo.setDevLocalAddr(reqInfo.getFrameParaList().get(0).getParaVal());
         baseInfoService.updateById(baseInfo);
         BaseInfoContainer.updateBaseInfo(devNo);
-
     }
 
 }
