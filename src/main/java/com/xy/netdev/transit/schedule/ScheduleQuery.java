@@ -1,16 +1,12 @@
 package com.xy.netdev.transit.schedule;
 
-import com.xy.common.util.DateUtils;
 import com.xy.netdev.common.constant.SysConfigConstant;
-import com.xy.netdev.container.BaseContainerLoader;
 import com.xy.netdev.container.BaseInfoContainer;
-import com.xy.netdev.container.DevAlertInfoContainer;
 import com.xy.netdev.container.DevLogInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.constant.MonitorConstants;
-import com.xy.netdev.monitor.entity.AlertInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.entity.PrtclFormat;
@@ -22,11 +18,9 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 import static com.xy.netdev.monitor.constant.MonitorConstants.*;
@@ -59,8 +53,9 @@ public class ScheduleQuery  implements ApplicationRunner{
      * 设备参数定时查询
      */
     public void doScheduleQuery() {
-        List<BaseInfo> baseInfos = ScheduleQueryHelper.getAvailableBases().stream().filter(base -> base.getDevType().equals("0020011")).collect(Collectors.toList());
-        //List<BaseInfo> baseInfos = ScheduleQueryHelper.getAvailableBases();
+//        List<BaseInfo> baseInfos = ScheduleQueryHelper.getAvailableBases().stream().filter(base -> base.getDevType().equals("0020017")||base.getDevType().equals("0020018")).collect(Collectors.toList());
+        List<BaseInfo> baseInfos = ScheduleQueryHelper.getAvailableBases();
+
         //单个设备所有查询对象的封装list映射
         Map<BaseInfo, List<FrameReqData>> scheduleReqBodyMap = new ConcurrentHashMap<>(20);
         baseInfos.forEach(base -> {
@@ -79,7 +74,7 @@ public class ScheduleQuery  implements ApplicationRunner{
                 }
                 String cmdMark = frameParaInfo.getCmdMark();
                 if (StringUtils.isEmpty(cmdMark)) {
-                    log.warn("设备编号：{}--参数编号：{}的cmdMark为空", base.getDevNo(), frameParaInfo.getParaNo());
+                    log.warn("设备编号：[{}]--参数编号：[{}]的cmdMark为空", base.getDevNo(), frameParaInfo.getParaNo());
                     continue;
                 }
                 FrameParaData paraData = FrameParaData.builder()
@@ -104,7 +99,7 @@ public class ScheduleQuery  implements ApplicationRunner{
                 //获取接口对应的格式协议及处理类
                 String cmdMark = item.getItfCmdMark();
                 if (StringUtils.isEmpty(cmdMark)) {
-                    log.warn("接口编号：{}的cmdMark为空", item.getItfId());
+                    log.warn("设备编号：[{}]--接口编号：[{}]的cmdMark为空",base.getDevNo(), item.getItfId());
                     continue;
                 }
                 PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterface(base.getDevType(), cmdMark);

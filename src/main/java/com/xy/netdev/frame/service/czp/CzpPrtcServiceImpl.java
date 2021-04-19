@@ -55,7 +55,6 @@ public class CzpPrtcServiceImpl  implements IParaPrtclAnalysisService {
      */
     @Override
     public void ctrlPara(FrameReqData reqInfo) {
-        log.info("C中频切换矩阵设置参数执行,接收到原始数据：["+reqInfo.getSendOriginalData()+"]");
         if(reqInfo.getFrameParaList() == null && reqInfo.getFrameParaList().isEmpty()){
             log.info("C中频切换矩阵无参数，设置设备参数取消！");
             return ;
@@ -81,7 +80,6 @@ public class CzpPrtcServiceImpl  implements IParaPrtclAnalysisService {
      */
     @Override
     public FrameRespData ctrlParaResponse(FrameRespData respData) {
-        log.info("C中频切换矩阵控制响应执行,接收到原始数据：["+respData.getReciveOriginalData()+"]");
         byte[] bytes =respData.getParamBytes();
         String data = HexUtil.encodeHexStr(bytes);
         String controlSuccessCode = sysParamService.getParaRemark1(SysConfigConstant.CONTROL_SUCCESS);

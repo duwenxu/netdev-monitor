@@ -2,7 +2,6 @@ package com.xy.netdev.frame.service.modemscmm;
 
 import cn.hutool.core.util.HexUtil;
 import com.alibaba.fastjson.JSON;
-import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.util.BeanFactoryUtil;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.ExtParamConf;
@@ -61,6 +60,11 @@ public class ModemScmmPrtcServiceImpl implements IParaPrtclAnalysisService {
         socketMutualService.request(reqInfo, ProtocolRequestEnum.CONTROL);
     }
 
+    /**
+     * 获取参数相对应的字节数组表示
+     * @param paraData 数据帧参数结构
+     * @return 参数字节
+     */
     public byte[] doGetFrameBytes(FrameParaData paraData) {
         FrameParaInfo paraInfoByNo = BaseInfoContainer.getParaInfoByNo(paraData.getDevType(), paraData.getParaNo());
         String configClass = paraInfoByNo.getNdpaRemark2Data();
