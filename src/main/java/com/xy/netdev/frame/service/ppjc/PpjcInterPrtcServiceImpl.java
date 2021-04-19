@@ -49,7 +49,6 @@ public class PpjcInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService
      */
     @Override
     public void queryPara(FrameReqData reqInfo) {
-        log.info("频谱监测设备参数查询执行！");
         socketMutualService.request(reqInfo, ProtocolRequestEnum.QUERY);
     }
 
@@ -60,7 +59,6 @@ public class PpjcInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService
      */
     @Override
     public FrameRespData queryParaResponse(FrameRespData respData) {
-        log.info("频谱监测设备查询响应执行,接收到原始数据：["+respData.getReciveOriginalData()+"]");
         String[] bytesData = HexUtil.encodeHexStr(respData.getParamBytes()).split(separator);
         //全查询：按容器中的参数顺序解析
         String devType = respData.getDevType();
