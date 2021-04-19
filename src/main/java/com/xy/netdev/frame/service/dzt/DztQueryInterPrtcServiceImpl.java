@@ -5,6 +5,7 @@ import cn.hutool.core.util.HexUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.xy.netdev.admin.service.ISysParamService;
+import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.xy.netdev.common.util.ByteUtils.byteArrayCopy;
 import static com.xy.netdev.common.util.ByteUtils.byteToNumber;
 import static com.xy.netdev.frame.service.gf.GfPrtcServiceImpl.isFloat;
 import static com.xy.netdev.frame.service.gf.GfPrtcServiceImpl.isUnsigned;
@@ -79,8 +81,8 @@ public class DztQueryInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
             List<FrameParaInfo> paraInfos =  BaseInfoContainer.getInterLinkParaList(devType, QUERY_SINGLE_MARK);
             JSONArray array = new JSONArray();
             for (String data : dataList) {
-                String paraValueStr = data.substring(1);
-                String paraCmk = data.substring(0, 1);
+                String paraValueStr = data.substring(2);
+                String paraCmk = data.substring(0, 2);
                 //参数关键字从0x60递增
                 Integer number = Integer.parseInt(paraCmk,16)-95;
                 List<FrameParaData> framParas = genFrameParaInfo(respData,paraInfos,paraValueStr);
@@ -117,10 +119,11 @@ public class DztQueryInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
     private List<FrameParaData> genFrameParaInfo(FrameRespData respData,List<FrameParaInfo> paraInfos,String paraValueStr){
         List<FrameParaData> frameParaDataList = new ArrayList<>();
         String devType = respData.getDevType();
-        byte[] paraValBytes = HexUtil.decodeHex(paraValueStr);
+        byte[] paraValBytes = paraValueStr.getBytes();
         Integer startIndex = 0;
         for (FrameParaInfo paraInfo : paraInfos) {
-            Integer endIndex = startIndex +  Integer.parseInt(paraInfo.getParaByteLen());
+            Integer len = Integer.parseInt(paraInfo.getParaByteLen());
+            Integer endIndex = startIndex + len ;
             if (StringUtils.isEmpty(paraInfo.getParaNo())){ continue;}
             FrameParaData frameParaData = FrameParaData.builder()
                     .devType(devType)
@@ -132,9 +135,9 @@ public class DztQueryInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
             if (isStr){
                 frameParaData.setParaVal(paraValueStr.substring(startIndex,endIndex));
             }else {
-
+               byteArrayCopy(paraValBytes, startIndex, len);
                Float paraVal = byteToNumber(paraValBytes, startIndex,
-                        Integer.parseInt(paraInfo.getParaByteLen())
+                        len
                         ,isUnsigned(sysParamService, paraInfo.getDataType())
                         ,isFloat(sysParamService, paraInfo.getDataType())).floatValue();
                 String desc = paraInfo.getNdpaRemark2Desc();
