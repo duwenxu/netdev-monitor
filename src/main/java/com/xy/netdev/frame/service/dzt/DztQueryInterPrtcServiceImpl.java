@@ -5,6 +5,7 @@ import cn.hutool.core.util.HexUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.xy.netdev.admin.service.ISysParamService;
+import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
@@ -21,6 +22,8 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.Charset;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -72,9 +75,9 @@ public class DztQueryInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
         //拆分后根据关键字获取参数
         if(cmdMark.equals(QUERY_ALL_MARK)){
             for (String data : dataList) {
-                String paraCmk = data.substring(0, 1);
-                String paraValueStr = data.substring(1);
-                List<FrameParaInfo> paraInfos =  BaseInfoContainer.getInterLinkParaList(devType, paraCmk);
+                String subInterfCmk = data.substring(0,2);
+                String paraValueStr = data.substring(2);
+                List<FrameParaInfo> paraInfos =  BaseInfoContainer.getInterLinkParaList(devType, subInterfCmk);
                 frameParaDataList.addAll(genFrameParaInfo(respData,paraInfos,paraValueStr));
             }
         }else{
@@ -89,14 +92,19 @@ public class DztQueryInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
                 JSONObject object = new JSONObject();
                 for (FrameParaData framPara : framParas) {
                     FrameParaInfo paraDetail = BaseInfoContainer.getParaInfoByNo(devType,framPara.getParaNo());
+                    String unit = paraDetail.getNdpaUnit();
                     String paraName = paraDetail.getParaName();
                     String newName = "卫星"+ number;
                     if(paraName.contains("卫星")){
-                        paraName.replace("卫星",newName);
+                        paraName = paraName.replace("卫星",newName);
                     }else{
                         paraName = newName+paraName;
                     }
-                    object.put(paraName,framPara.getParaVal());
+                    String val = framPara.getParaVal();
+                    if(StringUtils.isNotEmpty(unit)){
+                        val = val+" "+unit;
+                    }
+                    object.put(paraName,val);
                 }
                 array.add(object);
                 frameParaDataList.addAll(framParas);
@@ -105,7 +113,7 @@ public class DztQueryInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
         }
         respData.setFrameParaList(frameParaDataList);
         //参数查询响应结果接收
-        dataReciveService.paraQueryRecive(respData);
+        dataReciveService.interfaceQueryRecive(respData);
         return respData;
     }
 
@@ -119,9 +127,10 @@ public class DztQueryInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
     private List<FrameParaData> genFrameParaInfo(FrameRespData respData,List<FrameParaInfo> paraInfos,String paraValueStr){
         List<FrameParaData> frameParaDataList = new ArrayList<>();
         String devType = respData.getDevType();
-        byte[] paraValBytes = paraValueStr.getBytes();
+        byte[] paraValBytes = HexUtil.decodeHex(paraValueStr);
         Integer startIndex = 0;
         for (FrameParaInfo paraInfo : paraInfos) {
+            List<FrameParaInfo> subParaList = paraInfo.getSubParaList();
             Integer len = Integer.parseInt(paraInfo.getParaByteLen());
             Integer endIndex = startIndex + len ;
             if (StringUtils.isEmpty(paraInfo.getParaNo())){ continue;}
@@ -133,26 +142,57 @@ public class DztQueryInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
             //根据是否为String类型采取不同的处理方式
             boolean isStr = MonitorConstants.STRING_CODE.equals(paraInfo.getDataType());
             if (isStr){
-                frameParaData.setParaVal(paraValueStr.substring(startIndex,endIndex));
+                frameParaData.setParaVal(paraValueStr.substring(startIndex*2,endIndex*2));
             }else {
-               byteArrayCopy(paraValBytes, startIndex, len);
-               Float paraVal = byteToNumber(paraValBytes, startIndex,
+               Number paraVal = byteToNumber(paraValBytes, startIndex,
                         len
                         ,isUnsigned(sysParamService, paraInfo.getDataType())
                         ,isFloat(sysParamService, paraInfo.getDataType())).floatValue();
-                String desc = paraInfo.getNdpaRemark2Desc();
-                String data = paraInfo.getNdpaRemark3Data();
+                String desc = paraInfo.getNdpaRemark1Desc();
+                String data = paraInfo.getNdpaRemark1Data();
+
+                String val = "";
                 if(StringUtils.isNotEmpty(desc) && desc.equals("倍数") && StringUtils.isNotEmpty(data)){
                     Integer multiple = Integer.parseInt(data);
-                    paraVal = paraVal/multiple;
+                    //单个参数值转换
+                    DecimalFormat myFormatter = new DecimalFormat(getDecimal(multiple));
+                    val = myFormatter.format(paraVal.floatValue()/multiple);
+                }else{
+                    val = String.valueOf(paraVal.intValue());
                 }
-                //单个参数值转换
-                frameParaData.setParaVal(String.valueOf(paraVal));
+                if(paraInfo.getSelectMap()!=null && paraInfo.getSelectMap().size()>0){
+                    val = (String)paraInfo.getSelectMap().get(val);
+                }
+                frameParaData.setParaVal(val);
             }
             startIndex = endIndex;
             frameParaDataList.add(frameParaData);
         }
         return frameParaDataList;
+    }
+
+    /**
+     * 根据倍数获取保留小数点后几位格式
+     * @param multiple
+     * @return
+     */
+    private String getDecimal(Integer multiple){
+        String decimal = "";
+        switch (multiple){
+            case 10:
+                decimal =  "###.0#";
+                break;
+            case 100:
+                decimal =  "###.00#";
+                break;
+            case 1000:
+                decimal =  "###.000#";
+                break;
+            default:
+                decimal =  "###";
+                break;
+        }
+        return decimal;
     }
 
 }

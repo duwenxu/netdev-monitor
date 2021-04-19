@@ -90,7 +90,7 @@ public class CarAntennaImpl extends AbsDeviceSocketHandler<SocketEntity, FrameRe
             log.error("收到包含错误响应标识的帧结构，标识字节：{}----数据体：{}",hexRespType,bytes);
         }
         //数据体
-        byte[] paramBytes = byteArrayCopy(bytes, 8, len);
+        byte[] paramBytes = byteArrayCopy(bytes, 8, len-1);
         PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameRespData.getDevType(), hexPrtcCmd);
         String operateType = BaseInfoContainer.getOptByPrtcl(prtclFormat, hexPrtcCmd);
         frameRespData.setOperType(operateType);
