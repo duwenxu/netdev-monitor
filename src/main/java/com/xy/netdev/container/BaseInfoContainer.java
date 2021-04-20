@@ -574,11 +574,13 @@ public class BaseInfoContainer {
             frameParaInfo.setAlertLevel(paraInfo.getNdpaAlertLevel());
             frameParaInfo.setSubParaList(new ArrayList<>());
             if (paraInfo.getNdpaCmplexLevel().equals(PARA_COMPLEX_LEVEL_SUB)) {
+                //若为子参数不仅添加到父参数下且增加到参数列表
                 frameParaInfos.stream()
                         .filter(paraInfo1 -> paraInfo.getNdpaParentNo().equals(paraInfo1.getParaNo())
                                 && paraInfo.getDevType().equals(paraInfo1.getDevType())).forEach(frameParaInfo1 -> {
                     frameParaInfo1.addSubPara(frameParaInfo);
                 });
+                //frameParaInfos.add(frameParaInfo);
             } else {
                 frameParaInfos.add(frameParaInfo);
             }
