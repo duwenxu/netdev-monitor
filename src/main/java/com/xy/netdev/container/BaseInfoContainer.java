@@ -580,7 +580,7 @@ public class BaseInfoContainer {
                                 && paraInfo.getDevType().equals(paraInfo1.getDevType())).forEach(frameParaInfo1 -> {
                     frameParaInfo1.addSubPara(frameParaInfo);
                 });
-                //frameParaInfos.add(frameParaInfo);
+                frameParaInfos.add(frameParaInfo);
             } else {
                 frameParaInfos.add(frameParaInfo);
             }
