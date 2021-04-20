@@ -47,5 +47,7 @@ public interface MonitorConstants {
     /**参数数据类型*/
     String STR="0023004";
     String INT ="0023002";
+    String UINT="0023003";
     String BYTE="0023001";
+    String FLOAT = "0023008";
 }

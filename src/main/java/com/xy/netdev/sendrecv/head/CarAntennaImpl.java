@@ -4,6 +4,7 @@ import cn.hutool.core.lang.Pair;
 import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.xy.common.exception.BaseException;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
@@ -19,6 +20,7 @@ import com.xy.netdev.frame.service.dzt.DztPrtcServiceImpl;
 import com.xy.netdev.frame.service.dzt.DztQueryInterPrtcServiceImpl;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.PrtclFormat;
+import com.xy.netdev.monitor.service.IPrtclFormatService;
 import com.xy.netdev.sendrecv.base.AbsDeviceSocketHandler;
 import com.xy.netdev.sendrecv.entity.SocketEntity;
 import com.xy.netdev.sendrecv.entity.device.CarAntennaEntity;
@@ -55,6 +57,8 @@ public class CarAntennaImpl extends AbsDeviceSocketHandler<SocketEntity, FrameRe
     @Autowired
     private DztQueryInterPrtcServiceImpl queryInterService;
     @Autowired
+    private IPrtclFormatService prtclFormatService;
+    @Autowired
     private ISysParamService sysParamService;
 
     @Override
@@ -77,22 +81,18 @@ public class CarAntennaImpl extends AbsDeviceSocketHandler<SocketEntity, FrameRe
     public FrameRespData unpack(SocketEntity socketEntity, FrameRespData frameRespData) {
         byte[] bytes = byteReplace(socketEntity.getBytes(), 1, socketEntity.getBytes().length - 1, Pair.of("7D5E", "7E"), Pair.of("7D5D", "7D"));
         //数据体长度
-        int len = bytesToNum(bytes, 4, 2, ByteBuf::readShort);
+        int len = bytesToNum(bytes, 5, 2, ByteBuf::readShort);
         //响应数据类型标识   查询0X53 控制0X41
         Byte respType = bytesToNum(bytes, 7, 1, ByteBuf::readByte);
-        String hexRespType = lefPadNumToHexStr(Long.valueOf(respType));
-        if (!Arrays.asList(RESPONSE_SIGNS).contains(hexRespType)){
+        String hexRespType = HexUtil.toHex(Integer.valueOf(respType));
+        String hexPrtcCmd = hexRespType.substring(hexRespType.length()-2);
+        if (!Arrays.asList(RESPONSE_SIGNS).contains(hexPrtcCmd)){
             log.error("收到包含错误响应标识的帧结构，标识字节：{}----数据体：{}",hexRespType,bytes);
         }
-        //接口命令标识
-        Byte prtcCmd = bytesToNum(bytes, 7, 1, ByteBuf::readByte);
         //数据体
-        byte[] paramBytes = byteArrayCopy(bytes, 8, len);
-        String hexPrtcCmd = lefPadNumToHexStr(Long.valueOf(prtcCmd));
-
-        //获取操作类型
-        PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByPara(frameRespData.getDevType(), hexPrtcCmd);
-        String operateType = BaseInfoContainer.getOptByPrtcl(prtclFormat, hexRespType);
+        byte[] paramBytes = byteArrayCopy(bytes, 8, len-1);
+        PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameRespData.getDevType(), hexPrtcCmd);
+        String operateType = BaseInfoContainer.getOptByPrtcl(prtclFormat, hexPrtcCmd);
         frameRespData.setOperType(operateType);
         frameRespData.setCmdMark(hexPrtcCmd);
         frameRespData.setParamBytes(paramBytes);
