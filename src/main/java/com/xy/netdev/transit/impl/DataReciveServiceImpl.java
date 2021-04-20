@@ -145,9 +145,4 @@ public class DataReciveServiceImpl implements IDataReciveService {
         });
     }
 
-
-
-
-
-
 }

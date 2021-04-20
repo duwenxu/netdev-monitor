@@ -101,6 +101,9 @@ public class DztQueryInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
                         paraName = newName+paraName;
                     }
                     String val = framPara.getParaVal();
+                    if (paraDetail.getSelectMap() != null && paraDetail.getSelectMap().size() > 0) {
+                        val = (String) paraDetail.getSelectMap().get(val);
+                    }
                     if(StringUtils.isNotEmpty(unit)){
                         val = val+" "+unit;
                     }
@@ -205,9 +208,6 @@ public class DztQueryInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
                 val = myFormatter.format(paraVal.floatValue() / multiple);
             } else {
                 val = String.valueOf(paraVal.intValue());
-            }
-            if (paraInfo.getSelectMap() != null && paraInfo.getSelectMap().size() > 0) {
-                val = (String) paraInfo.getSelectMap().get(val);
             }
             frameParaData.setParaVal(val);
         }
