@@ -225,7 +225,11 @@ public class DevStatusReportService implements IDevStatusReportService {
             log.warn("告警信息：{}",alertDesc);
             AlertInfo alertInfo = new AlertInfo().builder()
                     .devType(respData.getDevType())
-                    .alertLevel(sysParamService.getParaRemark1(paraInfo.getAlertLevel()))
+                    //前端websocket推送使用 sunchao
+                    .devTypeName(sysParamService.getParaName(respData.getDevType()))
+                    .alertLevel(paraInfo.getAlertLevel())
+                    //前端websocket推送使用 sunchao
+                    .alertLevelName(sysParamService.getParaName(paraInfo.getAlertLevel()))
                     .devNo(respData.getDevNo())
                     .alertTime(DateUtils.now())
                     .alertNum(1)
