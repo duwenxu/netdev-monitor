@@ -127,46 +127,25 @@ public class DztQueryInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
     private List<FrameParaData> genFrameParaInfo(FrameRespData respData,List<FrameParaInfo> paraInfos,String paraValueStr){
         List<FrameParaData> frameParaDataList = new ArrayList<>();
         String devType = respData.getDevType();
-        byte[] paraValBytes = HexUtil.decodeHex(paraValueStr);
         Integer startIndex = 0;
         for (FrameParaInfo paraInfo : paraInfos) {
             List<FrameParaInfo> subParaList = paraInfo.getSubParaList();
-            Integer len = Integer.parseInt(paraInfo.getParaByteLen());
-            Integer endIndex = startIndex + len ;
             if (StringUtils.isEmpty(paraInfo.getParaNo())){ continue;}
-            FrameParaData frameParaData = FrameParaData.builder()
-                    .devType(devType)
-                    .devNo(respData.getDevNo())
-                    .paraNo(paraInfo.getParaNo())
-                    .build();
-            //根据是否为String类型采取不同的处理方式
-            boolean isStr = MonitorConstants.STRING_CODE.equals(paraInfo.getDataType());
-            if (isStr){
-                frameParaData.setParaVal(paraValueStr.substring(startIndex*2,endIndex*2));
-            }else {
-               Number paraVal = byteToNumber(paraValBytes, startIndex,
-                        len
-                        ,isUnsigned(sysParamService, paraInfo.getDataType())
-                        ,isFloat(sysParamService, paraInfo.getDataType())).floatValue();
-                String desc = paraInfo.getNdpaRemark1Desc();
-                String data = paraInfo.getNdpaRemark1Data();
-
-                String val = "";
-                if(StringUtils.isNotEmpty(desc) && desc.equals("倍数") && StringUtils.isNotEmpty(data)){
-                    Integer multiple = Integer.parseInt(data);
-                    //单个参数值转换
-                    DecimalFormat myFormatter = new DecimalFormat(getDecimal(multiple));
-                    val = myFormatter.format(paraVal.floatValue()/multiple);
-                }else{
-                    val = String.valueOf(paraVal.intValue());
-                }
-                if(paraInfo.getSelectMap()!=null && paraInfo.getSelectMap().size()>0){
-                    val = (String)paraInfo.getSelectMap().get(val);
-                }
-                frameParaData.setParaVal(val);
+            if(subParaList.size()==0){
+                //解析简单参数
+                FrameParaData frameParaData = FrameParaData.builder()
+                        .devType(devType)
+                        .devNo(respData.getDevNo())
+                        .paraNo(paraInfo.getParaNo())
+                        .build();
+                startIndex = parseSingleParam(frameParaData,paraInfo,paraValueStr,startIndex);
+                frameParaDataList.add(frameParaData);
+            }else{
+                //解析组合参数
+                List<FrameParaData> frameParaDatas = new ArrayList<>();
+                startIndex = parseCombinedParam(respData,paraInfo,paraValueStr,startIndex,frameParaDatas);
+                frameParaDataList.addAll(frameParaDatas);
             }
-            startIndex = endIndex;
-            frameParaDataList.add(frameParaData);
         }
         return frameParaDataList;
     }
@@ -195,4 +174,87 @@ public class DztQueryInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
         return decimal;
     }
 
+
+    /**
+     * 解析简单参数值
+     * @param frameParaData
+     * @param paraInfo
+     * @param paraValueStr
+     * @param startIndex
+     * @return
+     */
+    private Integer  parseSingleParam(FrameParaData frameParaData,FrameParaInfo paraInfo,String paraValueStr,Integer startIndex) {
+        //根据是否为String类型采取不同的处理方式
+        byte[] paraValBytes = HexUtil.decodeHex(paraValueStr);
+        Integer len = Integer.parseInt(paraInfo.getParaByteLen());
+        Integer endIndex = startIndex + len ;
+        boolean isStr = MonitorConstants.STRING_CODE.equals(paraInfo.getDataType());
+        if (isStr) {
+            frameParaData.setParaVal(paraValueStr.substring(startIndex * 2, endIndex * 2));
+        } else {
+            Number paraVal = byteToNumber(paraValBytes, startIndex,len
+                    , isUnsigned(sysParamService, paraInfo.getDataType())
+                    , isFloat(sysParamService, paraInfo.getDataType())).floatValue();
+            String desc = paraInfo.getNdpaRemark1Desc();
+            String data = paraInfo.getNdpaRemark1Data();
+            String val = "";
+            if (StringUtils.isNotEmpty(desc) && desc.equals("倍数") && StringUtils.isNotEmpty(data)) {
+                Integer multiple = Integer.parseInt(data);
+                //单个参数值转换
+                DecimalFormat myFormatter = new DecimalFormat(getDecimal(multiple));
+                val = myFormatter.format(paraVal.floatValue() / multiple);
+            } else {
+                val = String.valueOf(paraVal.intValue());
+            }
+            if (paraInfo.getSelectMap() != null && paraInfo.getSelectMap().size() > 0) {
+                val = (String) paraInfo.getSelectMap().get(val);
+            }
+            frameParaData.setParaVal(val);
+        }
+        startIndex = endIndex;
+        return startIndex;
+    }
+
+
+    /**
+     * 解析组合参数值
+     * @param respData
+     * @param paraInfo
+     * @param paraValueStr
+     * @param startIndex
+     * @param frameParaDatas
+     * @return
+     */
+    private Integer parseCombinedParam(FrameRespData respData,FrameParaInfo paraInfo,String paraValueStr,Integer startIndex,List<FrameParaData> frameParaDatas){
+        byte[] paraValBytes = HexUtil.decodeHex(paraValueStr);
+        Integer len = Integer.parseInt(paraInfo.getParaByteLen());
+        Integer endIndex = startIndex + len ;
+        String devType = respData.getDevType();
+        Integer paraVal = byteToNumber(paraValBytes, startIndex,len
+                , isUnsigned(sysParamService, paraInfo.getDataType())
+                , isFloat(sysParamService, paraInfo.getDataType())).intValue();
+        List<FrameParaInfo> subParaList = paraInfo.getSubParaList();
+        if(subParaList.size()>0){
+            String binaryStr =  Integer.toString(paraVal,2);
+            int length = binaryStr.length();
+            int j = 0;
+            int k = 0;
+            for (int i = subParaList.size(); i > 0; i--) {
+                FrameParaInfo subParaInfo = subParaList.get(j);
+                String val = "";
+                if(i>length){
+                    val = "0";
+                }else{
+                    val = String.valueOf(binaryStr.charAt(k));
+                    k++;
+                }
+                j++;
+                FrameParaData frameParaData = FrameParaData.builder().devType(devType).devNo(respData.getDevNo())
+                        .paraNo(subParaInfo.getParaNo()).paraVal(val).build();
+                frameParaDatas.add(frameParaData);
+            }
+        }
+        startIndex = endIndex;
+        return startIndex;
+    }
 }
