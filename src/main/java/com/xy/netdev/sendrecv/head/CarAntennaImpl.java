@@ -2,10 +2,7 @@ package com.xy.netdev.sendrecv.head;
 
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.util.HexUtil;
-import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.xy.common.exception.BaseException;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.ByteUtils;
@@ -15,18 +12,11 @@ import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.service.ICtrlInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
-import com.xy.netdev.frame.service.dzt.DztCtrlInterPrtcServiceImpl;
-import com.xy.netdev.frame.service.dzt.DztPrtcServiceImpl;
-import com.xy.netdev.frame.service.dzt.DztQueryInterPrtcServiceImpl;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.PrtclFormat;
-import com.xy.netdev.monitor.service.IPrtclFormatService;
 import com.xy.netdev.sendrecv.base.AbsDeviceSocketHandler;
 import com.xy.netdev.sendrecv.entity.SocketEntity;
 import com.xy.netdev.sendrecv.entity.device.CarAntennaEntity;
-import com.xy.netdev.sendrecv.entity.device.ModemEntity;
-import com.xy.netdev.sendrecv.entity.device.ModemScmmEntity;
-import com.xy.netdev.sendrecv.entity.device.PowerAmpEntity;
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -37,9 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.xy.netdev.common.constant.SysConfigConstant.OPREATE_QUERY;
 import static com.xy.netdev.common.util.ByteUtils.*;
-import static com.xy.netdev.common.util.ByteUtils.byteToInt;
 
 /**
  * @author luo
@@ -52,12 +40,6 @@ public class CarAntennaImpl extends AbsDeviceSocketHandler<SocketEntity, FrameRe
     /**响应标识数组，用来校验响应帧结构*/
     private static final String[] RESPONSE_SIGNS = {"81","83","85"};
 
-    @Autowired
-    private DztCtrlInterPrtcServiceImpl ctrlInterService;
-    @Autowired
-    private DztQueryInterPrtcServiceImpl queryInterService;
-    @Autowired
-    private IPrtclFormatService prtclFormatService;
     @Autowired
     private ISysParamService sysParamService;
 
@@ -110,12 +92,16 @@ public class CarAntennaImpl extends AbsDeviceSocketHandler<SocketEntity, FrameRe
         }else {
             keyword = prtclFormat.getFmtCkey();
         }
+        int length = 0;
+        if(paramBytes!=null){
+            length = paramBytes.length;
+        }
         CarAntennaEntity carAntennaEntity = CarAntennaEntity.builder()
                 .beginOffset((byte) 0x7E)
                 .deviceType((byte) 0x13)
                 .devSubType(Byte.valueOf(getDevModel(frameReqData),16))
                 .deviceAddress((byte) 0x01)
-                .length(objToBytes(paramBytes.length, 2))
+                .length(objToBytes(length, 2))
                 .cmd((byte) Integer.parseInt(keyword, 16))
                 .params(paramBytes)
                 .end((byte)0x7E)
@@ -133,7 +119,7 @@ public class CarAntennaImpl extends AbsDeviceSocketHandler<SocketEntity, FrameRe
         list.add(new byte[]{carAntennaEntity.getDevSubType()});
         list.add(new byte[]{carAntennaEntity.getDeviceAddress()});
         list.add(new byte[]{carAntennaEntity.getCmd()});
-        if (carAntennaEntity.getParams() != null && !Arrays.toString(carAntennaEntity.getParams()).equals("[0]")){
+        if (carAntennaEntity.getParams() != null && carAntennaEntity.getParams().length > 0){
             list.add(carAntennaEntity.getParams());
         }
         list.add(new byte[]{carAntennaEntity.getCheck()});
@@ -142,9 +128,6 @@ public class CarAntennaImpl extends AbsDeviceSocketHandler<SocketEntity, FrameRe
         return byteReplace(bytes, 1, bytes.length - 1, Pair.of("7E", "7D5E"), Pair.of("7D", "7D5D"));
 
     }
-
-
-
 
     /**
      * 累加从 长度 到 参数体 的所有内容作为校验和
@@ -157,12 +140,13 @@ public class CarAntennaImpl extends AbsDeviceSocketHandler<SocketEntity, FrameRe
         list.add(new byte[]{entity.getDeviceAddress()});
         list.add(entity.getLength());
         list.add(new byte[]{entity.getCmd()});
-        if (entity.getParams() != null) {
+        if (entity.getParams() != null && entity.getParams().length > 0){
             list.add(entity.getParams());
         }
         byte[] bytes = listToBytes(list);
         return ByteUtils.addGetBottom(bytes, 0, bytes.length);
     }
+
     /**
      * 累加取模
      * @param values 数据值

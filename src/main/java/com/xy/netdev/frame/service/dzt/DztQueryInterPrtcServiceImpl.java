@@ -50,9 +50,11 @@ public class DztQueryInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
     private IDataReciveService dataReciveService;
 
     /** 全查询响应命令字*/
-    public static final String QUERY_ALL_MARK = "83";
+    public static final String QUERY_RSP_ALL_MARK = "83";
+    /** 单查询命令字*/
+    public static final String QUERY_SINGLE_MARK = "84";
     /** 单查询响应命令字*/
-    public static final String QUERY_SINGLE_MARK = "85";
+    public static final String QUERY_RSP_SINGLE_MARK = "85";
     /**查询应答帧分隔符*/
     private static final String SPLIT = "2c";
 
@@ -60,8 +62,9 @@ public class DztQueryInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
     @Override
     public void queryPara(FrameReqData reqInfo) {
         //暂时是单个参数查询 cmdMark为单个参数的命令标识
-        byte[] bytes = HexUtil.decodeHex(reqInfo.getCmdMark());
-        reqInfo.setParamBytes(bytes);
+        if(reqInfo.getCmdMark().equals(QUERY_SINGLE_MARK)){
+            reqInfo.setParamBytes(new byte[]{(byte) 0x01});
+        }
         socketMutualService.request(reqInfo, ProtocolRequestEnum.QUERY);
     }
 
@@ -73,7 +76,7 @@ public class DztQueryInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
         String cmdMark = respData.getCmdMark();
         List<FrameParaData> frameParaDataList = new ArrayList<>();
         //拆分后根据关键字获取参数
-        if(cmdMark.equals(QUERY_ALL_MARK)){
+        if(cmdMark.equals(QUERY_RSP_ALL_MARK)){
             for (String data : dataList) {
                 String subInterfCmk = data.substring(0,2);
                 String paraValueStr = data.substring(2);
@@ -81,7 +84,7 @@ public class DztQueryInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
                 frameParaDataList.addAll(genFrameParaInfo(respData,paraInfos,paraValueStr));
             }
         }else{
-            List<FrameParaInfo> paraInfos =  BaseInfoContainer.getInterLinkParaList(devType, QUERY_SINGLE_MARK);
+            List<FrameParaInfo> paraInfos =  BaseInfoContainer.getInterLinkParaList(devType, QUERY_RSP_SINGLE_MARK);
             JSONArray array = new JSONArray();
             for (String data : dataList) {
                 String paraValueStr = data.substring(2);
