@@ -1,7 +1,6 @@
 package com.xy.netdev.container;
 
 import com.alibaba.fastjson.JSONArray;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.xy.common.exception.BaseException;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.util.ParaHandlerUtil;
@@ -621,9 +620,13 @@ public class BaseInfoContainer {
             Map<Integer, FrameParaInfo> frameParaInfoMap = frameParaInfos.stream().collect(Collectors.toMap(FrameParaInfo::getParaId,FrameParaInfo -> FrameParaInfo));
             paraIds.forEach(paraId->{
                 //解决是一个实体类导致的数据属性同步变化
-                FrameParaInfo frameParaInfo = new FrameParaInfo();
-                BeanUtils.copyProperties(frameParaInfoMap.get(Integer.valueOf(paraId)),frameParaInfo);
-                devInterParam.addFramePara(frameParaInfo);
+                try {
+                    FrameParaInfo frameParaInfo = new FrameParaInfo();
+                    BeanUtils.copyProperties(frameParaInfoMap.get(Integer.valueOf(paraId)),frameParaInfo);
+                    devInterParam.addFramePara(frameParaInfo);
+                } catch (Exception e) {
+                    log.error("参数id=["+paraId+"]不存在！");
+                }
             });
             //如果为组合接口则填充子接口列表：递归方法
             List<DevInterParam> subList = new ArrayList<>();
