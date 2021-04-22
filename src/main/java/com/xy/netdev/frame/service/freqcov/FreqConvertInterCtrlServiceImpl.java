@@ -39,6 +39,8 @@ public class FreqConvertInterCtrlServiceImpl implements ICtrlInterPrtclAnalysisS
     private ModemInterPrtcServiceImpl modemInterPrtcService;
     @Autowired
     private IDataReciveService dataReciveService;
+    /**响应标识*/
+    private static final String[] RESPONSES = {"FDFD","FEFE"};
 
     @Override
     public void ctrlPara(FrameReqData reqData) {
