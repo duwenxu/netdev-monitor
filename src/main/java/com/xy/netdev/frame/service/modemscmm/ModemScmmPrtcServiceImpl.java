@@ -2,6 +2,7 @@ package com.xy.netdev.frame.service.modemscmm;
 
 import cn.hutool.core.util.HexUtil;
 import com.alibaba.fastjson.JSON;
+import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.util.BeanFactoryUtil;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.ExtParamConf;
@@ -14,6 +15,8 @@ import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.frame.service.codec.DirectParamCodec;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
+import com.xy.netdev.sendrecv.head.ModemImpl;
+import com.xy.netdev.sendrecv.head.ModemScmmImpl;
 import com.xy.netdev.transit.IDataReciveService;
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +40,8 @@ public class ModemScmmPrtcServiceImpl implements IParaPrtclAnalysisService {
     private IDataReciveService dataReciveService;
     @Autowired
     private SocketMutualService socketMutualService;
+    @Autowired
+    private ModemScmmImpl modemScmm;
 
     @Override
     public void queryPara(FrameReqData reqInfo) {
@@ -90,15 +95,15 @@ public class ModemScmmPrtcServiceImpl implements IParaPrtclAnalysisService {
     @Override
     public FrameRespData ctrlParaResponse(FrameRespData respData) {
         byte[] paramBytes = respData.getParamBytes();
+        log.info("接收到控制响应帧内容:[{}]", HexUtil.encodeHexStr(paramBytes));
+        /**此处忽略响应中多出的80  此处控制响应中只有单元标识，没有参数标识*/
         //单元标识
-        Byte unit = bytesToNum(paramBytes, 0, 1, ByteBuf::readByte);
-        //参数关键字
-        Byte cmd = bytesToNum(paramBytes, 1, 1, ByteBuf::readByte);
+        Byte unit = bytesToNum(paramBytes, 1, 1, ByteBuf::readByte);
         //设置响应
         Byte res = bytesToNum(paramBytes, 2, 1, ByteBuf::readByte);
-        respData.setCmdMark(numToHexStr(Long.valueOf(cmd)));
+        respData.setCmdMark(numToHexStr(Long.valueOf(unit)));
         respData.setRespCode(numToHexStr(Long.valueOf(res)));
-        dataReciveService.paraCtrRecive(respData);
+        dataReciveService.interfaceCtrlRecive(respData);
         return respData;
     }
 }
