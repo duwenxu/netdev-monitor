@@ -32,6 +32,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
+import static com.xy.netdev.common.constant.SysConfigConstant.ACCESS_TYPE_INTERF;
+import static com.xy.netdev.common.constant.SysConfigConstant.ACCESS_TYPE_PARAM;
 import static com.xy.netdev.container.BaseInfoContainer.getDevInfo;
 
 /**
@@ -121,7 +123,12 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
         String cmdHexStr = cmdMarkConvert(r);
         r.setCmdMark(cmdHexStr);
         //根据cmd和设备类型获取具体的数据处理类
-        PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(r.getDevType(), cmdHexStr);
+        PrtclFormat prtclFormat = null;
+        if (ACCESS_TYPE_PARAM.equals(unpackBytes.getAccessType())){
+            prtclFormat = BaseInfoContainer.getPrtclByPara(r.getDevType(), cmdHexStr);
+        }else{
+            prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(r.getDevType(), cmdHexStr);
+        }
         if (prtclFormat == null){
             log.warn("设备:{}, 未找到数据体处理类", r.getDevNo());
             return;
@@ -137,7 +144,7 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
         IQueryInterPrtclAnalysisService queryInterPrtclAnalysisService = null;
         ICtrlInterPrtclAnalysisService iCtrlInterPrtclAnalysisService = null;
         if (prtclFormat.getIsPrtclParam() == 0){
-            r.setAccessType(SysConfigConstant.ACCESS_TYPE_PARAM);
+            r.setAccessType(ACCESS_TYPE_PARAM);
             iParaPrtclAnalysisService = ParaPrtclFactory.genHandler(prtclFormat.getFmtHandlerClass());
         }else {
             switch (getCallbackType(unpackBytes)){
@@ -152,6 +159,8 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
                     }else if (handler instanceof ICtrlInterPrtclAnalysisService){
                         r.setOperType(SysConfigConstant.OPREATE_CONTROL_RESP);
                         iCtrlInterPrtclAnalysisService = (ICtrlInterPrtclAnalysisService)handler;
+                    }else if (handler instanceof IParaPrtclAnalysisService){
+                        iParaPrtclAnalysisService = (IParaPrtclAnalysisService)handler;
                     }
                     r.setAccessType(SysConfigConstant.ACCESS_TYPE_INTERF);
                     break;
