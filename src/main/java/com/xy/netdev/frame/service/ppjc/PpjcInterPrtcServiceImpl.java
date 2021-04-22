@@ -49,7 +49,7 @@ public class PpjcInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService
      */
     @Override
     public void queryPara(FrameReqData reqInfo) {
-        log.info("频谱监测设备参数查询执行！");
+        log.debug("频谱监测设备参数查询执行！");
         socketMutualService.request(reqInfo, ProtocolRequestEnum.QUERY);
     }
 

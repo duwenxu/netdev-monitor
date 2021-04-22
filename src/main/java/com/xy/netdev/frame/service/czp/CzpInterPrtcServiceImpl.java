@@ -47,7 +47,7 @@ public class CzpInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
      */
     @Override
     public void queryPara(FrameReqData reqInfo) {
-        log.info("C中频切换矩阵参数查询执行,接收到原始数据：["+reqInfo.getSendOriginalData()+"]");
+        log.debug("C中频切换矩阵参数查询执行,接收到原始数据：["+reqInfo.getSendOriginalData()+"]");
         socketMutualService.request(reqInfo, ProtocolRequestEnum.QUERY);
     }
 
