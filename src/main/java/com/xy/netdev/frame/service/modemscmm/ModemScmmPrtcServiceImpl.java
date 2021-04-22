@@ -40,8 +40,6 @@ public class ModemScmmPrtcServiceImpl implements IParaPrtclAnalysisService {
     private IDataReciveService dataReciveService;
     @Autowired
     private SocketMutualService socketMutualService;
-    @Autowired
-    private ModemScmmImpl modemScmm;
 
     @Override
     public void queryPara(FrameReqData reqInfo) {

@@ -47,9 +47,6 @@ public class ModemScmmImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReq
     private static final String QUERY = "82";
     private static final String QUERY_RES = "83";
 
-    @Autowired
-    private ModemScmmPrtcServiceImpl modemScmmPrtcService;
-
     @Override
     public void callback(FrameRespData frameRespData, IParaPrtclAnalysisService iParaPrtclAnalysisService, IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService, ICtrlInterPrtclAnalysisService ctrlInterPrtclAnalysisService) {
         String operType = frameRespData.getOperType();
