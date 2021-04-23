@@ -50,10 +50,10 @@ public class BcdParamCodec implements ParamCodec {
 
     public static void main(String[] args) {
         BcdParamCodec bcdParamCodec = new BcdParamCodec();
-        byte[] bytes = {0x14, 0x50, 0x00, 0x00};
-        String decode = bcdParamCodec.decode(bytes,5);
+        byte[] bytes = {0x00, (byte) 0xFA};
+        String decode = bcdParamCodec.decode(bytes);
         System.out.println(decode);
-        byte[] encode = bcdParamCodec.encode(decode,5);
+        byte[] encode = bcdParamCodec.encode(decode);
         System.out.println(HexUtil.encodeHexStr(encode).toUpperCase());
     }
 }

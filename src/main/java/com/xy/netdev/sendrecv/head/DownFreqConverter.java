@@ -65,7 +65,7 @@ public class DownFreqConverter extends AbsDeviceSocketHandler<SocketEntity, Fram
     public FrameRespData unpack(SocketEntity socketEntity, FrameRespData frameRespData) {
         byte[] bytes = socketEntity.getBytes();
         //转小端
-        Bytes.reverse(bytes);
+//        Bytes.reverse(bytes);
         //帧长
         Long length = bytesToNum(bytes, 4, 4, ByteBuf::readUnsignedInt);
         //帧头（10）+帧尾（4）+校验字（4）
@@ -74,16 +74,16 @@ public class DownFreqConverter extends AbsDeviceSocketHandler<SocketEntity, Fram
             return frameRespData;
         }
         //帧头
-        String hexFrameHead = HexUtil.encodeHexStr(Objects.requireNonNull(byteArrayCopy(bytes, 0, 4)));
-        String hexFrameEnd = HexUtil.encodeHexStr(Objects.requireNonNull(byteArrayCopy(bytes, length.intValue()-4, length.intValue())));
+        String hexFrameHead = HexUtil.encodeHexStr(Objects.requireNonNull(byteArrayCopy(bytes, 0, 4))).toUpperCase();
+        String hexFrameEnd = HexUtil.encodeHexStr(Objects.requireNonNull(byteArrayCopy(bytes, length.intValue()-4, 4))).toUpperCase();
         //帧ID(接口cmk)
-        String messageId = HexUtil.encodeHexStr(Objects.requireNonNull(byteArrayCopy(bytes, 8, 2)));
+        String messageId = HexUtil.encodeHexStr(Objects.requireNonNull(byteArrayCopy(bytes, 8, 2))).toUpperCase();
         PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterface(frameRespData.getDevType(), messageId);
         String responseHead = StringUtils.isBlank(prtclFormat.getFmtSckey()) ? prtclFormat.getFmtCckey() : prtclFormat.getFmtSckey();
         if (!responseHead.equals(hexFrameHead)||!RESPONSE_END.equals(hexFrameEnd)) {
             log.error("下变频器接收数据帧帧头或帧尾错误：帧头内容：[{}]，帧尾内容：[{}], 数据体：[{}]", hexFrameHead,hexFrameEnd, HexUtil.encodeHexStr(bytes));
         }
-        byte[] context = byteArrayCopy(bytes, 10, length.intValue() - 4);
+        byte[] context = byteArrayCopy(bytes, 10, length.intValue() - 14);
 
         frameRespData.setCmdMark(messageId);
         frameRespData.setParamBytes(context);

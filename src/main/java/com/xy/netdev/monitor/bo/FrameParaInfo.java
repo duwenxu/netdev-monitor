@@ -63,6 +63,9 @@ public class FrameParaInfo {
     @ApiModelProperty(value = "访问权限")
     private String ndpaAccessRight;
 
+    @ApiModelProperty(value = "参数单位")
+    private String ndpaUnit;
+
     /**
      * 参数表中 0019 中编码
      * sunchao

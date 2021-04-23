@@ -37,6 +37,8 @@ public class FreqConvertInterPrtcServiceImpl implements IQueryInterPrtclAnalysis
     private IDataReciveService dataReciveService;
     @Autowired
     private ModemInterPrtcServiceImpl modemInterPrtcService;
+    /**响应标识*/
+    private static final String[] RESPONSES = {"FDFD","FEFE"};
 
     @Override
     public void queryPara(FrameReqData reqInfo) {
@@ -65,6 +67,8 @@ public class FreqConvertInterPrtcServiceImpl implements IQueryInterPrtclAnalysis
                 frameParaDataList.add(paraData);
             }
         }
+        //TODO 应答包处理  设置响应结果
+
         respData.setFrameParaList(frameParaDataList);
         dataReciveService.interfaceQueryRecive(respData);
         return respData;

@@ -3,6 +3,7 @@ package com.xy.netdev.sendrecv.head;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.util.HexUtil;
 import com.xy.common.exception.BaseException;
+import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameReqData;
@@ -10,13 +11,17 @@ import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.service.ICtrlInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
+import com.xy.netdev.frame.service.modem.ModemPrtcServiceImpl;
+import com.xy.netdev.frame.service.modemscmm.ModemScmmPrtcServiceImpl;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
+import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.entity.PrtclFormat;
 import com.xy.netdev.sendrecv.base.AbsDeviceSocketHandler;
 import com.xy.netdev.sendrecv.entity.SocketEntity;
 import com.xy.netdev.sendrecv.entity.device.ModemScmmEntity;
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -80,11 +85,16 @@ public class ModemScmmImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReq
         //响应类型标识
         Short respType = bytesToNum(bytes, 2, 1, ByteBuf::readUnsignedByte);
         String hexRespType = HexUtil.toHex(respType);
+        //数据体   去掉 命令体+校验字的长度(设置单元+信息体)
+        byte[] paramBytes = byteArrayCopy(bytes, 3, hexLen - 2);
+        frameRespData.setParamBytes(paramBytes);
         //参数关键字
         if (CONTROL_RES.equals(hexRespType)){
             Short cmd = bytesToNum(bytes, 4, 1, ByteBuf::readUnsignedByte);
             String hexCmd = HexUtil.toHex(cmd);
-            frameRespData.setCmdMark(hexCmd);
+            //拼接控制响应单元关键字
+            String resHexCmd = "000"+hexCmd;
+            frameRespData.setCmdMark(resHexCmd);
             frameRespData.setOperType(OPREATE_CONTROL_RESP);
         }else {
             //查询响应设置单元作为关键字
@@ -93,10 +103,16 @@ public class ModemScmmImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReq
             frameRespData.setCmdMark(hexUnit);
             frameRespData.setOperType(OPREATE_QUERY_RESP);
         }
-        //数据体   去掉 命令体+校验字的长度(设置单元+信息体)
-        byte[] paramBytes = byteArrayCopy(bytes, 3, hexLen - 2);
-        frameRespData.setParamBytes(paramBytes);
         return frameRespData;
+    }
+
+    @Override
+    public String cmdMarkConvert(FrameRespData frameRespData) {
+        String cmdMark = frameRespData.getCmdMark();
+        if (cmdMark!=null&&cmdMark.length()==1){
+            frameRespData.setCmdMark("0"+cmdMark);
+        }
+        return frameRespData.getCmdMark();
     }
 
     @Override
@@ -107,18 +123,25 @@ public class ModemScmmImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReq
         if (paramBytes!=null){
             dataLen = paramBytes.length;
         }
-        //额外的长度信息字节  命令字+设置单元+校验字
         int frameLenField = dataLen + 3;
 
         String operType = frameReqData.getOperType();
+        String accessType = frameReqData.getAccessType();
 
         String keyWord;
+        String unitCode;
         //获取参数协议
         PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameReqData.getDevType(), frameReqData.getCmdMark());
-        FrameParaInfo paraInfo = BaseInfoContainer.getParaInfoByCmd(frameReqData.getDevType(), frameReqData.getCmdMark());
-        //备注1 单元编码
-        String unitCode = paraInfo.getNdpaRemark1Data();
-        if (prtclFormat.getFmtId() == null) {
+        if (SysConfigConstant.ACCESS_TYPE_INTERF.equals(accessType)){
+            Interface linkInterface = BaseInfoContainer.getInterLinkInterface(frameReqData.getDevType(), frameReqData.getCmdMark());
+            //备注1 单元编码
+            unitCode = linkInterface.getItfCmdMark();
+        }else {
+            FrameParaInfo paraInfoByCmd = BaseInfoContainer.getParaInfoByCmd(frameReqData.getDevType(), frameReqData.getCmdMark());
+            unitCode = paraInfoByCmd.getNdpaRemark1Data();
+        }
+
+        if (prtclFormat == null || prtclFormat.getFmtId() == null) {
             throw new BaseException("设备类型为" + frameReqData.getDevType() + "，参数命令为" + frameReqData.getCmdMark() + "协议格式获取失败...");
         }
         if (OPREATE_QUERY.equals(operType)) {
@@ -139,7 +162,14 @@ public class ModemScmmImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReq
         modemScmmEntity.setCheck(checkSum);
         byte[] pack = pack(modemScmmEntity);
         //转义
-        return byteReplace(pack, 1, pack.length - 1, Pair.of("7E", "7D5E"), Pair.of("7D", "7D5D"));
+        byte[] byteReplace = byteReplace(pack, 1, pack.length - 1, Pair.of("7E", "7D5E"), Pair.of("7D", "7D5D"));
+
+        if (OPREATE_QUERY.equals(operType)){
+            log.debug("2300调制解调器查询单元：{}, 查询帧：{}",unitCode,HexUtil.encodeHexStr(byteReplace));
+        }else {
+            log.info("2300调制解调器控制单元：{}, 控制帧：{}",unitCode,HexUtil.encodeHexStr(byteReplace));
+        }
+        return byteReplace;
     }
 
     /**

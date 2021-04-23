@@ -24,6 +24,12 @@ public class BitCodec implements ParamCodec {
         return bitStrByPoint(bytes[0], start, point);
     }
 
+    /**
+     * bit位设置时  编码  这里不带位信息
+     * @param value   编码值
+     * @param objects 可能需要的其他传入参数
+     * @return
+     */
     @Override
     public byte[] encode(String value, Object... objects) {
         int start = (int) objects[0];
@@ -33,14 +39,17 @@ public class BitCodec implements ParamCodec {
         }
         StringBuilder sb = new StringBuilder();
         sb.append(value);
-        while (start > 0) {
+        while (sb.length() < 8){
             sb = new StringBuilder().append('0').append(sb);
-            start--;
         }
-        while (sb.length() < 8) {
-            sb.append('0');
-        }
-        return ByteUtils.objToBytes(Integer.parseInt(sb.toString(), 2), 2);
+//        while (start > 0) {
+//            sb = new StringBuilder().append('0').append(sb);
+//            start--;
+//        }
+//        while (sb.length() < 8) {
+//            sb.append('0');
+//        }
+        return ByteUtils.objToBytes(Integer.parseInt(sb.toString(), 2), 1);
     }
 
     /**
@@ -49,7 +58,7 @@ public class BitCodec implements ParamCodec {
      * @param byt   字节
      * @param start 起始位置
      * @param range 长度范围
-     * @return bit字符串
+     * @return bit字符
      */
     public String bitStrByPoint(byte byt, int start, int range) {
         if (start > 7 || range > 8) {
