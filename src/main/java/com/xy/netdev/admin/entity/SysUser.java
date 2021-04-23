@@ -16,9 +16,9 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * <p>
+ * <P>
  * 用户信息
- * </p>
+ * </P>
  *
  * @author luoqilong
  * @since 2019-09-27

@@ -38,7 +38,7 @@ import static com.xy.netdev.common.util.ByteUtils.*;
 public class CarAntennaImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData>{
 
     /**响应标识数组，用来校验响应帧结构*/
-    private static final String[] RESPONSE_SIGNS = {"81","83","85"};
+    private static final String[]   RESPONSE_SIGNS = {"83","85","81"};
 
     @Autowired
     private ISysParamService sysParamService;
@@ -100,8 +100,8 @@ public class CarAntennaImpl extends AbsDeviceSocketHandler<SocketEntity, FrameRe
                 .beginOffset((byte) 0x7E)
                 .deviceType((byte) 0x13)
                 .devSubType(Byte.valueOf(getDevModel(frameReqData),16))
-                .deviceAddress((byte) 0x01)
-                .length(objToBytes(length, 2))
+                .deviceAddress(new byte[]{(byte) 0x00,(byte) 0x01})
+                .length(objToBytes(length+1, 2))
                 .cmd((byte) Integer.parseInt(keyword, 16))
                 .params(paramBytes)
                 .end((byte)0x7E)
@@ -117,7 +117,8 @@ public class CarAntennaImpl extends AbsDeviceSocketHandler<SocketEntity, FrameRe
         list.add(new byte[]{carAntennaEntity.getBeginOffset()});
         list.add(new byte[]{carAntennaEntity.getDeviceType()});
         list.add(new byte[]{carAntennaEntity.getDevSubType()});
-        list.add(new byte[]{carAntennaEntity.getDeviceAddress()});
+        list.add(carAntennaEntity.getDeviceAddress());
+        list.add(carAntennaEntity.getLength());
         list.add(new byte[]{carAntennaEntity.getCmd()});
         if (carAntennaEntity.getParams() != null && carAntennaEntity.getParams().length > 0){
             list.add(carAntennaEntity.getParams());
@@ -137,7 +138,7 @@ public class CarAntennaImpl extends AbsDeviceSocketHandler<SocketEntity, FrameRe
      */
     private byte addGetBottom(CarAntennaEntity entity) {
         List<byte[]> list = new ArrayList<>();
-        list.add(new byte[]{entity.getDeviceAddress()});
+        list.add(entity.getDeviceAddress());
         list.add(entity.getLength());
         list.add(new byte[]{entity.getCmd()});
         if (entity.getParams() != null && entity.getParams().length > 0){
@@ -180,4 +181,10 @@ public class CarAntennaImpl extends AbsDeviceSocketHandler<SocketEntity, FrameRe
         return null;
     }
 
+
+    public static void main(String[] args) {
+        byte[] bytes = new byte[]{(byte)0x00,(byte)0x03,(byte)0x81,(byte)0x30,(byte)0x20};
+        byte b = ByteUtils.addGetBottom(bytes, 0, bytes.length);
+        System.out.println(byteToBinary(b));
+    }
 }

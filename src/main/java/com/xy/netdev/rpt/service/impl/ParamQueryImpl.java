@@ -66,12 +66,13 @@ public class ParamQueryImpl implements RequestService, ResponseService {
                 log.warn("参数查询命令生成失败:{}",JSON.toJSONString(frameParaData));
                 }
                 if (StrUtil.isNotBlank(frameParaData.getParaVal())){
+                    byte[] bytes = frameParaData.getParaVal().getBytes(Charset.forName("GB2312"));
                     //参数编号
                     tempList.add(ByteUtils.objToBytes(frameParaData.getParaNo(), 1));
                     //数据长度
-                    tempList.add(ByteUtils.objToBytes(frameParaData.getLen(), 2));
-                    //数据体内容 todo 测试时暂时这样
-                    tempList.add(frameParaData.getParaVal().getBytes(Charset.forName("GB2312")));
+                    tempList.add(ByteUtils.objToBytes(bytes.length, 2));
+                    //数据体内容
+                    tempList.add(bytes);
 //                    tempList.add( ByteUtils.objToBytes(frameParaData.getParaVal(), frameParaData.getLen()));
                 }
             });
