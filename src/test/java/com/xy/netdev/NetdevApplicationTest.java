@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 @SpringBootTest
 public class NetdevApplicationTest {
 
-    //54所ip地址 172.92.36.23:6933
+    //54所ip地址 192.168.1.141:7801
 
 
 //    设备主备切换状态上报：Recv:>010/ONLINE_1\r\n]
@@ -36,7 +36,7 @@ public class NetdevApplicationTest {
 //    状态上报：http://localhost:8080/rpt/test/status?devNo=8&type=1&status=0
 //    告警上报：http://localhost:8080/rpt/test/warning
 
-    private static final String TEST_ADDRESS = "172.21.2.66";
+    private static final String TEST_ADDRESS = "127.0.0.1";
 
     private static final Integer TEST_PORT = 9900;
 
