@@ -19,4 +19,9 @@ public interface IOperLogService extends IService<OperLog> {
      * @return
      */
     IPage<OperLog> queryOperLogByDevNoTime(String devNo, String startTime, String endTime, Page page);
+
+    /**
+     * 更新主键
+     */
+    void updateOperId();
 }
