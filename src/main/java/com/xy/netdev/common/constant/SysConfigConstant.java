@@ -440,5 +440,5 @@ public interface SysConfigConstant {
     /**
      * 参数数据类型 - double
      */
-    String  PARA_DATATYPE_DOUBLE = "0023008";
+    String  PARA_DATATYPE_DOUBLE = "0023009";
 }
