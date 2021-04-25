@@ -383,6 +383,11 @@ public interface SysConfigConstant {
     String CONTROL_FAIL = "0061001";
 
     /**
+     * 6914变频器 应答帧错误类型 父CODE
+     */
+    String ERR_PARENT_ID_6914 = "0063";
+
+    /**
      * 参数上报设备状态类型--无
      */
     String PARA_ALERT_TYPE_NULL = "0029006";
