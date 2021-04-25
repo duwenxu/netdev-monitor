@@ -67,8 +67,8 @@ public class DztCtrlInterPrtcServiceImpl implements ICtrlInterPrtclAnalysisServi
                 FrameParaInfo param = BaseInfoContainer.getParaInfoByNo(reqData.getDevType(),frameParaData.getParaNo());
                 if(paraId.equals(param.getParaId())){
                     String value = frameParaData.getParaVal();
-                    String desc = param.getNdpaRemark2Desc();
-                    String data = param.getNdpaRemark3Data();
+                    String desc = param.getNdpaRemark1Desc();
+                    String data = param.getNdpaRemark1Data();
                     if(StringUtils.isNotEmpty(desc) && desc.equals("倍数") && StringUtils.isNotEmpty(data)){
                         Integer multiple = Integer.parseInt(data);
                         float temp = Float.parseFloat(value)*multiple;
