@@ -57,6 +57,7 @@ public class FreqConvertInterCtrlServiceImpl implements ICtrlInterPrtclAnalysisS
             bytes = ByteUtils.bytesMerge(bytes, frameBytes);
         }
         reqData.setParamBytes(bytes);
+        log.info("6914变频器发送控制帧标识字：[{}]，内容：[{}]",reqData.getCmdMark(), HexUtil.encodeHexStr(bytes));
         socketMutualService.request(reqData, ProtocolRequestEnum.CONTROL);
     }
 
