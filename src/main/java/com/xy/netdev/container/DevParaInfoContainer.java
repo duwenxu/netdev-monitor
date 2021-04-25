@@ -11,8 +11,6 @@ import com.xy.netdev.monitor.bo.ParaSpinnerInfo;
 import com.xy.netdev.monitor.bo.ParaViewInfo;
 import com.xy.netdev.monitor.entity.ParaInfo;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.BeanUtils;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
