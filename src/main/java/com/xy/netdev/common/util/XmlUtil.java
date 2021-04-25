@@ -20,13 +20,13 @@ public class XmlUtil {
 
     /**
      * JavaBean转换成xml
-     *
+     * @param obj  encoding  xml文件的编码格式
      * @param obj
      * @return
      */
-    public static String convertToXml(Object obj) {
+    public static String convertToXml(Object obj, String encodingStr) {
         //此处增加Feature.OrderedField是为了不影响字段的顺序
-        return JsonXmlUtils.jsonToFormatXml(JSONObject.parseObject(JSON.toJSONString(obj), Feature.OrderedField));
+        return JsonXmlUtils.jsonToFormatXml(JSONObject.parseObject(JSON.toJSONString(obj), Feature.OrderedField), encodingStr);
     }
     /**
      * xml转换成JavaBean

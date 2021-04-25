@@ -455,6 +455,15 @@ public class ByteUtils {
         return StringUtils.leftPad(HexUtil.toHex(num), 2,'0').toUpperCase();
     }
 
+    /**
+     * 数十六进制字符串补0
+     * @param num
+     * @return
+     */
+    public static String make0HexStr(String num){
+        return StringUtils.leftPad(num, 2,'0')+"H".toUpperCase();
+    }
+
     // 添加检验码
     public byte[] checkCodeMsg(byte[] src) {
         byte[] rv = new byte[src.length + 1];

@@ -37,12 +37,14 @@ public class JsonXmlUtils {
      * @param json JSON对象
      * @return 漂亮的xml字符串
      */
-    public static String jsonToFormatXml(JSONObject json) {
+    public static String jsonToFormatXml(JSONObject json, String encodingStr) {
         StringWriter formatXml = new StringWriter();
         try {
-            Document document = jsonToDocument(json);
+            Document document = jsonToDocument(json,encodingStr);
             /* 格式化xml */
             OutputFormat format = OutputFormat.createPrettyPrint();
+            //设置编码格式
+            format.setEncoding(encodingStr);
             // 设置缩进为4个空格
             format.setIndent(" ");
             format.setIndentSize(4);
@@ -61,8 +63,8 @@ public class JsonXmlUtils {
      * @return xml字符串
      * @throws SAXException
      */
-    public static String JsonToXml(JSONObject json) {
-        return jsonToDocument(json).asXML();
+    public static String JsonToXml(JSONObject json, String encodingStr) {
+        return jsonToDocument(json,encodingStr).asXML();
     }
 
     /**
@@ -71,9 +73,9 @@ public class JsonXmlUtils {
      * @param json JSON对象
      * @return Document对象
      */
-    public static Document jsonToDocument(JSONObject json) {
+    public static Document jsonToDocument(JSONObject json, String encodingStr) {
         Document document = DocumentHelper.createDocument();
-        document.setXMLEncoding(ENCODING);
+        document.setXMLEncoding(encodingStr);
         Set<String> rootKey = json.keySet();
         Element root = DocumentHelper.createElement(rootKey.iterator().next());
         addJsonObjectElement(json.getJSONObject(rootKey.iterator().next()), root);
