@@ -1,6 +1,7 @@
 package com.xy.netdev.container;
 
 
+import com.xy.netdev.container.interext.InterExtServiceFactory;
 import com.xy.netdev.monitor.bo.*;
 import com.xy.netdev.monitor.entity.Interface;
 import java.util.*;
@@ -28,6 +29,8 @@ public class DevCtrlInterInfoContainer {
     public static void initData() {
         BaseInfoContainer.getDevNos().forEach(devNo->{
             devCtrInterMap.put(devNo,assembleViewList(devNo));
+            String devType = BaseInfoContainer.getDevInfoByNo(devNo).getDevType();
+            InterExtServiceFactory.genParaExtService(devType).setCacheDevInterViewInfo(devNo);
         });
     }
 
@@ -113,6 +116,16 @@ public class DevCtrlInterInfoContainer {
      * @return  组装控制接口列表
      */
     public static List<InterfaceViewInfo>   getDevCtrInterList(String devNo){
+        String devType = BaseInfoContainer.getDevInfoByNo(devNo).getDevType();
+        return InterExtServiceFactory.genParaExtService(devType).getCacheDevInterViewInfo(devNo);
+    }
+
+    /**
+     * @功能：根据设备显示组装控制接口列表
+     * @param devNo        设备编号
+     * @return  组装控制接口列表
+     */
+    public static List<InterfaceViewInfo>   getDevCtrInterExtList(String devNo){
         return devCtrInterMap.get(devNo);
     }
 
