@@ -30,6 +30,6 @@ public class DoNothingParaExtService implements IParaExtService{
      * @param devNo            设备编号
      */
    public List<ParaViewInfo> getCacheDevParaViewInfo(String devNo) {
-       return DevParaInfoContainer.getDevParaViewList(devNo) ;
+       return DevParaInfoContainer.getDevParaExtViewList(devNo) ;
    }
 }

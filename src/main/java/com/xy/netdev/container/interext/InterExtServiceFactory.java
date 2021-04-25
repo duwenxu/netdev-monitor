@@ -1,4 +1,4 @@
-package com.xy.netdev.container.paraext;
+package com.xy.netdev.container.interext;
 
 
 
@@ -15,13 +15,13 @@ import org.apache.commons.lang.StringUtils;
  * @author tangxl
  * @since 2021-04-25
  */
-public class ParaExtServiceFactory {
+public class InterExtServiceFactory {
     /**
      * @功能：生成具体的参数缓存扩展类
      * @param  devType           设备类型
      * @return
      */
-    public static IParaExtService genParaExtService(String devType){
+    public static InterExtService genParaExtService(String devType){
        if(StringUtils.isEmpty(devType)){
            throw new BaseException("传入的设备类型为空!");
        }
@@ -29,6 +29,6 @@ public class ParaExtServiceFactory {
            SpringContextUtils.getBean("服务名");
        }
        //没有实现扩展的设备类型走此扩展  保持原来的逻辑
-       return SpringContextUtils.getBean("doNothingParaExtService");
+       return SpringContextUtils.getBean("doNothingInterExtService");
     }
 }
