@@ -28,8 +28,8 @@ public class NettyUdpTest {
     /**发送频率*/
     private static final int sendInterval = 2000;
     private static final String[] datas = new String[]{
-            "7A7A7A7A000000150006250000222222227B7B7B7B",
-            "7A7A7A7A00000018FDFD000600040000222222227B7B7B7B"
+            "7A7A7A7A00000015000F00010100222222227B7B7B7B",
+            "7A7A7A7A00000018FEFE000600020000222222227B7B7B7B"
     };
 
     public static void sendFrameData() {

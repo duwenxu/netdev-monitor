@@ -70,28 +70,19 @@ public class FreqConvertInterPrtcServiceImpl implements IQueryInterPrtclAnalysis
         List<FrameParaData> frameParaDataList = new ArrayList<>();
         /**查询上报*/
         if (RPT_IDS.contains(cmdMark)) {
-            //获取接口单元的参数信息
-            List<FrameParaInfo> frameParaInfos = BaseInfoContainer.getInterLinkParaList(respData.getDevType(), cmdMark);
-            for (FrameParaInfo param : frameParaInfos) {
-                if (Objects.nonNull(param)) {
-                    //构造返回信息体 paraInfo
-                    Integer startPoint = param.getParaStartPoint();
-                    int byteLen = Integer.parseInt(param.getParaByteLen());
-                    byte[] targetBytes = byteArrayCopy(bytes, startPoint, byteLen);
-                    FrameParaData paraData = modemInterPrtcService.doGetParam(respData, targetBytes, param);
-                    frameParaDataList.add(paraData);
-                }
-            }
+            setFrameDataList(respData, bytes, cmdMark, frameParaDataList);
             respData.setRespCode(PARA_REPS_STATUS_SUCCEED);
             /**错误应答信息*/
         } else if (RES_IDS.contains(cmdMark)) {
+            //todo 此处错误响应帧若不作为参数显示，则直接注释掉即可
+            setFrameDataList(respData, bytes, cmdMark, frameParaDataList);
             //该响应消息所对应的请求消息帧ID
             String requestId = HexUtil.encodeHexStr(Objects.requireNonNull(byteArrayCopy(bytes, 0, 2))).toUpperCase();
             String resCode = HexUtil.encodeHexStr(Objects.requireNonNull(byteArrayCopy(bytes, 2, 1))).toUpperCase();
             String realCode = "00".equals(resCode)?"1":"0";
             String errCode = HexUtil.encodeHexStr(Objects.requireNonNull(byteArrayCopy(bytes, 3, 1))).toUpperCase();
             String errMsg = freqConvertInterCtrlService.getErr(errCode).getParaName();
-            log.warn("6914变频器查询失败：失败帧标识：[{}],失败code:[{}],失败错误类型：[{}]", requestId, errCode, errMsg);
+            log.debug("6914变频器查询失败：失败帧标识：[{}],失败code:[{}],失败错误类型：[{}]", requestId, errCode, errMsg);
             respData.setCmdMark(cmdMark);
             respData.setRespCode(realCode);
         } else {
@@ -100,5 +91,20 @@ public class FreqConvertInterPrtcServiceImpl implements IQueryInterPrtclAnalysis
         respData.setFrameParaList(frameParaDataList);
         dataReciveService.interfaceQueryRecive(respData);
         return respData;
+    }
+
+    private void setFrameDataList(FrameRespData respData, byte[] bytes, String cmdMark, List<FrameParaData> frameParaDataList) {
+        //获取接口单元的参数信息
+        List<FrameParaInfo> frameParaInfos = BaseInfoContainer.getInterLinkParaList(respData.getDevType(), cmdMark);
+        for (FrameParaInfo param : frameParaInfos) {
+            if (Objects.nonNull(param)) {
+                //构造返回信息体 paraInfo
+                Integer startPoint = param.getParaStartPoint();
+                int byteLen = Integer.parseInt(param.getParaByteLen());
+                byte[] targetBytes = byteArrayCopy(bytes, startPoint, byteLen);
+                FrameParaData paraData = modemInterPrtcService.doGetParam(respData, targetBytes, param);
+                frameParaDataList.add(paraData);
+            }
+        }
     }
 }
