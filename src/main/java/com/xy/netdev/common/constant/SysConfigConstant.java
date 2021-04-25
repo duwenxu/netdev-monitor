@@ -426,4 +426,19 @@ public interface SysConfigConstant {
      * 设备类型--车载卫星天线
      */
     String  DEVICE_CAR_ANTENNA = "0020011";
+
+    /**
+     * 参数数据类型 - str
+     */
+    String  PARA_DATATYPE_STR = "0023004";
+
+    /**
+     * 参数数据类型 - float
+     */
+    String  PARA_DATATYPE_FLOAT = "0023008";
+
+    /**
+     * 参数数据类型 - double
+     */
+    String  PARA_DATATYPE_DOUBLE = "0023008";
 }
