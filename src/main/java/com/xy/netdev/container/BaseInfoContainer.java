@@ -1,6 +1,7 @@
 package com.xy.netdev.container;
 
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.xy.common.exception.BaseException;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.util.ParaHandlerUtil;
@@ -571,16 +572,16 @@ public class BaseInfoContainer {
             }
             frameParaInfo.setTransRule(paraInfo.getNdpaTransRule()); //内外转换值域
             //内外转换map
-            Map<String, String> mapIn = new HashMap<>();
-            Optional.ofNullable(JSONArray.parseArray(paraInfo.getNdpaTransRule(), Map.class)).orElse(new ArrayList<>()).forEach(value -> {
-                mapIn.put(value.get("inner").toString(), value.get("outer").toString());
-            });
-            frameParaInfo.setTransIntoOutMap(mapIn);    //数据内->外转换值域map
-            Map<String, String> mapOut = new HashMap<>();
-            mapIn.forEach((key, value) -> {
-                mapOut.put(value, key);
-            });
-            frameParaInfo.setTransOuttoInMap(mapOut);    //数据内->外转换值域map
+            if(DEV_STATUS_DEFAULT.equals(paraInfo.getNdpaAlertPara()) && paraInfo.getNdpaOutterStatus().equals(IS_DEFAULT_TRUE)){
+                //当字段类型为无且对外展示时
+                Map<String, String> mapIn = Optional.ofNullable(JSONObject.parseObject(paraInfo.getNdpaTransRule(), Map.class)).orElse(new HashMap());
+                frameParaInfo.setTransIntoOutMap(mapIn);    //数据内->外转换值域map
+                Map<String, String> mapOut = new HashMap<>();
+                mapIn.forEach((key, value) -> {
+                    mapOut.put(value, key);
+                });
+                frameParaInfo.setTransOuttoInMap(mapOut);    //数据内->外转换值域map
+            }
             frameParaInfo.setAlertPara(paraInfo.getNdpaAlertPara()); //状态上报类型
             frameParaInfo.setAlertLevel(paraInfo.getNdpaAlertLevel());
             frameParaInfo.setSubParaList(new ArrayList<>());
