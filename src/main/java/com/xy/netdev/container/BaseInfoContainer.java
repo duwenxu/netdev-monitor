@@ -570,6 +570,17 @@ public class BaseInfoContainer {
                 frameParaInfo.setInterfacePrtcl(prtclFormats.get(0));      //解析协议
             }
             frameParaInfo.setTransRule(paraInfo.getNdpaTransRule()); //内外转换值域
+            //内外转换map
+            Map<String, String> mapIn = new HashMap<>();
+            Optional.ofNullable(JSONArray.parseArray(paraInfo.getNdpaTransRule(), Map.class)).orElse(new ArrayList<>()).forEach(value -> {
+                mapIn.put(value.get("inner").toString(), value.get("outer").toString());
+            });
+            frameParaInfo.setTransIntoOutMap(mapIn);    //数据内->外转换值域map
+            Map<String, String> mapOut = new HashMap<>();
+            mapIn.forEach((key, value) -> {
+                mapOut.put(value, key);
+            });
+            frameParaInfo.setTransOuttoInMap(mapOut);    //数据内->外转换值域map
             frameParaInfo.setAlertPara(paraInfo.getNdpaAlertPara()); //状态上报类型
             frameParaInfo.setAlertLevel(paraInfo.getNdpaAlertLevel());
             frameParaInfo.setSubParaList(new ArrayList<>());
