@@ -21,8 +21,6 @@ import java.util.Map;
 @Service
 public class MsctInterExtService implements InterExtService {
 
-    /*多体制卫星信道终端*/
-    private static final String DEV_TYPE_MSCT = "0020015";
 
     @Autowired
     private IDevCmdSendService devCmdSendService;
