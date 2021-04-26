@@ -10,12 +10,12 @@ import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.bo.ParaViewInfo;
 import com.xy.netdev.monitor.entity.AlertInfo;
+import com.xy.netdev.monitor.service.IParaInfoService;
 import com.xy.netdev.rpt.bo.RptBodyDev;
 import com.xy.netdev.rpt.bo.RptHeadDev;
 import com.xy.netdev.rpt.enums.StationCtlRequestEnums;
 import com.xy.netdev.rpt.service.IDownRptPrtclAnalysisService;
 import com.xy.netdev.transit.impl.DevCmdSendService;
-import io.swagger.models.auth.In;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +23,12 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 import static com.xy.netdev.common.constant.SysConfigConstant.IS_DEFAULT_TRUE;
+import static com.xy.netdev.common.constant.SysConfigConstant.PARA_SHOW_MODEL;
 
 /**
  * 站控 参数查询/设置 实现
@@ -40,6 +42,10 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
 
     @Autowired
     private DevCmdSendService devCmdSendService;
+    /**上报  外发查询响应转换标识*/
+    private static final int IN_TO_OUT = 0;
+    /**上报  内发设置响应转换标识*/
+    private static final int OUT_TO_IN = 1;
 
     /**
      * 标识：查询所有参数
@@ -139,8 +145,12 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
                     log.error("线程+{}+休眠发生异常！", Thread.currentThread().getName());
                 }
                 String cmkMark = BaseInfoContainer.getParaInfoByNo(paraData.getDevType(), paraData.getParaNo()).getCmdMark();
+                ParaViewInfo devParaView = DevParaInfoContainer.getDevParaView(paraData.getDevNo(), paraData.getParaNo());
+                devParaView.setParaVal(paraData.getParaVal());
+                //外部设置值转换
+                String paramVal = transParamVal(devParaView, OUT_TO_IN);
                 //参数控制
-                devCmdSendService.paraCtrSend(rptBody.getDevNo(), cmkMark, paraData.getParaVal());
+                devCmdSendService.paraCtrSend(rptBody.getDevNo(), cmkMark, paramVal);
             }
         });
     }
@@ -210,9 +220,10 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
     }
 
     private FrameParaData frameParaDataWrapper(ParaViewInfo paraView) {
+        String paramVal = transParamVal(paraView,IN_TO_OUT);
         FrameParaData.FrameParaDataBuilder frameParaDataBuilder = FrameParaData.builder()
                 .paraNo(paraView.getParaNo())
-                .paraVal(paraView.getParaVal())
+                .paraVal(paramVal)
                 .devType(paraView.getDevType())
                 .devNo(paraView.getDevNo());
         if (StrUtil.isNotBlank(paraView.getParaByteLen())){
@@ -221,14 +232,33 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
         return frameParaDataBuilder.build();
     }
 
-    private FrameParaData frameParaDataWrapper(AlertInfo alertInfo) {
-        return FrameParaData.builder()
-                .paraNo(alertInfo.getNdpaNo())
-                .devType(alertInfo.getDevType())
-                .devNo(alertInfo.getDevNo())
-                .build();
+    /**
+     * 对下拉框显示且需要进行转换的参数进行转换(0:内转外 1:外转内)
+     *
+     * @param paraView 参数实体类
+     * @return 转换后的参数值
+     */
+    private String transParamVal(ParaViewInfo paraView,int sign) {
+        FrameParaInfo infoByNo = BaseInfoContainer.getParaInfoByNo(paraView.getDevType(), paraView.getParaNo());
+        String paramVal = paraView.getParaVal();
+        String showMode = paraView.getParahowMode();
+        String transRule = infoByNo.getTransRule();
+        /**参数为下拉框 且 存在转换规则*/
+        if (PARA_SHOW_MODEL.equals(showMode) && StringUtils.isNoneBlank(transRule)) {
+            if (sign == IN_TO_OUT){
+                Map<String, String> intoOutMap = infoByNo.getTransIntoOutMap();
+                if (intoOutMap.containsKey(paramVal)){
+                    paramVal = intoOutMap.get(paramVal);
+                }
+            }else {
+                Map<String, String> outInMap = infoByNo.getTransOuttoInMap();
+                if (outInMap.containsKey(paramVal)){
+                    paramVal = outInMap.get(paramVal);
+                }
+            }
+        }
+        return paramVal;
     }
-
 
     /**
      * 站控 参数告警查询

@@ -572,9 +572,13 @@ public class BaseInfoContainer {
             frameParaInfo.setTransRule(paraInfo.getNdpaTransRule()); //内外转换值域
             //内外转换map
             Map<String, String> mapIn = new HashMap<>();
-            Optional.ofNullable(JSONArray.parseArray(paraInfo.getNdpaTransRule(), Map.class)).orElse(new ArrayList<>()).forEach(value -> {
-                mapIn.put(value.get("inner").toString(), value.get("outer").toString());
-            });
+            try {
+                Optional.ofNullable(JSONArray.parseArray(paraInfo.getNdpaTransRule(), Map.class)).orElse(new ArrayList<>()).forEach(value -> {
+                    mapIn.put(value.get("inner").toString(), value.get("outer").toString());
+                });
+            } catch (Exception e) {
+                log.error("参数下拉值域解析错误：设备类型：{}，参数编号：{}",paraInfo.getDevType(),paraInfo.getNdpaNo());
+            }
             frameParaInfo.setTransIntoOutMap(mapIn);    //数据内->外转换值域map
             Map<String, String> mapOut = new HashMap<>();
             mapIn.forEach((key, value) -> {
