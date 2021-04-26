@@ -108,7 +108,7 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
         BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(devNo);
         Map<String,Object> maps = new HashMap<>();
         String subType = ByteUtils.make0HexStr(Optional.ofNullable(ParaHandlerUtil.generateEmptyStr(sysParamService.getParaRemark1(baseInfo.getDevSubType()))).orElse("01"));
-        maps.put("fileName","P["+ ByteUtils.make0HexStr(sysParamService.getParaRemark1(baseInfo.getDevType()))+"H"+subType+"H]_"+DateUtils.getDateYMDHMS());
+        maps.put("fileName","P["+ ByteUtils.make0HexStr(sysParamService.getParaRemark1(baseInfo.getDevType()))+subType+"]_"+DateUtils.getDateYMDHMS());
         maps.put("fileContext",generateDevModelFileMap(baseInfo).getBytes());
         return maps;
     }
@@ -125,7 +125,7 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
         /***********************增加dev节点********************************/
         Map<String, Object> devMap = new LinkedHashMap<>();
         //给dev节点增加属性值
-        devMap.put("-Types", ByteUtils.make0HexStr(ParaHandlerUtil.generateEmptyStr(sysParamService.getParaRemark1(baseInfo.getDevType()))));
+        devMap.put("-Types", ByteUtils.make0HexStr(sysParamService.getParaRemark1(baseInfo.getDevType())));
         devMap.put("-ver", ParaHandlerUtil.generateEmptyStr(baseInfo.getDevVer()));
         String subType = ByteUtils.make0HexStr(Optional.ofNullable(ParaHandlerUtil.generateEmptyStr(sysParamService.getParaRemark1(baseInfo.getDevSubType()))).orElse("01"));
         devMap.put("-subtype", subType);
