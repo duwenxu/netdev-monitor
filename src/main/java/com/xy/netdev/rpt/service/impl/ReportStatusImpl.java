@@ -1,13 +1,11 @@
 package com.xy.netdev.rpt.service.impl;
 
-import at.favre.lib.bytes.Bytes;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.monitor.bo.DevStatusInfo;
 import com.xy.netdev.rpt.bo.RptHeadDev;
 import com.xy.netdev.rpt.service.RequestService;
 import org.springframework.stereotype.Service;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +32,7 @@ public class ReportStatusImpl implements RequestService {
         List<DevStatusInfo> devStatusInfoList = (List<DevStatusInfo>) rptHeadDev.getParam();
         devStatusInfoList.forEach(devStatusInfo -> {
             //设备型号
-            tempList.add(ByteUtils.objToBytes(devStatusInfo.getDevTypeCode(), 1));
+            tempList.add(ByteUtils.objToBytes(devStatusInfo.getDevTypeCode(), 2));
             //设备编号
             tempList.add(ByteUtils.objToBytes(devStatusInfo.getDevNo(), 1));
             //设备状态

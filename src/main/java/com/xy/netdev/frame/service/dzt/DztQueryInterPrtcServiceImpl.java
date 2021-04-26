@@ -51,8 +51,6 @@ public class DztQueryInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
 
     /** 全查询响应命令字*/
     public static final String QUERY_RSP_ALL_MARK = "83";
-    /** 单查询命令字*/
-    public static final String QUERY_SINGLE_MARK = "84";
     /** 单查询响应命令字*/
     public static final String QUERY_RSP_SINGLE_MARK = "85";
     /**查询应答帧分隔符*/
@@ -62,7 +60,7 @@ public class DztQueryInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
     @Override
     public void queryPara(FrameReqData reqInfo) {
         //暂时是单个参数查询 cmdMark为单个参数的命令标识
-        if(reqInfo.getCmdMark().equals(QUERY_SINGLE_MARK)){
+        if(reqInfo.getCmdMark().equals(QUERY_RSP_SINGLE_MARK)){
             reqInfo.setParamBytes(new byte[]{(byte) 0x01});
         }
         socketMutualService.request(reqInfo, ProtocolRequestEnum.QUERY);

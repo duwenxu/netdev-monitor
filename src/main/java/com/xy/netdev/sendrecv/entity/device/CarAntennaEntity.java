@@ -17,29 +17,29 @@ import lombok.Setter;
 public class CarAntennaEntity {
 
     @ApiModelProperty("起始字节")
-    private Byte beginOffset;
+    private byte beginOffset;
 
     @ApiModelProperty("设备类型")
-    private Byte deviceType;
+    private byte deviceType;
 
     @ApiModelProperty("设备型号")
-    private Byte devSubType;
+    private byte devSubType;
 
     @ApiModelProperty("设备地址")
-    private Byte deviceAddress;
+    private byte[] deviceAddress;
 
     @ApiModelProperty("长度")
     private byte[] length;
 
     @ApiModelProperty("命令字")
-    private Byte cmd;
+    private byte cmd;
 
     @ApiModelProperty("参数体")
     private byte[] params;
 
     @ApiModelProperty("校验字")
-    private Byte check;
+    private byte check;
 
     @ApiModelProperty("结束符")
-    private Byte end;
+    private byte end;
 }
