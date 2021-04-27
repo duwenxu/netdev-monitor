@@ -67,6 +67,7 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
     @Override
     public FrameRespData unpack(SocketEntity socketEntity, FrameRespData frameRespData) {
         byte[] bytes = socketEntity.getBytes();
+        log.info("650调制解调器接收到响应帧：{}",HexUtil.encodeHexStr(bytes));
         if (bytes.length<=6){
             log.warn("650调制解调器数据长度错误, 未能正确解析, 数据体长度:{}, 数据体:{}", bytes.length, HexUtil.encodeHexStr(bytes));
             return frameRespData;

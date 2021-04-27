@@ -75,7 +75,11 @@ public class ModemInterPrtcServiceImpl implements IQueryInterPrtclAnalysisServic
                 if (StringUtils.isNotBlank(byteLen)) {
                     paraByteLen = Integer.parseInt(byteLen);
                     //获取参数字节
-                    targetBytes = byteArrayCopy(bytes, startPoint, paraByteLen);
+                    try {
+                        targetBytes = byteArrayCopy(bytes, startPoint, paraByteLen);
+                    } catch (Exception e) {
+                        log.error("参数编号：[{}]字节长度截取错误，起始位置：{}，字节长度：{}", param.getParaNo(),startPoint,paraByteLen);
+                    }
                 }
                 //获取单个参数的解析结果
                 FrameParaData paraData = doGetParam(respData, targetBytes, param);
