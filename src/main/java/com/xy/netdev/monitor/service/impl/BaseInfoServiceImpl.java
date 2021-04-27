@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.xy.common.exception.BaseException;
 import com.xy.common.util.DateUtils;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.util.ByteUtils;
@@ -154,7 +155,7 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
             typeMap.put("-name", ParaHandlerUtil.generateEmptyStr(sysParamService.getParaName(typeCode)));
             //当数据类型为字符串指定字符串的len
             if (PARA_DATA_TYPE_STR.equals(parainfo.getNdpaDatatype())) {
-                typeMap.put("-len", ParaHandlerUtil.generateEmptyStr(parainfo.getNdpaStrLen()));
+                typeMap.put("-len", Optional.ofNullable(ParaHandlerUtil.generateEmptyStr(parainfo.getNdpaStrLen())).orElse(sysParamService.getParaRemark1(DATA_TYPE_LEN)));
             }
             paraMap.put("type", typeMap);
             if (PARA_SHOW_MODEL.equals(parainfo.getNdpaShowMode())) {
@@ -191,13 +192,18 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
                 /***********************增加range节点********************************/
                 if (!StringUtils.isBlank(parainfo.getNdpaValMax())) {
                     Map<String, Object> rangeMap = new LinkedHashMap<>();
-                    rangeMap.put("-name", sysParamService.getParaRemark2(parainfo.getNdpaDatatype()));
-                    rangeMap.put("-down", ParaHandlerUtil.generateEmptyStr(parainfo.getNdpaValMin()));
-                    rangeMap.put("-up", ParaHandlerUtil.generateEmptyStr(parainfo.getNdpaValMax()));
-                    rangeMap.put("-step", ParaHandlerUtil.generateEmptyStr(parainfo.getNdpaValStep()));
-                    paraMap.put("range", new LinkedHashMap() {{
-                        put("IRange", rangeMap);
-                    }});
+                    String name = sysParamService.getParaRemark2(parainfo.getNdpaDatatype());
+                    if(StringUtils.isBlank(name)){
+                        throw new BaseException("参数[]数据类型配置有误!");
+                    }else{
+                        rangeMap.put("-name", name);
+                        rangeMap.put("-down", ParaHandlerUtil.generateEmptyStr(parainfo.getNdpaValMin()));
+                        rangeMap.put("-up", ParaHandlerUtil.generateEmptyStr(parainfo.getNdpaValMax()));
+                        rangeMap.put("-step", ParaHandlerUtil.generateEmptyStr(parainfo.getNdpaValStep()));
+                        paraMap.put("range", new LinkedHashMap() {{
+                            put("IRange", rangeMap);
+                        }});
+                    }
                 }
             }
             paraList.add(paraMap);

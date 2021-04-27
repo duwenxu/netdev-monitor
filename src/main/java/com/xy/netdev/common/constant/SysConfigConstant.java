@@ -420,7 +420,7 @@ public interface SysConfigConstant {
     /**
      * 参数数据类型--str
      */
-    String PARA_DATA_TYPE_STR = "0023004";
+    String  PARA_DATA_TYPE_STR = "0023004";
 
     /**
      * 参数数据类型 - float
@@ -441,5 +441,10 @@ public interface SysConfigConstant {
      * 设备类型--车载卫星天线
      */
     String  DEVICE_CAR_ANTENNA = "0020011";
+
+    /**
+     * 数据类型--str默认长度
+     */
+    String  DATA_TYPE_LEN = "0100009";
 
 }
