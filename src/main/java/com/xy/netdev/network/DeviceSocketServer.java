@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -61,8 +62,7 @@ public class DeviceSocketServer {
         devInfos.stream()
                 .filter(baseInfo -> baseInfo.getDevNetPtcl() != null)
                 .filter(baseInfo -> baseInfo.getDevPort() != null)
-                .filter(baseInfo -> baseInfo.getDevLocalAddr() != null)
-                .filter(baseInfo -> baseInfo.getDevPort() != null)
+//                .filter(baseInfo -> baseInfo.getDevLocalAddr() != null)
                 .forEach(baseInfo -> {
             if (SysConfigConstant.UDP.equals(baseInfo.getDevNetPtcl())) {
                 udpPort.add(Integer.parseInt(baseInfo.getDevPort()));
@@ -87,6 +87,7 @@ public class DeviceSocketServer {
         if (list.isEmpty()){
             return;
         }
+        ExecutorService executorService = ThreadUtil.newExecutor(list.size());
         list.forEach(baseInfo -> {
             int port = Integer.parseInt(baseInfo.getDevPort());
             String localportStr = baseInfo.getDevLocalPort();
@@ -96,6 +97,7 @@ public class DeviceSocketServer {
             }
             int finalLocalPort = localPort;
             ThreadUtil.execute(() -> new NettyTcpClient(baseInfo.getDevIpAddr(), port, finalLocalPort, new SimpleTcpMessage()).run());
+
         });
     }
 }

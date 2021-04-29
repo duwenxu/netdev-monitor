@@ -1,6 +1,5 @@
 package com.xy.netdev.network.server;
 
-import com.xy.netdev.common.util.BeanFactoryUtil;
 import com.xy.netdev.network.retry.RetryPolicy;
 import com.xy.netdev.network.retry.RetryPolicyImpl;
 import io.netty.bootstrap.Bootstrap;
@@ -12,9 +11,6 @@ import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.timeout.IdleState;
-import io.netty.handler.timeout.IdleStateEvent;
-import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.concurrent.FastThreadLocal;
 import io.netty.util.concurrent.GenericFutureListener;
 import lombok.SneakyThrows;
@@ -65,7 +61,8 @@ public class NettyTcpClient implements Runnable {
     @SneakyThrows
     public void doConnect() {
         Bootstrap bootstrap = setBootstrap();
-        ChannelFuture channelFuture = bootstrap.connect(new InetSocketAddress(host, port), new InetSocketAddress(localPort))
+        ChannelFuture channelFuture = bootstrap.connect(new InetSocketAddress(host, port),
+                new InetSocketAddress(localPort)).sync()
                 .addListener((GenericFutureListener<ChannelFuture>) this::isSuccess);
         channelFuture.channel().closeFuture().await();
     }
@@ -81,7 +78,6 @@ public class NettyTcpClient implements Runnable {
                 .channel(Epoll.isAvailable()? EpollSocketChannel.class: NioSocketChannel.class)
                 .option(ChannelOption.SO_KEEPALIVE, true)
                 .option(ChannelOption.SO_REUSEADDR, true)
-//                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 1000)
                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                 .handler(channelInitializer());
         return bootstrap;
@@ -96,7 +92,6 @@ public class NettyTcpClient implements Runnable {
             @Override
             protected void initChannel(SocketChannel ch) throws Exception {
                 ChannelPipeline pipeline = ch.pipeline();
-//                pipeline.addFirst(new IdleStateHandler(2, 2, 2, TimeUnit.SECONDS));
                 pipeline.addLast(new ChannelInboundHandlerAdapter() {
                     @Override
                     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -109,14 +104,14 @@ public class NettyTcpClient implements Runnable {
                         if (retryCount.get() == 0) {
                             ctx.disconnect();
                         }
-//                        if (retryPolicy.allowRetry(retryCount)) {
-//                            long sleepTimeMs = retryPolicy.getSleepTimeMs(retryCount);
-//                            log.warn("服务端强制断开连接, 在{}ms之后准备尝试重连!", sleepTimeMs);
-//                            HOST_CHANNEL_MAP.remove(localPort);
-//                            EventLoop eventLoop = ctx.channel().eventLoop();
-//                            eventLoop.schedule(NettyTcpClient.this::doConnect, sleepTimeMs, TimeUnit.MILLISECONDS);
-//                            super.channelInactive(ctx);
-//                        }
+                        if (retryPolicy.allowRetry(retryCount)) {
+                            long sleepTimeMs = retryPolicy.getSleepTimeMs(retryCount);
+                            log.warn("服务端强制断开连接, 在{}ms之后准备尝试重连!", sleepTimeMs);
+                            HOST_CHANNEL_MAP.remove(localPort);
+                            EventLoop eventLoop = ctx.channel().eventLoop();
+                            eventLoop.schedule(NettyTcpClient.this::doConnect, sleepTimeMs, TimeUnit.MILLISECONDS);
+                            super.channelInactive(ctx);
+                        }
 
                         //现在处于不活动状态，调用ChannelInboundHandler的channelInactive
                         ctx.fireChannelInactive();
@@ -144,24 +139,19 @@ public class NettyTcpClient implements Runnable {
      * 是否连接成功
      */
     private void isSuccess(ChannelFuture future) {
-//        if (retryCount.get() == retryPolicy.getMaxRetries()){
-//            tcpClose();
-//            return;
-//        }
+        if (retryCount.get() == retryPolicy.getMaxRetries()){
+            tcpClose();
+            return;
+        }
         if (future.isSuccess()) {
             log.info("TCP连接成功,本地端口:{} 连接地址{}:{}", localPort, host, port);
         }
-        if (!future.isSuccess() ){
+        if (!future.isSuccess() && retryPolicy.allowRetry(retryCount)){
+            long sleepTimeMs = retryPolicy.getSleepTimeMs(retryCount);
             final EventLoop eventLoop = future.channel().eventLoop();
-            log.warn("与服务端{}:{}连接失败!{}m之后准备尝试重连!, 重连次数{}", host, port, 1000, retryCount.get());
-            eventLoop.schedule(this::doConnect, 1000, TimeUnit.MILLISECONDS);
+            log.warn("与服务端{}:{}连接失败!{}m之后准备尝试重连!, 重连次数{}", host, port, sleepTimeMs, retryCount.get());
+            eventLoop.schedule(this::doConnect, sleepTimeMs, TimeUnit.MILLISECONDS);
         }
-//        if (!future.isSuccess() && retryPolicy.allowRetry(retryCount)){
-//            long sleepTimeMs = retryPolicy.getSleepTimeMs(retryCount);
-//            final EventLoop eventLoop = future.channel().eventLoop();
-//            log.warn("与服务端{}:{}连接失败!{}m之后准备尝试重连!, 重连次数{}", host, port, sleepTimeMs, retryCount.get());
-//            eventLoop.schedule(this::doConnect, sleepTimeMs, TimeUnit.MILLISECONDS);
-//        }
     }
 
 }

@@ -37,8 +37,6 @@ public class CzpInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
     @Autowired
     private SocketMutualService socketMutualService;
     @Autowired
-    private ISysParamService sysParamService;
-    @Autowired
     private IDataReciveService dataReciveService;
 
     /**
@@ -58,7 +56,6 @@ public class CzpInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
     @Override
     public FrameRespData queryParaResponse(FrameRespData respData) {
         byte[] bytes = respData.getParamBytes();
-        String bytesData = HexUtil.encodeHexStr(respData.getParamBytes());
         //全查询：按容器中的参数顺序解析
         String devType = respData.getDevType();
         List<FrameParaInfo> frameParaInfos = BaseInfoContainer.getInterLinkParaList(devType,respData.getCmdMark());
@@ -81,18 +78,7 @@ public class CzpInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
                     .devNo(respData.getDevNo())
                     .paraNo(currentPara.getParaNo())
                     .build();
-            //根据是否为String类型采取不同的处理方式
-            boolean isStr = MonitorConstants.STRING_CODE.equals(currentPara.getDataType());
-            if (isStr){
-                frameParaData.setParaVal(paraValueStr.toString());
-            }else {
-                //单个参数值转换
-                frameParaData.setParaVal(byteToNumber(paraValBytes, 0,
-                        Integer.parseInt(currentPara.getParaByteLen())
-                        ,isUnsigned(sysParamService, currentPara.getDataType())
-                        ,isFloat(sysParamService, currentPara.getDataType())
-                ).toString());
-            }
+            frameParaData.setParaVal(paraValueStr.toString());
             frameParaDataList.add(frameParaData);
         }
         respData.setFrameParaList(frameParaDataList);

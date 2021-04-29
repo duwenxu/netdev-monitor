@@ -87,6 +87,8 @@ public class DelOperCronTask implements SchedulingConfigurer {
             String dateTimeOper = DateUtils.Millisecond2DateStr(System.currentTimeMillis()-logIntervalTime*24*60*60*1000);
             queryWrapperOper.le("LOG_TIME",dateTimeOper);
             operLogService.remove(queryWrapperOper);
+            //更新主键：防止自增带来的主键不够用问题
+            operLogService.updateOperId();
             //计算新的cron表达式
             long time = System.currentTimeMillis()+logIntervalTime*24*60*60*1000;
             cron = CronUtils.getCron(time);
