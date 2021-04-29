@@ -24,7 +24,7 @@ public class NettyUdpTest {
 
     private static final Bootstrap bootstrap = new Bootstrap();
     /**目的地address*/
-    private static final InetSocketAddress DEST_ADDRESS = new InetSocketAddress("172.21.2.100", 5000);
+    private static final InetSocketAddress DEST_ADDRESS = new InetSocketAddress("172.21.6.207", 5000);
     private static final InetSocketAddress SOURCE_ADDRESS = new InetSocketAddress("172.21.2.100", 8070);
     /**发送频率*/
     private static final int sendInterval = 1000;
