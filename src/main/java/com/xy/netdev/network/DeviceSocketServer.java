@@ -89,7 +89,7 @@ public class DeviceSocketServer {
         ExecutorService executorService = ThreadUtil.newExecutor(list.size());
         list.forEach(baseInfo -> {
             int port = Integer.parseInt(baseInfo.getDevPort());
-            int localPort = Integer.parseInt(baseInfo.getLocalPort());
+            int localPort = 0;
             if (localPort == 0){
                 localPort = port;
             }

@@ -68,8 +68,6 @@ public class BaseInfo extends Model<BaseInfo> {
     @TableField(value = "DEV_PORT")
     private String devPort;
 
-    private String localPort;
-
     @ApiModelProperty(value = "上级设备编号")
     @TableField(value = "DEV_PARENT_NO")
     private String devParentNo;
