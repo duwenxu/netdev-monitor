@@ -167,6 +167,10 @@ public interface SysConfigConstant {
      */
     String  DEV_DEPLOY_GROUP="0031004";
     /***
+     * 设备部署类型--网络设备   0031005
+     */
+    String  DEV_NETWORK_GROUP="0031005";
+    /***
      * 设备使用状态--在用   0032001
      */
     String  DEV_USE_STATUS_INUSE="0032001";
