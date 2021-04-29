@@ -81,7 +81,10 @@ public class DevLogInfoContainer {
     public synchronized static void addDevLog(OperLog devLog) {
         String logTime = DateTools.getDateTime();
         devLog.setLogTime(logTime);
-        devLogInfoMap.get(devLog.getDevNo()).put(logTime,devLog);
+        String devNo = devLog.getDevNo();
+        if (devLogInfoMap.containsKey(devNo)){
+            devLogInfoMap.get(devNo).put(logTime,devLog);
+        }
         iOperLogService.save(devLog);
     }
 

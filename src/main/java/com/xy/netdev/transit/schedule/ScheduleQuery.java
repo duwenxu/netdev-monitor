@@ -1,8 +1,11 @@
 package com.xy.netdev.transit.schedule;
 
+import cn.hutool.core.net.NetUtil;
+import cn.hutool.core.thread.ThreadUtil;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.container.DevLogInfoContainer;
+import com.xy.netdev.container.DevStatusContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
@@ -37,12 +40,13 @@ public class ScheduleQuery  implements ApplicationRunner{
 
     @Autowired
     private IDevCmdSendService devCmdSendService;
+    private static String PING_THREAD_NAME ="basePingThread";
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
         log.info("-----设备状态定时查询开始...");
         try {
-//            doScheduleQuery();
+            doScheduleQuery();
         } catch (Exception e) {
             log.error("设备状态定时查询异常...", e);
         }
@@ -52,12 +56,13 @@ public class ScheduleQuery  implements ApplicationRunner{
      * 设备参数定时查询
      */
     public void doScheduleQuery() {
-        List<BaseInfo> baseInfos = ScheduleQueryHelper.getAvailableBases().stream().filter(base -> base.getDevType().equals("0020017")||base.getDevType().equals("0020018")).collect(Collectors.toList());
-//        List<BaseInfo> baseInfos = ScheduleQueryHelper.getAvailableBases();
+        List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(base -> base.getDevType().equals("0020017")||base.getDevType().equals("0020018")).collect(Collectors.toList());
+//        List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases();
+        List<BaseInfo> pingBaseInfo = ScheduleQueryHelper.getAvailableBases();
 
         //单个设备所有查询对象的封装list映射
         Map<BaseInfo, List<FrameReqData>> scheduleReqBodyMap = new ConcurrentHashMap<>(20);
-        baseInfos.forEach(base -> {
+        queryBaseInfo.forEach(base -> {
             //获取所有可读参数
             List<FrameParaInfo> parasByDevType = BaseInfoContainer.getParasByDevType(base.getDevType());
             List<FrameParaInfo> readParasByDevType = parasByDevType.stream().parallel()
@@ -113,6 +118,27 @@ public class ScheduleQuery  implements ApplicationRunner{
         });
         //执行查询任务
         execQueryTask(scheduleReqBodyMap);
+        execBasePing(pingBaseInfo);
+    }
+
+    /**
+     * 设备通信检测
+     * @param baseInfos 设备信息
+     */
+    private void execBasePing(List<BaseInfo> baseInfos) {
+        ThreadUtil.newSingleExecutor().submit(()->{
+            Thread.currentThread().setName(PING_THREAD_NAME);
+            while (true){
+                Thread.sleep(1000);
+                baseInfos.forEach(baseInfo->{
+                    //默认超时时间 200
+                    boolean ping = NetUtil.ping(baseInfo.getDevIpAddr());
+                    log.debug("设备：{}Ping地址：[{}]成功：{}", baseInfo.getDevName(),baseInfo.getDevIpAddr(),ping);
+                    String isActive = ping ? "0" : "1";
+                    DevStatusContainer.setInterrupt(baseInfo.getDevNo(), isActive);
+                });
+            }
+        });
     }
 
     /**
@@ -126,7 +152,6 @@ public class ScheduleQuery  implements ApplicationRunner{
             long interval = Long.parseLong(base.getDevIntervalTime() + "");
             ScheduleQueryTask scheduleReportTask = new ScheduleQueryTask(queryList, interval, commonInterval, devCmdSendService);
             Thread thread = new Thread(scheduleReportTask, base.getDevName() + "-scheduleQuery-thread");
-//            thread.setDaemon(true);
             thread.start();
         });
     }

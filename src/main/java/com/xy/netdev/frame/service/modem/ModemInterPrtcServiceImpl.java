@@ -56,7 +56,7 @@ public class ModemInterPrtcServiceImpl implements IQueryInterPrtclAnalysisServic
     public FrameRespData queryParaResponse(FrameRespData respData) {
         byte[] bytes = respData.getParamBytes();
         if (ObjectUtil.isNull(bytes)) {
-            log.warn("2300调制解调器查询响应异常, 未获取到数据体, 信息:{}", JSON.toJSONString(respData));
+            log.warn("650调制解调器查询响应异常, 未获取到数据体, 信息:{}", JSON.toJSONString(respData));
             return respData;
         }
         //获取接口单元的参数信息
