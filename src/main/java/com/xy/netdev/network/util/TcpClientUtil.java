@@ -52,8 +52,8 @@ public class TcpClientUtil {
         channel.write(BufferUtil.createUtf8(response));
     }
 
-    public static void client(){
-        NioClient client = new NioClient("127.0.0.1", 8088);
+    public static void client(String ip){
+        NioClient client = new NioClient(ip, 8081);
         client.setChannelHandler((sc)->{
             ByteBuffer readBuffer = ByteBuffer.allocate(1024);
             //从channel读数据到缓冲区
@@ -75,7 +75,7 @@ public class TcpClientUtil {
         });
             client.listen();
        // 在控制台向服务器端发送数据
-                Console.log("请输入发送的消息：");
+                Console.log(""+ip+"：8081连接成功，请输入发送的消息：");
                 Scanner scanner = new Scanner(System.in);
                 while (scanner.hasNextLine()) {
                     String request = scanner.nextLine();
@@ -88,6 +88,10 @@ public class TcpClientUtil {
 
     public static void main(String[] args) {
         ThreadUtil.execute(TcpClientUtil::server);
-        client();
+        ThreadUtil.execute(()->client("192.168.1.113"));
+        ThreadUtil.execute(()->client("192.168.1.116"));
+        ThreadUtil.execute(()->client("192.168.1.119"));
+        client("192.168.1.122");
     }
+
 }
