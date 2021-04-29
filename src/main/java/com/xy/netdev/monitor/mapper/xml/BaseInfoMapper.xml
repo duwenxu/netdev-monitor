@@ -12,6 +12,7 @@
         <result column="DEV_VER" property="devVer" />
         <result column="DEV_IP_ADDR" property="devIpAddr" />
         <result column="DEV_LOCAL_ADDR" property="devLocalAddr" />
+        <result column="DEV_LOCAL_PORT" property="devLocalPort" />
         <result column="DEV_PORT" property="devPort" />
         <result column="DEV_PARENT_NO" property="devParentNo" />
         <result column="DEV_INTERVAL_TIME" property="devIntervalTime" />
@@ -29,7 +30,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        DEV_NO, DEV_TYPE, DEV_NAME, DEV_STATUS, DEV_CORP, DEV_VER, DEV_IP_ADDR, DEV_LOCAL_ADDR, DEV_PORT, DEV_PARENT_NO, DEV_INTERVAL_TIME,DEV_NET_PTCL,
+        DEV_NO, DEV_TYPE, DEV_NAME, DEV_STATUS, DEV_CORP, DEV_VER, DEV_IP_ADDR, DEV_LOCAL_ADDR, DEV_LOCAL_PORT,DEV_PORT, DEV_PARENT_NO, DEV_INTERVAL_TIME,DEV_NET_PTCL,
         DEV_DEPLOY_TYPE,DEV_USE_STATUS,DEV_SUB_TYPE,DEV_REMARK1_DESC,DEV_REMARK1_DATA,DEV_REMARK2_DESC,DEV_REMARK2_DATA,DEV_REMARK3_DESC,DEV_REMARK3_DATA
     </sql>
 
