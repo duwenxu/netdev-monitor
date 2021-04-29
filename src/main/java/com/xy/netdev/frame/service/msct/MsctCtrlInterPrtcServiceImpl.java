@@ -1,30 +1,42 @@
 package com.xy.netdev.frame.service.msct;
 
 import cn.hutool.core.util.HexUtil;
+import com.alibaba.fastjson.JSON;
 import com.xy.common.exception.BaseException;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
+import com.xy.netdev.common.util.BeanFactoryUtil;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
+import com.xy.netdev.frame.bo.ExtParamConf;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.service.ICtrlInterPrtclAnalysisService;
+import com.xy.netdev.frame.service.ParamCodec;
 import com.xy.netdev.frame.service.SocketMutualService;
+import com.xy.netdev.frame.service.codec.DirectParamCodec;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
+import com.xy.netdev.monitor.constant.MonitorConstants;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.xy.netdev.common.util.ByteUtils.byteToNumber;
+import static com.xy.netdev.frame.service.gf.GfPrtcServiceImpl.isFloat;
+import static com.xy.netdev.frame.service.gf.GfPrtcServiceImpl.isUnsigned;
 
 /**
  * @author luo
  * @date 2021/4/21
  */
+@Service
 public class MsctCtrlInterPrtcServiceImpl implements ICtrlInterPrtclAnalysisService {
 
     @Autowired
@@ -44,14 +56,25 @@ public class MsctCtrlInterPrtcServiceImpl implements ICtrlInterPrtclAnalysisServ
                 FrameParaInfo param = BaseInfoContainer.getParaInfoByNo(reqData.getDevType(),frameParaData.getParaNo());
                 if(paraId.equals(param.getParaId())){
                     String value = frameParaData.getParaVal();
-                    String desc = param.getNdpaRemark2Desc();
-                    String data = param.getNdpaRemark3Data();
-                    if(StringUtils.isNotEmpty(desc) && desc.equals("倍数") && StringUtils.isNotEmpty(data)){
-                        Integer multiple = Integer.parseInt(data);
-                        float temp = Float.parseFloat(value)*multiple;
-                        value = String.valueOf(temp);
+                    boolean isStr = MonitorConstants.STRING_CODE.equals(param.getDataType());
+                    if (isStr) {
+                        String configClass = param.getNdpaRemark2Data();
+                        if(StringUtils.isNotBlank(configClass)) {
+                            ParamCodec handler = BeanFactoryUtil.getBean(configClass);
+                            byteList.add(handler.encode(value));
+                        }else{
+                            byteList.add(value.getBytes());
+                        }
+                    } else {
+                        String desc1 = param.getNdpaRemark1Desc();
+                        String data1 = param.getNdpaRemark1Data();
+                        if(StringUtils.isNotEmpty(desc1) && desc1.equals("倍数") && StringUtils.isNotEmpty(data1)){
+                            Integer multiple = Integer.parseInt(data1);
+                            float temp = Float.parseFloat(value)*multiple;
+                            value = String.valueOf(temp);
+                        }
+                        byteList.add(ByteUtils.objToBytes(value, frameParaData.getLen(), isFloat(sysParamService, param.getDataType())));
                     }
-                    byteList.add(ByteUtils.objToBytes(value,frameParaData.getLen()));
                 }
             }
         }
@@ -73,5 +96,8 @@ public class MsctCtrlInterPrtcServiceImpl implements ICtrlInterPrtclAnalysisServ
         }
         return respData;
     }
+
+
+
 
 }

@@ -78,18 +78,7 @@ public class PpjcInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService
                     .devNo(respData.getDevNo())
                     .paraNo(currentPara.getParaNo())
                     .build();
-            //根据是否为String类型采取不同的处理方式
-            boolean isStr = MonitorConstants.STRING_CODE.equals(currentPara.getDataType());
-            if (isStr){
-                frameParaData.setParaVal(paraValueStr);
-            }else {
-                //单个参数值转换
-                frameParaData.setParaVal(byteToNumber(paraValBytes, 0,
-                        Integer.parseInt(currentPara.getParaByteLen())
-                        ,isUnsigned(sysParamService, currentPara.getDataType())
-                        ,isFloat(sysParamService, currentPara.getDataType())
-                ).toString());
-            }
+            frameParaData.setParaVal(paraValueStr);
             frameParaDataList.add(frameParaData);
         }
         respData.setFrameParaList(frameParaDataList);

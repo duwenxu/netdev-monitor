@@ -45,7 +45,7 @@ public class NetdevApplicationTest {
 //    状态上报：http://localhost:8080/rpt/test/status?devNo=8&type=1&status=0
 //    告警上报：http://localhost:8080/rpt/test/warning
 
-    private static final String TEST_ADDRESS = "127.0.0.1";
+    private static final String TEST_ADDRESS = "172.21.2.100";
 
     private static final Integer TEST_PORT = 9900;
 
@@ -108,7 +108,14 @@ public class NetdevApplicationTest {
         byte[] bytes = ByteUtils.listToBytes(list);
         byte[] pack = pack(0x0003, bytes);
         System.out.println(HexUtil.encodeHexStr(pack));
-        UdpClientUtil.send(TEST_ADDRESS, TEST_PORT, pack);
+        while (true){
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            UdpClientUtil.send(TEST_ADDRESS, TEST_PORT, pack);
+        }
     }
 
     /**

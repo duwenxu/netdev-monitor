@@ -21,8 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.xy.netdev.common.constant.SysConfigConstant.OPREATE_CONTROL_RESP;
-import static com.xy.netdev.common.constant.SysConfigConstant.OPREATE_QUERY_RESP;
+import static com.xy.netdev.common.constant.SysConfigConstant.*;
 import static com.xy.netdev.common.util.ByteUtils.*;
 
 
@@ -34,7 +33,7 @@ import static com.xy.netdev.common.util.ByteUtils.*;
  */
 @Component
 @Slf4j
-public class DownFreqConverter extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData> {
+public class FreqConverter extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData> {
 
     /**
      * 请求信息帧尾
@@ -64,6 +63,7 @@ public class DownFreqConverter extends AbsDeviceSocketHandler<SocketEntity, Fram
     @Override
     public FrameRespData unpack(SocketEntity socketEntity, FrameRespData frameRespData) {
         byte[] bytes = socketEntity.getBytes();
+        log.info("接收到6914变频器查询响应帧：设备类型：[{}]，响应帧内容：[{}]",frameRespData.getDevType(),HexUtil.encodeHexStr(bytes));
         //转小端
 //        Bytes.reverse(bytes);
         //帧长
@@ -115,7 +115,12 @@ public class DownFreqConverter extends AbsDeviceSocketHandler<SocketEntity, Fram
         entity.setCheck(checkSum);
         byte[] pack = pack(entity);
         //反转小端
-        Bytes.reverse(pack);
+//        Bytes.reverse(pack);
+        if (OPREATE_QUERY.equals(frameReqData.getOperType())){
+            log.info("6914变频器发送查询帧：[{}]",HexUtil.encodeHexStr(pack));
+        }else {
+            log.info("6914变频器发送控制帧：[{}]",HexUtil.encodeHexStr(pack));
+        }
         return pack;
     }
 

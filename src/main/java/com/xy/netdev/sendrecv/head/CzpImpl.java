@@ -71,7 +71,7 @@ public class CzpImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, 
     @Override
     public FrameRespData unpack(SocketEntity socketEntity, FrameRespData frameRespData) {
         byte[] bytes = socketEntity.getBytes();
-        if (bytes.length <= 10) {
+        if (bytes.length < 10) {
             log.warn("C中频切换矩阵响应数据长度错误, 未能正确解析, 数据体长度:{}, 数据体:{}", bytes.length, HexUtil.encodeHexStr(bytes));
             return frameRespData;
         }

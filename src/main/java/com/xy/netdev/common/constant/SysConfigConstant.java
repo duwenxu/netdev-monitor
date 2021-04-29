@@ -383,6 +383,11 @@ public interface SysConfigConstant {
     String CONTROL_FAIL = "0061001";
 
     /**
+     * 6914变频器 应答帧错误类型 父CODE
+     */
+    String ERR_PARENT_ID_6914 = "0063";
+
+    /**
      * 参数上报设备状态类型--无
      */
     String PARA_ALERT_TYPE_NULL = "0029006";
@@ -410,7 +415,22 @@ public interface SysConfigConstant {
     /**
      * 参数数据类型--str
      */
-    String PARA_DATA_TYPE_STR = "0023004";
+    String PARA_DATA_TYPE_INT = "0023002";
+
+    /**
+     * 参数数据类型--str
+     */
+    String  PARA_DATA_TYPE_STR = "0023004";
+
+    /**
+     * 参数数据类型 - float
+     */
+    String  PARA_DATA_TYPE_FLOAT = "0023008";
+
+    /**
+     * 参数数据类型 - double
+     */
+    String  PARA_DATA_TYPE_DOUBLE = "0023009";
 
     /**
      * 显示模式--下拉框
@@ -421,4 +441,10 @@ public interface SysConfigConstant {
      * 设备类型--车载卫星天线
      */
     String  DEVICE_CAR_ANTENNA = "0020011";
+
+    /**
+     * 数据类型--str默认长度
+     */
+    String  DATA_TYPE_LEN = "0100009";
+
 }

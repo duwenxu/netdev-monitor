@@ -34,7 +34,7 @@ public class Hex2DecParamCodec implements ParamCodec {
     /**
      *
      * @param value   编码值
-     * @param objects 可能需要的其他传入参数  参数一：保留几位小数   参数二：字节长度，转换为几位16进制
+     * @param objects 可能需要的其他传入参数  参数一：保留几位小数   参数二：字节长度，转换为几位16进制(默认为4转换为8位16进制)
      * @return
      */
     @Override

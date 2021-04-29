@@ -5,14 +5,13 @@ import com.alibaba.fastjson.JSONArray;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.ParaHandlerUtil;
+import com.xy.netdev.container.paraext.ParaExtServiceFactory;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.monitor.bo.ParaSpinnerInfo;
 import com.xy.netdev.monitor.bo.ParaViewInfo;
 import com.xy.netdev.monitor.entity.ParaInfo;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.BeanUtils;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -45,6 +44,7 @@ public class DevParaInfoContainer {
         BaseInfoContainer.getDevNos().forEach(devNo->{
             String devType = BaseInfoContainer.getDevInfoByNo(devNo).getDevType();
             devParaMap.put(devNo,assembleViewList(devNo,paraMapByDevType.get(devType)));
+            ParaExtServiceFactory.genParaExtService(devType).setCacheDevParaViewInfo(devNo);
         });
         //todo test
         ParaViewInfo paraViewInfo1 = new ParaViewInfo();
@@ -108,6 +108,7 @@ public class DevParaInfoContainer {
         viewInfo.setParaValStep(paraInfo.getNdpaValStep());
         viewInfo.setParaSpellFmt(paraInfo.getNdpaSpellFmt());
         viewInfo.setParaViewFmt(paraInfo.getNdpaViewFmt());
+        viewInfo.setParaCmplexLevel(paraInfo.getNdpaCmplexLevel());
         viewInfo.setParaVal(paraInfo.getNdpaDefaultVal());
         viewInfo.setSubParaLinkType(paraInfo.getNdpaLinkType());
         viewInfo.setSubParaLinkCode(paraInfo.getNdpaLinkCode());
@@ -128,9 +129,18 @@ public class DevParaInfoContainer {
      * @return  设备显示参数列表
      */
     public static List<ParaViewInfo>   getDevParaViewList(String devNo){
-        return new ArrayList(devParaMap.get(devNo).values());
+        String devType = BaseInfoContainer.getDevInfoByNo(devNo).getDevType();
+        return ParaExtServiceFactory.genParaExtService(devType).getCacheDevParaViewInfo(devNo);
     }
 
+    /**
+     * @功能：根据设备显示参数列表
+     * @param devNo        设备编号
+     * @return  设备显示参数列表
+     */
+    public static List<ParaViewInfo>   getDevParaExtViewList(String devNo){
+        return new ArrayList(devParaMap.get(devNo).values());
+    }
     /**
      * @功能：根据设备编号和参数编号 返回参数显示信息
      * @param devNo        设备编号

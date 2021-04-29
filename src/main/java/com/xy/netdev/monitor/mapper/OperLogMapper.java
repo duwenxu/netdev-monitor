@@ -11,4 +11,9 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface OperLogMapper extends BaseMapper<OperLog> {
 
+    /**
+     * 更新主键
+     */
+    void updateOperId();
+
 }

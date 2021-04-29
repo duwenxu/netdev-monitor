@@ -41,4 +41,12 @@ public class OperLogServiceImpl extends ServiceImpl<OperLogMapper, OperLog> impl
         queryWrapper.orderByDesc("LOG_TIME");
         return this.baseMapper.selectPage(page,queryWrapper);
     }
+
+    /**
+     * 更新主键
+     */
+    @Override
+    public void updateOperId() {
+        this.baseMapper.updateOperId();
+    }
 }
