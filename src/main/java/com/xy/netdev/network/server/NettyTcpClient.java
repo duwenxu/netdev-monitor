@@ -47,7 +47,7 @@ public class NettyTcpClient implements Runnable {
             return 0;
         }
     };
-    private final RetryPolicy retryPolicy = new RetryPolicyImpl();
+//    private final RetryPolicy retryPolicy = new RetryPolicyImpl();
 
     private final MultithreadEventLoopGroup eventLoopGroup = Epoll.isAvailable() ? new EpollEventLoopGroup(1) :
             new NioEventLoopGroup(1);
@@ -66,6 +66,7 @@ public class NettyTcpClient implements Runnable {
                 .addListener((GenericFutureListener<ChannelFuture>) this::isSuccess);
         channelFuture.channel().closeFuture().await();
     }
+
 
     /**
      * Bootstrap set

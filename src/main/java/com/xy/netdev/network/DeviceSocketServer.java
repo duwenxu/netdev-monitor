@@ -11,6 +11,7 @@ import com.xy.netdev.network.server.NettyTcpClient;
 import com.xy.netdev.network.server.NettyUdp;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -89,13 +90,14 @@ public class DeviceSocketServer {
         ExecutorService executorService = ThreadUtil.newExecutor(list.size());
         list.forEach(baseInfo -> {
             int port = Integer.parseInt(baseInfo.getDevPort());
-            int localPort = 0;
-            if (localPort == 0){
-                localPort = port;
+            String localportStr = baseInfo.getDevLocalPort();
+            int localPort = port;
+            if(StringUtils.isNotEmpty(localportStr)){
+                localPort = Integer.parseInt(localportStr);
             }
             int finalLocalPort = localPort;
-            executorService.execute(() ->
-                    new NettyTcpClient(baseInfo.getDevIpAddr(), port, finalLocalPort, new SimpleTcpMessage()).doConnect());
+            ThreadUtil.execute(() -> new NettyTcpClient(baseInfo.getDevIpAddr(), port, finalLocalPort, new SimpleTcpMessage()).run());
+
         });
     }
 }
