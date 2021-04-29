@@ -504,11 +504,12 @@ public class ByteUtils {
     }
 
     public static void main(String[] args) {
-        String str = "7E1314000100508560222E00C28ABC0101012C61222E00C28ABC0101012C62222E00C28ABC0101012C63222E00C28ABC0101012C64222E00C28ABC0101012C65222E00C28ABC010101957E";
+        String str = "7e138303000e7d5ef00056322e302d313930393233607e";
+//        byte[] bytes = HexUtil.decodeHex(str);
+//        byte[] byteReplace = byteReplace(bytes, 1, bytes.length - 1, Pair.of("7E", "7D5E"), Pair.of("7D", "7D5D"));
+//        System.out.println(HexUtil.encodeHexStr(byteReplace).toUpperCase());
         byte[] bytes = HexUtil.decodeHex(str);
-        byte[] byteReplace = byteReplace(bytes, 1, bytes.length - 1, Pair.of("7E", "7D5E"), Pair.of("7D", "7D5D"));
-        System.out.println(HexUtil.encodeHexStr(byteReplace).toUpperCase());
-        byte[] replace = byteReplace(byteReplace, 1, byteReplace.length - 1, Pair.of("7D5E", "7E"), Pair.of("7D5D", "7D"));
+        byte[] replace = byteReplace(bytes, Pair.of("7D5E", "7E"), Pair.of("7D5D", "7D"));
         System.out.println(HexUtil.encodeHexStr(replace).toUpperCase());
     }
 }

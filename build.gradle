@@ -9,8 +9,8 @@ version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '1.8'
 
 repositories {
-	maven { url = 'http://maven.aliyun.com/nexus/contet/groups/public/' }
 	maven { url = 'http://nexus.xy.in/repository/xy-maven/' }
+	maven { url = 'http://maven.aliyun.com/nexus/contet/groups/public/' }
 	mavenCentral()
 }
 
