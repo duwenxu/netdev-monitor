@@ -49,7 +49,7 @@ public class ScheduleQueryTask implements Runnable {
                         devCmdSendService.interfaceQuerySend(data.getDevNo(), data.getCmdMark());
                     }
                 } catch (Exception e) {
-                    log.error("定时查询线程执行异常.当前查询设备编号：{}，当前查询类型：{}", data.getDevNo(), accessType);
+                    log.error("定时查询线程执行异常.当前查询设备编号：{}，当前查询类型：{}", data.getDevNo(), accessType,e);
                 }
                 //根据不同设备指定间隔查询
                 try {

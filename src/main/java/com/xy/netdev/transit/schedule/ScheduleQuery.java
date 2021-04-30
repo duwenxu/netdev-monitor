@@ -46,7 +46,7 @@ public class ScheduleQuery  implements ApplicationRunner{
     public void run(ApplicationArguments args) throws Exception {
         log.info("-----设备状态定时查询开始...");
         try {
-            doScheduleQuery();
+//            doScheduleQuery();
         } catch (Exception e) {
             log.error("设备状态定时查询异常...", e);
         }
@@ -56,7 +56,8 @@ public class ScheduleQuery  implements ApplicationRunner{
      * 设备参数定时查询
      */
     public void doScheduleQuery() {
-        List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(base ->base.getDevType().equals("0020006")||base.getDevType().equals("0020005")||base.getDevType().equals("0020012")||base.getDevType().equals("0020001")||base.getDevType().equals("0020014")||base.getDevType().equals("0020013")).collect(Collectors.toList());
+//        List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(base ->base.getDevType().equals("0020006")||base.getDevType().equals("0020005")||base.getDevType().equals("0020012")||base.getDevType().equals("0020001")||base.getDevType().equals("0020014")||base.getDevType().equals("0020013")).collect(Collectors.toList());
+        List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(base -> "0020020".equals(base.getDevType())).collect(Collectors.toList());
 //        List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases();
         List<BaseInfo> pingBaseInfo = ScheduleQueryHelper.getAvailableBases();
 
@@ -133,7 +134,7 @@ public class ScheduleQuery  implements ApplicationRunner{
                 baseInfos.forEach(baseInfo->{
                     //默认超时时间 200
                     boolean ping = NetUtil.ping(baseInfo.getDevIpAddr());
-                    log.debug("设备：{}Ping地址：[{}]成功：{}", baseInfo.getDevName(),baseInfo.getDevIpAddr(),ping);
+                    log.info("设备：[{}]Ping地址：[{}]成功：{}", baseInfo.getDevName(),baseInfo.getDevIpAddr(),ping);
                     String isActive = ping ? "0" : "1";
                     DevStatusContainer.setInterrupt(baseInfo.getDevNo(), isActive);
                 });

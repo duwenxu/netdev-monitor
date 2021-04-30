@@ -42,8 +42,6 @@ public class FreqConvertInterCtrlServiceImpl implements ICtrlInterPrtclAnalysisS
     @Autowired
     private SocketMutualService socketMutualService;
     @Autowired
-    private ModemInterPrtcServiceImpl modemInterPrtcService;
-    @Autowired
     private IDataReciveService dataReciveService;
     @Autowired
     private ISysParamService sysParamService;
