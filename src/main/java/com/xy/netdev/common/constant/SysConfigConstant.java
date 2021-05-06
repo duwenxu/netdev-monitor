@@ -415,7 +415,22 @@ public interface SysConfigConstant {
     /**
      * 参数数据类型--str
      */
-    String PARA_DATA_TYPE_STR = "0023004";
+    String PARA_DATA_TYPE_INT = "0023002";
+
+    /**
+     * 参数数据类型--str
+     */
+    String  PARA_DATA_TYPE_STR = "0023004";
+
+    /**
+     * 参数数据类型 - float
+     */
+    String  PARA_DATA_TYPE_FLOAT = "0023008";
+
+    /**
+     * 参数数据类型 - double
+     */
+    String  PARA_DATA_TYPE_DOUBLE = "0023009";
 
     /**
      * 显示模式--下拉框
@@ -428,17 +443,8 @@ public interface SysConfigConstant {
     String  DEVICE_CAR_ANTENNA = "0020011";
 
     /**
-     * 参数数据类型 - str
+     * 数据类型--str默认长度
      */
-    String  PARA_DATATYPE_STR = "0023004";
+    String  DATA_TYPE_LEN = "0100009";
 
-    /**
-     * 参数数据类型 - float
-     */
-    String  PARA_DATATYPE_FLOAT = "0023008";
-
-    /**
-     * 参数数据类型 - double
-     */
-    String  PARA_DATATYPE_DOUBLE = "0023009";
 }

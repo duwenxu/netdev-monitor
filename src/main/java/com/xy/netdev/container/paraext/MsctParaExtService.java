@@ -11,6 +11,7 @@ import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.transit.IDevCmdSendService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 
@@ -18,6 +19,7 @@ import java.util.*;
  * @author luo
  * @date 2021/4/25
  */
+@Service
 public class MsctParaExtService implements IParaExtService {
 
 

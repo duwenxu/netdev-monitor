@@ -115,7 +115,7 @@ public class NettyUtil {
         nettyClose(localPort);
         ThreadUtil.execute(() -> {
             NettyTcpClient nettyTcpClient = new NettyTcpClient(remoteHost, remotePort, localPort);
-            nettyTcpClient.run();
+            nettyTcpClient.doConnect();
         });
     }
 

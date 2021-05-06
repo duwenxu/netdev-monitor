@@ -1,8 +1,10 @@
 package com.xy.netdev;
 
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.NumberUtil;
+import cn.hutool.core.util.StrUtil;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.ByteUtils;
@@ -10,14 +12,21 @@ import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.service.IBaseInfoService;
+import com.xy.netdev.network.handler.SimpleTcpMessage;
+import com.xy.netdev.network.handler.TestHandler;
+import com.xy.netdev.network.server.NettyTcpClient;
 import com.xy.netdev.network.util.UdpClientUtil;
+import org.apache.commons.codec.binary.Hex;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 /**
@@ -36,7 +45,7 @@ public class NetdevApplicationTest {
 //    状态上报：http://localhost:8080/rpt/test/status?devNo=8&type=1&status=0
 //    告警上报：http://localhost:8080/rpt/test/warning
 
-    private static final String TEST_ADDRESS = "127.0.0.1";
+    private static final String TEST_ADDRESS = "172.21.2.100";
 
     private static final Integer TEST_PORT = 9900;
 
@@ -99,7 +108,14 @@ public class NetdevApplicationTest {
         byte[] bytes = ByteUtils.listToBytes(list);
         byte[] pack = pack(0x0003, bytes);
         System.out.println(HexUtil.encodeHexStr(pack));
-        UdpClientUtil.send(TEST_ADDRESS, TEST_PORT, pack);
+        while (true){
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            UdpClientUtil.send(TEST_ADDRESS, TEST_PORT, pack);
+        }
     }
 
     /**
@@ -194,4 +210,15 @@ public class NetdevApplicationTest {
         UdpClientUtil.send(TEST_ADDRESS, TEST_PORT, pack);
     }
 
+    public static void main(String[] args) throws InterruptedException {
+        ExecutorService executorService = ThreadUtil.newExecutor(10);
+        executorService.execute(() ->
+                new NettyTcpClient("192.168.137.1", 10086, 0, new TestHandler()).run());
+        executorService.execute(() ->
+                new NettyTcpClient("192.168.137.1", 10087, 0, new TestHandler()).run());
+        executorService.execute(() ->
+                new NettyTcpClient("192.168.137.1", 10088, 0, new TestHandler()).run());
+        executorService.execute(() ->
+                new NettyTcpClient("192.168.137.1", 10089, 0, new TestHandler()).run());
+    }
 }

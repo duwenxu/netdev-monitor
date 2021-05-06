@@ -42,7 +42,7 @@ public class ScheduleQuery  implements ApplicationRunner{
     public void run(ApplicationArguments args) throws Exception {
         log.info("-----设备状态定时查询开始...");
         try {
-            doScheduleQuery();
+//            doScheduleQuery();
         } catch (Exception e) {
             log.error("设备状态定时查询异常...", e);
         }
