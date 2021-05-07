@@ -456,4 +456,9 @@ public interface SysConfigConstant {
      */
     String  DATA_TYPE_LEN = "0100009";
 
+    /**
+     * L频段4X4开关矩阵错误类型响应 设备控制到位
+     */
+    String LPD_CTRL_SUCCESS = "0064001";
+
 }
