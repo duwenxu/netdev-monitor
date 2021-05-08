@@ -106,6 +106,15 @@ public class BaseInfo extends Model<BaseInfo> {
     @Param
     private String devSubType;
 
+    /**
+     * 设备是否连接远程服务
+     * 0003001 是  0003002 否
+     */
+    @ApiModelProperty(value = "是否连接远程服务")
+    @TableField(value = "DEV_IS_LINK")
+    @Param
+    private String devIsLink;
+
     @ApiModelProperty(value = "备注一描述")
     @TableField(value = "DEV_REMARK1_DESC")
     private String devRemark1Desc;

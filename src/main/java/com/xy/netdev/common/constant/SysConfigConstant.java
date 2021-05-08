@@ -387,6 +387,11 @@ public interface SysConfigConstant {
     String CONTROL_FAIL = "0061001";
 
     /**
+     * 功放控制响应 应答帧错误类型 父CODE
+     */
+    String ERR_PARENT_ID_GF = "0060";
+
+    /**
      * 6914变频器 应答帧错误类型 父CODE
      */
     String ERR_PARENT_ID_6914 = "0063";
@@ -450,5 +455,10 @@ public interface SysConfigConstant {
      * 数据类型--str默认长度
      */
     String  DATA_TYPE_LEN = "0100009";
+
+    /**
+     * L频段4X4开关矩阵错误类型响应 设备控制到位
+     */
+    String LPD_CTRL_SUCCESS = "0064001";
 
 }

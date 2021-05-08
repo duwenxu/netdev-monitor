@@ -198,7 +198,7 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
                     Map<String, Object> rangeMap = new LinkedHashMap<>();
                     String name = sysParamService.getParaRemark2(parainfo.getNdpaDatatype());
                     if (StringUtils.isBlank(name)) {
-                        throw new BaseException("参数[]数据类型配置有误!");
+                        throw new BaseException("参数["+parainfo.getNdpaName()+"]数据类型配置有误!");
                     } else {
                         rangeMap.put("-name", name);
                         rangeMap.put("-down", ParaHandlerUtil.generateEmptyStr(parainfo.getNdpaValMin()));
