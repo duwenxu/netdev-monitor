@@ -3,6 +3,7 @@ package com.xy.netdev.rpt.service;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.HexUtil;
+import cn.hutool.core.util.StrUtil;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.util.BeanFactoryUtil;
 import com.xy.netdev.common.util.ByteUtils;
@@ -138,8 +139,12 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
                 , ByteUtils.objToBytes(0, 4)
                 //数据字段
                 , bodyBytes);
-        NettyUtil.sendMsg(bytes, port, stationInfo.getDevIpAddr(), port, Integer.parseInt(sysParamService.getParaRemark1(stationInfo.getDevNetPtcl())));
-        log.info("发送站控数据, 目标地址:{}:{}, 数据体:{}",  stationInfo.getDevIpAddr(), port, HexUtil.encodeHexStr(bytes));
+        int localPort = port;
+        if (StrUtil.isNotBlank(stationInfo.getDevLocalPort())){
+            localPort = Integer.parseInt(stationInfo.getDevLocalPort());
+        }
+        NettyUtil.sendMsg(bytes, localPort, stationInfo.getDevIpAddr(), port, Integer.parseInt(sysParamService.getParaRemark1(stationInfo.getDevNetPtcl())));
+        log.info("发送站控数据, 本地端口：{}，  目标地址:{}:{}, 数据体:{}", localPort, stationInfo.getDevIpAddr(), port, HexUtil.encodeHexStr(bytes));
     }
 
 

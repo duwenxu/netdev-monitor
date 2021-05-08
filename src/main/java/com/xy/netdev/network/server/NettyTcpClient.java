@@ -62,7 +62,7 @@ public class NettyTcpClient implements Runnable {
     public void doConnect() {
         Bootstrap bootstrap = setBootstrap();
         ChannelFuture channelFuture = bootstrap.connect(new InetSocketAddress(host, port),
-                new InetSocketAddress(localPort))
+                new InetSocketAddress(localPort)).sync()
                 .addListener((GenericFutureListener<ChannelFuture>) this::isSuccess);
         channelFuture.channel().closeFuture().await();
     }
