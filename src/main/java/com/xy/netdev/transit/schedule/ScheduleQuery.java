@@ -46,7 +46,7 @@ public class ScheduleQuery  implements ApplicationRunner{
     public void run(ApplicationArguments args) throws Exception {
         log.info("-----设备状态定时查询开始...");
         try {
-//            doScheduleQuery();
+            doScheduleQuery();
         } catch (Exception e) {
             log.error("设备状态定时查询异常...", e);
         }
@@ -57,9 +57,11 @@ public class ScheduleQuery  implements ApplicationRunner{
      */
     public void doScheduleQuery() {
 //        List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(base ->base.getDevType().equals("0020006")||base.getDevType().equals("0020005")||base.getDevType().equals("0020012")||base.getDevType().equals("0020001")||base.getDevType().equals("0020014")||base.getDevType().equals("0020013")).collect(Collectors.toList());
-        List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(base -> "0020020".equals(base.getDevType())).collect(Collectors.toList());
 //        List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases();
         List<BaseInfo> pingBaseInfo = ScheduleQueryHelper.getAvailableBases();
+//        List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(base -> base.getDevType().equals("0020007")||base.getDevType().equals("0020001")||base.getDevType().equals("0020006")||base.getDevType().equals("0020008")||base.getDevType().equals("0020003")||base.getDevType().equals("0020004")).collect(Collectors.toList());
+        List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(base -> base.getDevType().equals("0020008")).collect(Collectors.toList());
+
 
         //单个设备所有查询对象的封装list映射
         Map<BaseInfo, List<FrameReqData>> scheduleReqBodyMap = new ConcurrentHashMap<>(20);
@@ -91,7 +93,7 @@ public class ScheduleQuery  implements ApplicationRunner{
                 frameParaList.add(paraData);
                 FrameReqData frameReqData = frameReqDataWrapper(base, cmdMark, frameParaList);
                 frameReqData.setAccessType(SysConfigConstant.ACCESS_TYPE_PARAM);
-                scheduleReqBodyList.add(frameReqData);
+//                scheduleReqBodyList.add(frameReqData);
             }
 
             //获取所有查询接口
@@ -134,7 +136,7 @@ public class ScheduleQuery  implements ApplicationRunner{
                 baseInfos.forEach(baseInfo->{
                     //默认超时时间 200
                     boolean ping = NetUtil.ping(baseInfo.getDevIpAddr());
-                    log.info("设备：[{}]Ping地址：[{}]成功：{}", baseInfo.getDevName(),baseInfo.getDevIpAddr(),ping);
+                    log.debug("设备：[{}]Ping地址：[{}]成功：{}", baseInfo.getDevName(),baseInfo.getDevIpAddr(),ping);
                     String isActive = ping ? "0" : "1";
                     DevStatusContainer.setInterrupt(baseInfo.getDevNo(), isActive);
                 });
