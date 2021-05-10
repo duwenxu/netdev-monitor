@@ -119,6 +119,7 @@ public class DevParaInfoContainer {
         viewInfo.setSpinnerInfoList(JSONArray.parseArray(paraInfo.getNdpaSelectData(),ParaSpinnerInfo.class));
         viewInfo.setParaByteLen(paraInfo.getNdpaByteLen());
         viewInfo.setNdpaOutterStatus(paraInfo.getNdpaOutterStatus());
+        viewInfo.setNdpaIsTopology(paraInfo.getNdpaIsTopology());
         return viewInfo;
     }
 

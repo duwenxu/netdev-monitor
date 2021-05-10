@@ -168,6 +168,13 @@ public class ParaViewInfo {
      */
     @ApiModelProperty(value = "子参数列表")
     private List<ParaViewInfo> subParaList = new ArrayList<>();
+
+    /**
+     * 是否在拓扑图显示
+     */
+    @ApiModelProperty(value = "是否在拓扑图显示")
+    private Boolean ndpaIsTopology ;
+
     /**
      * 添加子参数
      */
