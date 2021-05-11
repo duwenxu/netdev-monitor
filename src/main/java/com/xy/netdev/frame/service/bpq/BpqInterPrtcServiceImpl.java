@@ -4,19 +4,16 @@ package com.xy.netdev.frame.service.bpq;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.xy.common.exception.BaseException;
-import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
-import com.xy.netdev.monitor.entity.BaseInfo;
-import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
+import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import com.xy.netdev.transit.IDataReciveService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -49,7 +46,7 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
     @Override
     public void queryPara(FrameReqData reqInfo) {
         StringBuilder sb = new StringBuilder();
-        String localAddr = bpqPrtcService.getDevLocalAddr(reqInfo);
+        String localAddr = "001";
         sb.append(BpqPrtcServiceImpl.SEND_START_MARK).append(localAddr).append("/")
                 .append(reqInfo.getCmdMark());
         String command = sb.toString();
@@ -65,6 +62,7 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
     @Override
     public FrameRespData queryParaResponse(FrameRespData respData) {
         String respStr = new String(respData.getParamBytes());
+        String addr = respStr.substring(1,4);
         int startIdx = respStr.indexOf("_");
         int endIdx = respStr.indexOf(StrUtil.LF);
         String[] params = null;
@@ -74,7 +72,6 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
         }catch (Exception e){
             log.error("接口响应数据异常！源数据：{}",respStr);
             throw new BaseException("接口响应数据异常！");
-            
         }
         List<FrameParaData> frameParaList = new ArrayList<>();
         for (String param : params) {
@@ -84,7 +81,7 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
             FrameParaInfo frameParaDetail = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),cmdMark);
             BeanUtil.copyProperties(frameParaDetail, paraInfo, true);
             paraInfo.setParaVal(value);
-            paraInfo.setDevNo(respData.getDevNo());
+            paraInfo.setDevNo(getDevNo(addr));
             frameParaList.add(paraInfo);
         }
         respData.setFrameParaList(frameParaList);
@@ -97,6 +94,26 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
             cmdMark = cmdMark+="-S";
         }
         return cmdMark;
+    }
+
+
+    private String getDevNo(String addr){
+        String devNo = "";
+        switch (addr){
+            case "001":
+                devNo = "42";
+                break;
+            case "010":
+                devNo = "40";
+                break;
+            case "011":
+                devNo = "41";
+                break;
+            default:
+                devNo = "42";
+                break;
+        }
+        return devNo;
     }
 
 }
