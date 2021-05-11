@@ -210,6 +210,11 @@ public interface SysConfigConstant {
     String  DEV_ALTER_SAVE_DAY="0100008";
 
     /**
+     * L频段4X4开关矩阵错误类型响应 设备控制到位
+     */
+    String DEV_COMMON_TYPE_CODE = "0100010";
+
+    /**
      * 操作类型--查询
      */
     String OPREATE_QUERY = "0026001";
@@ -460,5 +465,4 @@ public interface SysConfigConstant {
      * L频段4X4开关矩阵错误类型响应 设备控制到位
      */
     String LPD_CTRL_SUCCESS = "0064001";
-
 }
