@@ -74,6 +74,7 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
         }catch (Exception e){
             log.error("接口响应数据异常！源数据：{}",respStr);
             throw new BaseException("接口响应数据异常！");
+            
         }
         List<FrameParaData> frameParaList = new ArrayList<>();
         for (String param : params) {
