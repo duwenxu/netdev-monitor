@@ -192,7 +192,7 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
         if (OPREATE_QUERY.equals(operType)){
             log.info("650调制解调器, 查询帧：{}",HexUtil.encodeHexStr(pack));
         }else {
-            log.info("2300调制解调器, 控制帧：{}",HexUtil.encodeHexStr(pack));
+            log.info("650调制解调器, 控制帧：{}",HexUtil.encodeHexStr(pack));
         }
         return pack;
     }

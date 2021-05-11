@@ -93,7 +93,7 @@ public class ScheduleQuery  implements ApplicationRunner{
                 frameParaList.add(paraData);
                 FrameReqData frameReqData = frameReqDataWrapper(base, cmdMark, frameParaList);
                 frameReqData.setAccessType(SysConfigConstant.ACCESS_TYPE_PARAM);
-//                scheduleReqBodyList.add(frameReqData);
+                scheduleReqBodyList.add(frameReqData);
             }
 
             //获取所有查询接口

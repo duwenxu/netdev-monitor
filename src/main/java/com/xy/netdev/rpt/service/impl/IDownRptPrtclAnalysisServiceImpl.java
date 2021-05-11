@@ -219,7 +219,7 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
         return headDev;
     }
 
-    private FrameParaData frameParaDataWrapper(ParaViewInfo paraView) {
+    public FrameParaData frameParaDataWrapper(ParaViewInfo paraView) {
         String paramVal = transParamVal(paraView,IN_TO_OUT);
         FrameParaData.FrameParaDataBuilder frameParaDataBuilder = FrameParaData.builder()
                 .paraNo(paraView.getParaNo())

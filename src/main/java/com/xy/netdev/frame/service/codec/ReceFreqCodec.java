@@ -31,6 +31,12 @@ public class ReceFreqCodec implements ParamCodec {
         return value;
     }
 
+    /**
+     * 只读参数 不需要实现其编码函数
+     * @param value   编码值
+     * @param objects 可能需要的其他传入参数
+     * @return
+     */
     @Override
     public byte[] encode(String value, Object... objects) {
         return new byte[0];

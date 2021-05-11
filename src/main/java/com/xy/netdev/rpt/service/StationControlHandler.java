@@ -122,7 +122,7 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
 
 
     @Override
-    public void queryParaResponse(RptHeadDev headDev) {
+    public synchronized void queryParaResponse(RptHeadDev headDev) {
         setAchieveClass(headDev);
         BaseInfo stationInfo = BaseInfoContainer.genRptBaseInfo();
         RequestService requestService = BeanFactoryUtil.getBean(headDev.getAchieveClassNameEnum().getClassName());

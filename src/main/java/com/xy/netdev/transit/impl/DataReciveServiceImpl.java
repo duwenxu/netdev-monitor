@@ -1,5 +1,6 @@
 package com.xy.netdev.transit.impl;
 
+import cn.hutool.core.thread.ThreadUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.xy.common.exception.BaseException;
 import com.xy.netdev.common.constant.SysConfigConstant;
@@ -9,9 +10,18 @@ import com.xy.netdev.container.DevParaInfoContainer;
 import com.xy.netdev.container.PageInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameRespData;
+import com.xy.netdev.monitor.bo.DevStatusInfo;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
+import com.xy.netdev.monitor.bo.ParaViewInfo;
 import com.xy.netdev.monitor.bo.TransRule;
+import com.xy.netdev.rpt.bo.RptBodyDev;
+import com.xy.netdev.rpt.bo.RptHeadDev;
+import com.xy.netdev.rpt.enums.AchieveClassNameEnum;
+import com.xy.netdev.rpt.enums.StationCtlRequestEnums;
 import com.xy.netdev.rpt.service.IDevStatusReportService;
+import com.xy.netdev.rpt.service.StationControlHandler;
+import com.xy.netdev.rpt.service.impl.DevStatusReportService;
+import com.xy.netdev.rpt.service.impl.IDownRptPrtclAnalysisServiceImpl;
 import com.xy.netdev.transit.IDataReciveService;
 import com.xy.netdev.websocket.send.DevIfeMegSend;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +29,13 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.stream.Collectors;
+
+import static com.xy.netdev.common.constant.SysConfigConstant.IS_DEFAULT_TRUE;
 
 
 /**
@@ -37,6 +53,17 @@ public class DataReciveServiceImpl implements IDataReciveService {
     @Autowired
     IDevStatusReportService devStatusReportService;
 
+    @Autowired
+    private DevStatusReportService statusReportService;
+
+    @Autowired
+    private IDownRptPrtclAnalysisServiceImpl downRptPrtclAnalysisService;
+
+    @Autowired
+    private StationControlHandler stationControlHandler;
+
+    private ExecutorService rptDevExecutor= ThreadUtil.newExecutor(4,4,10);
+
     /**
      * 参数查询接收
      * @param  respData   协议解析响应数据
@@ -46,11 +73,66 @@ public class DataReciveServiceImpl implements IDataReciveService {
         respData.setOperType(SysConfigConstant.OPREATE_QUERY_RESP);
         if(DevParaInfoContainer.handlerRespDevPara(respData)){
             DevIfeMegSend.sendParaToDev(respData.getDevNo());//如果设备参数变化,websocet推前台
-            sendCtrlInter(respData);;
+            sendCtrlInter(respData);
+            //站控主动上报
+            rptDevExecutor.submit(()->stationRptParamsByDev(respData));
         }
         DevLogInfoContainer.handlerRespDevPara(respData);//记录日志
         DevIfeMegSend.sendLogToDev(respData.getDevNo());//操作日志websocet推前台
         handlerAlertInfo(respData);//处理报警信息
+    }
+
+    /**
+     * 主动上报推送
+     * @param respData 上报数据
+     */
+    private void stationRptParamsByDev(FrameRespData respData) {
+        RptHeadDev headDev = rptParamsByDev(respData);
+        stationControlHandler.queryParaResponse(headDev);
+    }
+
+    /**
+     * 当前设备数据变化时   主动上报当前设备参数
+     * @param respData  当前变化的设备参数响应帧
+     */
+    private RptHeadDev rptParamsByDev(FrameRespData respData) {
+        String devNo = respData.getDevNo();
+        //创建设备基础状态参数
+        DevStatusInfo devStatusInfo = statusReportService.createDevStatusInfo(devNo);
+        RptHeadDev headDev = initDevHead(devStatusInfo);
+        RptBodyDev rptBodyDev = new RptBodyDev();
+        //获取指定设备当前可读且可以对外上报的参数列表
+        List<ParaViewInfo> devParaViewList = DevParaInfoContainer.getDevParaViewList(devStatusInfo.getDevNo()).stream()
+                .filter(paraView -> !SysConfigConstant.ONLY_WRITE.equals(paraView.getAccessRight()) && IS_DEFAULT_TRUE.equals(paraView.getNdpaOutterStatus()))
+                .collect(Collectors.toList());
+
+        //当前设备的查询响应参数列表
+        List<FrameParaData> resFrameParaList = new ArrayList<>();
+        //获取单个参数信息
+        devParaViewList.forEach(paraView -> {
+            FrameParaData frameParaData = downRptPrtclAnalysisService.frameParaDataWrapper(paraView);
+            resFrameParaList.add(frameParaData);
+        });
+        rptBodyDev.setDevNo(devNo);
+        rptBodyDev.setDevTypeCode(respData.getDevType());
+        rptBodyDev.setDevParaTotal(devParaViewList.size()+"");
+//        rptBodyDev.setDevParamLen();
+        rptBodyDev.setDevParaList(resFrameParaList);
+        headDev.setParam(rptBodyDev);
+        return headDev;
+    }
+
+    /**
+     * 设置初始化站控头参数
+     * @return  站控头参数
+     */
+    private RptHeadDev initDevHead(DevStatusInfo devStatusInfo) {
+        RptHeadDev headDev = new RptHeadDev();
+        headDev.setCmdMarkHexStr(StationCtlRequestEnums.DEV_AUTO_REPORT.getCmdCode());
+        headDev.setDevNo(devStatusInfo.getDevNo());
+        headDev.setDevNum(1);
+        headDev.setStationNo(devStatusInfo.getStationId());
+        return headDev;
     }
 
     /**
@@ -62,7 +144,9 @@ public class DataReciveServiceImpl implements IDataReciveService {
         respData.setOperType(SysConfigConstant.OPREATE_CONTROL_RESP);
         if(DevParaInfoContainer.handlerRespDevPara(respData)){
             DevIfeMegSend.sendParaToDev(respData.getDevNo());//如果设备参数变化,websocet推前台
-            sendCtrlInter(respData);;
+            sendCtrlInter(respData);
+            //站控主动上报
+            rptDevExecutor.submit(()->stationRptParamsByDev(respData));
         }
         DevLogInfoContainer.handlerRespDevPara(respData);//记录日志
         DevIfeMegSend.sendLogToDev(respData.getDevNo());//操作日志websocet推前台
@@ -84,6 +168,8 @@ public class DataReciveServiceImpl implements IDataReciveService {
             if(DevParaInfoContainer.handlerRespDevPara(respData)){
                 DevIfeMegSend.sendParaToDev(respData.getDevNo());//如果设备参数变化,websocet推前台
                 sendCtrlInter(respData);
+                //站控主动上报
+                rptDevExecutor.submit(()->stationRptParamsByDev(respData));
             }
         }
         DevLogInfoContainer.handlerRespDevPara(respData);//记录日志
@@ -101,6 +187,8 @@ public class DataReciveServiceImpl implements IDataReciveService {
         if(DevParaInfoContainer.handlerRespDevPara(respData)){
             DevIfeMegSend.sendParaToDev(respData.getDevNo());//如果设备参数变化,websocet推前台
             sendCtrlInter(respData);
+            //站控主动上报
+            rptDevExecutor.submit(()->stationRptParamsByDev(respData));
         }
         DevLogInfoContainer.handlerRespDevPara(respData);//记录日志
         DevIfeMegSend.sendLogToDev(respData.getDevNo());//操作日志websocet推前台
@@ -144,5 +232,4 @@ public class DataReciveServiceImpl implements IDataReciveService {
 
         });
     }
-
 }
