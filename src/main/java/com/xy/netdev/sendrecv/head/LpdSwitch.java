@@ -94,7 +94,8 @@ public class LpdSwitch extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
         List<byte[]> lists = new ArrayList<>();
         /**************(后续修改：确认后可设置到设备信息的备注1中)**************/
         //设备地址:2字节(暂时写定，后续确认再改)
-        lists.add(new byte[]{0x00, 0x01});
+        //地址字节：1字节（00-7F）
+        lists.add(HexUtil.decodeHex(BaseInfoContainer.getDevInfoByNo(frameReqData.getDevNo()).getDevRemark1Data()));
         //获取操作关键字： 查询关键字/控制关键字
         PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameReqData.getDevType(), frameReqData.getCmdMark());
         //默认为查询
