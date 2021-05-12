@@ -461,7 +461,7 @@ public interface SysConfigConstant {
      * 设备类型--变频器
      */
     String  DEVICE_BPQ = "0020006";
-
+    /*
      * 设备类型--君威子功放
      */
     String  DEVICE_CAR_GF = "0020003";
