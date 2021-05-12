@@ -14,19 +14,28 @@ public class ReceFreqCodec implements ParamCodec {
 
     private static final String sing1 = "FFFF";
     private static final String sign2 = "5555";
+    private final Hex2DecParamCodec hex2DecParamCodec;
+
+    public ReceFreqCodec() {
+        this.hex2DecParamCodec = new Hex2DecParamCodec();
+    }
 
     @Override
     public String decode(byte[] bytes, Object... objects) {
-        String hexStr = HexUtil.encodeHexStr(bytes);
-        String value;
+        String hexStr = hex2DecParamCodec.decode(bytes,1,2);
+        String value = null;
         switch (hexStr){
             case sing1:
                 value = ">0"; break;
             case sign2:
                 value = "<-60"; break;
             default:
-                double v = Integer.parseInt(hexStr) * -0.1;
-                value = v +"";
+                try {
+                    double v = Double.parseDouble(hexStr) * -0.1;
+                    value = v +"";
+                } catch (NumberFormatException e) {
+                   log.error("收载波电平参数解析失败：string值：{}",hexStr);
+                }
         }
         return value;
     }
