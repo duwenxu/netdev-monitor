@@ -47,7 +47,8 @@ public class DevStatusContainer {
             devStatusInfo.setDevDeployType(devInfo.getDevDeployType());
             //君威功放特殊处理  sunchao
             if(SysConfigConstant.DEVICE_CAR_GF.equals(devInfo.getDevType())){
-                ParaViewInfo paraInfo = DevParaInfoContainer.getDevParaView(devInfo.getDevNo(),"7");
+                //通过主BUC射频开关来判断主备
+                ParaViewInfo paraInfo = DevParaInfoContainer.getDevParaView(devInfo.getDevNo(),"15");
                 if("1".equals(paraInfo.getParaVal())){
                     //主
                     devStatusInfo.setDevDeployType(SysConfigConstant.DEV_DEPLOY_MASTER);
