@@ -169,6 +169,10 @@ public class DevParaInfoContainer {
                     paraViewInfo.setParaVal(frameParaData.getParaVal());
                     num++;
                 }
+                //功放设备的特殊处理
+                if(SysConfigConstant.DEVICE_CAR_GF.equals(frameParaData.getDevType()) && "15".equals(frameParaData.getParaNo())){
+                    DevStatusContainer.setMasterOrSlave(frameParaData.getDevNo());
+                }
             }
         }
         return num>0;

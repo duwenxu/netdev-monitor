@@ -4,8 +4,8 @@ package com.xy.netdev.container;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.monitor.bo.DevStatusInfo;
+import com.xy.netdev.monitor.bo.ParaViewInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,19 +33,32 @@ public class DevStatusContainer {
      */
     public static void init(ISysParamService sysParamService){
         sysParamServiceLocal = sysParamService;
-        BaseInfoContainer.getDevNos().forEach(devNo -> {
+        BaseInfoContainer.getDevInfos().forEach(devInfo -> {
             DevStatusInfo devStatusInfo = new DevStatusInfo();
-            BaseInfo devInfo = BaseInfoContainer.getDevInfoByNo(devNo);
-            List<BaseInfo> masterSlaveDevList = BaseInfoContainer.getDevsFatByDevNo(devNo);
-            devStatusInfo.setDevNo(devNo);
+            List<BaseInfo> masterSlaveDevList = BaseInfoContainer.getDevsFatByDevNo(devInfo.getDevNo());
+            devStatusInfo.setDevNo(devInfo.getDevNo());
             devStatusInfo.setDevTypeCode(sysParamServiceLocal.getParaRemark1(devInfo.getDevType()));
-            devStatusInfo.setDevDeployType(devInfo.getDevDeployType());
             devStatusInfo.setIsInterrupt(SysConfigConstant.RPT_DEV_STATUS_ISINTERRUPT_NO);
             devStatusInfo.setIsAlarm(SysConfigConstant.RPT_DEV_STATUS_ISALARM_NO);
             devStatusInfo.setIsUseStandby(initDevIsUseStandby(devInfo,masterSlaveDevList));
-            devStatusInfo.setMasterOrSlave(initDevMasterOrSlave(devStatusInfo.getIsUseStandby(),masterSlaveDevList));
             devStatusInfo.setWorkStatus(sysParamServiceLocal.getParaRemark1(devInfo.getDevStatus()));
-            devStatusMap.put(devNo,devStatusInfo);
+            devStatusInfo.setMasterOrSlave(initDevMasterOrSlave(devStatusInfo.getIsUseStandby(),masterSlaveDevList));
+            devStatusInfo.setDevDeployType(devInfo.getDevDeployType());
+            //君威功放特殊处理  sunchao
+            if(SysConfigConstant.DEVICE_CAR_GF.equals(devInfo.getDevType())){
+                //通过主BUC射频开关来判断主备
+                ParaViewInfo paraInfo = DevParaInfoContainer.getDevParaView(devInfo.getDevNo(),"15");
+                if("1".equals(paraInfo.getParaVal())){
+                    //主
+                    devStatusInfo.setDevDeployType(SysConfigConstant.DEV_DEPLOY_MASTER);
+                    devStatusInfo.setMasterOrSlave(SysConfigConstant.RPT_DEV_STATUS_MASTERORSLAVE_MASTER);
+                }else{
+                    //备
+                    devStatusInfo.setDevDeployType(SysConfigConstant.DEV_DEPLOY_SLAVE);
+                    devStatusInfo.setMasterOrSlave(SysConfigConstant.RPT_DEV_STATUS_MASTERORSLAVE_SLAVE);
+                }
+            }
+            devStatusMap.put(devInfo.getDevNo(),devStatusInfo);
         });
     }
 
@@ -158,6 +171,22 @@ public class DevStatusContainer {
             return true;
         }
         return false;
+    }
+
+    /**
+     * @功能：添加设备主用还是备用状态(支持功放的特殊)
+     * @param devNo    设备编号
+     * @return 状态是否发生改变  true 改变  false 未改变
+     */
+    public static void setMasterOrSlave(String devNo) {
+        DevStatusInfo devStatusInfo = devStatusMap.get(devNo);
+        if(!SysConfigConstant.RPT_DEV_STATUS_MASTERORSLAVE_MASTER.equals(devStatusInfo.getMasterOrSlave())){
+            devStatusInfo.setDevDeployType(SysConfigConstant.DEV_DEPLOY_SLAVE);
+            devStatusInfo.setMasterOrSlave(SysConfigConstant.RPT_DEV_STATUS_MASTERORSLAVE_SLAVE);
+        }else{
+            devStatusInfo.setDevDeployType(SysConfigConstant.DEV_DEPLOY_MASTER);
+            devStatusInfo.setMasterOrSlave(SysConfigConstant.RPT_DEV_STATUS_MASTERORSLAVE_MASTER);
+        }
     }
 
 
