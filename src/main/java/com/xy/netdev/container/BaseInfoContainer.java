@@ -23,6 +23,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.xy.netdev.common.constant.SysConfigConstant.*;
+import static com.xy.netdev.common.constant.SysConfigConstant.DEVICE_QHDY;
 import static com.xy.netdev.monitor.constant.MonitorConstants.SUB_KU_GF;
 import static com.xy.netdev.monitor.constant.MonitorConstants.SUB_MODEM;
 
@@ -150,6 +151,7 @@ public class BaseInfoContainer {
         });
     }
 
+
     /**
      * @param paraList 参数列表
      * @return
@@ -158,8 +160,13 @@ public class BaseInfoContainer {
     public static void addParaMap(List<FrameParaInfo> paraList) {
         paraList.forEach(paraInfo -> {
             try {
+                if(paraInfo.getDevType().equals(DEVICE_QHDY)){
+                    paramCmdMap.put(ParaHandlerUtil.genLinkKey(DEVICE_BPQ, paraInfo.getCmdMark()), paraInfo);
+                    paramNoMap.put(ParaHandlerUtil.genLinkKey(DEVICE_BPQ, paraInfo.getParaNo()), paraInfo);
+                }
                 paramCmdMap.put(ParaHandlerUtil.genLinkKey(paraInfo.getDevType(), paraInfo.getCmdMark()), paraInfo);
                 paramNoMap.put(ParaHandlerUtil.genLinkKey(paraInfo.getDevType(), paraInfo.getParaNo()), paraInfo);
+
             } catch (Exception e) {
                 log.error("参数[" + paraInfo.getParaName() + "]的设备类型或命令标识或参数编号存在异常，请检查:" + e.getMessage());
             }

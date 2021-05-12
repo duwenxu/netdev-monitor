@@ -452,6 +452,22 @@ public interface SysConfigConstant {
     String  DEVICE_CAR_ANTENNA = "0020011";
 
     /**
+<<<<<<< HEAD
+     * 设备类型--切换单元
+     */
+    String  DEVICE_QHDY = "0020005";
+
+    /**
+     * 设备类型--变频器
+     */
+    String  DEVICE_BPQ = "0020006";
+
+     * 设备类型--君威子功放
+     */
+    String  DEVICE_CAR_GF = "0020003";
+
+
+    /**
      * 数据类型--str默认长度
      */
     String  DATA_TYPE_LEN = "0100009";
