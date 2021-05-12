@@ -44,7 +44,8 @@ public class DevStatusContainer {
             devStatusInfo.setIsAlarm(SysConfigConstant.RPT_DEV_STATUS_ISALARM_NO);
             devStatusInfo.setIsUseStandby(initDevIsUseStandby(devInfo,masterSlaveDevList));
             devStatusInfo.setMasterOrSlave(initDevMasterOrSlave(devStatusInfo.getIsUseStandby(),masterSlaveDevList));
-            devStatusInfo.setWorkStatus(sysParamServiceLocal.getParaRemark1(devInfo.getDevStatus()));
+//            devStatusInfo.setWorkStatus(sysParamServiceLocal.getParaRemark1(devInfo.getDevStatus()));
+            devStatusInfo.setWorkStatus("0");
             devStatusMap.put(devNo,devStatusInfo);
         });
     }

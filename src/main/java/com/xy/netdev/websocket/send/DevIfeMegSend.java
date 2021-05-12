@@ -4,10 +4,14 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.xy.netdev.common.util.ParaHandlerUtil;
 import com.xy.netdev.container.*;
+import com.xy.netdev.monitor.bo.DevStatusInfo;
 import com.xy.netdev.websocket.config.ChannelCache;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -56,9 +60,13 @@ public class DevIfeMegSend {
     public static void sendDevStatusToDev(){
         ChannelGroup channels = ChannelCache.getInstance().getChannelsByIfe("DevStatusInfos");
         if( channels != null){
+            List<DevStatusInfo> allDevStatusInfoList = DevStatusContainer.getAllDevStatusInfoList();
+            List<String> collect = allDevStatusInfoList.stream().filter(info -> info.getWorkStatus().equals("1")).map(info -> info.getDevNo()).collect(Collectors.toList());
+            log.error("设备编号为：{}的设备状态异常",collect);
+
             //此处加SerializerFeature.WriteMapNullValue是为了让数据中属性值为null的属性不被忽略
             //此处加SerializerFeature.DisableCircularReferenceDetect解决相同的对象序列化出错问题
-            String msg = JSONObject.toJSONString(DevStatusContainer.getAllDevStatusInfoList(),SerializerFeature.WriteMapNullValue,SerializerFeature.DisableCircularReferenceDetect);
+            String msg = JSONObject.toJSONString(allDevStatusInfoList,SerializerFeature.WriteMapNullValue,SerializerFeature.DisableCircularReferenceDetect);
             TextWebSocketFrame textWebSocketFrame = new TextWebSocketFrame(msg);
             channels.writeAndFlush(textWebSocketFrame);
         }
