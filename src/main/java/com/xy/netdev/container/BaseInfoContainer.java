@@ -487,7 +487,7 @@ public class BaseInfoContainer {
      * @功能：获取所有设备信息集合
      */
     public static Collection<BaseInfo> getDevInfos() {
-        return devMap.values();
+        return devNoMap.values();
     }
 
     /**
