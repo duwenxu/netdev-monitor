@@ -452,7 +452,6 @@ public interface SysConfigConstant {
     String  DEVICE_CAR_ANTENNA = "0020011";
 
     /**
-<<<<<<< HEAD
      * 设备类型--切换单元
      */
     String  DEVICE_QHDY = "0020005";
