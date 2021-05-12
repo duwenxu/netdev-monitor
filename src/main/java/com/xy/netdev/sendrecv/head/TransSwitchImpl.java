@@ -110,6 +110,7 @@ public class TransSwitchImpl extends AbsDeviceSocketHandler<SocketEntity, FrameR
         //类型字节：固定值10H  1
         lists.add(new byte[]{0x10});
         //地址字节：1字节（00-7F）
+        lists.add(HexUtil.decodeHex(BaseInfoContainer.getDevInfoByNo(frameReqData.getDevNo()).getDevRemark1Data()));
         /**后续修改*/
         lists.add(new byte[]{0x00});
         //获取操作关键字： 查询关键字/控制关键字
