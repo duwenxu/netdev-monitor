@@ -139,6 +139,12 @@ public class FrameParaInfo {
     private List<FrameParaInfo> subParaList;
 
     /**
+     * 是否在拓扑图显示
+     */
+    @ApiModelProperty(value = "是否在拓扑图显示")
+    private Boolean ndpaIsTopology ;
+
+    /**
      * 增加参数的子参数
      * @param frameParaInfo
      */
