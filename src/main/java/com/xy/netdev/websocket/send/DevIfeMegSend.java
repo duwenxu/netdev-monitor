@@ -9,6 +9,7 @@ import com.xy.netdev.websocket.config.ChannelCache;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -103,14 +104,25 @@ public class DevIfeMegSend {
      * @param devNo 设备编号
      */
     public static void sendAlertToDev(String devNo){
-        ChannelGroup channels = ChannelCache.getInstance().getChannels("DevAlertInfos",devNo);
-        if( channels != null){
-            //此处加SerializerFeature.WriteMapNullValue是为了让数据中属性值为null的属性不被忽略
-            //此处加SerializerFeature.DisableCircularReferenceDetect解决相同的对象序列化出错问题
-            String msg = JSONObject.toJSONString(DevAlertInfoContainer.getDevAlertInfoList(devNo), SerializerFeature.WriteMapNullValue,SerializerFeature.DisableCircularReferenceDetect);
-            TextWebSocketFrame textWebSocketFrame = new TextWebSocketFrame(msg);
-            channels.writeAndFlush(textWebSocketFrame);
+        ChannelGroup channels = null;
+        String msg = "";
+        if(StringUtils.isNotBlank(devNo)){
+            channels = ChannelCache.getInstance().getChannels("DevAlertInfos",devNo);
+            if(channels != null){
+                //此处加SerializerFeature.WriteMapNullValue是为了让数据中属性值为null的属性不被忽略
+                //此处加SerializerFeature.DisableCircularReferenceDetect解决相同的对象序列化出错问题
+                msg = JSONObject.toJSONString(DevAlertInfoContainer.getDevAlertInfoList(devNo), SerializerFeature.WriteMapNullValue,SerializerFeature.DisableCircularReferenceDetect);
+            }
+        }else{
+            channels = ChannelCache.getInstance().getChannelsByIfe("DevAlertInfos");
+            if(channels != null){
+                //此处加SerializerFeature.WriteMapNullValue是为了让数据中属性值为null的属性不被忽略
+                //此处加SerializerFeature.DisableCircularReferenceDetect解决相同的对象序列化出错问题
+                msg = JSONObject.toJSONString(DevAlertInfoContainer.getAllDevAlertInfoList(), SerializerFeature.WriteMapNullValue,SerializerFeature.DisableCircularReferenceDetect);
+            }
         }
+        TextWebSocketFrame textWebSocketFrame = new TextWebSocketFrame(msg);
+        channels.writeAndFlush(textWebSocketFrame);
     }
 
     /**

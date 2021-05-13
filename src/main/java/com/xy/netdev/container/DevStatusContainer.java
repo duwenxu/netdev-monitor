@@ -158,24 +158,51 @@ public class DevStatusContainer {
      */
     public synchronized static boolean setMasterOrSlave(String devNo,String masterOrSlave) {
         //设置主备列表中非当前变化设备的主备状态
+        BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(devNo);
+        String deyType = baseInfo.getDevType();
         List<BaseInfo> masterSlaveDevList = BaseInfoContainer.getDevsFatByDevNo(devNo);
-        masterSlaveDevList.forEach(devInfo->{
-            if(!devInfo.getDevNo().equals(devNo)){
-                if(masterOrSlave.equals(SysConfigConstant.RPT_DEV_STATUS_MASTERORSLAVE_SLAVE)){
-                    devStatusMap.get(devInfo.getDevNo()).setMasterOrSlave(SysConfigConstant.RPT_DEV_STATUS_MASTERORSLAVE_MASTER);
-                }else if(masterOrSlave.equals(SysConfigConstant.RPT_DEV_STATUS_MASTERORSLAVE_MASTER)){
-                    devStatusMap.get(devInfo.getDevNo()).setMasterOrSlave(SysConfigConstant.RPT_DEV_STATUS_MASTERORSLAVE_SLAVE);
+        if(deyType.equals(SysConfigConstant.DEVICE_QHDY)){
+            return handleMasterOfBPQ(masterSlaveDevList,masterOrSlave);
+        }else{
+            masterSlaveDevList.forEach(devInfo->{
+                if(!devInfo.getDevNo().equals(devNo)){
+                    if(masterOrSlave.equals(SysConfigConstant.RPT_DEV_STATUS_MASTERORSLAVE_SLAVE)){
+                        devStatusMap.get(devInfo.getDevNo()).setMasterOrSlave(SysConfigConstant.RPT_DEV_STATUS_MASTERORSLAVE_MASTER);
+                    }else if(masterOrSlave.equals(SysConfigConstant.RPT_DEV_STATUS_MASTERORSLAVE_MASTER)){
+                        devStatusMap.get(devInfo.getDevNo()).setMasterOrSlave(SysConfigConstant.RPT_DEV_STATUS_MASTERORSLAVE_SLAVE);
+                    }
+                }
+            });
+            //设置当前设备的主备状态,如果发生变化返回true
+            DevStatusInfo devStatusInfo = devStatusMap.get(devNo);
+            if(!devStatusInfo.getMasterOrSlave().equals(masterOrSlave)){
+                devStatusInfo.setMasterOrSlave(masterOrSlave);
+                return true;
+            }
+            return false;
+        }
+    }
+
+
+    private static boolean handleMasterOfBPQ(List<BaseInfo> baseInfos,String masterOrSlave) {
+        for (BaseInfo baseInfo : baseInfos) {
+            if(baseInfo.getDevDeployType().equals(SysConfigConstant.DEV_DEPLOY_MASTER)){
+                DevStatusInfo devStatusInfo = devStatusMap.get(baseInfo.getDevNo());
+                if(!devStatusInfo.getMasterOrSlave().equals(masterOrSlave)){
+                    devStatusInfo.setMasterOrSlave(masterOrSlave);
+                }
+            }else{
+                DevStatusInfo devStatusInfo = devStatusMap.get(baseInfo.getDevNo());
+                Boolean status = Boolean.valueOf(masterOrSlave);
+                if(!devStatusInfo.getMasterOrSlave().equals(String.valueOf(status))){
+                    devStatusInfo.setMasterOrSlave(masterOrSlave);
                 }
             }
-        });
-        //设置当前设备的主备状态,如果发生变化返回true
-        DevStatusInfo devStatusInfo = devStatusMap.get(devNo);
-        if(!devStatusInfo.getMasterOrSlave().equals(masterOrSlave)){
-            devStatusInfo.setMasterOrSlave(masterOrSlave);
-            return true;
         }
-        return false;
+        return true;
     }
+
+
 
     /**
      * @功能：添加设备主用还是备用状态(支持功放的特殊)
