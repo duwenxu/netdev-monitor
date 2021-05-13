@@ -182,21 +182,25 @@ public class DevStatusContainer {
 
 
     private static boolean handleMasterOfBPQ(List<BaseInfo> baseInfos,String masterOrSlave) {
+        boolean flag = false;
         for (BaseInfo baseInfo : baseInfos) {
             if(baseInfo.getDevDeployType().equals(SysConfigConstant.DEV_DEPLOY_MASTER)){
                 DevStatusInfo devStatusInfo = devStatusMap.get(baseInfo.getDevNo());
                 if(!devStatusInfo.getMasterOrSlave().equals(masterOrSlave)){
                     devStatusInfo.setMasterOrSlave(masterOrSlave);
+                    flag = true;
                 }
             }else{
                 DevStatusInfo devStatusInfo = devStatusMap.get(baseInfo.getDevNo());
                 Boolean status = Boolean.valueOf(masterOrSlave);
-                if(!devStatusInfo.getMasterOrSlave().equals(String.valueOf(status))){
-                    devStatusInfo.setMasterOrSlave(masterOrSlave);
+                if(!status){
+                    devStatusInfo.setMasterOrSlave("1");
+                }else{
+                    devStatusInfo.setMasterOrSlave("0");
                 }
             }
         }
-        return true;
+        return flag;
     }
 
 

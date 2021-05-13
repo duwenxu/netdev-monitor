@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.xy.common.exception.BaseException;
 import com.xy.netdev.admin.service.ISysParamService;
+import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.ParaHandlerUtil;
 import com.xy.netdev.monitor.bo.DevInterParam;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
@@ -194,13 +195,18 @@ public class BaseInfoContainer {
      * @功能：添加设备类型对应的参数MAP
      */
     public static void addDevTypeParaMap(List<FrameParaInfo> paraList) {
-        List<String> devTypes = paraList.stream().map(FrameParaInfo::getDevType).collect(Collectors.toList());
-        //循环设备类型
-        devTypes.forEach(devType -> {
-            devTypeParamMap.put(devType, paraList.stream()
-                    .filter(paraInfo -> paraInfo.getDevType().equals(devType))
-                    .collect(Collectors.toList()));
-        });
+        for (FrameParaInfo frameParaInfo : paraList) {
+            String devType = frameParaInfo.getDevType();
+            if(devType.equals(DEVICE_QHDY)){
+                devType = DEVICE_BPQ;
+            }
+            if(null!=devTypeParamMap.get(devType)){
+                devTypeParamMap.get(devType).add(frameParaInfo);
+            }else{
+                List<FrameParaInfo> paras = new ArrayList<>();
+                devTypeParamMap.put(devType,paras);
+            }
+        }
     }
 
     /**
