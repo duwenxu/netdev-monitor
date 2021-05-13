@@ -117,6 +117,19 @@ public class DevAlertInfoContainer {
         return alertInfoList;
     }
 
-
+    /**
+     * @功能：根据基准时间 返回大于等于基准时间的 所有报警信息
+     * @return  设备报警信息列表
+     */
+    public static List<AlertInfo> getAllDevAlertInfoList(){
+        List<AlertInfo> alertInfoList = new ArrayList<>();
+        BaseInfoContainer.getDevNos().forEach(devNo->{
+            Map<String,FixedSizeMap<String, AlertInfo>>  devMap = devAlertInfoMap.get(devNo);
+            for(String paraNo:devMap.keySet()){
+                alertInfoList.add(getDevParaAlertInfo(devNo,paraNo));
+            }
+        });
+        return alertInfoList;
+    }
 
 }
