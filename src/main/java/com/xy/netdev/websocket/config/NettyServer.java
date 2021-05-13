@@ -7,6 +7,9 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -20,8 +23,9 @@ import javax.annotation.PostConstruct;
  * @since 2020-09-04
  */
 @Slf4j
+@Order(4)
 @Component
-public class NettyServer {
+public class NettyServer  implements ApplicationRunner {
 
     /**
      * netty端口号
@@ -50,7 +54,11 @@ public class NettyServer {
                 .childHandler(new WSServerInitialize());
     }
 
-    @PostConstruct
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
+        start();
+    }
+
     public void start() {
         //绑定端口并开始接受传入连接
         this.future = server.bind(Integer.parseInt(port));

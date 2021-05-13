@@ -13,6 +13,9 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -28,8 +31,9 @@ import static com.xy.netdev.container.BaseInfoContainer.getDevInfos;
  * @author cc
  */
 @Component
+@Order(2)
 @Slf4j
-public class DeviceSocketServer {
+public class DeviceSocketServer  implements ApplicationRunner {
 
     @Autowired
     private ISysParamService sysParamService;
@@ -38,14 +42,16 @@ public class DeviceSocketServer {
 
     private List<BaseInfo> tcpList;
 
-    @PostConstruct
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
+        start();
+    }
     public void start() {
         udpPort = new HashSet<>();
         tcpList = new ArrayList<>();
         Collection<BaseInfo> devInfos = getDevInfos();
         ThreadUtil.execute(() -> run(devInfos));
     }
-
     @SneakyThrows
     private void run(Collection<BaseInfo> devInfos)  {
         Optional<String> optional = devInfos.stream()

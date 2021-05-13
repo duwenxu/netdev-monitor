@@ -24,7 +24,7 @@ import static com.xy.netdev.common.constant.SysConfigConstant.*;
  */
 @Component
 @Order(100)
-public class ScheduleQueryHelper {
+public class ScheduleQueryHelper  {
 
     @Autowired
     private IBaseInfoService baseInfoService;
