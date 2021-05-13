@@ -6,7 +6,6 @@ import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.monitor.bo.DevStatusInfo;
 import com.xy.netdev.monitor.bo.ParaViewInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
-import com.xy.netdev.websocket.send.DevIfeMegSend;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -163,7 +162,9 @@ public class DevStatusContainer {
         List<BaseInfo> masterSlaveDevList = BaseInfoContainer.getDevsFatByDevNo(devNo);
         if(deyType.equals(SysConfigConstant.DEVICE_QHDY)){
             return handleMasterOfBPQ(masterSlaveDevList,masterOrSlave);
-        }else{
+        }else if (deyType.equals(SysConfigConstant.DEVICE_TRANS_SWITCH)){
+            return handlerScmmModel(masterSlaveDevList,masterOrSlave);
+        }else {
             masterSlaveDevList.forEach(devInfo->{
                 if(!devInfo.getDevNo().equals(devNo)){
                     if(masterOrSlave.equals(SysConfigConstant.RPT_DEV_STATUS_MASTERORSLAVE_SLAVE)){
@@ -181,6 +182,16 @@ public class DevStatusContainer {
             }
             return false;
         }
+    }
+
+    /**
+     *
+     * @param masterSlaveDevList
+     * @param masterOrSlave
+     * @return
+     */
+    private static boolean handlerScmmModel(List<BaseInfo> masterSlaveDevList, String masterOrSlave) {
+        return false;
     }
 
 

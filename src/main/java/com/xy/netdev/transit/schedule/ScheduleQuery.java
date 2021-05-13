@@ -50,9 +50,9 @@ public class ScheduleQuery  implements ApplicationRunner{
     public void run(ApplicationArguments args) throws Exception {
         log.info("-----设备状态定时查询开始...");
         try {
-//            doScheduleQuery();
-            List<BaseInfo> pingBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(baseInfo -> !baseInfo.getDevNo().equals("30")&&!baseInfo.getDevNo().equals("31")).collect(Collectors.toList());
-            execBasePing(pingBaseInfo);
+            doScheduleQuery();
+//            List<BaseInfo> pingBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(baseInfo -> !baseInfo.getDevNo().equals("30")&&!baseInfo.getDevNo().equals("31")).collect(Collectors.toList());
+//            execBasePing(pingBaseInfo);
         } catch (Exception e) {
             log.error("设备状态定时查询异常...", e);
         }

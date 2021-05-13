@@ -457,6 +457,11 @@ public interface SysConfigConstant {
     String  DEVICE_QHDY = "0020005";
 
     /**
+     * 设备类型--转换开关
+     */
+    String DEVICE_TRANS_SWITCH = "0020021";
+
+    /**
      * 设备类型--变频器
      */
     String  DEVICE_BPQ = "0020006";
