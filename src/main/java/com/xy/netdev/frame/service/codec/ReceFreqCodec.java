@@ -22,7 +22,7 @@ public class ReceFreqCodec implements ParamCodec {
 
     @Override
     public String decode(byte[] bytes, Object... objects) {
-        String hexStr = hex2DecParamCodec.decode(bytes,1,2);
+        String hexStr = hex2DecParamCodec.decode(bytes,"",2);
         String value = null;
         switch (hexStr){
             case sing1:
