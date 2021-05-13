@@ -56,18 +56,18 @@ public class DevStatusReportService implements IDevStatusReportService {
         devStatusInfo.setIsAlarm(status);
         reportDevStatus(devStatusInfo);
     }
-
-    /**
-     * 上报设备未中断，恢复连接
-     * @param devNo
-     * @param status
-     */
-    @Override
-    public void rptUnInterrupted(String devNo, String status) {
-        DevStatusInfo devStatusInfo = createDevStatusInfo(devNo);
-        devStatusInfo.setIsInterrupt(status);
-        reportDevStatus(devStatusInfo);
-    }
+//
+//    /**
+//     * 上报设备未中断，恢复连接
+//     * @param devNo
+//     * @param status
+//     */
+//    @Override
+//    public void rptUnInterrupted(String devNo, String status) {
+//        DevStatusInfo devStatusInfo = createDevStatusInfo(devNo);
+//        devStatusInfo.setIsInterrupt(status);
+//        reportDevStatus(devStatusInfo);
+//    }
 
     /**
      * 上报设备中断
@@ -141,7 +141,7 @@ public class DevStatusReportService implements IDevStatusReportService {
         RptHeadDev rptHeadDev = crateRptHeadDev(devStatusInfo);
         //推送前端
         DevIfeMegSend.sendDevStatusToDev();
-        //上报站控
+        //上报54所网关站控
         upRptPrtclAnalysisService.queryParaResponse(rptHeadDev);
     }
 
@@ -189,7 +189,7 @@ public class DevStatusReportService implements IDevStatusReportService {
                     case SysConfigConstant.DEV_STATUS_INTERRUPT:
                         //参数返回值是否恢复中断
                         if(DevStatusContainer.setInterrupt(devNo,outerStatus)){
-                            rptUnInterrupted(devNo,outerStatus);
+                            rptInterrupted(devNo,outerStatus);
                         }
                         break;
                     case SysConfigConstant.DEV_STATUS_SWITCH:

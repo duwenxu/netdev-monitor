@@ -6,6 +6,7 @@ import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.monitor.bo.DevStatusInfo;
 import com.xy.netdev.monitor.bo.ParaViewInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
+import com.xy.netdev.websocket.send.DevIfeMegSend;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,7 +43,8 @@ public class DevStatusContainer {
             devStatusInfo.setIsInterrupt(SysConfigConstant.RPT_DEV_STATUS_ISINTERRUPT_NO);
             devStatusInfo.setIsAlarm(SysConfigConstant.RPT_DEV_STATUS_ISALARM_NO);
             devStatusInfo.setIsUseStandby(initDevIsUseStandby(devInfo,masterSlaveDevList));
-            devStatusInfo.setWorkStatus(sysParamServiceLocal.getParaRemark1(devInfo.getDevStatus()));
+//            devStatusInfo.setWorkStatus(sysParamServiceLocal.getParaRemark1(devInfo.getDevStatus()));
+            devStatusInfo.setWorkStatus("0");
             devStatusInfo.setMasterOrSlave(initDevMasterOrSlave(devStatusInfo.getIsUseStandby(),masterSlaveDevList));
             devStatusInfo.setDevDeployType(devInfo.getDevDeployType());
             //君威功放特殊处理  sunchao
@@ -111,6 +113,7 @@ public class DevStatusContainer {
         DevStatusInfo devStatusInfo = devStatusMap.get(devNo);
         if(!devStatusInfo.getIsInterrupt().equals(isInterrupt)){
             devStatusInfo.setIsInterrupt(isInterrupt);
+            devStatusMap.put(devNo,devStatusInfo);
             return true;
         }
         return false;

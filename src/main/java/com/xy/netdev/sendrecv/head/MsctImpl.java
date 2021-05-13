@@ -12,6 +12,7 @@ import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.service.ICtrlInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
+import com.xy.netdev.frame.service.codec.AscIIParamCodec;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.PrtclFormat;
 import com.xy.netdev.sendrecv.base.AbsDeviceSocketHandler;
@@ -156,5 +157,19 @@ public class MsctImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData,
             sum += (b & 0xFF);
         }
         return (byte) Double.valueOf(sum % 256).intValue();
+    }
+
+    public static void main(String[] args) {
+        byte[] bytes1 = {0x04, 0x10, 0x00, 0x13};
+//        AscIIParamCodec paramCodec = new AscIIParamCodec();
+//        String decode = paramCodec.decode(bytes);
+//        System.out.println(decode);
+//        byte[] encode = paramCodec.encode(decode);
+        System.out.println(addGetBottom256(bytes1,0,4));
+//        byte temp = bytes1[0];
+//        for (int i = 1; i < bytes1.length; i++) {
+//            temp ^= bytes1[i];
+//        }
+//        System.out.println(HexUtil.encodeHex(new byte[]{temp}));
     }
 }

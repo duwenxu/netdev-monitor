@@ -13,6 +13,8 @@ import com.xy.netdev.monitor.constant.MonitorConstants;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.entity.PrtclFormat;
+import com.xy.netdev.rpt.service.IDevStatusReportService;
+import com.xy.netdev.rpt.service.impl.DevStatusReportService;
 import com.xy.netdev.transit.IDevCmdSendService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -41,12 +43,16 @@ public class ScheduleQuery  implements ApplicationRunner{
     @Autowired
     private IDevCmdSendService devCmdSendService;
     private static String PING_THREAD_NAME ="basePingThread";
+    @Autowired
+    private DevStatusReportService devStatusReportService;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
         log.info("-----设备状态定时查询开始...");
         try {
-            doScheduleQuery();
+//            doScheduleQuery();
+            List<BaseInfo> pingBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(baseInfo -> !baseInfo.getDevNo().equals("30")&&!baseInfo.getDevNo().equals("31")).collect(Collectors.toList());
+            execBasePing(pingBaseInfo);
         } catch (Exception e) {
             log.error("设备状态定时查询异常...", e);
         }
@@ -135,9 +141,11 @@ public class ScheduleQuery  implements ApplicationRunner{
                 baseInfos.forEach(baseInfo->{
                     //默认超时时间 200
                     boolean ping = NetUtil.ping(baseInfo.getDevIpAddr());
+                    String devNo = baseInfo.getDevNo();
                     log.debug("设备：[{}]Ping地址：[{}]成功：{}", baseInfo.getDevName(),baseInfo.getDevIpAddr(),ping);
                     String isActive = ping ? "0" : "1";
-                    DevStatusContainer.setInterrupt(baseInfo.getDevNo(), isActive);
+                    DevStatusContainer.setInterrupt(devNo, isActive);
+                    devStatusReportService.rptInterrupted(devNo,isActive);
                 });
             }
         });
