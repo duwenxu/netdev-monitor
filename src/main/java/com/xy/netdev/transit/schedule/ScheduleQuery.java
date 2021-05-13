@@ -58,7 +58,7 @@ public class ScheduleQuery  implements ApplicationRunner{
     public void doScheduleQuery() {
 //        List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases();
         List<BaseInfo> pingBaseInfo = ScheduleQueryHelper.getAvailableBases();
-        List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(base -> base.getDevType().equals("0020007")||base.getDevType().equals("0020001")||base.getDevType().equals("0020006")||base.getDevType().equals("0020008")||base.getDevType().equals("0020003")||base.getDevType().equals("0020004")).collect(Collectors.toList());
+        List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(base -> base.getDevType().equals("0020007")||base.getDevType().equals("0020001")||base.getDevType().equals("0020006")||base.getDevType().equals("0020008")||base.getDevType().equals("0020003")).collect(Collectors.toList());
         //List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(base -> base.getDevType().equals("0020008")).collect(Collectors.toList());
 
 
