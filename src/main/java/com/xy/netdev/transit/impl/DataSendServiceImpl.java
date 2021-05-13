@@ -69,11 +69,11 @@ public class DataSendServiceImpl implements IDataSendService {
      * @param  frameReqData   协议解析请求数据
      */
     public void handlerAlertInfo(FrameReqData frameReqData){
-        String status = frameReqData.getIsOk();
-       //参数返回值是否产生中断
-        if(DevStatusContainer.setInterrupt(frameReqData.getDevNo(),status)){
-            devStatusReportService.rptInterrupted(frameReqData.getDevNo(),status);
-        }
+//        String status = frameReqData.getIsOk();
+//       //参数返回值是否产生中断
+//        if(DevStatusContainer.setInterrupt(frameReqData.getDevNo(),status)){
+//            devStatusReportService.rptInterrupted(frameReqData.getDevNo(),status);
+//        }
     }
 
     /**

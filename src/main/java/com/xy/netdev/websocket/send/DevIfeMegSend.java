@@ -62,8 +62,8 @@ public class DevIfeMegSend {
         ChannelGroup channels = ChannelCache.getInstance().getChannelsByIfe("DevStatusInfos");
         if( channels != null){
             List<DevStatusInfo> allDevStatusInfoList = DevStatusContainer.getAllDevStatusInfoList();
-            List<String> collect = allDevStatusInfoList.stream().filter(info -> info.getWorkStatus().equals("1")).map(info -> info.getDevNo()).collect(Collectors.toList());
-            log.error("设备编号为：{}的设备状态异常",collect);
+            List<String> collect = allDevStatusInfoList.stream().filter(info -> info.getWorkStatus().equals("1")).map(DevStatusInfo::getDevNo).collect(Collectors.toList());
+            log.warn("设备编号为：{}的设备状态异常",collect);
 
             //此处加SerializerFeature.WriteMapNullValue是为了让数据中属性值为null的属性不被忽略
             //此处加SerializerFeature.DisableCircularReferenceDetect解决相同的对象序列化出错问题
