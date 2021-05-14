@@ -27,7 +27,7 @@ public class NettyUdpTest {
     private static final InetSocketAddress DEST_ADDRESS = new InetSocketAddress("192.168.1.160", 9900);
     private static final InetSocketAddress SOURCE_ADDRESS = new InetSocketAddress("172.21.2.100", 8070);
     /**发送频率*/
-    private static final int sendInterval = 1000;
+    private static final int sendInterval = 5000;
     private static final String[] datas = new String[]{
             //2300调制解调器
 //            "7e1783020013592000fa00000056322e302d3139303932336d7e",
@@ -45,7 +45,8 @@ public class NettyUdpTest {
 //            "7F07012100aa7d",
 //            "7F07013200aa7d",
 //            "7F07013100aa7d",
-            "022210005306305f07305f08315f09315f10f15f11ff5fff20aa0a"
+            "022210005306305f07305f08305f09315f10f15f11ff5fff20aa0a",
+            "022210005306305f07315f08315f09315f10f15f11ff5fff20aa0a",
     };
 
     @Test

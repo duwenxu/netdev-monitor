@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.xy.netdev.monitor.constant.MonitorConstants.SUB_MODEM;
+
 /**
  * <p>
  *设备状态信息容器类
@@ -158,12 +160,10 @@ public class DevStatusContainer {
     public synchronized static boolean setMasterOrSlave(String devNo,String masterOrSlave) {
         //设置主备列表中非当前变化设备的主备状态
         BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(devNo);
-        String deyType = baseInfo.getDevType();
+        String devType = baseInfo.getDevType();
         List<BaseInfo> masterSlaveDevList = BaseInfoContainer.getDevsFatByDevNo(devNo);
-        if(deyType.equals(SysConfigConstant.DEVICE_QHDY)){
+        if(devType.equals(SysConfigConstant.DEVICE_QHDY)){
             return handleMasterOfBPQ(masterSlaveDevList,masterOrSlave);
-        }else if (deyType.equals(SysConfigConstant.DEVICE_TRANS_SWITCH)){
-            return handlerScmmModel(masterSlaveDevList,masterOrSlave);
         }else {
             masterSlaveDevList.forEach(devInfo->{
                 if(!devInfo.getDevNo().equals(devNo)){
@@ -183,17 +183,6 @@ public class DevStatusContainer {
             return false;
         }
     }
-
-    /**
-     *
-     * @param masterSlaveDevList
-     * @param masterOrSlave
-     * @return
-     */
-    private static boolean handlerScmmModel(List<BaseInfo> masterSlaveDevList, String masterOrSlave) {
-        return false;
-    }
-
 
     private static boolean handleMasterOfBPQ(List<BaseInfo> baseInfos,String masterOrSlave) {
         boolean flag = false;
@@ -216,8 +205,6 @@ public class DevStatusContainer {
         }
         return flag;
     }
-
-
 
     /**
      * @功能：添加设备主用还是备用状态(支持功放的特殊)
@@ -268,4 +255,7 @@ public class DevStatusContainer {
         return devStatusMap.get(devNo);
     }
 
+    public static void setModemUse(String devNo, String masterOrSlave) {
+        devStatusMap.get(devNo).setMasterOrSlave(masterOrSlave);
+    }
 }
