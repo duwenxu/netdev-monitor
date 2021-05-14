@@ -53,7 +53,7 @@
     <logger name="com.alibaba.nacos.client.naming" level="error" />
     <logger name="com.alibaba.nacos.client.naming.updater" level="error" />
 
-    <root level="INFO">
+    <root level="WARN">
         <appender-ref ref="FILE" />
         <appender-ref ref="console" />
     </root>

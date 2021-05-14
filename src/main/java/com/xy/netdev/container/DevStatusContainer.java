@@ -196,11 +196,7 @@ public class DevStatusContainer {
             }else{
                 DevStatusInfo devStatusInfo = devStatusMap.get(baseInfo.getDevNo());
                 Boolean status = Boolean.valueOf(masterOrSlave);
-                if(!status){
-                    devStatusInfo.setMasterOrSlave("1");
-                }else{
-                    devStatusInfo.setMasterOrSlave("0");
-                }
+                    devStatusInfo.setMasterOrSlave(String.valueOf(!status));
             }
         }
         return flag;
