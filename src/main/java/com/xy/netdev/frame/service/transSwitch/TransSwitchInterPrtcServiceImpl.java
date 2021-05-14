@@ -84,7 +84,7 @@ public class TransSwitchInterPrtcServiceImpl implements IQueryInterPrtclAnalysis
                 }
             }
             FrameParaData frameParaData = genFramePara(currentPara,paraValueStr);
-            frameParaData.setParaVal(paraValueStr);
+            frameParaData.setDevNo(respData.getDevNo());
             frameParaDataList.add(frameParaData);
         }
         respData.setFrameParaList(frameParaDataList);
