@@ -16,6 +16,9 @@ import com.xy.netdev.network.handler.SimpleTcpMessage;
 import com.xy.netdev.network.server.NettyTcpClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -45,6 +48,7 @@ public class BaseContainerLoader {
     private IPrtclFormatService prtclFormatService;
     @Autowired
     private ISysParamService sysParamService;
+
 
     /**
      * 初始化信息加载

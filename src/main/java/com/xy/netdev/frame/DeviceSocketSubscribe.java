@@ -15,6 +15,9 @@ import com.xy.netdev.sendrecv.base.AbsDeviceSocketHandler;
 import com.xy.netdev.sendrecv.entity.SocketEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -28,8 +31,9 @@ import static com.xy.netdev.container.BaseInfoContainer.getDevInfo;
  * @author cc
  */
 @Component
+@Order(3)
 @Slf4j
-public class DeviceSocketSubscribe {
+public class DeviceSocketSubscribe  implements ApplicationRunner {
 
     @Autowired
     private StationControlHandler stationControlHandler;
@@ -42,8 +46,11 @@ public class DeviceSocketSubscribe {
      */
     private FIFOCache<String, AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData>> cache;
 
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
+        init();
+    }
 
-    @PostConstruct
     public void init(){
         //队列
         cache = CacheUtil.newFIFOCache(absSocketHandlerList.size());
