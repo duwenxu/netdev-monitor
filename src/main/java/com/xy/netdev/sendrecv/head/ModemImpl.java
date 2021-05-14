@@ -71,7 +71,7 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
     @Override
     public FrameRespData unpack(SocketEntity socketEntity, FrameRespData frameRespData) {
         byte[] bytes = socketEntity.getBytes();
-        log.info("650调制解调器接收到响应帧：{}",HexUtil.encodeHexStr(bytes));
+        log.debug("650调制解调器接收到响应帧：{}",HexUtil.encodeHexStr(bytes));
         //组装完整帧   02开头的帧与其之后的两帧组装成一帧可解析的完整帧
         dealWithFrame(frameRespData,bytes);
         String devKey = frameRespData.getDevType() + ":" + frameRespData.getDevNo();
@@ -86,7 +86,7 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
             return frameRespData;
         }
 
-        log.info("650接收到完整响应帧：{}",HexUtil.encodeHexStr(bytes));
+        log.debug("650接收到完整响应帧：{}",HexUtil.encodeHexStr(bytes));
 
         if (bytes.length<=6){
             log.warn("650调制解调器数据长度错误, 未能正确解析, 数据体长度:{}, 数据体:{}", bytes.length, HexUtil.encodeHexStr(bytes));
@@ -124,7 +124,9 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
     private void dealWithFrame(FrameRespData frameRespData,byte[] bytes) {
         String hexFrameStr = HexUtil.encodeHexStr(bytes);
         String devKey = frameRespData.getDevType() + ":" + frameRespData.getDevNo();
-        if (hexFrameStr.startsWith("02")){
+        if (hexFrameStr.startsWith("02") && hexFrameStr.length()==FULL_FRAME_lEN){
+            readyByteMap.put(devKey,bytes);
+        }else if (hexFrameStr.startsWith("02")){
             byteBufMap.put(devKey,bytes);
         }else {
             if (byteBufMap.containsKey(devKey)){

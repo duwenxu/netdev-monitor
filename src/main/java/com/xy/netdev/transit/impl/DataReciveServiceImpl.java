@@ -4,19 +4,16 @@ import cn.hutool.core.thread.ThreadUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.xy.common.exception.BaseException;
 import com.xy.netdev.common.constant.SysConfigConstant;
-import com.xy.netdev.container.BaseInfoContainer;
-import com.xy.netdev.container.DevLogInfoContainer;
-import com.xy.netdev.container.DevParaInfoContainer;
-import com.xy.netdev.container.PageInfoContainer;
+import com.xy.netdev.container.*;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.monitor.bo.DevStatusInfo;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.bo.ParaViewInfo;
 import com.xy.netdev.monitor.bo.TransRule;
+import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.rpt.bo.RptBodyDev;
 import com.xy.netdev.rpt.bo.RptHeadDev;
-import com.xy.netdev.rpt.enums.AchieveClassNameEnum;
 import com.xy.netdev.rpt.enums.StationCtlRequestEnums;
 import com.xy.netdev.rpt.service.IDevStatusReportService;
 import com.xy.netdev.rpt.service.StationControlHandler;
@@ -30,9 +27,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static com.xy.netdev.common.constant.SysConfigConstant.IS_DEFAULT_TRUE;
@@ -79,7 +79,7 @@ public class DataReciveServiceImpl implements IDataReciveService {
         }
         DevLogInfoContainer.handlerRespDevPara(respData);//记录日志
         DevIfeMegSend.sendLogToDev(respData.getDevNo());//操作日志websocet推前台
-        handlerAlertInfo(respData);//处理报警信息
+        handlerAlertInfo(respData);//处理报警、主备等信息
     }
 
     /**
@@ -205,7 +205,7 @@ public class DataReciveServiceImpl implements IDataReciveService {
     }
 
     /**
-     * 处理报警信息
+     * 处理报警、主备信息
      * @param  respData   协议解析响应数据
      */
     private void handlerAlertInfo(FrameRespData respData){
@@ -218,7 +218,7 @@ public class DataReciveServiceImpl implements IDataReciveService {
             FrameParaInfo paraInfo = BaseInfoContainer.getParaInfoByNo(param.getDevType(),param.getParaNo());
             if(!paraInfo.getAlertPara().equals(SysConfigConstant.PARA_ALERT_TYPE_NULL)){
                 String ruleStr =  paraInfo.getTransRule();
-                List<TransRule> rules = null;
+                List<TransRule> rules;
                 //读取参数配置的状态转换规则
                 try {
                     rules = JSONArray.parseArray(ruleStr, TransRule.class);
@@ -229,7 +229,6 @@ public class DataReciveServiceImpl implements IDataReciveService {
                     devStatusReportService.reportWarningAndStaus(rules,param);
                 }
             }
-
         });
     }
 }

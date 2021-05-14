@@ -15,6 +15,8 @@ import org.apache.commons.lang.StringUtils;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.xy.netdev.common.constant.SysConfigConstant.PARA_COMPLEX_LEVEL_COMPOSE;
+
 /**
  * <p>
  *各设备参数缓存容器类
@@ -167,6 +169,12 @@ public class DevParaInfoContainer {
                 ParaViewInfo paraViewInfo = devParaMap.get(devNo).get(ParaHandlerUtil.genLinkKey(devNo, paraNo));
                 if (paraViewInfo!=null&&StringUtils.isNotEmpty(frameParaData.getParaVal()) && !frameParaData.getParaVal().equals(paraViewInfo.getParaVal())) {
                     paraViewInfo.setParaVal(frameParaData.getParaVal());
+                    //组合参数修改子参数值
+                    if(paraViewInfo.getParaCmplexLevel().equals(PARA_COMPLEX_LEVEL_COMPOSE)){
+                        for(ParaViewInfo paraViewInfo1 : paraViewInfo.getSubParaList()){
+                            paraViewInfo1.setParaVal(frameParaList.stream().filter(frameParaData1 -> frameParaData1.getParaNo().equals(paraViewInfo1.getParaNo())).collect(Collectors.toList()).get(0).getParaVal());
+                        }
+                    }
                     num++;
                 }
                 //功放设备的特殊处理
