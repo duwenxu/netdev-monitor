@@ -137,7 +137,7 @@ public class ScheduleQuery  implements ApplicationRunner{
         ThreadUtil.newSingleExecutor().submit(()->{
             Thread.currentThread().setName(PING_THREAD_NAME);
             while (true){
-                Thread.sleep(1000);
+                Thread.sleep(10000);
                 baseInfos.forEach(baseInfo->{
                     //默认超时时间 200
                     boolean ping = NetUtil.ping(baseInfo.getDevIpAddr());

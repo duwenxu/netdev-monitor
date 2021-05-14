@@ -79,7 +79,7 @@ public class DataReciveServiceImpl implements IDataReciveService {
         }
         DevLogInfoContainer.handlerRespDevPara(respData);//记录日志
         DevIfeMegSend.sendLogToDev(respData.getDevNo());//操作日志websocet推前台
-        handlerAlertInfo(respData);//处理报警信息
+        handlerAlertInfo(respData);//处理报警、主备等信息
     }
 
     /**
@@ -226,82 +226,9 @@ public class DataReciveServiceImpl implements IDataReciveService {
                     throw new BaseException("参数状态转换规则有误");
                 }
                 if(rules!=null){
-                    //处理调制解调器主备使用信息
-                    if (respData.getDevType().equals(SysConfigConstant.DEVICE_TRANS_SWITCH)){
-                        boolean isChanged = handlerMasterOfModem(respData, param, rules);
-                        if (isChanged){
-                            DevIfeMegSend.sendDevStatusToDev();
-                        }
-                        return;
-                    }
-                    //处理功放主备使用信息
-                    if (respData.getDevType().equals(SysConfigConstant.DEVICE_CAR_GF)){
-                        boolean isChanged = handlerMasterOfGf(respData, param, rules);
-                        if (isChanged){
-                            DevIfeMegSend.sendDevStatusToDev();
-                        }
-                        return;
-                    }
                     devStatusReportService.reportWarningAndStaus(rules,param);
                 }
             }
         });
-    }
-
-    private boolean handlerMasterOfGf(FrameRespData respData, FrameParaData param, List<TransRule> rules) {
-        AtomicBoolean changed = new AtomicBoolean(false);
-        rules.forEach(rule -> {
-            if (rule.getInner().equals(param.getParaVal())) {
-                String outerStatus = rule.getOuter();
-                String oldStatus = DevStatusContainer.getDevStatusInfo(respData.getDevNo()).getMasterOrSlave();
-                if (!oldStatus.equals(outerStatus)){
-                    synchronized (param) {
-                        DevStatusContainer.setModemUse(respData.getDevNo(), outerStatus);
-                    }
-                    changed.set(true);
-                }
-            }
-        });
-        return changed.get();
-    }
-
-    private static final Map<String,List<String>> modemPair = new ConcurrentHashMap<>();
-    static {
-        //初始化转换开关和调制解调器的对应关系
-        modemPair.put("30",Arrays.asList("11","12"));
-        modemPair.put("31",Arrays.asList("13","14"));
-    }
-
-    private static boolean handlerMasterOfModem(FrameRespData respData, FrameParaData param, List<TransRule> rules) {
-        //是否需要推送数据
-        AtomicBoolean changed = new AtomicBoolean(false);
-        rules.forEach(rule -> {
-            if (rule.getInner().equals(param.getParaVal())) {
-                String outerStatus = rule.getOuter();
-                List<BaseInfo> modemBaseInfo = modemPair.get(respData.getDevNo())
-                        .stream().map(BaseInfoContainer::getDevInfoByNo).collect(Collectors.toList());
-                //历史主备状态
-                //主即第一个调制解调器在用，备即第二个在用
-                String oldStatus = DevStatusContainer.getDevStatusInfo(modemBaseInfo.get(0).getDevNo()).getMasterOrSlave();
-                if (outerStatus.equals("0")) {
-                    if (oldStatus.equals("1")){
-                        synchronized (param) {
-                            DevStatusContainer.setModemUse(modemBaseInfo.get(0).getDevNo(), "0");
-                            DevStatusContainer.setModemUse(modemBaseInfo.get(1).getDevNo(), "1");
-                        }
-                        changed.set(true);
-                    }
-                } else {
-                    if (oldStatus.equals("0")){
-                        synchronized (param) {
-                            DevStatusContainer.setModemUse(modemBaseInfo.get(0).getDevNo(), "1");
-                            DevStatusContainer.setModemUse(modemBaseInfo.get(1).getDevNo(), "0");
-                        }
-                        changed.set(true);
-                    }
-                }
-            }
-        });
-        return changed.get();
     }
 }
