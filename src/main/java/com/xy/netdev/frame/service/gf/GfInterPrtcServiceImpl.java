@@ -14,6 +14,8 @@ import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
+import com.xy.netdev.transit.IDataReciveService;
+import com.xy.netdev.transit.impl.DataReciveServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,6 +40,9 @@ public class GfInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
 
     @Autowired
     private ISysParamService sysParamService;
+
+    @Autowired
+    private DataReciveServiceImpl dataReciveService;
 
     @Override
     public void queryPara(FrameReqData reqInfo) {
@@ -67,6 +72,7 @@ public class GfInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
                     return paraInfo;
                 }).collect(Collectors.toList());
         respData.setFrameParaList(frameParaDataList);
+        dataReciveService.interfaceQueryRecive(respData);
         return respData;
     }
 

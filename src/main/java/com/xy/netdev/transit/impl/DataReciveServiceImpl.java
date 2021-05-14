@@ -14,7 +14,6 @@ import com.xy.netdev.monitor.bo.TransRule;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.rpt.bo.RptBodyDev;
 import com.xy.netdev.rpt.bo.RptHeadDev;
-import com.xy.netdev.rpt.enums.AchieveClassNameEnum;
 import com.xy.netdev.rpt.enums.StationCtlRequestEnums;
 import com.xy.netdev.rpt.service.IDevStatusReportService;
 import com.xy.netdev.rpt.service.StationControlHandler;
@@ -33,11 +32,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static com.xy.netdev.common.constant.SysConfigConstant.IS_DEFAULT_TRUE;
-import static com.xy.netdev.monitor.constant.MonitorConstants.SUB_MODEM;
 
 
 /**
@@ -81,7 +79,7 @@ public class DataReciveServiceImpl implements IDataReciveService {
         }
         DevLogInfoContainer.handlerRespDevPara(respData);//记录日志
         DevIfeMegSend.sendLogToDev(respData.getDevNo());//操作日志websocet推前台
-        handlerAlertInfo(respData);//处理报警信息
+        handlerAlertInfo(respData);//处理报警、主备等信息
     }
 
     /**
@@ -216,12 +214,6 @@ public class DataReciveServiceImpl implements IDataReciveService {
             log.warn("处理报警信息失败, 参数列表为空, 数据体:{}", JSONArray.toJSONString(respData));
             return;
         }
-        //处理调制解调器主备使用信息
-        if (respData.getDevType().equals(SysConfigConstant.DEVICE_TRANS_SWITCH)){
-            handlerMasterOfModem(respData);
-            DevIfeMegSend.sendDevStatusToDev();
-            return;
-        }
         params.forEach(param->{
             FrameParaInfo paraInfo = BaseInfoContainer.getParaInfoByNo(param.getDevType(),param.getParaNo());
             if(!paraInfo.getAlertPara().equals(SysConfigConstant.PARA_ALERT_TYPE_NULL)){
@@ -235,52 +227,6 @@ public class DataReciveServiceImpl implements IDataReciveService {
                 }
                 if(rules!=null){
                     devStatusReportService.reportWarningAndStaus(rules,param);
-                }
-            }
-
-        });
-    }
-
-    private static final Map<String,List<String>> modemPair = new ConcurrentHashMap<>();
-    static {
-        //初始化转换开关和调制解调器的对应关系
-        modemPair.put("30",Arrays.asList("11","12"));
-        modemPair.put("31",Arrays.asList("13","14"));
-    }
-
-    private static void handlerMasterOfModem(FrameRespData respData) {
-        List<FrameParaData> paraList = respData.getFrameParaList();
-        paraList.forEach(param-> {
-            FrameParaInfo paraInfo = BaseInfoContainer.getParaInfoByNo(param.getDevType(), param.getParaNo());
-            String alertField = paraInfo.getAlertPara();
-            if (!alertField.equals(SysConfigConstant.PARA_ALERT_TYPE_NULL)){
-                String ruleStr =  paraInfo.getTransRule();
-                List<TransRule> rules;
-                //读取参数配置的状态转换规则
-                try {
-                    rules = JSONArray.parseArray(ruleStr, TransRule.class);
-                }catch(Exception e) {
-                    throw new BaseException("参数状态转换规则有误");
-                }
-                if (rules!=null){
-                    rules.forEach(rule-> {
-                        if(rule.getInner().equals(param.getParaVal())) {
-                            String outerStatus = rule.getOuter();
-                            List<BaseInfo> modemBaseInfo = modemPair.get(respData.getDevNo())
-                                    .stream().map(BaseInfoContainer::getDevInfoByNo).collect(Collectors.toList());
-                            if (outerStatus.equals("0")){
-                                synchronized (param){
-                                    DevStatusContainer.setModemUse(modemBaseInfo.get(0).getDevNo(),"0");
-                                    DevStatusContainer.setModemUse(modemBaseInfo.get(1).getDevNo(),"1");
-                                }
-                            }else {
-                                synchronized (param){
-                                    DevStatusContainer.setModemUse(modemBaseInfo.get(0).getDevNo(),"1");
-                                    DevStatusContainer.setModemUse(modemBaseInfo.get(1).getDevNo(),"0");
-                                }
-                            }
-                        }
-                    });
                 }
             }
         });

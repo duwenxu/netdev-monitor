@@ -3,14 +3,17 @@ package com.xy.netdev.container;
 
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
+import com.xy.netdev.frame.bo.FrameParaData;
+import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.monitor.bo.DevStatusInfo;
 import com.xy.netdev.monitor.bo.ParaViewInfo;
+import com.xy.netdev.monitor.bo.TransRule;
 import com.xy.netdev.monitor.entity.BaseInfo;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import static com.xy.netdev.monitor.constant.MonitorConstants.SUB_MODEM;
 
@@ -164,7 +167,11 @@ public class DevStatusContainer {
         List<BaseInfo> masterSlaveDevList = BaseInfoContainer.getDevsFatByDevNo(devNo);
         if(devType.equals(SysConfigConstant.DEVICE_QHDY)){
             return handleMasterOfBPQ(masterSlaveDevList,masterOrSlave);
-        }else {
+        }else if (baseInfo.getDevType().equals(SysConfigConstant.DEVICE_TRANS_SWITCH)){
+            return handlerMasterOfModem(devNo,masterOrSlave);
+        }else if (baseInfo.getDevType().equals(SysConfigConstant.DEVICE_CAR_GF)){
+            return handlerMasterOfGf(devNo,masterOrSlave);
+        } else {
             masterSlaveDevList.forEach(devInfo->{
                 if(!devInfo.getDevNo().equals(devNo)){
                     if(masterOrSlave.equals(SysConfigConstant.RPT_DEV_STATUS_MASTERORSLAVE_SLAVE)){
@@ -184,6 +191,54 @@ public class DevStatusContainer {
         }
     }
 
+    private static boolean handlerMasterOfGf(String devNo, String masterOrSlave) {
+        AtomicBoolean changed = new AtomicBoolean(false);
+        String oldStatus = DevStatusContainer.getDevStatusInfo(devNo).getMasterOrSlave();
+        if (!oldStatus.equals(masterOrSlave)){
+            synchronized (masterOrSlave) {
+                DevStatusContainer.setModemUse(devNo, masterOrSlave);
+            }
+            changed.set(true);
+        }
+        return changed.get();
+    }
+
+
+    private static final Map<String,List<String>> modemPair = new ConcurrentHashMap<>();
+    static {
+        //初始化转换开关和调制解调器的对应关系
+        modemPair.put("30", Arrays.asList("11","12"));
+        modemPair.put("31",Arrays.asList("13","14"));
+    }
+
+    private static boolean handlerMasterOfModem(String devNo, String masterOrSlave) {
+        //是否需要推送数据
+        AtomicBoolean changed = new AtomicBoolean(false);
+        List<BaseInfo> modemBaseInfo = modemPair.get(devNo)
+                .stream().map(BaseInfoContainer::getDevInfoByNo).collect(Collectors.toList());
+        //历史主备状态
+        //主即第一个调制解调器在用，备即第二个在用
+        String oldStatus = DevStatusContainer.getDevStatusInfo(modemBaseInfo.get(0).getDevNo()).getMasterOrSlave();
+        if (masterOrSlave.equals("0")) {
+            if (oldStatus.equals("1")) {
+                synchronized (masterOrSlave) {
+                    DevStatusContainer.setModemUse(modemBaseInfo.get(0).getDevNo(), "0");
+                    DevStatusContainer.setModemUse(modemBaseInfo.get(1).getDevNo(), "1");
+                }
+                changed.set(true);
+            }
+        } else {
+            if (oldStatus.equals("0")) {
+                synchronized (masterOrSlave) {
+                    DevStatusContainer.setModemUse(modemBaseInfo.get(0).getDevNo(), "1");
+                    DevStatusContainer.setModemUse(modemBaseInfo.get(1).getDevNo(), "0");
+                }
+                changed.set(true);
+            }
+        }
+        return changed.get();
+    }
+
     private static boolean handleMasterOfBPQ(List<BaseInfo> baseInfos,String masterOrSlave) {
         boolean flag = false;
         for (BaseInfo baseInfo : baseInfos) {
@@ -196,11 +251,7 @@ public class DevStatusContainer {
             }else{
                 DevStatusInfo devStatusInfo = devStatusMap.get(baseInfo.getDevNo());
                 Boolean status = Boolean.valueOf(masterOrSlave);
-                if(!status){
-                    devStatusInfo.setMasterOrSlave("1");
-                }else{
-                    devStatusInfo.setMasterOrSlave("0");
-                }
+                    devStatusInfo.setMasterOrSlave(String.valueOf(!status));
             }
         }
         return flag;
