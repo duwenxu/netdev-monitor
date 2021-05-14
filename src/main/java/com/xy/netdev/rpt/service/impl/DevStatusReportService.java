@@ -140,7 +140,7 @@ public class DevStatusReportService implements IDevStatusReportService {
     private void reportDevStatus(DevStatusInfo devStatusInfo){
         RptHeadDev rptHeadDev = crateRptHeadDev(devStatusInfo);
         //推送前端
-//        DevIfeMegSend.sendDevStatusToDev();
+        DevIfeMegSend.sendDevStatusToDev();
         //上报54所网关站控
         upRptPrtclAnalysisService.queryParaResponse(rptHeadDev);
     }
