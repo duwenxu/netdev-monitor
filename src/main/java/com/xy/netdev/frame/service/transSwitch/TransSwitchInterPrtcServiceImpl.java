@@ -66,6 +66,8 @@ public class TransSwitchInterPrtcServiceImpl implements IQueryInterPrtclAnalysis
             String data = paramStrs[frameParaInfo.getParaSeq()-1];
             String paraCmk = data.substring(0, 2);
             String paraValueStr = data.substring(2);
+            FrameParaInfo currentPara = BaseInfoContainer.getParaInfoByCmd(devType, paraCmk);
+            if (StringUtils.isEmpty(currentPara.getParaNo())){ continue;}
             if(frameParaInfo.getCmplexLevel().equals(PARA_COMPLEX_LEVEL_COMPOSE)){
                 paraValueStr = HexStrToBit(paraValueStr).substring(4);
                 StringBuffer sb = new StringBuffer(paraValueStr);
@@ -73,22 +75,31 @@ public class TransSwitchInterPrtcServiceImpl implements IQueryInterPrtclAnalysis
                 sb.insert(3,"_");
                 sb.insert(5,"_");
                 paraValueStr = sb.toString();
+                //改变子参数的数据
+                String[] paraList = paraValueStr.split("_");
+                for(int i=0; i< paraList.length;i++){
+                    FrameParaData subFrame = genFramePara(frameParaInfo.getSubParaList().get(i),paraList[i]);
+                    subFrame.setDevNo(respData.getDevNo());
+                    frameParaDataList.add(subFrame);
+                }
             }
-
-            FrameParaInfo currentPara = BaseInfoContainer.getParaInfoByCmd(devType, paraCmk);
-            if (StringUtils.isEmpty(currentPara.getParaNo())){ continue;}
-            FrameParaData frameParaData = FrameParaData.builder()
-                    .devType(devType)
-                    .devNo(respData.getDevNo())
-                    .paraNo(currentPara.getParaNo())
-                    .build();
-            frameParaData.setParaVal(paraValueStr.toString());
+            FrameParaData frameParaData = genFramePara(currentPara,paraValueStr);
+            frameParaData.setParaVal(paraValueStr);
             frameParaDataList.add(frameParaData);
         }
         respData.setFrameParaList(frameParaDataList);
         //接口查询响应结果接收
         dataReciveService.interfaceQueryRecive(respData);
         return respData;
+    }
+
+    private  FrameParaData genFramePara(FrameParaInfo currentPara,String paraValueStr){
+        FrameParaData frameParaData = FrameParaData.builder()
+                .devType(currentPara.getDevType())
+                .paraNo(currentPara.getParaNo())
+                .build();
+        frameParaData.setParaVal(paraValueStr);
+        return frameParaData;
     }
 
     /**
