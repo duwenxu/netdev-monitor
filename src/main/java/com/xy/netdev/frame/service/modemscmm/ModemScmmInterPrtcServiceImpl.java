@@ -101,9 +101,7 @@ public class ModemScmmInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSe
         return respData;
     }
 
-
-
-    private String doGetValue(FrameParaInfo param, FrameParaData paraInfo, byte[] targetBytes) {
+    public String doGetValue(FrameParaInfo param, FrameParaData paraInfo, byte[] targetBytes) {
         //获取参数解析配置信息
         String confClass = param.getNdpaRemark2Data();
         String confParams = param.getNdpaRemark3Data();
