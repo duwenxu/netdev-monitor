@@ -191,6 +191,12 @@ public class DevStatusContainer {
         }
     }
 
+    /**
+     * 处理功放的主备状态
+     * @param devNo
+     * @param masterOrSlave
+     * @return
+     */
     private static boolean handlerMasterOfGf(String devNo, String masterOrSlave) {
         AtomicBoolean changed = new AtomicBoolean(false);
         String oldStatus = DevStatusContainer.getDevStatusInfo(devNo).getMasterOrSlave();
@@ -211,6 +217,12 @@ public class DevStatusContainer {
         modemPair.put("31",Arrays.asList("13","14"));
     }
 
+    /**
+     * 处理调制解调器的主备状态
+     * @param devNo
+     * @param masterOrSlave
+     * @return
+     */
     private static boolean handlerMasterOfModem(String devNo, String masterOrSlave) {
         //是否需要推送数据
         AtomicBoolean changed = new AtomicBoolean(false);
@@ -239,6 +251,12 @@ public class DevStatusContainer {
         return changed.get();
     }
 
+    /**
+     * 处理变频器的主备状态
+     * @param baseInfos
+     * @param masterOrSlave
+     * @return
+     */
     private static boolean handleMasterOfBPQ(List<BaseInfo> baseInfos,String masterOrSlave) {
         boolean flag = false;
         for (BaseInfo baseInfo : baseInfos) {
@@ -250,8 +268,11 @@ public class DevStatusContainer {
                 }
             }else{
                 DevStatusInfo devStatusInfo = devStatusMap.get(baseInfo.getDevNo());
-                Boolean status = Boolean.valueOf(masterOrSlave);
-                    devStatusInfo.setMasterOrSlave(String.valueOf(!status));
+                String statusStr = "1";
+                if(masterOrSlave.equals("1")){
+                    statusStr = "0";
+                }
+                devStatusInfo.setMasterOrSlave(statusStr);
             }
         }
         return flag;
@@ -288,13 +309,13 @@ public class DevStatusContainer {
         return false;
     }
 
-
     /**
      * @功能：获取所有设备状态上报信息
      * @return  设备状态列表
      */
     public static List<DevStatusInfo> getAllDevStatusInfoList(){
-        return new ArrayList(devStatusMap.values());
+        Collection collection = devStatusMap.values();
+        return new ArrayList<>(collection);
     }
 
     /**
@@ -306,6 +327,11 @@ public class DevStatusContainer {
         return devStatusMap.get(devNo);
     }
 
+    /**
+     * 设置调制解调器在用状态
+     * @param devNo
+     * @param masterOrSlave
+     */
     public static void setModemUse(String devNo, String masterOrSlave) {
         devStatusMap.get(devNo).setMasterOrSlave(masterOrSlave);
     }

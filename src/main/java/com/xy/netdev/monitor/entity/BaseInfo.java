@@ -119,6 +119,10 @@ public class BaseInfo extends Model<BaseInfo> {
     @Param
     private String devIsLink;
 
+    @ApiModelProperty(value = "设备在菜单的显示顺序")
+    @TableField(value="DEV_MENU_SEQ")
+    private String devMenuSeq;
+
     @ApiModelProperty(value = "备注一描述")
     @TableField(value = "DEV_REMARK1_DESC")
     private String devRemark1Desc;

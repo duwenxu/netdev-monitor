@@ -136,7 +136,7 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
             }else{
                 prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(r.getDevType(), cmdHexStr);
             }
-            if (prtclFormat == null){
+            if (prtclFormat.getFmtId() == null){
                 log.warn("设备:{}, 未找到数据体处理类", r.getDevNo());
                 return;
             }
