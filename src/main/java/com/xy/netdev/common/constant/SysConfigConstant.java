@@ -314,7 +314,7 @@ public interface SysConfigConstant {
     String PUBLIC_PARA_STATION_NO = "0100001";
 
     /**
-     * 公共参数--54所ID地址
+     * 公共参数--54所IP地址、端口号
      */
     String RPT_IP_ADDR = "0100006";
 
