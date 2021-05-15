@@ -256,7 +256,7 @@ public class BaseInfoContainer {
                         } else {
                             point = point + 2;
                         }
-                    }else if(SUB_KU_GF.equals(devType)){
+                    }else if(SUB_KU_GF.equals(devType)&&Integer.parseInt(paraInfo.getParaByteLen())>0){
                             point = point + 1;
                     }
                     paraInfo.setParaStartPoint(point);//参数下标：从哪一个字节开始
