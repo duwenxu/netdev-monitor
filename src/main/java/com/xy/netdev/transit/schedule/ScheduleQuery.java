@@ -50,7 +50,7 @@ public class ScheduleQuery  implements ApplicationRunner{
     public void run(ApplicationArguments args) throws Exception {
         log.info("-----设备状态定时查询开始...");
         try {
-//           doScheduleQuery();
+           doScheduleQuery();
 //            List<BaseInfo> pingBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(baseInfo -> !baseInfo.getDevNo().equals("30")&&!baseInfo.getDevNo().equals("31")).collect(Collectors.toList());
 //            execBasePing(pingBaseInfo);
         } catch (Exception e) {
@@ -137,7 +137,7 @@ public class ScheduleQuery  implements ApplicationRunner{
         ThreadUtil.newSingleExecutor().submit(()->{
             Thread.currentThread().setName(PING_THREAD_NAME);
             while (true){
-                Thread.sleep(10000);
+                Thread.sleep(5000);
                 baseInfos.forEach(baseInfo->{
                     //默认超时时间 200
                     boolean ping = NetUtil.ping(baseInfo.getDevIpAddr());
