@@ -24,8 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.PostConstruct;
+import java.io.UnsupportedEncodingException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -81,6 +80,7 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
             List<BaseInfo> subList = baseInfos.stream().filter(base -> menu.getDevNo().equals(base.getDevParentNo()) && DEV_STATUS_NEW.equals(base.getDevStatus())).collect(Collectors.toList());
             LinkedHashMap<String, Object> subMap = new LinkedHashMap<>();
             //将子设备列表转换为Map
+            subList.sort(Comparator.comparing(BaseInfo::getDevMenuSeq));
             subList.forEach(targetInfo -> {
                 LinkedHashMap map = JSONObject.parseObject(JSONObject.toJSONString(targetInfo), LinkedHashMap.class);
                 subMap.put(targetInfo.getDevName(), map);
@@ -109,11 +109,15 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
      */
     @Override
     public Map<String, Object> downDevFile(String devNo) {
-        BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(devNo);
         Map<String, Object> maps = new HashMap<>();
-        String subType = ByteUtils.make0HexStr(Optional.ofNullable(ParaHandlerUtil.generateEmptyStr(sysParamService.getParaRemark1(baseInfo.getDevSubType()))).orElse("01"));
-        maps.put("fileName", "P[" + ByteUtils.make0HexStr(sysParamService.getParaRemark1(baseInfo.getDevType())) + subType + "]_" + DateUtils.getDateYMDHMS());
-        maps.put("fileContext", generateDevModelFileMap(baseInfo).getBytes());
+        try {
+            BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(devNo);
+            String subType = ByteUtils.make0HexStr(Optional.ofNullable(ParaHandlerUtil.generateEmptyStr(sysParamService.getParaRemark1(baseInfo.getDevSubType()))).orElse("01"));
+            maps.put("fileName", "P[" + ByteUtils.make0HexStr(sysParamService.getParaRemark1(baseInfo.getDevType())) + subType + "]_" + DateUtils.getDateYMDHMS());
+            maps.put("fileContext", generateDevModelFileMap(baseInfo).getBytes("gb2312"));
+        } catch (UnsupportedEncodingException e) {
+            log.error("生成设备文件发生异常！");
+        }
         return maps;
     }
 

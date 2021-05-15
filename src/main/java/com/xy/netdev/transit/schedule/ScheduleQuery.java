@@ -50,7 +50,7 @@ public class ScheduleQuery  implements ApplicationRunner{
     public void run(ApplicationArguments args) throws Exception {
         log.info("-----设备状态定时查询开始...");
         try {
-          doScheduleQuery();
+           doScheduleQuery();
 //            List<BaseInfo> pingBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(baseInfo -> !baseInfo.getDevNo().equals("30")&&!baseInfo.getDevNo().equals("31")).collect(Collectors.toList());
 //            execBasePing(pingBaseInfo);
         } catch (Exception e) {
@@ -62,8 +62,10 @@ public class ScheduleQuery  implements ApplicationRunner{
      * 设备参数定时查询
      */
     public void doScheduleQuery() {
+//        List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases();
         List<BaseInfo> pingBaseInfo = ScheduleQueryHelper.getAvailableBases();
-        List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(base -> base.getDevType().equals("0020007")||base.getDevType().equals("0020001")||base.getDevType().equals("0020005")||base.getDevType().equals("0020006")||base.getDevType().equals("0020008")||base.getDevType().equals("0020003")).collect(Collectors.toList());
+        List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(base -> base.getDevType().equals("0020003")|| base.getDevType().equals("0020008")).collect(Collectors.toList());
+        //List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(base -> base.getDevType().equals("0020008")).collect(Collectors.toList());
 
 
         //单个设备所有查询对象的封装list映射
@@ -135,7 +137,7 @@ public class ScheduleQuery  implements ApplicationRunner{
         ThreadUtil.newSingleExecutor().submit(()->{
             Thread.currentThread().setName(PING_THREAD_NAME);
             while (true){
-                Thread.sleep(10000);
+                Thread.sleep(5000);
                 baseInfos.forEach(baseInfo->{
                     //默认超时时间 200
                     boolean ping = NetUtil.ping(baseInfo.getDevIpAddr());

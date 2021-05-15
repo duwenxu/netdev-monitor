@@ -99,7 +99,7 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
         rptHeadDev.setDevNo(stationControlHeadEntity.getBaseInfo().getDevNo());
         rptHeadDev.setCmdMarkHexStr(stationControlHeadEntity.getCmdMark());
         setAchieveClass(rptHeadDev);
-        ResponseService responseService = BeanFactoryUtil.getBean(rptHeadDev.getAchieveClassNameEnum().getClassName());
+        ResponseService responseService = BeanFactoryUtil.getBean(rptHeadDev.getAchieveClassNameEnum().getClazzName());
         //数据解析
         rptHeadDev = responseService.unpackBody(stationControlHeadEntity, rptHeadDev);
         //执行设备查询/设置流程
@@ -125,7 +125,7 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
     public synchronized void queryParaResponse(RptHeadDev headDev) {
         setAchieveClass(headDev);
         BaseInfo stationInfo = BaseInfoContainer.genRptBaseInfo();
-        RequestService requestService = BeanFactoryUtil.getBean(headDev.getAchieveClassNameEnum().getClassName());
+        RequestService requestService = BeanFactoryUtil.getBean(headDev.getAchieveClassNameEnum().getClazzName());
         byte[] bodyBytes = requestService.pack(headDev);
         int port = Integer.parseInt(stationInfo.getDevPort());
         int cmd = Integer.parseInt(headDev.getCmdMarkHexStr(), 16);

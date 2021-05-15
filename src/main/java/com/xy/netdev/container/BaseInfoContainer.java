@@ -262,7 +262,7 @@ public class BaseInfoContainer {
                     paraInfo.setParaStartPoint(point);//参数下标：从哪一个字节开始
                     log.debug("cmd:{}----point:{}", paraInfo.getCmdMark(), point);
                     String byteLen = StringUtils.isBlank(paraInfo.getParaByteLen()) ? "0" : paraInfo.getParaByteLen();
-                    point = point + Integer.valueOf(byteLen);
+                    point = point + Integer.parseInt(byteLen);
                 } catch (NumberFormatException e) {
                     log.error("参数[" + paraInfo.getParaName() + "]的字节长度存在异常，请检查：" + e.getMessage());
                 }
