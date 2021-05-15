@@ -139,7 +139,9 @@ public class DevIfeMegSend {
             }
         }
         TextWebSocketFrame textWebSocketFrame = new TextWebSocketFrame(msg);
-        channels.writeAndFlush(textWebSocketFrame);
+        if (channels!=null){
+            channels.writeAndFlush(textWebSocketFrame);
+        }
     }
 
     /**

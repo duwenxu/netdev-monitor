@@ -7,6 +7,7 @@ import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.BeanFactoryUtil;
 import com.xy.netdev.container.BaseInfoContainer;
+import com.xy.netdev.factory.SingletonFactory;
 import com.xy.netdev.frame.bo.ExtParamConf;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
@@ -70,7 +71,7 @@ public class ModemPrtcServiceImpl implements IParaPrtclAnalysisService {
         String confClass = currentPara.getNdpaRemark2Data();
         String confParams = currentPara.getNdpaRemark3Data();
         //默认直接转换
-        ParamCodec codec = new DirectParamCodec();
+        ParamCodec codec = SingletonFactory.getInstance(DirectParamCodec.class);
         ExtParamConf paramConf = new ExtParamConf();
         Object[] params = new Object[0];
         if (!StringUtils.isBlank(confParams)) {

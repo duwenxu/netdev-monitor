@@ -46,8 +46,6 @@ public class PowerAmpInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
     @Autowired
     private SocketMutualService socketMutualService;
     @Autowired
-    private ISysParamService sysParamService;
-    @Autowired
     private DataReciveServiceImpl dataReciveService;
     @Autowired
     private ModemScmmInterPrtcServiceImpl modemScmmInterPrtcService;
