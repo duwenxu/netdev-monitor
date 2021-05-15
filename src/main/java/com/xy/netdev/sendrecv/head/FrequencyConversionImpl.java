@@ -2,7 +2,11 @@ package com.xy.netdev.sendrecv.head;
 
 import cn.hutool.core.util.StrUtil;
 import com.xy.netdev.common.constant.SysConfigConstant;
+import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.service.ICtrlInterPrtclAnalysisService;
+import com.xy.netdev.monitor.bo.FrameParaInfo;
+import com.xy.netdev.monitor.constant.MonitorConstants;
+import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.sendrecv.base.AbsDeviceSocketHandler;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
@@ -51,7 +55,21 @@ public class FrequencyConversionImpl extends AbsDeviceSocketHandler<SocketEntity
         String paramMark = StrUtil.sub(data, beginOffset, endOffset);
         frameRespData.setCmdMark(paramMark);
         frameRespData.setParamBytes(socketEntity.getBytes());
+        frameRespData.setAccessType(getAccessType(frameRespData.getDevType(),paramMark.substring(1)));
         return frameRespData;
+    }
+
+    private String getAccessType(String devType,String cmdMark){
+        String accessType = "";
+        FrameParaInfo frameParaInfo =  BaseInfoContainer.getParaInfoByCmd(devType,cmdMark);
+        if(frameParaInfo != null){
+            accessType =  SysConfigConstant.ACCESS_TYPE_PARAM;
+        }
+        Interface interf =  BaseInfoContainer.getInterLinkInterface(devType,cmdMark);
+        if(interf != null){
+            accessType =  SysConfigConstant.ACCESS_TYPE_INTERF;
+        }
+        return accessType;
     }
 
     @Override
