@@ -79,17 +79,18 @@ public class PowerAmpInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
                     String paraNo = paraInfo.getParaNo();
                     if (dataType.equals(STR)) {
                         byte[] targetBytes = byteArrayCopy(bytes, paraStartPoint, paraByteLen);
-                        String paraVal = StrUtil.str(targetBytes, Charsets.UTF_8);
+                        String paraVal = HexUtil.encodeHexStr(targetBytes);
                         paraInfo.setParaVal(paraVal);
+                        if ("8".equals(paraNo)) {
+                            double i = (double) Integer.parseInt(paraVal) / 1000;
+                            paraInfo.setParaVal("V"+i);
+                        }
                     } else if (dataType.equals(INT)) {
                         byte[] targetBytes = byteArrayCopy(bytes, paraStartPoint, paraByteLen);
                         String paraVal = byteToNumber(bytes, paraStartPoint, paraByteLen, isUnsigned(sysParamService, INT)).toString();
                         if ("7".equals(paraNo)) {
                             paraInfo.setParaVal(String.valueOf(HexUtil.encodeHex(targetBytes)));
-                        }else if ("8".equals(paraNo)) {
-                            double i = (double) Integer.parseInt(paraVal) / 1000;
-                            paraInfo.setParaVal("V"+i);
-                        }else {
+                        }else{
                             paraInfo.setParaVal(paraVal);
                         }
                     } else if (dataType.equals(BYTE)) {

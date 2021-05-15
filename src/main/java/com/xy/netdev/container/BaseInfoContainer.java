@@ -250,12 +250,14 @@ public class BaseInfoContainer {
                     paraInfo.setParaSeq(seq);  //参数序号
                     //对于存在分隔符的参数下标做特殊处理
                     String devType = paraInfo.getDevType();
-                    if (SUB_MODEM.equals(devType) || SUB_KU_GF.equals(devType)) {
+                    if (SUB_MODEM.equals(devType)) {
                         if (seq == 1) {
                             point = point + 1;
                         } else {
                             point = point + 2;
                         }
+                    }else if(SUB_KU_GF.equals(devType)){
+                            point = point + 1;
                     }
                     paraInfo.setParaStartPoint(point);//参数下标：从哪一个字节开始
                     log.debug("cmd:{}----point:{}", paraInfo.getCmdMark(), point);
