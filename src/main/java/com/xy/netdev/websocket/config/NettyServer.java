@@ -44,7 +44,7 @@ public class NettyServer  implements ApplicationRunner {
     private ChannelFuture future;
 
     public NettyServer() {
-        mainGroup = new NioEventLoopGroup();
+        mainGroup = new NioEventLoopGroup(1);
         subGroup = new NioEventLoopGroup();
         server = new ServerBootstrap();
         server.group(mainGroup, subGroup)
