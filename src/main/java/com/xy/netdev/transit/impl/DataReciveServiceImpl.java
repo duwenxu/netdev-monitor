@@ -26,10 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -82,7 +79,7 @@ public class DataReciveServiceImpl implements IDataReciveService {
     }
 
     /**
-     * 主动上报推送
+     * 主动上报推送参数状态信息
      * @param respData 上报数据
      */
     private void stationRptParamsByDev(FrameRespData respData) {
@@ -117,7 +114,8 @@ public class DataReciveServiceImpl implements IDataReciveService {
         rptBodyDev.setDevParaTotal(devParaViewList.size()+"");
 //        rptBodyDev.setDevParamLen();
         rptBodyDev.setDevParaList(resFrameParaList);
-        headDev.setParam(rptBodyDev);
+        List<RptBodyDev> rptBodyDevList = Collections.singletonList(rptBodyDev);
+        headDev.setParam(rptBodyDevList);
         return headDev;
     }
 
