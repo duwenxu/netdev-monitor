@@ -269,6 +269,7 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
     private RptHeadDev doParaWarnQueryAction(RptHeadDev headDev) {
         List<RptBodyDev> rptBodyDev = (List<RptBodyDev>) headDev.getParam();
         List<AlertInfo> alertInfoList = new ArrayList<>();
+        headDev.setCmdMarkHexStr(StationCtlRequestEnums.PARA_WARNING_QUERY_RESP.getCmdCode());
         rptBodyDev.forEach(rptBody -> {
             //获取指定设备的报警信息
             List<AlertInfo> alertInfoLists = DevAlertInfoContainer.getDevAlertInfoList(rptBody.getDevNo());
