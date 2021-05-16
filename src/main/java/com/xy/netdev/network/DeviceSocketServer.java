@@ -24,6 +24,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import static com.xy.netdev.common.constant.SysConfigConstant.RPT_IP_ADDR;
 import static com.xy.netdev.container.BaseInfoContainer.getDevInfos;
 
 /**
@@ -77,6 +78,7 @@ public class DeviceSocketServer  implements ApplicationRunner {
                 tcpList.add(baseInfo);
             }
         });
+        Integer port_54 = Integer.parseInt(sysParamService.getParaRemark2(RPT_IP_ADDR));
         udpStart(udpPort);
         tcpStart(tcpList);
     }

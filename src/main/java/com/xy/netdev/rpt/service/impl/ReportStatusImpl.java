@@ -31,23 +31,23 @@ public class ReportStatusImpl implements RequestService {
         //设备状态信息
         List<DevStatusInfo> devStatusInfoList = (List<DevStatusInfo>) rptHeadDev.getParam();
         devStatusInfoList.forEach(devStatusInfo -> {
-//            //设备型号
-//            tempList.add(ByteUtils.objToBytes(devStatusInfo.getDevTypeCode(), 2));
-//            //设备编号
-//            tempList.add(ByteUtils.objToBytes(devStatusInfo.getDevNo(), 1));
-//            //设备状态
-//            String binaryStr = "000" +
-//                    //工作状态
-//                    devStatusInfo.getWorkStatus() +
-//                    //主用还是备用
-//                    devStatusInfo.getMasterOrSlave() +
-//                    //是否启用主备
-//                    devStatusInfo.getIsUseStandby() +
-//                    //是否告警
-//                    devStatusInfo.getIsAlarm() +
-//                    //是否中断
-//                    devStatusInfo.getIsInterrupt();
-//            tempList.add(ByteUtils.objToBytes(Integer.parseInt(binaryStr, 2), 1));
+            //设备型号
+            tempList.add(ByteUtils.objToBytes(devStatusInfo.getDevTypeCode(), 2));
+            //设备编号
+            tempList.add(ByteUtils.objToBytes(devStatusInfo.getDevNo(), 1));
+            //设备状态
+            String binaryStr = "000" +
+                    //工作状态
+                    devStatusInfo.getWorkStatus() +
+                    //主用还是备用
+                    devStatusInfo.getMasterOrSlave() +
+                    //是否启用主备
+                    devStatusInfo.getIsUseStandby() +
+                    //是否告警
+                    devStatusInfo.getIsAlarm() +
+                    //是否中断
+                    devStatusInfo.getIsInterrupt();
+            tempList.add(ByteUtils.objToBytes(Integer.parseInt(binaryStr, 2), 1));
         });
         return ByteUtils.listToBytes(tempList);
     }

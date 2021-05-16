@@ -86,7 +86,7 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
             return frameRespData;
         }
 
-        log.info("650接收到完整响应帧：{}",HexUtil.encodeHexStr(bytes));
+        log.debug("650接收到完整响应帧：{}",HexUtil.encodeHexStr(bytes));
 
         if (bytes.length<=6){
             log.warn("650调制解调器数据长度错误, 未能正确解析, 数据体长度:{}, 数据体:{}", bytes.length, HexUtil.encodeHexStr(bytes));
@@ -192,7 +192,7 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
         modemEntity.setCheck(check);
         byte[] pack = pack(modemEntity);
         if (OPREATE_QUERY.equals(operType)){
-            log.info("650调制解调器, 查询帧：{}",HexUtil.encodeHexStr(pack));
+            log.debug("650调制解调器, 查询帧：{}",HexUtil.encodeHexStr(pack));
         }else {
             log.info("650调制解调器, 控制帧：{}",HexUtil.encodeHexStr(pack));
         }

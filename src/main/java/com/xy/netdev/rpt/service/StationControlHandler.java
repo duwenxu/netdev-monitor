@@ -19,6 +19,7 @@ import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -80,7 +81,12 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
         byte[] bytes = socketEntity.getBytes();
         int cmdMark = bytesToNum(bytes, 0, 2, ByteBuf::readShort);
         int len = bytesToNum(bytes, 2, 2, ByteBuf::readShort);
-        byte[] paramData = byteArrayCopy(bytes, 8, len);
+        byte[] paramData = new byte[0];
+        try {
+            paramData = byteArrayCopy(bytes, 8, len);
+        } catch (Exception e) {
+            log.error("bytes：{},len:{}",bytes,len);
+        }
         StationControlHeadEntity stationControlHeadEntity = new StationControlHeadEntity();
         stationControlHeadEntity.setBaseInfo(devInfo);
         stationControlHeadEntity.setCmdMark(Integer.toHexString(cmdMark));
@@ -123,12 +129,23 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
 
     @Override
     public synchronized void queryParaResponse(RptHeadDev headDev) {
-        setAchieveClass(headDev);
-        BaseInfo stationInfo = BaseInfoContainer.genRptBaseInfo();
-        RequestService requestService = BeanFactoryUtil.getBean(headDev.getAchieveClassNameEnum().getClazzName());
-        byte[] bodyBytes = requestService.pack(headDev);
-        int port = Integer.parseInt(stationInfo.getDevPort());
-        int cmd = Integer.parseInt(headDev.getCmdMarkHexStr(), 16);
+        BaseInfo stationInfo = null;
+        byte[] bodyBytes = new byte[0];
+        int port = 0;
+        int cmd = 0;
+        try {
+            setAchieveClass(headDev);
+            stationInfo = BaseInfoContainer.genRptBaseInfo();
+            if (headDev.getAchieveClassNameEnum()==null){
+                headDev.setAchieveClassNameEnum(AchieveClassNameEnum.PARAM_QUERY);
+            }
+            RequestService requestService = BeanFactoryUtil.getBean(headDev.getAchieveClassNameEnum().getClazzName());
+            bodyBytes = requestService.pack(headDev);
+            port = Integer.parseInt(stationInfo.getDevPort());
+            cmd = Integer.parseInt(headDev.getCmdMarkHexStr(), 16);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         //拼数据头
         byte[] bytes = ArrayUtil.addAll(
                 //信息类别
