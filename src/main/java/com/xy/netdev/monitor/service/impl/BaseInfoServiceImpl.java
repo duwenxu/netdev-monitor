@@ -113,7 +113,8 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
         try {
             BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(devNo);
             String subType = ByteUtils.make0HexStr(Optional.ofNullable(ParaHandlerUtil.generateEmptyStr(sysParamService.getParaRemark1(baseInfo.getDevSubType()))).orElse("01"));
-            maps.put("fileName", "P[" + ByteUtils.make0HexStr(sysParamService.getParaRemark1(baseInfo.getDevType())) + subType + "]_" + DateUtils.getDateYMDHMS());
+            //maps.put("fileName", "P[" + ByteUtils.make0HexStr(sysParamService.getParaRemark1(baseInfo.getDevType())) + subType + "]_" + ByteUtils.make0HexStr(sysParamService.getParaRemark1(baseInfo.getDevType())));
+            maps.put("fileName", "P[" + ByteUtils.make0HexStr("39") + ByteUtils.make0HexStr(sysParamService.getParaRemark1(baseInfo.getDevType())) + "]_" + DateUtils.getDateYMDHMS());
             maps.put("fileContext", generateDevModelFileMap(baseInfo).getBytes("gb2312"));
         } catch (UnsupportedEncodingException e) {
             log.error("生成设备文件发生异常！");
@@ -134,9 +135,9 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
         /***********************增加dev节点********************************/
         Map<String, Object> devMap = new LinkedHashMap<>();
         //给dev节点增加属性值
-        devMap.put("-Types", ByteUtils.make0HexStr(sysParamService.getParaRemark1(baseInfo.getDevType())));
+        devMap.put("-Types", ByteUtils.make0HexStr("39"));
         devMap.put("-ver", ParaHandlerUtil.generateEmptyStr(baseInfo.getDevVer()));
-        String subType = ByteUtils.make0HexStr(Optional.ofNullable(ParaHandlerUtil.generateEmptyStr(sysParamService.getParaRemark1(baseInfo.getDevSubType()))).orElse("01"));
+        String subType = ByteUtils.make0HexStr(sysParamService.getParaRemark1(baseInfo.getDevType()));
         devMap.put("-subtype", subType);
         devMap.put("name", ParaHandlerUtil.generateEmptyStr(baseInfo.getDevName()));
         devMap.put("cnName", ParaHandlerUtil.generateEmptyStr(baseInfo.getDevName()));
