@@ -76,7 +76,7 @@ public class ReportTestController {
                 .alertDesc("设备：切换单元参数：变频器总状态报警：error!").build();
         DevAlertInfoContainer.addAlertInfo(alertInfo);
         RptHeadDev rptHeadDev = crateRptHeadDev(alertInfo);
-        upRptPrtclAnalysisService.queryParaResponse(rptHeadDev);
+        upRptPrtclAnalysisService.queryParaResponse(rptHeadDev,StationCtlRequestEnums.PARA_ALARM_REPORT);
         Result result = new Result();
         result = result.success("告警上报成功！");
         return result;

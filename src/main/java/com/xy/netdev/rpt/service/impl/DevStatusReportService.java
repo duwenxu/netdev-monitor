@@ -142,7 +142,7 @@ public class DevStatusReportService implements IDevStatusReportService {
         //推送前端
         DevIfeMegSend.sendDevStatusToDev();
         //上报54所网关站控
-        upRptPrtclAnalysisService.queryParaResponse(rptHeadDev);
+        upRptPrtclAnalysisService.queryParaResponse(rptHeadDev,StationCtlRequestEnums.DEV_STATUS_REPORT);
     }
 
 
@@ -247,7 +247,7 @@ public class DevStatusReportService implements IDevStatusReportService {
             //利用websocket主动推送告警信息
             DevIfeMegSend.sendAlertToDev(respData.getDevNo());
             RptHeadDev rptHeadDev = crateRptHeadDev(alertInfo);
-            upRptPrtclAnalysisService.queryParaResponse(rptHeadDev);
+            upRptPrtclAnalysisService.queryParaResponse(rptHeadDev,StationCtlRequestEnums.PARA_ALARM_REPORT);
         }
     }
 

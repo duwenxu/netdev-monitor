@@ -3,14 +3,19 @@ package com.xy.netdev.rpt.service.impl;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.rpt.bo.RptBodyDev;
 import com.xy.netdev.rpt.bo.RptHeadDev;
+import com.xy.netdev.rpt.enums.StationCtlRequestEnums;
 import com.xy.netdev.rpt.service.RequestService;
 import com.xy.netdev.rpt.service.ResponseService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import static com.xy.netdev.common.util.ByteUtils.listToBytes;
+import static com.xy.netdev.common.util.ByteUtils.placeholderByte;
 import static com.xy.netdev.rpt.service.StationControlHandler.*;
 
 /**
@@ -19,6 +24,9 @@ import static com.xy.netdev.rpt.service.StationControlHandler.*;
  */
 @Service
 public class ParamSetImpl implements RequestService, ResponseService {
+
+    @Autowired
+    private ParamQueryImpl paramQuery;
 
     @Override
     public RptHeadDev unpackBody(StationControlHeadEntity stationControlHeadEntity, RptHeadDev headDev) {
@@ -52,8 +60,8 @@ public class ParamSetImpl implements RequestService, ResponseService {
 
 
     @Override
-    public byte[] pack(RptHeadDev rptHeadDev) {
-        return commonPack(rptHeadDev, (devParaList, tempList) -> {
+    public byte[] pack(RptHeadDev rptHeadDev,StationCtlRequestEnums stationCtlRequestEnums) {
+        List<byte[]> dataBytes = commonPack(rptHeadDev, (devParaList, tempList) -> {
             devParaList.forEach(frameParaData -> {
                 //参数编号
                 tempList.add(ByteUtils.objToBytes(frameParaData.getParaNo(), 1));
@@ -61,6 +69,7 @@ public class ParamSetImpl implements RequestService, ResponseService {
                 tempList.add(ByteUtils.objToBytes(frameParaData.getParaSetRes(), 2));
             });
         });
+        return paramQuery.packHeadBytes(dataBytes, StationCtlRequestEnums.PARA_SET_RESPONSE);
     }
 
 

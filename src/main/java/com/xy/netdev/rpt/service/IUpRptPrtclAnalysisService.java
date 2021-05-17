@@ -2,6 +2,7 @@ package com.xy.netdev.rpt.service;
 
 
 import com.xy.netdev.rpt.bo.RptHeadDev;
+import com.xy.netdev.rpt.enums.StationCtlRequestEnums;
 
 /**
  * <p>
@@ -16,7 +17,7 @@ public interface IUpRptPrtclAnalysisService {
      * 上报外部协议
      * @param  headDev
      */
-    void queryParaResponse(RptHeadDev headDev);
+    void queryParaResponse(RptHeadDev headDev,StationCtlRequestEnums stationCtlRequestEnums);
 
 
 
