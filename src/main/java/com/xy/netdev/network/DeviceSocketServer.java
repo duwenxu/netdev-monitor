@@ -79,6 +79,7 @@ public class DeviceSocketServer  implements ApplicationRunner {
             }
         });
         Integer port_54 = Integer.parseInt(sysParamService.getParaRemark2(RPT_IP_ADDR));
+        udpPort.add(port_54);
         udpStart(udpPort);
         tcpStart(tcpList);
     }

@@ -3,7 +3,9 @@ package com.xy.netdev.rpt.service.impl;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.monitor.bo.DevStatusInfo;
 import com.xy.netdev.rpt.bo.RptHeadDev;
+import com.xy.netdev.rpt.enums.StationCtlRequestEnums;
 import com.xy.netdev.rpt.service.RequestService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -18,9 +20,12 @@ import static com.xy.netdev.common.util.ByteUtils.placeholderByte;
 @Service
 public class ReportStatusImpl implements RequestService {
 
+    @Autowired
+    private ParamQueryImpl paramQuery;
+
     @Override
     @SuppressWarnings("unchecked")
-    public byte[] pack(RptHeadDev rptHeadDev) {
+    public byte[] pack(RptHeadDev rptHeadDev,StationCtlRequestEnums stationCtlRequestEnums) {
         List<byte[]> tempList = new ArrayList<>();
         //保留
         tempList.add(placeholderByte(5));
@@ -49,6 +54,6 @@ public class ReportStatusImpl implements RequestService {
                     devStatusInfo.getIsInterrupt();
             tempList.add(ByteUtils.objToBytes(Integer.parseInt(binaryStr, 2), 1));
         });
-        return ByteUtils.listToBytes(tempList);
+        return paramQuery.packHeadBytes(tempList, StationCtlRequestEnums.DEV_STATUS_REPORT);
     }
 }

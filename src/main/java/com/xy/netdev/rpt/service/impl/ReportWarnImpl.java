@@ -3,7 +3,9 @@ package com.xy.netdev.rpt.service.impl;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.monitor.entity.AlertInfo;
 import com.xy.netdev.rpt.bo.RptHeadDev;
+import com.xy.netdev.rpt.enums.StationCtlRequestEnums;
 import com.xy.netdev.rpt.service.RequestService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.Charset;
@@ -20,10 +22,12 @@ import static com.xy.netdev.common.util.ByteUtils.placeholderByte;
 @Service
 public class ReportWarnImpl implements RequestService {
 
+    @Autowired
+    private ParamQueryImpl paramQuery;
 
     @Override
     @SuppressWarnings("unchecked")
-    public byte[] pack(RptHeadDev rptHeadDev) {
+    public byte[] pack(RptHeadDev rptHeadDev,StationCtlRequestEnums stationCtlRequestEnums) {
         AlertInfo alertInfo = (AlertInfo) rptHeadDev.getParam();
         List<byte[]> tempList = new ArrayList<>();
         //保留
@@ -48,6 +52,6 @@ public class ReportWarnImpl implements RequestService {
         tempList.add(ByteUtils.objToBytes(alertDesc.length, 1));
         //告警描述
         tempList.add(alertDesc);
-        return listToBytes(tempList);
+        return paramQuery.packHeadBytes(tempList, StationCtlRequestEnums.PARA_WARNING_QUERY_RESP);
     }
 }

@@ -1,6 +1,7 @@
 package com.xy.netdev.sendrecv.head;
 
 import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.StrUtil;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.frame.service.ICtrlInterPrtclAnalysisService;
@@ -100,7 +101,9 @@ public class AntennaControlImpl extends AbsDeviceSocketHandler<SocketEntity, Fra
                 .build();
         byte vs = xor(antennaControlEntity);
         antennaControlEntity.setVs(vs);
-        return pack(antennaControlEntity);
+        byte[] pack = pack(antennaControlEntity);
+        log.info("40W功放发送查询/控制帧内容：{}", HexUtil.encodeHexStr(pack));
+        return pack;
     }
 
 

@@ -84,7 +84,7 @@ public class DataReciveServiceImpl implements IDataReciveService {
      */
     private void stationRptParamsByDev(FrameRespData respData) {
         RptHeadDev headDev = rptParamsByDev(respData);
-        stationControlHandler.queryParaResponse(headDev);
+        stationControlHandler.queryParaResponse(headDev,StationCtlRequestEnums.PARA_QUERY_RESPONSE);
     }
 
     /**

@@ -220,14 +220,19 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
     }
 
     public FrameParaData frameParaDataWrapper(ParaViewInfo paraView) {
-        String paramVal = transParamVal(paraView,IN_TO_OUT);
-        FrameParaData.FrameParaDataBuilder frameParaDataBuilder = FrameParaData.builder()
-                .paraNo(paraView.getParaNo())
-                .paraVal(paramVal)
-                .devType(paraView.getDevType())
-                .devNo(paraView.getDevNo());
-        if (StrUtil.isNotBlank(paraView.getParaByteLen())){
-            frameParaDataBuilder.len(Integer.parseInt(paraView.getParaByteLen()));
+        FrameParaData.FrameParaDataBuilder frameParaDataBuilder = null;
+        try {
+            String paramVal = transParamVal(paraView,IN_TO_OUT);
+            frameParaDataBuilder = FrameParaData.builder()
+                    .paraNo(paraView.getParaNo())
+                    .paraVal(paramVal)
+                    .devType(paraView.getDevType())
+                    .devNo(paraView.getDevNo());
+            if (StrUtil.isNotBlank(paraView.getParaByteLen())){
+                frameParaDataBuilder.len(Integer.parseInt(paraView.getParaByteLen()));
+            }
+        } catch (Exception e) {
+            log.error("参数包装异常：参数编号：{}",paraView.getParaNo());
         }
         return frameParaDataBuilder.build();
     }
@@ -247,11 +252,17 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
         if (PARA_SHOW_MODEL.equals(showMode) && StringUtils.isNoneBlank(transRule)) {
             if (sign == IN_TO_OUT){
                 Map<String, String> intoOutMap = infoByNo.getTransIntoOutMap();
+                if (intoOutMap==null){
+                    return null;
+                }
                 if (intoOutMap.containsKey(paramVal)){
                     paramVal = intoOutMap.get(paramVal);
                 }
             }else {
                 Map<String, String> outInMap = infoByNo.getTransOuttoInMap();
+                if (outInMap==null){
+                    return null;
+                }
                 if (outInMap.containsKey(paramVal)){
                     paramVal = outInMap.get(paramVal);
                 }
