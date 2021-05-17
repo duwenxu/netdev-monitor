@@ -288,6 +288,7 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
     private static void setAchieveClass(RptHeadDev rptHeadDev){
         if (rptHeadDev.getCmdMarkHexStr().equals("ffff8967")){
             log.info("收到站控心跳包...........");
+            return;
         }
         int cmd = 0;
         try {
