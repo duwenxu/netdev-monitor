@@ -1,9 +1,12 @@
 package com.xy.netdev.rpt.service.impl;
 
+import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.util.ByteUtils;
+import com.xy.netdev.container.DevParaInfoContainer;
+import com.xy.netdev.monitor.constant.MonitorConstants;
 import com.xy.netdev.rpt.bo.RptBodyDev;
 import com.xy.netdev.rpt.bo.RptHeadDev;
 import com.xy.netdev.rpt.enums.StationCtlRequestEnums;
@@ -70,7 +73,12 @@ public class ParamQueryImpl implements RequestService, ResponseService {
                     log.warn("参数查询命令生成失败:{}", JSON.toJSONString(frameParaData));
                 }
                 if (StrUtil.isNotBlank(frameParaData.getParaVal())) {
+                    String paraDatatype = DevParaInfoContainer.getDevParaView(frameParaData.getDevNo(), frameParaData.getParaNo()).getParaDatatype();
                     byte[] bytes = frameParaData.getParaVal().getBytes(Charset.forName("GB2312"));
+                    if (MonitorConstants.BYTE.equals(paraDatatype)){
+                        bytes = HexUtil.decodeHex(frameParaData.getParaVal());
+                    ByteUtils.objToBytes(frameParaData.getParaVal(),frameParaData.getLen());
+                    }
                     //参数编号
                     tempList.add(ByteUtils.objToBytes(frameParaData.getParaNo(), 1));
                     //数据长度

@@ -24,7 +24,7 @@ public class NettyUdpTest {
 
     private static final Bootstrap bootstrap = new Bootstrap();
     /**目的地address*/
-    private static final InetSocketAddress DEST_ADDRESS = new InetSocketAddress("192.168.1.160", 8081);
+    private static final InetSocketAddress DEST_ADDRESS = new InetSocketAddress("192.168.1.160", 7081);
     private static final InetSocketAddress SOURCE_ADDRESS = new InetSocketAddress("172.21.2.100", 8070);
     /**发送频率*/
     private static final int sendInterval = 3000;
@@ -49,7 +49,8 @@ public class NettyUdpTest {
 //            "022210005306305f07305f08305f09315f10f15f11ff5fff20aa0a",
 //            "022210005306305f07315f08315f09315f10f15f11ff5fff20aa0a",
             //
-            "7e211e0001003983 0130302e30022b3032392e350332302e3030050006ffffffff072020060508 03e8 e67e"
+//            "7e211e0001003983 0130302e30022b3032392e350332302e3030050006ffffffff072020060508 03e8 e67e"
+            "0005000f0000000000000000000a0139070b0104000180"
     };
 
     @Test
