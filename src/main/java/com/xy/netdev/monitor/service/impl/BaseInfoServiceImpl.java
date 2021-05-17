@@ -166,6 +166,9 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
             if (PARA_DATA_TYPE_STR.equals(parainfo.getNdpaDatatype())) {
                 typeMap.put("-len", Optional.ofNullable(ParaHandlerUtil.generateEmptyStr(parainfo.getNdpaStrLen())).orElse(sysParamService.getParaRemark1(DATA_TYPE_LEN)));
             }
+            if(PARA_DATA_TYPE_DOUBLE.equals(parainfo.getNdpaDatatype()) || PARA_DATA_TYPE_FLOAT.equals(parainfo.getNdpaDatatype())){
+                typeMap.put("-len", sysParamService.getParaRemark1(DATA_TYPE_LEN));
+            }
             paraMap.put("type", typeMap);
             if (PARA_SHOW_MODEL.equals(parainfo.getNdpaShowMode())) {
                 List modelList = new ArrayList();
