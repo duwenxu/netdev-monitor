@@ -24,7 +24,7 @@ public class NettyUdpTest {
 
     private static final Bootstrap bootstrap = new Bootstrap();
     /**目的地address*/
-    private static final InetSocketAddress DEST_ADDRESS = new InetSocketAddress("192.168.1.160", 7081);
+    private static final InetSocketAddress DEST_ADDRESS = new InetSocketAddress("172.21.2.100", 5000);
     private static final InetSocketAddress SOURCE_ADDRESS = new InetSocketAddress("172.21.2.100", 8070);
     /**发送频率*/
     private static final int sendInterval = 3000;
@@ -36,8 +36,8 @@ public class NettyUdpTest {
 //            "7e0a8306003e80000b02005e7e",
 //            "7e168307003e80000b1e000002030005002aaf54000000be7e",
             //6914射频设备
-//            "7A7A7A7A000000150006140000222222227B7B7B7B",
-//            "7A7A7A7A00000018FDFD000600040000222222227B7B7B7B"
+            "7A7A7A7A000000150006140000222222227B7B7B7B",
+            "7A7A7A7A00000018FDFD000600040000222222227B7B7B7B"
             //650调制解调器
 //            "02010665015301001f40005f03815f04815f05815f06815f07835f0800124f805f09815f0b012c5f0c001f40005f0d835f0e00124f805f0f815f10805f11815f12855f13805f14805f15805f16805f17815f18c0a800025f19ffffff005f1a815f1b815f1c815f1dc0a800025f1ec0a800025f1fff5f20c0a80002ffffffffffffffff5f21c0a80002ffffffffffffffff5f22c0a80002ffffffffffffffff5f23c0a80002ffffffffffffffff5f24c0a80002ffffffffffffffff5f25c0a80002ffffffffffffffff5f26c0a80002ffffffffffffffff5f27c0a80002ffffffffffffffff5f28805f29805f2a11115f2b14505f2c805f2d805f2e805f2f805f30805f31805f3525000a"
 //    "7F19001001014000960202250125012501010101010101aa7d",
@@ -50,7 +50,7 @@ public class NettyUdpTest {
 //            "022210005306305f07315f08315f09315f10f15f11ff5fff20aa0a",
             //
 //            "7e211e0001003983 0130302e30022b3032392e350332302e3030050006ffffffff072020060508 03e8 e67e"
-            "0005000f0000000000000000000a0139070b0104000180"
+//            "0005000f0000000000000000000a0139070b0104000180"
     };
 
     @Test

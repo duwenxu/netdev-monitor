@@ -1,4 +1,4 @@
-package com.xy.netdev.frame.service.codec;
+package com.xy.netdev.frame.service.codec.modem;
 
 
 import cn.hutool.core.util.HexUtil;
