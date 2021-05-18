@@ -1,5 +1,6 @@
 package com.xy.netdev.rpt.service.impl;
 
+import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.monitor.entity.AlertInfo;
 import com.xy.netdev.rpt.bo.RptHeadDev;
@@ -24,6 +25,8 @@ public class ReportWarnImpl implements RequestService {
 
     @Autowired
     private ParamQueryImpl paramQuery;
+    @Autowired
+    private ISysParamService sysParamService;
 
     @Override
     @SuppressWarnings("unchecked")
@@ -39,19 +42,19 @@ public class ReportWarnImpl implements RequestService {
         //站号
         tempList.add(ByteUtils.objToBytes(alertInfo.getAlertStationNo(), 1));
         //设备型号
-        tempList.add(ByteUtils.objToBytes(alertInfo.getDevType(), 2));
+        tempList.add(new byte[]{0x39,0x04});
         //设备编号
         tempList.add(ByteUtils.objToBytes(alertInfo.getDevNo(), 1));
         //参数编号
         tempList.add(ByteUtils.objToBytes(alertInfo.getNdpaNo(), 1));
         //告警级别
-        tempList.add(ByteUtils.objToBytes(alertInfo.getAlertLevel(), 4));
+        tempList.add(ByteUtils.objToBytes(sysParamService.getParaRemark1(alertInfo.getAlertLevel()), 4));
         //描述
         byte[] alertDesc = alertInfo.getAlertDesc().getBytes(Charset.forName("GB2312"));
         //告警描述长度
         tempList.add(ByteUtils.objToBytes(alertDesc.length, 1));
         //告警描述
         tempList.add(alertDesc);
-        return paramQuery.packHeadBytes(tempList, StationCtlRequestEnums.PARA_WARNING_QUERY_RESP);
+        return paramQuery.packHeadBytes(tempList, StationCtlRequestEnums.PARA_ALARM_REPORT);
     }
 }

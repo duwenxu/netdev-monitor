@@ -462,6 +462,17 @@ public interface SysConfigConstant {
     String DEVICE_TRANS_SWITCH = "0020021";
 
     /**
+     * 设备类型--ACU
+     */
+    String  DEVICE_ACU = "0020001";
+
+
+    /**
+     * 设备类型--650-MODEL
+     */
+    String  DEVICE_MODEM_650 = "0020007";
+
+    /**
      * 设备类型--变频器
      */
     String  DEVICE_BPQ = "0020006";

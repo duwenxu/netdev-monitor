@@ -59,7 +59,7 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
         RptHeadDev resBody = new RptHeadDev();
         try {
             switch (cmdMarkHexStr) {
-                case "0005":
+                case "5":
                     doParaSetAction(headDev);
                     break;
                 default:
@@ -128,7 +128,7 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
         //过滤参数长度不为空的设置参数
         List<RptBodyDev> realRptBody = new CopyOnWriteArrayList<>();
         for (RptBodyDev bodyDev : rptBodyDev) {
-            List<FrameParaData> currentList = bodyDev.getDevParaList().stream().filter(param -> param.getLen() != null && param.getLen() != 0).collect(Collectors.toList());
+            List<FrameParaData> currentList = bodyDev.getDevParaList().stream().filter(param -> param.getParaVal()!=null).collect(Collectors.toList());
             bodyDev.setDevParaList(currentList);
             realRptBody.add(bodyDev);
         }

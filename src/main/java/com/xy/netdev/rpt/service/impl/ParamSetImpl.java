@@ -1,7 +1,10 @@
 package com.xy.netdev.rpt.service.impl;
 
+import cn.hutool.core.util.HexUtil;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.util.ByteUtils;
+import com.xy.netdev.container.BaseInfoContainer;
+import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.rpt.bo.RptBodyDev;
 import com.xy.netdev.rpt.bo.RptHeadDev;
 import com.xy.netdev.rpt.enums.StationCtlRequestEnums;
@@ -45,31 +48,35 @@ public class ParamSetImpl implements RequestService, ResponseService {
         if (dataBytes == null || dataBytes.length == 0){
             return list;
         }
-        //设备型号
-        int devTypeNo = Objects.requireNonNull(ByteUtils.byteArrayCopy(dataBytes, 0, 2))[1];
-        String devType = null;
-        try {
-            devType = sysParamService.queryParamsByParentId("0020").stream().filter(param -> String.valueOf(devTypeNo).equals(param.getRemark1())).collect(Collectors.toList()).get(0).getParaCode();
-        } catch (Exception e) {
-            log.error("常量表remark1參數映射錯誤：remark1:{}",devTypeNo);
-        }
-        //設備编号
+        //设备型号(这里只需要获取子类型)
+        int devTypeCode = ByteUtils.byteToNumber(dataBytes, 1, 1).intValue();
+        //设备编号
         int devNo = ByteUtils.byteToNumber(dataBytes, 2, 1).byteValue();
         //设备参数数量
         int paramNum = ByteUtils.byteToNumber(dataBytes, 3, 1).intValue();
-        //參數編號
-        int devParaNo = ByteUtils.byteToNumber(dataBytes, 4, 1).intValue();
-        //參數長度
-        int devParamLen = ByteUtils.byteToNumber(dataBytes, 5, 2).intValue();
-
-        //数据体解析
+        int index = 4;
         RptBodyDev rptBodyDev = new RptBodyDev();
         rptBodyDev.setDevNo(String.valueOf(devNo));
         rptBodyDev.setDevParaTotal(String.valueOf(paramNum));
-        rptBodyDev.setDevTypeCode(String.valueOf(devType));
-        rptBodyDev.setDevParamLen(devParamLen);
-        byte[] paramBytes = ByteUtils.byteArrayCopy(dataBytes, 7, devParamLen);
-        int index = getIndex(list, rptBodyDev, Objects.requireNonNull(paramBytes), paramBytes.length, 7);
+        rptBodyDev.setDevTypeCode(String.valueOf(devTypeCode));
+        List<FrameParaData> devParaList = new ArrayList<>(paramNum);
+        for (int i = 0; i <paramNum ; i++) {
+            //数据体解析
+            int paraNo = ByteUtils.byteToNumber(dataBytes, index, 1).intValue();
+            index+=1;
+            int devParamLen = ByteUtils.byteToNumber(dataBytes, index, 2).intValue();
+            index+=2;
+            FrameParaData frameParaData = new FrameParaData();
+            frameParaData.setParaNo(String.valueOf(paraNo));
+            frameParaData.setParaVal(HexUtil.encodeHexStr(ByteUtils.byteArrayCopy(dataBytes, index, devParamLen)));
+            frameParaData.setDevNo(String.valueOf(devNo));
+            frameParaData.setDevType(BaseInfoContainer.getDevInfoByNo(String.valueOf(devNo)).getDevType());
+            frameParaData.setLen(devParamLen);
+            index+=devParamLen;
+            devParaList.add(frameParaData);
+        }
+        rptBodyDev.setDevParaList(devParaList);
+        list.add(rptBodyDev);
         return paramBuilder(ByteUtils.byteArrayCopy(dataBytes, index, dataBytes.length - index), list);
     }
 

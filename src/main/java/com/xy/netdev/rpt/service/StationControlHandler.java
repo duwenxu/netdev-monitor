@@ -197,6 +197,7 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
      * @param tempList
      * @param rptBodyDev
      */
+    //todo luo
     public static void queryHeadNext(List<byte[]> tempList, RptBodyDev rptBodyDev) {
         String devCode = sysParamService.getParaRemark1(rptBodyDev.getDevTypeCode());
         byte codeByte = objToBytes(devCode, 1)[0];
@@ -217,7 +218,7 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
     public static RptHeadDev unpackCommonHead(StationControlHeadEntity stationControlHeadEntity,
                                               RptHeadDev rptHeadDev, Function<byte[], List<RptBodyDev>> function) {
         byte[] paramData = stationControlHeadEntity.getParamData();
-        //查询标识
+        //查询标识  todo 这里解析到的查询标识始终是:0
         int cmdMark = ByteUtils.byteToNumber(paramData, 4, 1).intValue();
         //站号
         int stationNo = ByteUtils.byteToNumber(paramData, 5, 1).intValue();
@@ -227,7 +228,7 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
         byte[] dataBytes = ByteUtils.byteArrayCopy(paramData, 7, paramData.length - 7);
         List<RptBodyDev> rptBodyDevs = function.apply(dataBytes);
         rptHeadDev.setStationNo(String.valueOf(stationNo));
-        rptHeadDev.setCmdMarkHexStr(Integer.toHexString(cmdMark));
+        //rptHeadDev.setCmdMarkHexStr(Integer.toHexString(cmdMark));
         rptHeadDev.setParam(rptBodyDevs);
         rptHeadDev.setDevNum(devNum);
         rptHeadDev.setDevNo(stationControlHeadEntity.getBaseInfo().getDevNo());
@@ -309,6 +310,8 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
                 achieveClassNameEnum = AchieveClassNameEnum.PARAM_QUERY;
                 break;
             case 5:
+                achieveClassNameEnum = AchieveClassNameEnum.PARAM_SET;
+                break;
             case 6:
                 achieveClassNameEnum = AchieveClassNameEnum.PARAM_SET;
                 break;
