@@ -492,4 +492,9 @@ public interface SysConfigConstant {
      */
     String LPD_CTRL_SUCCESS = "0064001";
 
+    /**
+     * 当前车类型
+     */
+    String CURR_CAR_TYPE = "0100011";
+
 }
