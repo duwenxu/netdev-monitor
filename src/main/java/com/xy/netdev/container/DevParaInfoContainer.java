@@ -32,7 +32,7 @@ public class DevParaInfoContainer {
     /**
      * 设备参数MAP K设备编号  V设备参数信息
      */
-    private static Map<String, Map<String, ParaViewInfo>> devParaMap = new HashMap<>();
+    private static Map<String, Map<String, ParaViewInfo>> devParaMap = new LinkedHashMap<>();
 
 
     /**
@@ -79,8 +79,10 @@ public class DevParaInfoContainer {
      * @return 设备显示列表
      */
     private static Map<String,ParaViewInfo> assembleViewList(String devNo,List<ParaInfo> devTypeParaList){
-        Map<String,ParaViewInfo>  paraViewMap = new TreeMap<>();
+        //此处改为LinkedHashMap为了排序
+        Map<String,ParaViewInfo>  paraViewMap = new LinkedHashMap<>();
         if(devTypeParaList!=null&&!devTypeParaList.isEmpty()){
+            devTypeParaList.sort(Comparator.comparing(paraInfo -> Integer.valueOf(paraInfo.getNdpaNo())));
             for(ParaInfo paraInfo:devTypeParaList){
                 if(paraInfo.getNdpaCmplexLevel().equals(SysConfigConstant.PARA_COMPLEX_LEVEL_SUB)){
                     paraViewMap.get(ParaHandlerUtil.genLinkKey(devNo,paraInfo.getNdpaParentNo())).addSubPara(genParaViewInfo(devNo,paraInfo));
