@@ -26,7 +26,8 @@ public class AscIIParamCodec implements ParamCodec {
     }
 
     public static void main(String[] args) {
-        byte[] bytes = {0x30, 0x35, 0x30, 0x33, 0x32, 0x36, 0x31, 0x31, 0x35, 0x39, 0x35, 0x30};
+//        byte[] bytes = {0x30, 0x35, 0x30, 0x33, 0x32, 0x36, 0x31, 0x31, 0x35, 0x39, 0x35, 0x30};
+        byte[] bytes = {0x70};
         AscIIParamCodec paramCodec = new AscIIParamCodec();
         String decode = paramCodec.decode(bytes);
         System.out.println(decode);

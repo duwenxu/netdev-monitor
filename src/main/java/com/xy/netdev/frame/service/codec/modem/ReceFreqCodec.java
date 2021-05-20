@@ -1,6 +1,7 @@
 package com.xy.netdev.frame.service.codec.modem;
 
 import cn.hutool.core.util.HexUtil;
+import com.xy.netdev.factory.SingletonFactory;
 import com.xy.netdev.frame.service.ParamCodec;
 import com.xy.netdev.frame.service.codec.Hex2DecParamCodec;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +19,7 @@ public class ReceFreqCodec implements ParamCodec {
     private final Hex2DecParamCodec hex2DecParamCodec;
 
     public ReceFreqCodec() {
-        this.hex2DecParamCodec = new Hex2DecParamCodec();
+        this.hex2DecParamCodec = SingletonFactory.getInstance(Hex2DecParamCodec.class);
     }
 
     @Override
