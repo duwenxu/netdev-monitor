@@ -61,7 +61,7 @@ public class DeviceSocketSubscribe  implements ApplicationRunner {
      * @param socketEntity socket实体
      */
     public void doResponse(SocketEntity socketEntity) throws BaseException{
-        BaseInfo devInfo = getDevInfo(socketEntity.getRemoteAddress());
+        BaseInfo devInfo = getDevInfo(socketEntity.getRemoteAddress()).get(0);
         //站控响应
         if (devInfo.getIsRptIp()!= null && Integer.parseInt(devInfo.getIsRptIp()) == 0){
             log.debug("收到站控数据, 远端地址:{}:{},数据体:{}"
@@ -96,7 +96,7 @@ public class DeviceSocketSubscribe  implements ApplicationRunner {
             return Optional.of(socketHandler);
         }
         //设备信息
-        BaseInfo devInfo = getDevInfo(ip);
+        BaseInfo devInfo = getDevInfo(ip).get(0);
         if (devInfo == null){
             log.warn("响应处理未找到指定设备信息, 执行方法getDevInfo(ip), 设备ip:{}", ip);
             return Optional.empty();

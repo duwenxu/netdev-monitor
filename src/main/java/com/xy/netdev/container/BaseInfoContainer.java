@@ -66,12 +66,17 @@ public class BaseInfoContainer {
     /**
      * 设备MAP K设备IP地址 V设备信息
      */
-    private static Map<String, BaseInfo> devMap = new HashMap<>();
+    private static Map<String, List<BaseInfo>> devMap = new HashMap<>();
 
     /**
      * 设备MAP K设备编号 V设备信息
      */
     private static Map<String, BaseInfo> devNoMap = new HashMap<>();
+
+    /**
+     * 设备MAP K设备编号 V设备信息
+     */
+    private static Map<String, List<BaseInfo>> devTypeMap = new HashMap<>();
 
     /**
      * 接口关联参数MAP K设备类型+命令标识 V设备参数列表信息
@@ -144,7 +149,20 @@ public class BaseInfoContainer {
     public static void addDevMap(List<BaseInfo> devList) {
         devList.forEach(baseInfo -> {
             try {
-                devMap.put(baseInfo.getDevIpAddr(), baseInfo);
+                if(devMap.containsKey(baseInfo.getDevIpAddr())){
+                    devMap.get(baseInfo.getDevIpAddr()).add(baseInfo);
+                }else{
+                    List<BaseInfo> baseInfos = new ArrayList<>();
+                    baseInfos.add(baseInfo);
+                    devMap.put(baseInfo.getDevIpAddr(),baseInfos);
+                }
+                if(devTypeMap.containsKey(baseInfo.getDevType())){
+                    devTypeMap.get(baseInfo.getDevType()).add(baseInfo);
+                }else{
+                    List<BaseInfo> baseInfos = new ArrayList<>();
+                    baseInfos.add(baseInfo);
+                    devTypeMap.put(baseInfo.getDevType(),baseInfos);
+                }
                 devNoMap.put(baseInfo.getDevNo(), baseInfo);
             } catch (Exception e) {
                 log.error("设备[" + baseInfo.getDevName() + "]ip地址或设备编号存在异常，请检查:" + e.getMessage());
@@ -279,7 +297,7 @@ public class BaseInfoContainer {
         BaseInfo baseInfo = baseInfoService.getById(devNo);
         if(devMap.containsKey(baseInfo.getDevIpAddr()) || devNoMap.containsKey(baseInfo.getDevNo())){
             devNoMap.put(baseInfo.getDevNo(), baseInfo);
-            devMap.put(baseInfo.getDevIpAddr(), baseInfo);
+            devMap.get(baseInfo.getDevIpAddr()).add(baseInfo);
         }else{
             throw new BaseException("缓存中不存在设备["+baseInfo.getDevName()+"]信息！");
         }
@@ -290,17 +308,28 @@ public class BaseInfoContainer {
      * @return 设备对象
      * @功能：根据设备IP地址 获取设备信息
      */
-    public static BaseInfo getDevInfo(String devIPAddr) {
+    public static List<BaseInfo> getDevInfo(String devIPAddr) {
         if (devMap.containsKey(devIPAddr)) {
             return devMap.get(devIPAddr);
         } else {
             String rptIpAddr = sysParamService.getParaRemark1(RPT_IP_ADDR);
             if (rptIpAddr.equals(devIPAddr)) {
-                return genRptBaseInfo();
+                List<BaseInfo> baseInfos = new ArrayList<>();
+                baseInfos.add(genRptBaseInfo());
             }
         }
         throw new BaseException("接收到的IP地址有误,IP地址为:" + devIPAddr + ",请检查!");
     }
+
+    /**
+     * @param devType 设备类型
+     * @return 设备对象
+     * @功能：根据设备IP地址 获取设备信息
+     */
+    public static List<BaseInfo> getDevInfosByType(String devType) {
+        return devTypeMap.get(devType);
+    }
+
 
     /**
      * @return 网络连通信息

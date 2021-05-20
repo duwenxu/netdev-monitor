@@ -78,7 +78,7 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
      * @param socketEntity 数据体
      */
     public void stationControlReceive(SocketEntity socketEntity){
-        unpackHead(socketEntity, BaseInfoContainer.getDevInfo(socketEntity.getRemoteAddress()))
+        unpackHead(socketEntity, BaseInfoContainer.getDevInfo(socketEntity.getRemoteAddress()).get(0))
                 .ifPresent(this::receiverSocket);
     }
 
