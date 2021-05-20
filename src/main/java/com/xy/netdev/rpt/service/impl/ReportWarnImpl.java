@@ -41,8 +41,11 @@ public class ReportWarnImpl implements RequestService {
         tempList.add(ByteUtils.objToBytes(alertInfo.getAlertTime(), 20));
         //站号
         tempList.add(ByteUtils.objToBytes(alertInfo.getAlertStationNo(), 1));
+        byte[] devType= new byte[2];
+        devType[0] = 0x39;
+        devType[1] = (byte) Integer.parseInt(sysParamService.getParaRemark1(alertInfo.getDevType()),16);
         //设备型号
-        tempList.add(new byte[]{0x39,0x04});
+        tempList.add(devType);
         //设备编号
         tempList.add(ByteUtils.objToBytes(alertInfo.getDevNo(), 1));
         //参数编号

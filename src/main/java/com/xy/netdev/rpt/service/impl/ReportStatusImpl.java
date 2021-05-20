@@ -1,5 +1,6 @@
 package com.xy.netdev.rpt.service.impl;
 
+import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.monitor.bo.DevStatusInfo;
 import com.xy.netdev.rpt.bo.RptHeadDev;
@@ -22,6 +23,8 @@ public class ReportStatusImpl implements RequestService {
 
     @Autowired
     private ParamQueryImpl paramQuery;
+    @Autowired
+    private ISysParamService sysParamService;
 
     @Override
     @SuppressWarnings("unchecked")
@@ -37,7 +40,10 @@ public class ReportStatusImpl implements RequestService {
         List<DevStatusInfo> devStatusInfoList = (List<DevStatusInfo>) rptHeadDev.getParam();
         devStatusInfoList.forEach(devStatusInfo -> {
             //设备型号
-            tempList.add(ByteUtils.objToBytes(devStatusInfo.getDevTypeCode(), 2));
+            byte[] devType= new byte[2];
+            devType[0] = 0x39;
+            devType[1] = (byte) Integer.parseInt(sysParamService.getParaRemark1(devStatusInfo.getDevTypeCode()),16);
+            tempList.add(devType);
             //设备编号
             tempList.add(ByteUtils.objToBytes(devStatusInfo.getDevNo(), 1));
             //设备状态
