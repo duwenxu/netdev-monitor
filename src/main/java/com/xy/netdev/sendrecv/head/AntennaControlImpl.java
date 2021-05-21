@@ -102,7 +102,7 @@ public class AntennaControlImpl extends AbsDeviceSocketHandler<SocketEntity, Fra
         byte vs = xor(antennaControlEntity);
         antennaControlEntity.setVs(vs);
         byte[] pack = pack(antennaControlEntity);
-        log.info("40W功放发送查询/控制帧内容：{}", HexUtil.encodeHexStr(pack));
+        log.debug("40W功放发送查询/控制帧内容：{}", HexUtil.encodeHexStr(pack));
         return pack;
     }
 
