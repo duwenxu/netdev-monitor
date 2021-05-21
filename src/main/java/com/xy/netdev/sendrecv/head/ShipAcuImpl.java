@@ -94,7 +94,7 @@ public class ShipAcuImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
     @Override
     public byte[] pack(FrameReqData frameReqData) {
         byte[] bytes = frameReqData.getParamBytes();
-        if(bytes.length<23 || bytes.length>23){
+        if(bytes.length<20 || bytes.length>20){
             log.warn("1.5米ACU天线数据帧长度错误, 数据体长度:{}, 数据体:{}，请检查!!", bytes.length, HexUtil.encodeHexStr(bytes));
             return new byte[]{};
         }
@@ -116,12 +116,7 @@ public class ShipAcuImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
      * @return
      */
     private synchronized byte[] getStreamCode(){
-        byte[] bytes = new byte[0];
-        try {
-            bytes = ByteUtils.objectToByte(streamCode);
-        } catch (IOException e) {
-            log.warn("1.5米ACU天线获取流水码发生异常!");
-        }
+        byte[] bytes = ByteUtils.objToBytes(streamCode,1);
         streamCode++;
         if(streamCode == 50){
             streamCode = 0;
