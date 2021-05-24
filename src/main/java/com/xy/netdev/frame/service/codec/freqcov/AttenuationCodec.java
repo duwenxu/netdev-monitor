@@ -27,6 +27,7 @@ public class AttenuationCodec implements ParamCodec {
                 divideValue = Math.pow(10, (int) objects[0]);
             }
         }
+        /**衰减值以 0.25为单位  解析时的值要 /4*/
         divideValue = divideValue * 4;
         long originValue = Long.parseLong(HexUtil.encodeHexStr(bytes), 16);
         return new BigDecimal(originValue / divideValue + "").toString();
@@ -47,6 +48,7 @@ public class AttenuationCodec implements ParamCodec {
         if (objects!=null&&objects.length>1){
             format = fmtStart + (int) objects[1] * 2 + "" + fmtEnd;
         }
+        /**衰减值以 0.25为单位 控制时值要 * 4*/
         rideValue = rideValue*4;
         String hexStr = String.format(format, (long)(Double.parseDouble(value)*rideValue));
         return HexUtil.decodeHex(hexStr);
