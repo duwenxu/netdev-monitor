@@ -392,6 +392,11 @@ public interface SysConfigConstant {
     String ERR_PARENT_ID_GF = "0060";
 
     /**
+     * Comtech控制响应 应答帧错误类型 父CODE
+     */
+    String ERR_PARENT_COMTECH = "0065";
+
+    /**
      * 6914变频器 应答帧错误类型 父CODE
      */
     String ERR_PARENT_ID_6914 = "0063";

@@ -91,7 +91,7 @@ public class PowerAmpInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
                     } else {
                         targetBytes = previousBytes;
                     }
-                    value = modemScmmInterPrtcService.doGetValue(param, paraInfo, targetBytes);
+                    value = modemScmmInterPrtcService.doGetValue(param, targetBytes);
                     log.debug("东森功放 参数编号：{}，参数字节：{}，参数值：{}", paraInfo.getParaNo(), HexUtil.encodeHexStr(targetBytes), value);
                 } catch (Exception e) {
                     log.error("参数编号：[{}]字节长度截取错误，起始位置：{}，字节长度：{}", param.getParaNo(), startPoint, paraByteLen);
