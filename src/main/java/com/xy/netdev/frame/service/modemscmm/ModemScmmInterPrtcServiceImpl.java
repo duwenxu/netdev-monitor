@@ -90,7 +90,7 @@ public class ModemScmmInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSe
                 }else {
                     targetBytes = previousBytes;
                 }
-                String value = doGetValue(param, paraInfo, targetBytes);
+                String value = doGetValue(param, targetBytes);
 
                 paraInfo.setParaVal(value);
                 frameParaDataList.add(paraInfo);
@@ -106,11 +106,10 @@ public class ModemScmmInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSe
     /**
      * 2300 获取参数值 对应存在 bit类型数据，需要复用字节的设备协议
      * @param param 参数
-     * @param paraInfo 参数DTO
      * @param targetBytes 参数字节
      * @return 参数值
      */
-    public String doGetValue(FrameParaInfo param, FrameParaData paraInfo, byte[] targetBytes) {
+    public String doGetValue(FrameParaInfo param, byte[] targetBytes) {
         //获取参数解析配置信息
         String confClass = param.getNdpaRemark2Data();
         String confParams = param.getNdpaRemark3Data();
@@ -135,7 +134,7 @@ public class ModemScmmInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSe
         try {
             value = codec.decode(targetBytes, params);
         } catch (Exception e) {
-            log.error("参数解析异常：{}",paraInfo);
+            log.error("参数解析异常：{}",param);
         }
         return value;
     }
