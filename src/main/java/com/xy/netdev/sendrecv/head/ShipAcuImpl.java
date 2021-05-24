@@ -29,12 +29,11 @@ public class ShipAcuImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
 
     @Autowired
     private ShipAcuPrtcServiceImpl shipAcuPrtcService;
-    @Autowired
-    private ShipAcuInterPrtcServiceImpl shipAcuInterPrtcService;
 
     /**帧头**/
     private static final String FRAME_HEAD = "7b";
     private static final String FRAME_END = "7d";
+    private static final String CMD_MARK = "7c";
     /**帧尾**/
 
     /**流水码(此协议专有)**/
@@ -47,7 +46,7 @@ public class ShipAcuImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
                 shipAcuPrtcService.queryParaResponse(frameRespData);
                 break;
             case OPREATE_CONTROL_RESP:  //控制响应
-                shipAcuInterPrtcService.ctrlParaResponse(frameRespData);
+                shipAcuPrtcService.queryParaResponse(frameRespData);
                 break;
             default:
                 log.warn("设备{}命令{}未知1.5米ACU天线响应类型...", frameRespData.getDevNo(), frameRespData.getCmdMark());
@@ -64,16 +63,17 @@ public class ShipAcuImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
     @Override
     public FrameRespData unpack(SocketEntity socketEntity, FrameRespData frameRespData) {
         byte[] bytes = socketEntity.getBytes();
-        if (bytes.length < 48 || bytes.length > 48) {
-            log.warn("1.5米ACU天线响应数据长度错误, 未能正确解析, 数据体长度:{}, 数据体:{}", bytes.length, HexUtil.encodeHexStr(bytes));
+        int len = bytes.length;
+        if (len < 49 || len > 49) {
+            //log.warn("1.5米ACU天线响应数据长度错误, 未能正确解析, 数据体长度:{}, 数据体:{}", bytes.length, HexUtil.encodeHexStr(bytes));
             return frameRespData;
         }
         //获取文件头与文件尾（目前此协议只能通过协议帧头尾来区分）
         String headFrame = HexUtil.encodeHexStr(ByteUtils.byteArrayCopy(bytes,0,1));  //帧头
-        String endFrame = HexUtil.encodeHexStr(ByteUtils.byteArrayCopy(bytes,47,1));  //帧尾
+        String endFrame = HexUtil.encodeHexStr(ByteUtils.byteArrayCopy(bytes,len-1,1));  //帧尾
         //判断操作类型赋值
         if (FRAME_HEAD.equals(headFrame) && FRAME_END.equals(endFrame)){
-            frameRespData.setCmdMark(FRAME_HEAD);
+            frameRespData.setCmdMark(CMD_MARK);
             frameRespData.setOperType(OPREATE_QUERY_RESP);
             frameRespData.setAccessType(ACCESS_TYPE_INTERF);
         }else{
@@ -81,7 +81,7 @@ public class ShipAcuImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
             return frameRespData;
         }
         //数据体
-        byte[] paramBytes = byteArrayCopy(bytes, 1, bytes.length - 2);
+        byte[] paramBytes = byteArrayCopy(bytes, 2, bytes.length - 2);
         frameRespData.setParamBytes(paramBytes);
         return frameRespData;
     }

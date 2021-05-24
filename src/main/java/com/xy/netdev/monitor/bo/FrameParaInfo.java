@@ -49,6 +49,10 @@ public class FrameParaInfo {
 
     @ApiModelProperty(value = "字节长度")
     private String paraByteLen;
+
+    @ApiModelProperty(value = "字符长度")
+    private String paraStrLen;
+
     /**
      * 按照序号 累加 字节长度
      */

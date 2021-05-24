@@ -1,25 +1,30 @@
 package com.xy.netdev.frame.service.shipAcu;
 
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson.JSON;
 import com.xy.common.exception.BaseException;
 import com.xy.netdev.common.util.ByteUtils;
+import com.xy.netdev.common.util.SpringContextUtils;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
+import com.xy.netdev.frame.service.ParamCodec;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import com.xy.netdev.transit.IDataReciveService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import static com.xy.netdev.common.constant.SysConfigConstant.PARA_COMPLEX_LEVEL_COMPOSE;
+import static com.xy.netdev.common.constant.SysConfigConstant.PARA_DATA_TYPE_INT;
 import static com.xy.netdev.container.DevLogInfoContainer.PARA_REPS_STATUS_SUCCEED;
 
 /**
@@ -39,7 +44,7 @@ public class ShipAcuPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
     /**
      * 状态上报包帧头标识
      */
-    private static final String RPT_IDS = "7b";
+    private static final String RPT_IDS = "7c";
 
     @Override
     public void queryPara(FrameReqData reqInfo) {
@@ -70,26 +75,36 @@ public class ShipAcuPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
     }
 
     private void setFrameDataList(FrameRespData respData, byte[] bytes, String cmdMark, List<FrameParaData> frameParaDataList) {
+        bytes = ArrayUtil.remove(bytes,30);
         //获取接口单元的参数信息
         List<FrameParaInfo> frameParaInfos = BaseInfoContainer.getInterLinkParaList(respData.getDevType(), cmdMark);
         for (FrameParaInfo param : frameParaInfos) {
-            String paraValueStr = HexUtil.encodeHexStr(ByteUtils.byteArrayCopy(bytes,param.getParaStartPoint(),Integer.valueOf(param.getParaByteLen())));
-            FrameParaData frameParaData = genFramePara(param,respData.getDevNo(),paraValueStr);
-            frameParaDataList.add(frameParaData);
+            byte[] byte1 = ByteUtils.byteArrayCopy(bytes,param.getParaStartPoint(),Integer.valueOf(param.getParaByteLen()));
+            FrameParaData frameParaData = null;
             if (PARA_COMPLEX_LEVEL_COMPOSE.equals(param.getCmplexLevel())) {
-                paraValueStr = HexStrToBit(paraValueStr);
+                String paraValueStr = ByteUtils.byteToBinary(byte1[00]);
                 StringBuffer sb = new StringBuffer(paraValueStr);
-                sb.insert(1,"_");
-                sb.insert(3,"_");
-                sb.insert(5,"_");
+                sb.insert(4,"_");
+                sb.insert(7,"_");
                 paraValueStr = sb.toString();
                 //改变子参数的数据
                 String[] paraList = paraValueStr.split("_");
-                for(int i=0; i< paraList.length;i++){
+                for(int i=0; i< param.getSubParaList().size();i++){
                     FrameParaData subFrame = genFramePara(param.getSubParaList().get(i),respData.getDevNo(),paraList[i]);
                     frameParaDataList.add(subFrame);
                 }
+                frameParaData = genFramePara(param,respData.getDevNo(),paraValueStr.substring(0,Integer.valueOf(param.getParaStrLen())));
+            }else if(StringUtils.isNotBlank(param.getNdpaRemark1Data())){
+                ParamCodec handler = SpringContextUtils.getBean(param.getNdpaRemark1Data());
+                if(PARA_DATA_TYPE_INT.equals(param.getDataType())){
+                    frameParaData = genFramePara(param,respData.getDevNo(),String.valueOf(handler.decode(byte1,param.getNdpaRemark2Data())));
+                }else{
+                    frameParaData = genFramePara(param,respData.getDevNo(),String.valueOf(handler.decode(byte1,null)));
+                }
+            }else{
+                frameParaData = genFramePara(param,respData.getDevNo(), HexUtil.encodeHexStr(byte1));
             }
+            frameParaDataList.add(frameParaData);
         }
     }
 
@@ -108,20 +123,5 @@ public class ShipAcuPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
                 .build();
         frameParaData.setParaVal(paraValueStr);
         return frameParaData;
-    }
-
-    /**
-     * Byte转Bit
-     */
-    private String HexStrToBit(String hexStr) {
-        byte b = HexUtil.decodeHex(hexStr)[0];
-        return "" +(byte)((b >> 7) & 0x1) +
-                (byte)((b >> 6) & 0x1) +
-                (byte)((b >> 5) & 0x1) +
-                (byte)((b >> 4) & 0x1) +
-                (byte)((b >> 3) & 0x1) +
-                (byte)((b >> 2) & 0x1) +
-                (byte)((b >> 1) & 0x1) +
-                (byte)((b >> 0) & 0x1);
     }
 }
