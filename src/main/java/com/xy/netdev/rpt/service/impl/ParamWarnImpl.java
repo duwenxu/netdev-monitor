@@ -38,8 +38,8 @@ public class ParamWarnImpl implements RequestService, ResponseService {
             return list;
         }
         //设备型号
-        int devTypeCode = ByteUtils.byteToNumber(dataBytes, 0, 2).intValue();
-        //参数编号
+        int devTypeCode = ByteUtils.byteToNumber(dataBytes, 1, 1).intValue();
+        //设备编号
         int devNo = ByteUtils.byteToNumber(dataBytes, 2, 1).byteValue();
         //设备参数数量
         int paramNum = ByteUtils.byteToNumber(dataBytes, 3, 1).intValue();

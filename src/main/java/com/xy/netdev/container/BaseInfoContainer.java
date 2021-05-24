@@ -557,6 +557,7 @@ public class BaseInfoContainer {
             frameParaInfo.setCmdMark(paraInfo.getNdpaCmdMark()); //命令标识
             frameParaInfo.setNdpaUnit(paraInfo.getNdpaUnit());
             frameParaInfo.setParaByteLen(paraInfo.getNdpaByteLen());  // 字节长度
+            frameParaInfo.setParaStrLen(paraInfo.getNdpaStrLen());    //参数长度
             frameParaInfo.setDataType(paraInfo.getNdpaDatatype());//数值类型
             frameParaInfo.setNdpaRemark1Desc(paraInfo.getNdpaRemark1Desc());//备注1
             frameParaInfo.setNdpaRemark1Data(paraInfo.getNdpaRemark1Data());//数据1
