@@ -1,6 +1,7 @@
 package com.xy.netdev.container;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
@@ -144,7 +145,7 @@ public class DevParaInfoContainer {
      * @return  设备显示参数列表
      */
     public static List<ParaViewInfo>   getDevParaExtViewList(String devNo){
-        return new ArrayList(devParaMap.get(devNo).values());
+        return devParaMap.get(devNo).values().stream().filter(paraViewInfo->paraViewInfo.getIsShow()==true).collect(Collectors.toList());
     }
     /**
      * @功能：根据设备编号和参数编号 返回参数显示信息
@@ -155,6 +156,20 @@ public class DevParaInfoContainer {
     public static ParaViewInfo   getDevParaView(String devNo,String paraNo){
         return devParaMap.get(devNo).get(ParaHandlerUtil.genLinkKey(devNo,paraNo));
     }
+
+    /**
+     * @功能：修改指定参数是否显示
+     * @param devNo        设备编号
+     * @param paraNo       参数编号
+     * @return  设备参数显示信息
+     */
+    public static void  setIsShow(String devNo,String paraNo,boolean result){
+        ParaViewInfo paraViewInfo =  devParaMap.get(devNo).get(ParaHandlerUtil.genLinkKey(devNo,paraNo));
+        if(ObjectUtil.isNotEmpty(paraViewInfo)){
+            paraViewInfo.setIsShow(result);
+        }
+    }
+
     /**
      * @功能：设置设备响应参数信息
      * @param respData        协议解析响应数据

@@ -176,6 +176,12 @@ public class ParaViewInfo {
     private Boolean ndpaIsTopology ;
 
     /**
+     * 是否返回前端显示
+     */
+    @ApiModelProperty(value = "是否返回前端显示")
+    private Boolean isShow = true;
+
+    /**
      * 添加子参数
      */
     public void  addSubPara(ParaViewInfo subParaViewInfo){

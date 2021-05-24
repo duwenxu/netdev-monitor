@@ -3,17 +3,24 @@ package com.xy.netdev.frame.service.shipAcu;
 import cn.hutool.core.util.HexUtil;
 import com.xy.common.exception.BaseException;
 import com.xy.netdev.common.util.ByteUtils;
+import com.xy.netdev.common.util.SpringContextUtils;
+import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.service.ICtrlInterPrtclAnalysisService;
+import com.xy.netdev.frame.service.ParamCodec;
 import com.xy.netdev.frame.service.SocketMutualService;
+import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Objects;
+
+import static com.xy.netdev.common.constant.SysConfigConstant.PARA_DATA_TYPE_INT;
 
 /**
  * 1.5米ACU天线控制实现(船载)
@@ -33,11 +40,17 @@ public class ShipAcuInterPrtcServiceImpl implements ICtrlInterPrtclAnalysisServi
         List<FrameParaData> paraList = reqData.getFrameParaList();
         byte[] bytes = new byte[]{};
         for (FrameParaData paraData : paraList) {
+            FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByNo(paraData.getDevType(),paraData.getParaNo());
             String paraValStr = "";
             if(paraData.getLen()==1){
                 paraValStr = BitToHexStr(paraData.getParaVal().replaceAll("[^0-9]",""));
-            }else{
-                paraValStr = HexUtil.encodeHexStr(ByteUtils.objToBytes(paraData.getParaVal(),paraData.getLen()));
+            }else if (StringUtils.isNotBlank(frameParaInfo.getNdpaRemark1Data())){
+                ParamCodec handler = SpringContextUtils.getBean(frameParaInfo.getNdpaRemark1Data());
+                if (PARA_DATA_TYPE_INT.equals(frameParaInfo.getDataType())) {
+                    paraValStr = HexUtil.encodeHexStr(handler.encode(paraData.getParaVal(), frameParaInfo.getNdpaRemark2Data(),frameParaInfo.getParaByteLen()));
+                }
+            } else{
+                paraValStr = HexUtil.encodeHexStr(ByteUtils.objToBytes(paraData.getParaVal(),paraData.getLen(),true));
             }
             paraData.setParaVal(paraValStr);
             byte[] frameBytes = HexUtil.decodeHex(paraValStr);
