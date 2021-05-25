@@ -199,7 +199,8 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
      */
     //todo luo
     public static void queryHeadNext(List<byte[]> tempList, RptBodyDev rptBodyDev) {
-        String devCode = sysParamService.getParaRemark1(rptBodyDev.getDevTypeCode());
+        //String devCode = sysParamService.getParaRemark1(rptBodyDev.getDevTypeCode());
+        String devCode = rptBodyDev.getDevTypeCode();
         byte codeByte = objToBytes(devCode, 1)[0];
         byte[] bytes = {0x39, codeByte};
         //设备型号
@@ -306,6 +307,8 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
                 achieveClassNameEnum = AchieveClassNameEnum.REPORT_WARN;
                 break;
             case 3:
+                achieveClassNameEnum = AchieveClassNameEnum.PARAM_QUERY;
+                break;
             case 4:
                 achieveClassNameEnum = AchieveClassNameEnum.PARAM_QUERY;
                 break;
@@ -316,6 +319,8 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
                 achieveClassNameEnum = AchieveClassNameEnum.PARAM_SET;
                 break;
             case 7:
+                achieveClassNameEnum = AchieveClassNameEnum.PARAM_WARN;
+                break;
             case 8:
                 achieveClassNameEnum = AchieveClassNameEnum.PARAM_WARN;
                 break;

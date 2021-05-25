@@ -111,8 +111,10 @@ public class DevAlertInfoContainer {
     public static List<AlertInfo> getDevAlertInfoList(String devNo){
         List<AlertInfo> alertInfoList = new ArrayList<>();
         Map<String,FixedSizeMap<String, AlertInfo>>  devMap = devAlertInfoMap.get(devNo);
-        for(String paraNo:devMap.keySet()){
-            alertInfoList.add(getDevParaAlertInfo(devNo,paraNo));
+        if(devMap != null){
+            for(String paraNo:devMap.keySet()){
+                alertInfoList.add(getDevParaAlertInfo(devNo,paraNo));
+            }
         }
         return alertInfoList;
     }

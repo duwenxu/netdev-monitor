@@ -274,7 +274,7 @@ public class BaseInfoContainer {
                         } else {
                             point = point + 2;
                         }
-                    }else if(SUB_KU_GF.equals(devType)&&Integer.parseInt(paraInfo.getParaByteLen())>0){
+                    }else if(SUB_KU_GF.equals(devType)&&StringUtils.isBlank(paraInfo.getParaByteLen())){
                             point = point + 1;
                     }
                     paraInfo.setParaStartPoint(point);//参数下标：从哪一个字节开始
@@ -586,6 +586,7 @@ public class BaseInfoContainer {
             frameParaInfo.setCmdMark(paraInfo.getNdpaCmdMark()); //命令标识
             frameParaInfo.setNdpaUnit(paraInfo.getNdpaUnit());
             frameParaInfo.setParaByteLen(paraInfo.getNdpaByteLen());  // 字节长度
+            frameParaInfo.setParaStrLen(paraInfo.getNdpaStrLen());    //参数长度
             frameParaInfo.setDataType(paraInfo.getNdpaDatatype());//数值类型
             frameParaInfo.setNdpaRemark1Desc(paraInfo.getNdpaRemark1Desc());//备注1
             frameParaInfo.setNdpaRemark1Data(paraInfo.getNdpaRemark1Data());//数据1
