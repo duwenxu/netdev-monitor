@@ -464,6 +464,11 @@ public interface SysConfigConstant {
     String  DEVICE_QHDY = "0020005";
 
     /**
+     * 设备类型--多体制卫星信道终端
+     */
+    String DEVICE_MSCT = "0020015";
+
+    /**
      * 设备类型--转换开关
      */
     String DEVICE_TRANS_SWITCH = "0020021";
@@ -503,5 +508,10 @@ public interface SysConfigConstant {
      * L频段4X4开关矩阵错误类型响应 设备控制到位
      */
     String LPD_CTRL_SUCCESS = "0064001";
+
+    /**
+     * 当前车类型
+     */
+    String CURR_CAR_TYPE = "0100011";
 
 }

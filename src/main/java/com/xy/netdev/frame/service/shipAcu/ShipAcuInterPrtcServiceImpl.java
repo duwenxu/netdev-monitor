@@ -76,8 +76,8 @@ public class ShipAcuInterPrtcServiceImpl implements ICtrlInterPrtclAnalysisServi
             throw new BaseException("比特位长度异常，请检查");
         }
         len = byteStr.length();
-        if (len<8) {
-            byteStr = StringUtils.leftPad(byteStr,8-len,"0");
+        if (len==4) {
+            byteStr = "0011" + byteStr;
         }
         if (len == 8) {// 8 bit处理
             if (byteStr.charAt(0) == '0') {// 正数

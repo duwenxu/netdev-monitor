@@ -202,4 +202,10 @@ public class DevParaInfoContainer {
         return num>0;
     }
 
+    /**
+     * 清空缓存
+     */
+    public static void cleanCache(){
+        devParaMap.clear();
+    }
 }

@@ -129,4 +129,11 @@ public class DevCtrlInterInfoContainer {
         return devCtrInterMap.get(devNo);
     }
 
+    /**
+     * 清空缓存
+     */
+    public static void cleanCache(){
+        devCtrInterMap.clear();
+    }
+
 }
