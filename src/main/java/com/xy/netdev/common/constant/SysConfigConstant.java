@@ -462,6 +462,11 @@ public interface SysConfigConstant {
     String  DEVICE_QHDY = "0020005";
 
     /**
+     * 设备类型--多体制卫星信道终端
+     */
+    String DEVICE_MSCT = "0020015";
+
+    /**
      * 设备类型--转换开关
      */
     String DEVICE_TRANS_SWITCH = "0020021";
