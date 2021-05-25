@@ -111,19 +111,11 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
     @SuppressWarnings("unchecked")
     public void socketResponse(SocketEntity socketEntity) {
         //获取设备参数信息
-        List<BaseInfo> baseInfos = new ArrayList<>();
-        if(socketEntity.getRemoteAddress().equals("192.168.1.106")){
-            baseInfos.add(BaseInfoContainer.getDevInfoByNo("40"));
-            baseInfos.add(BaseInfoContainer.getDevInfoByNo("42"));
-            baseInfos.add(BaseInfoContainer.getDevInfoByNo("41"));
-        }else{
-            baseInfos.add(getDevInfo(socketEntity.getRemoteAddress()));
-        }
+        List<BaseInfo> baseInfos = getDevInfo(socketEntity.getRemoteAddress());
         for (BaseInfo devInfo : baseInfos) {
             R r = (R)new FrameRespData();
             r.setDevType(devInfo.getDevType());
             r.setDevNo(devInfo.getDevNo());
-
             //数据拆包
             R unpackBytes = unpack((Q) socketEntity, r);
             //转16进制，用来获取协议解析类

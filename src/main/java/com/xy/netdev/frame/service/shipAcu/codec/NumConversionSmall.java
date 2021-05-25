@@ -20,11 +20,19 @@ public class NumConversionSmall implements ParamCodec {
                 value = ByteUtils.Bytes2Int_LE(bytes)/Double.valueOf(objects[0].toString());
             }
         }
-        return String.valueOf(value);
+        return String.format("%.2f",value);
     }
 
     @Override
     public byte[] encode(String value, Object... objects) {
-        return new byte[0];
+        //默认不做小数点保留
+        byte[] bytes = new byte[]{};//利用小端转换
+        Double result = 1.0;
+        if (objects != null&&objects.length!=0) {
+            if (!ObjectUtil.isEmpty(objects[0])){
+                result = Double.valueOf(value) * Double.valueOf(objects[0].toString());
+            }
+        }
+        return ByteUtils.objToBytes(result,Integer.valueOf(objects[1].toString()),true);
     }
 }
