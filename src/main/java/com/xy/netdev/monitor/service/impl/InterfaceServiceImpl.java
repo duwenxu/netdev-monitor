@@ -159,7 +159,7 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
         }
         List<TransUiData> dataList = new ArrayList<>();
         //封装前端穿梭框数据
-        paraInfos.forEach(paraInfo ->{
+        paraInfos.stream().filter(Objects::nonNull).forEach(paraInfo ->{
             TransUiData data = new TransUiData();
             data.setId(paraInfo.getNdpaId().toString());
             data.setValue(paraInfo.getNdpaName());
