@@ -1,6 +1,8 @@
 package com.xy.netdev.common.constant;
 
 
+import org.apache.ibatis.type.NStringTypeHandler;
+
 /**
  * 系统配置常量*
  *
@@ -486,6 +488,11 @@ public interface SysConfigConstant {
      * 设备类型--君威子功放
      */
     String  DEVICE_CAR_GF = "0020003";
+
+    /**
+     * 设备类型--Comtech功放
+     */
+    String COMTECH_GF = "0020023";
 
     /**
      * 数据类型--str默认长度
