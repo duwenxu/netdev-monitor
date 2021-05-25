@@ -40,8 +40,8 @@ public class BaseContainerLoader {
     private IPrtclFormatService prtclFormatService;
     @Autowired
     private ISysParamService sysParamService;
-
-
+    //第三类设备-动中通
+    private static String DEV_TYPE_DZT = "3";
     /**
      * 初始化信息加载
      */

@@ -4,6 +4,8 @@ package com.xy.netdev.frame.service.bpq;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.xy.common.exception.BaseException;
+import com.xy.netdev.common.constant.SysConfigConstant;
+import com.xy.netdev.container.BaseContainerLoader;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
@@ -11,14 +13,18 @@ import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
+import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import com.xy.netdev.transit.IDataReciveService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 39所Ku&L下变频器接口协议解析
@@ -96,24 +102,42 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
         return cmdMark;
     }
 
+    /**
+     * 获取变频器内部地址映射关系
+     * @return
+     */
+    private Map<String, BaseInfo> getBPQAddrMap(){
+        List<BaseInfo> baseInfos = new ArrayList<>();
+        baseInfos.addAll(BaseInfoContainer.getDevInfosByType(SysConfigConstant.DEVICE_BPQ));
+        baseInfos.addAll(BaseInfoContainer.getDevInfosByType(SysConfigConstant.DEVICE_QHDY));
+        Map<String, BaseInfo> addrMap = new HashMap<>();
+        for (BaseInfo baseInfo : baseInfos) {
+            String localAddr = baseInfo.getDevLocalAddr();
+            if(StringUtils.isNotEmpty(localAddr)){
+               addrMap.put(localAddr,baseInfo);
+            }
+        }
+        return addrMap;
+    }
 
+    /**
+     * 获取设备编号
+     * @param addr
+     * @return
+     */
     private String getDevNo(String addr){
         String devNo = "";
-        switch (addr){
-            case "001":
-                devNo = "42";
-                break;
-            case "010":
-                devNo = "40";
-                break;
-            case "011":
-                devNo = "41";
-                break;
-            default:
-                devNo = "42";
-                break;
+        Map<String, BaseInfo> addrMap =  getBPQAddrMap();
+        if(addrMap.get(addr) != null){
+            devNo = addrMap.get(addr).getDevNo();
         }
         return devNo;
     }
+
+//    public getQHDYLocalAddr(FrameReqData reqInfo){
+//        BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(reqInfo.getDevNo());
+//        String parentNo = baseInfo.getDevParentNo();
+//
+//    }
 
 }

@@ -160,12 +160,13 @@ public class MsctImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData,
     }
 
     public static void main(String[] args) {
-        byte[] bytes1 = {0x04, 0x10, 0x00, 0x13};
+       byte[] bytes1 = {0x04, 0x10, 0x00, 0x13};
+        //byte[] bytes1 = {0xEB, 0x90, 0x82, 0x03, 0xAA, 0x00};
 //        AscIIParamCodec paramCodec = new AscIIParamCodec();
 //        String decode = paramCodec.decode(bytes);
 //        System.out.println(decode);
 //        byte[] encode = paramCodec.encode(decode);
-        System.out.println(addGetBottom256(bytes1,0,4));
+        System.out.println(addGetBottom256(bytes1,0,6));
 //        byte temp = bytes1[0];
 //        for (int i = 1; i < bytes1.length; i++) {
 //            temp ^= bytes1[i];
