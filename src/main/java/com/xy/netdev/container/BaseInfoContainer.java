@@ -203,7 +203,7 @@ public class BaseInfoContainer {
             if(null!=devTypeParamMap.get(devType)){
                 devTypeParamMap.get(devType).add(frameParaInfo);
             }else{
-                List<FrameParaInfo> paras = new ArrayList<>();
+                List<FrameParaInfo> paras = new ArrayList(){{add(frameParaInfo);}};
                 devTypeParamMap.put(devType,paras);
             }
         }
@@ -673,5 +673,20 @@ public class BaseInfoContainer {
 
         });
         return devInterParams;
+    }
+
+    /**
+     * 清空缓存
+     */
+    public static void cleanCache(){
+        devMap.clear();
+        devNoMap.clear();
+        InterLinkParaMap.clear();
+        paramCmdMap.clear();
+        paramNoMap.clear();
+        devTypeInterMap.clear();
+        devTypeParamMap.clear();
+        devPageItfMap.clear();
+        devAssConItfMap.clear();
     }
 }

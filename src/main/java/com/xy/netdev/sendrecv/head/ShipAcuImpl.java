@@ -11,6 +11,7 @@ import com.xy.netdev.frame.service.shipAcu.ShipAcuInterPrtcServiceImpl;
 import com.xy.netdev.frame.service.shipAcu.ShipAcuPrtcServiceImpl;
 import com.xy.netdev.sendrecv.base.AbsDeviceSocketHandler;
 import com.xy.netdev.sendrecv.entity.SocketEntity;
+import com.xy.netdev.sendrecv.entity.device.ModemScmmEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import static com.xy.netdev.common.constant.SysConfigConstant.*;
 import static com.xy.netdev.common.util.ByteUtils.byteArrayCopy;
+import static com.xy.netdev.common.util.ByteUtils.listToBytes;
 
 /**
  * 1.5米ACU天线(船载)
@@ -64,7 +66,7 @@ public class ShipAcuImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
     public FrameRespData unpack(SocketEntity socketEntity, FrameRespData frameRespData) {
         byte[] bytes = socketEntity.getBytes();
         int len = bytes.length;
-        if (len < 49 || len > 49) {
+        if (len != 48) {
             //log.warn("1.5米ACU天线响应数据长度错误, 未能正确解析, 数据体长度:{}, 数据体:{}", bytes.length, HexUtil.encodeHexStr(bytes));
             return frameRespData;
         }
@@ -106,9 +108,23 @@ public class ShipAcuImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
         lists.add(getStreamCode());
         //参数体
         lists.add(bytes);
+        //校验和
+        lists.add(addGetBottom(lists));
         //帧尾
         lists.add(new byte[]{0x7d});
         return ByteUtils.listToBytes(lists);
+    }
+
+    /**
+     * 累加从 长度 到 参数体 的所有内容作为校验和
+     *
+     * @param entity 数据体
+     * @return 校验和字节
+     */
+    private byte[] addGetBottom(List<byte[]> entity) {
+        byte[] bytes = listToBytes(entity);
+        byte check = ByteUtils.addGetBottom(bytes, 0, bytes.length);
+        return new byte[]{check};
     }
 
     /***

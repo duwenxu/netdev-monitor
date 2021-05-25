@@ -518,14 +518,16 @@ public class ByteUtils {
      * @note 数组长度至少为4，按小端方式转换,即传入的bytes是小端的，按这个规律组织成int
      */
     public static int Bytes2Int_LE(byte[] bytes){
-        if(bytes.length < 4)
-            return -1;
-        int iRst = (bytes[0] & 0xFF);
-        iRst |= (bytes[1] & 0xFF) << 8;
-        iRst |= (bytes[2] & 0xFF) << 16;
-        iRst |= (bytes[3] & 0xFF)<< 24;
-
-        return iRst;
+        if(bytes.length == 4 || bytes.length ==2){
+            int iRst = (bytes[0] & 0xFF);
+            iRst |= (bytes[1] & 0xFF) << 8;
+            if(bytes.length == 4){
+                iRst |= (bytes[2] & 0xFF) << 16;
+                iRst |= (bytes[3] & 0xFF)<< 24;
+            }
+            return iRst;
+        }
+        return -1;
     }
 
 
@@ -536,14 +538,16 @@ public class ByteUtils {
      * @note 数组长度至少为4，按小端方式转换，即传入的bytes是大端的，按这个规律组织成int
      */
     public static int Bytes2Int_BE(byte[] bytes){
-        if(bytes.length < 4)
-            return -1;
-        int iRst = (bytes[0] << 24) & 0xFF;
-        iRst |= (bytes[1] << 16) & 0xFF;
-        iRst |= (bytes[2] << 8) & 0xFF;
-        iRst |= bytes[3] & 0xFF;
-
-        return iRst;
+        if(bytes.length == 4 || bytes.length ==2){
+            int iRst = (bytes[0] << 24) & 0xFF;
+            iRst |= (bytes[1] << 16) & 0xFF;
+            if(bytes.length == 4){
+                iRst |= (bytes[2] << 8) & 0xFF;
+                iRst |= bytes[3] & 0xFF;
+            }
+            return iRst;
+        }
+        return -1;
     }
 
     public static void main(String[] args) {

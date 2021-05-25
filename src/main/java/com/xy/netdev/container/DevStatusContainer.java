@@ -335,4 +335,11 @@ public class DevStatusContainer {
     public static void setModemUse(String devNo, String masterOrSlave) {
         devStatusMap.get(devNo).setMasterOrSlave(masterOrSlave);
     }
+
+    /**
+     * 清空缓存
+     */
+    public static void cleanCache(){
+        devStatusMap.clear();
+    }
 }
