@@ -31,9 +31,8 @@ import static com.xy.netdev.container.BaseInfoContainer.getDevInfo;
  * @author cc
  */
 @Component
-@Order(3)
 @Slf4j
-public class DeviceSocketSubscribe  implements ApplicationRunner {
+public class DeviceSocketSubscribe {
 
     @Autowired
     private StationControlHandler stationControlHandler;
@@ -46,11 +45,11 @@ public class DeviceSocketSubscribe  implements ApplicationRunner {
      */
     private FIFOCache<String, AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData>> cache;
 
-    @Override
-    public void run(ApplicationArguments args) throws Exception {
-        init();
-    }
-
+//    @Override
+//    public void run(ApplicationArguments args) throws Exception {
+//        init();
+//    }
+    @PostConstruct
     public void init(){
         //队列
         cache = CacheUtil.newFIFOCache(absSocketHandlerList.size());
@@ -76,7 +75,7 @@ public class DeviceSocketSubscribe  implements ApplicationRunner {
         Optional<AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData>> socketHandler
                 = getHandler(socketEntity.getRemoteAddress());
         socketHandler.ifPresent(handler -> {
-            log.debug("收到设备数据, 远端地址:{}:{},数据体:{}"
+            log.warn("收到设备数据, 远端地址:{}:{},数据体:{}"
                     , socketEntity.getRemoteAddress()
                     , socketEntity.getRemotePort()
                     , HexUtil.encodeHexStr(socketEntity.getBytes()).toUpperCase());
