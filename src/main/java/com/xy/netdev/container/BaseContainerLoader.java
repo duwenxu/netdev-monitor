@@ -13,6 +13,9 @@ import com.xy.netdev.monitor.service.IParaInfoService;
 import com.xy.netdev.monitor.service.IPrtclFormatService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.util.List;
@@ -27,8 +30,9 @@ import java.util.stream.Collectors;
  * @since 2021-03-09
  */
 @Slf4j
+@Order(4)
 @Component
-public class BaseContainerLoader {
+public class BaseContainerLoader implements ApplicationRunner {
 
     @Autowired
     private IBaseInfoService baseInfoService;
@@ -56,11 +60,15 @@ public class BaseContainerLoader {
         initDevAlert();
         //初始化设备参数容器
         initDevParam();
+        log.info("容器信息更新完成，耗时:[" + (System.currentTimeMillis() - time) + "ms]");
+    }
+
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
         //初始化设备控制接口信息容器
         DevCtrlInterInfoContainer.initData();
         //初始化设备状态容器
         DevStatusContainer.init(sysParamService);
-        log.info("容器信息更新完成，耗时:[" + (System.currentTimeMillis() - time) + "ms]");
     }
 
     /**

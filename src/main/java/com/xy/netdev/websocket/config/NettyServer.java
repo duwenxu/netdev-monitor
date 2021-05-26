@@ -23,7 +23,7 @@ import javax.annotation.PostConstruct;
  * @since 2020-09-04
  */
 @Slf4j
-@Order(4)
+@Order(5)
 @Component
 public class NettyServer  implements ApplicationRunner {
 
