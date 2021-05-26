@@ -13,14 +13,9 @@ import com.xy.netdev.monitor.service.IParaInfoService;
 import com.xy.netdev.monitor.service.IPrtclFormatService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-
 import javax.annotation.PostConstruct;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 /**
@@ -127,5 +122,16 @@ public class BaseContainerLoader implements ApplicationRunner {
         int devAlertInfoSize = Integer.parseInt(sysParamService.getParaRemark1(SysConfigConstant.DEV_ALERT_INFO_SZIE));
         //初始化各设备日志
         DevAlertInfoContainer.init(devAlertInfoSize);
+    }
+
+    /**
+     * 清空缓存
+     */
+    public void cleanCache(){
+        BaseInfoContainer.cleanCache();
+        DevParaInfoContainer.cleanCache();
+        DevCtrlInterInfoContainer.cleanCache();
+        DevStatusContainer.cleanCache();
+        load();
     }
 }

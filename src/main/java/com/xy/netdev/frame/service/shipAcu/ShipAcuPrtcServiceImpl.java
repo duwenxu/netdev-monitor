@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -80,7 +81,6 @@ public class ShipAcuPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
     }
 
     private void setFrameDataList(FrameRespData respData, byte[] bytes, String cmdMark, List<FrameParaData> frameParaDataList) {
-        bytes = ArrayUtil.remove(bytes, 30);
         //获取接口单元的参数信息
         List<FrameParaInfo> frameParaInfos = BaseInfoContainer.getInterLinkParaList(respData.getDevType(), cmdMark);
         for (FrameParaInfo param : frameParaInfos) {
@@ -89,23 +89,23 @@ public class ShipAcuPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
             //特定字解析
             if (param.getParaNo().equals("15")) {
                 List<FrameParaInfo> list = BaseInfoContainer.getParasByDevType(respData.getDevType())
-                        .stream().filter(frameParaInfo -> Flag.equals(frameParaInfo.getNdpaRemark3Data()))
+                        .stream().filter(frameParaInfo -> frameParaInfo.getNdpaRemark3Data().contains(Flag))
                         .collect(Collectors.toList());
                 //解析特定字及后续参数
                 byte[] byteEnd = ByteUtils.byteArrayCopy(bytes, 33, 12);
                 int paraStartPoint = 0;
                 for (FrameParaInfo frameParaData1 : list) {
-                    byte[] byteNext = ByteUtils.byteArrayCopy(byteEnd, paraStartPoint, Integer.valueOf(param.getParaByteLen()));
+                    byte[] byteNext = ByteUtils.byteArrayCopy(byteEnd, paraStartPoint, Integer.valueOf(frameParaData1.getParaByteLen()));
                     genFramePara(frameParaData1, respData, byteNext, frameParaDataList);
-                    paraStartPoint = paraStartPoint + Integer.valueOf(param.getParaByteLen());
-                    DevParaInfoContainer.setIsShow(respData.getDevNo(), frameParaData1.getParaNo(), true);
+                    paraStartPoint = paraStartPoint + Integer.valueOf(frameParaData1.getParaByteLen());
+                    //DevParaInfoContainer.setIsShow(respData.getDevNo(), frameParaData1.getParaNo(), true);
                 }
-                List<FrameParaInfo> listNoShow = BaseInfoContainer.getParasByDevType(respData.getDevType())
+                /*List<FrameParaInfo> listNoShow = BaseInfoContainer.getParasByDevType(respData.getDevType())
                         .stream().filter(frameParaInfo -> StringUtils.isNotBlank(frameParaInfo.getNdpaRemark3Data())
                                 && !Flag.equals(frameParaInfo.getNdpaRemark3Data())).collect(Collectors.toList());
                 listNoShow.forEach(frameParaInfo -> {
                     DevParaInfoContainer.setIsShow(respData.getDevNo(), frameParaInfo.getParaNo(), false);
-                });
+                });*/
             }
         }
     }
@@ -124,14 +124,16 @@ public class ShipAcuPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
             String paraValueStr = ByteUtils.byteToBinary(byte1[00]);
             int paraStartPoint = 0;
             int paraEndPoint = 0;
-            for (int i = 1; i <= param.getSubParaList().size(); i++) {
-                FrameParaInfo frameParaInfo = param.getSubParaList().get(i-1);
+            List<FrameParaInfo> list = param.getSubParaList();
+            list.sort(Comparator.comparing(paraInfo -> Integer.valueOf(paraInfo.getParaNo())));
+            for (int i = 1; i <= list.size(); i++) {
+                FrameParaInfo frameParaInfo = list.get(i-1);
                 paraEndPoint = paraStartPoint + Integer.valueOf(frameParaInfo.getParaStrLen());
-                value = value + paraValueStr.substring(paraStartPoint, paraEndPoint);
-                FrameParaData subFrame = genFramePara(frameParaInfo, respData.getDevNo(), value);
+                String paraVal  =  paraValueStr.substring(paraStartPoint, paraEndPoint);
+                FrameParaData subFrame = genFramePara(frameParaInfo, respData.getDevNo(), paraVal);
                 frameParaDataList.add(subFrame);
                 paraStartPoint = paraEndPoint;
-                value = value + "_";
+                value = value+paraVal + "_";
             }
             frameParaData = genFramePara(param, respData.getDevNo(), value);
         } else if (StringUtils.isNotBlank(param.getNdpaRemark1Data())) {
@@ -145,8 +147,9 @@ public class ShipAcuPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
             frameParaData = genFramePara(param, respData.getDevNo(), HexUtil.encodeHexStr(byte1));
         }
         //特定字解析
-        if (param.getParaNo().equals("15") || param.getNdpaRemark1Data().equals("false")) {
+        if (param.getParaNo().equals("15")) {
             Flag = frameParaData.getParaVal();
+        }else if(param.getNdpaRemark3Data().contains("false")){
             DevParaInfoContainer.setIsShow(respData.getDevNo(), param.getParaNo(), false);
         }
         frameParaDataList.add(frameParaData);
