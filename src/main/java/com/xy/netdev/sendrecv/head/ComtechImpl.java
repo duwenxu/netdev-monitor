@@ -11,6 +11,7 @@ import com.xy.netdev.frame.service.ICtrlInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
+import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.rpt.enums.AsciiEnum;
 import com.xy.netdev.rpt.enums.ComtechSpeComEnum;
 import com.xy.netdev.sendrecv.base.AbsDeviceSocketHandler;
@@ -50,7 +51,11 @@ public class ComtechImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
         String operType = frameRespData.getOperType();
         switch (operType) {
             case OPREATE_QUERY_RESP:
-                iParaPrtclAnalysisService.queryParaResponse(frameRespData);
+                if (iQueryInterPrtclAnalysisService!=null){
+                    iQueryInterPrtclAnalysisService.queryParaResponse(frameRespData);
+                }else {
+                    iParaPrtclAnalysisService.queryParaResponse(frameRespData);
+                }
                 break;
             case OPREATE_CONTROL_RESP:
                 iParaPrtclAnalysisService.ctrlParaResponse(frameRespData);
@@ -66,7 +71,6 @@ public class ComtechImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
         byte[] bytes = socketEntity.getBytes();
         //头字节
         byte startByte = bytes[0];
-        log.info("Comtech功率放大器收到响应帧：[{}]", HexUtil.encodeHexStr(bytes));
         if (!RESP_ARR.contains(startByte)) {
             log.warn("Comtech功率放大器响应帧头错误, 未能正确解析, 数据体:{}", HexUtil.encodeHexStr(bytes));
             return frameRespData;
@@ -74,8 +78,10 @@ public class ComtechImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
         //使用响应码标记 响应接收/响应拒绝
         if (startByte==RESP_ARR.get(0)){ //ACK
             frameRespData.setRespCode("0");
+            log.info("Comtech功率放大器收到成功响应帧：[{}]", HexUtil.encodeHexStr(bytes));
         }else {
             frameRespData.setRespCode("1");
+            log.info("Comtech功率放大器收到拒绝响应帧：[{}]", HexUtil.encodeHexStr(bytes));
         }
 
         //数据体长度 总长度-首尾字节长度
@@ -106,7 +112,7 @@ public class ComtechImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
         frameRespData.setParamBytes(context);
 
         FrameParaInfo para = BaseInfoContainer.getParaInfoByCmd(COMTECH_GF, cmk);
-        if (para.getParaId() == null){
+        if (para.getParaId() == null && !cmk.equals("?")){
             log.warn("Comtech功放cmd:[{}]未查询到对应的参数",cmk);
             throw new BaseException("Comtech功放cmd:"+cmk+" 未查询到对应的参数");
         }
@@ -122,12 +128,7 @@ public class ComtechImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
 
     @Override
     public byte[] pack(FrameReqData frameReqData) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(AsciiEnum.STX.getCode());
-        sb.append(ADDRESS);
         String cmdMark = frameReqData.getCmdMark();
-        sb.append(cmdMark);
-        sb.append(AsciiEnum.EXT.getCode());
 
         byte[] paramBytes = frameReqData.getParamBytes();
         ComtechEntity comtechEntity;
@@ -141,11 +142,6 @@ public class ComtechImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
         byte check = xorCheck(comtechEntity);
         comtechEntity.setCheck(check);
         byte[] pack = pack(comtechEntity);
-
-        //字符串转换方式处理
-        String checkStr = StrUtil.str(check, Charsets.UTF_8);
-        sb.append(checkStr);
-        byte[] bytes = sb.toString().getBytes();
 
         log.info("Comtech发送查询帧：查询命令字：[{}]，查询帧：[{}]",cmdMark,HexUtil.encodeHexStr(pack));
         return pack;
@@ -189,7 +185,8 @@ public class ComtechImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
         ComtechEntity comtechEntity = ComtechEntity.builder()
                 .start(AsciiEnum.STX.getCode())
                 .address(StrUtil.bytes(ADDRESS)[0])
-                .command(StrUtil.bytes("@"))
+                .command(StrUtil.bytes("?"))
+                .parameters(StrUtil.bytes("PQ"))
                 .end(AsciiEnum.EXT.getCode())
                 .build();
         byte check =xorCheck(comtechEntity);

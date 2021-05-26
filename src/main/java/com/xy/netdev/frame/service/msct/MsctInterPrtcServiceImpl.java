@@ -121,15 +121,5 @@ public class MsctInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService
         return decimal;
     }
 
-    public void initDeviceModel(){
-
-        List<BaseInfo> baseInfos = BaseInfoContainer.getDevInfoByNo()
-        FrameReqData reqInfo = new FrameReqData();
-        reqInfo.setCmdMark("05AA");
-        reqInfo.setDevType(SysConfigConstant.DEVICE_MSCT);
-        reqInfo.setDevNo("51");
-        reqInfo.setAccessType();
-    }
-
 
 }
