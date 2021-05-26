@@ -15,10 +15,11 @@ import lombok.ToString;
 public enum ComtechSpeComEnum {
 
     /**参考频率微调字*/
-    PBM("PBM?", "PBM"),
+    PBM("PBM?", "PBM",new byte[]{0x50,0x42,0x4D}),
     /**LED状态模式*/
-    PBW("PBW?", "PBW");
+    PBW("PBW?", "PBW",new byte[]{0x50,0x42,0x57});
 
     private final String reqCommand;
     private final String respCommand;
+    private final byte[] bytes;
 }
