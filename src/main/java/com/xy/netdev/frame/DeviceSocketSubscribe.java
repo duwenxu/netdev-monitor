@@ -75,7 +75,7 @@ public class DeviceSocketSubscribe {
         Optional<AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData>> socketHandler
                 = getHandler(socketEntity.getRemoteAddress());
         socketHandler.ifPresent(handler -> {
-            log.warn("收到设备数据, 远端地址:{}:{},数据体:{}"
+            log.debug("收到设备数据, 远端地址:{}:{},数据体:{}"
                     , socketEntity.getRemoteAddress()
                     , socketEntity.getRemotePort()
                     , HexUtil.encodeHexStr(socketEntity.getBytes()).toUpperCase());
