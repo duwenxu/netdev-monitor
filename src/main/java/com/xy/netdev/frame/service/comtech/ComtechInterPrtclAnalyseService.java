@@ -99,7 +99,7 @@ public class ComtechInterPrtclAnalyseService implements IQueryInterPrtclAnalysis
                 try {
                     bytes = ByteUtils.byteArrayCopy(paramBytes, paraInfo.getParaStartPoint(), byteLen);
                 } catch (Exception e) {
-                    log.error("Comtech高级查询参数长度异常：参数编号：[{}]---参数名称：[{}]",paraInfo.getParaNo(),paraInfo.getParaName());
+                    log.error("Comtech高级查询参数长度异常：参数编号：[{}]---参数名称：[{}]---当前字节帧：[{}]",paraInfo.getParaNo(),paraInfo.getParaName(),StrUtil.str(paramBytes,StandardCharsets.UTF_8));
                 }
                 String paraVal = StrUtil.str(bytes, StandardCharsets.UTF_8);
 

@@ -141,7 +141,7 @@ public class ComtechImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
         comtechEntity.setCheck(check);
         byte[] pack = pack(comtechEntity);
 
-        log.info("Comtech发送查询帧：查询命令字：[{}]，查询帧：[{}]",cmdMark,HexUtil.encodeHexStr(pack));
+        log.info("Comtech发送查询帧：查询命令字：[{}]，查询帧：[{}],字符串格式：[{}]",cmdMark,HexUtil.encodeHexStr(pack),StrUtil.str(pack,StandardCharsets.UTF_8));
         return pack;
     }
 
