@@ -78,8 +78,10 @@ public class ComtechInterPrtclAnalyseService implements IQueryInterPrtclAnalysis
 
     @Override
     public FrameRespData queryParaResponse(FrameRespData respData) {
-        byte[] paramBytes = respData.getParamBytes();
+        byte[] paramBytesWithCom = respData.getParamBytes();
+        byte[] paramBytes = ByteUtils.byteArrayCopy(paramBytesWithCom, 1, paramBytesWithCom.length - 1);
         String cmdMark = respData.getCmdMark();
+
         //区分成功和失败响应的处理
         if (respData.getRespCode().equals("1")){
             respData = comtechPrtclAnalyseService.rejectCodeHandler(paramBytes,respData);
@@ -93,7 +95,12 @@ public class ComtechInterPrtclAnalyseService implements IQueryInterPrtclAnalysis
                     log.error("Comtech功放参数字节长度为空：参数编号：[{}]",paraInfo.getParaNo());
                 }
                 int byteLen = Integer.parseInt(paraByteLen);
-                byte[] bytes = ByteUtils.byteArrayCopy(paramBytes, paraInfo.getParaStartPoint(), byteLen);
+                byte[] bytes = new byte[0];
+                try {
+                    bytes = ByteUtils.byteArrayCopy(paramBytes, paraInfo.getParaStartPoint(), byteLen);
+                } catch (Exception e) {
+                    log.error("Comtech高级查询参数长度异常：参数编号：[{}]---参数名称：[{}]",paraInfo.getParaNo(),paraInfo.getParaName());
+                }
                 String paraVal = StrUtil.str(bytes, StandardCharsets.UTF_8);
 
                 FrameParaData paraData = new FrameParaData();

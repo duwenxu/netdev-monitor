@@ -3,6 +3,7 @@ package com.xy.netdev.container;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
+import com.xy.netdev.common.util.BeanFactoryUtil;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.entity.ParaInfo;
@@ -136,5 +137,6 @@ public class BaseContainerLoader implements ApplicationRunner {
         DevCtrlInterInfoContainer.cleanCache();
         DevStatusContainer.cleanCache();
         load();
+        DevStatusContainer.init(BeanFactoryUtil.getBean(ISysParamService.class));
     }
 }

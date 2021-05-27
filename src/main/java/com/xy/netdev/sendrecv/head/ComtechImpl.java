@@ -2,7 +2,6 @@ package com.xy.netdev.sendrecv.head;
 
 import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.StrUtil;
-import com.google.common.base.Charsets;
 import com.xy.common.exception.BaseException;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameReqData;
@@ -11,7 +10,6 @@ import com.xy.netdev.frame.service.ICtrlInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
-import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.rpt.enums.AsciiEnum;
 import com.xy.netdev.rpt.enums.ComtechSpeComEnum;
 import com.xy.netdev.sendrecv.base.AbsDeviceSocketHandler;
@@ -41,8 +39,8 @@ import static com.xy.netdev.monitor.constant.MonitorConstants.READ_ONLY;
 @Slf4j
 public class ComtechImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData> {
 
-    //TODO 地址字节是否固定
-    private static final String ADDRESS="A";
+    //地址字节默认为  channel A,通过界面切换控制
+    public static String CHANNEL_ADDRESS ="A";
     //响应头数组     ACK:0X06   NAK:0X15
     private static final List<Byte> RESP_ARR = Arrays.asList((byte)0x06,(byte)0x15);
 
@@ -134,7 +132,7 @@ public class ComtechImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
         ComtechEntity comtechEntity;
         comtechEntity = ComtechEntity.builder()
                 .start(AsciiEnum.STX.getCode())
-                .address(StrUtil.bytes(ADDRESS)[0])
+                .address(StrUtil.bytes(CHANNEL_ADDRESS)[0])
                 .command(StrUtil.bytes(cmdMark))
                 .parameters(paramBytes)
                 .end(AsciiEnum.EXT.getCode())
@@ -184,9 +182,9 @@ public class ComtechImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
     public static void main(String[] args) {
         ComtechEntity comtechEntity = ComtechEntity.builder()
                 .start(AsciiEnum.STX.getCode())
-                .address(StrUtil.bytes(ADDRESS)[0])
-                .command(StrUtil.bytes("?"))
-                .parameters(StrUtil.bytes("PQ"))
+                .address(StrUtil.bytes(CHANNEL_ADDRESS)[0])
+                .command(StrUtil.bytes("A"))
+//                .parameters(StrUtil.bytes("99.9"))
                 .end(AsciiEnum.EXT.getCode())
                 .build();
         byte check =xorCheck(comtechEntity);
