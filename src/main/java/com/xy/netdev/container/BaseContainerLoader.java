@@ -138,5 +138,6 @@ public class BaseContainerLoader implements ApplicationRunner {
         DevStatusContainer.cleanCache();
         load();
         DevStatusContainer.init(BeanFactoryUtil.getBean(ISysParamService.class));
+        DevCtrlInterInfoContainer.initData();
     }
 }
