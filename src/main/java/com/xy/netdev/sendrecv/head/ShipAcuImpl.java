@@ -83,7 +83,7 @@ public class ShipAcuImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
             return frameRespData;
         }
         //数据体
-        byte[] paramBytes = byteArrayCopy(bytes, 2, bytes.length - 2);
+        byte[] paramBytes = byteArrayCopy(bytes, 2, bytes.length - 3);
         frameRespData.setParamBytes(paramBytes);
         return frameRespData;
     }
