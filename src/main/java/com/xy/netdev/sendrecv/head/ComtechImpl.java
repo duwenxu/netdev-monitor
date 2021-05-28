@@ -73,13 +73,14 @@ public class ComtechImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
             log.warn("Comtech功率放大器响应帧头错误, 未能正确解析, 数据体:{}", HexUtil.encodeHexStr(bytes));
             return frameRespData;
         }
+        String respStr = StrUtil.str(bytes, StandardCharsets.UTF_8);
         //使用响应码标记 响应接收/响应拒绝
         if (startByte==RESP_ARR.get(0)){ //ACK
             frameRespData.setRespCode("0");
-            log.info("Comtech功率放大器收到成功响应帧：[{}]", HexUtil.encodeHexStr(bytes));
+            log.info("Comtech功率放大器收到成功响应帧：[{}],字符串格式：[{}]", HexUtil.encodeHexStr(bytes),respStr);
         }else {
             frameRespData.setRespCode("1");
-            log.info("Comtech功率放大器收到拒绝响应帧：[{}]", HexUtil.encodeHexStr(bytes));
+            log.info("Comtech功率放大器收到拒绝响应帧：[{}],字符串格式：[{}]", HexUtil.encodeHexStr(bytes),respStr);
         }
 
         //数据体长度 总长度-首尾字节长度
