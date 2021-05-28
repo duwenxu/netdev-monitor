@@ -36,7 +36,7 @@ import static com.xy.netdev.container.DevLogInfoContainer.PARA_REPS_STATUS_SUCCE
  * 1.5米ACU天线查询实现(船载)
  *
  * @author sunchao
- * @create 2021-05-16 11:08
+ * @create 2021-05-19 11:08
  */
 @Service
 @Slf4j
@@ -94,6 +94,8 @@ public class ShipAcuPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
                 //解析特定字及后续参数
                 byte[] byteEnd = ByteUtils.byteArrayCopy(bytes, 33, 12);
                 int paraStartPoint = 0;
+                //排序
+                list.sort(Comparator.comparing(frameParaInfo -> Integer.valueOf(frameParaInfo.getParaNo())));
                 for (FrameParaInfo frameParaData1 : list) {
                     byte[] byteNext = ByteUtils.byteArrayCopy(byteEnd, paraStartPoint, Integer.valueOf(frameParaData1.getParaByteLen()));
                     genFramePara(frameParaData1, respData, byteNext, frameParaDataList);
@@ -128,8 +130,14 @@ public class ShipAcuPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
             list.sort(Comparator.comparing(paraInfo -> Integer.valueOf(paraInfo.getParaNo())));
             for (int i = 1; i <= list.size(); i++) {
                 FrameParaInfo frameParaInfo = list.get(i-1);
-                paraEndPoint = paraStartPoint + Integer.valueOf(frameParaInfo.getParaStrLen());
-                String paraVal  =  paraValueStr.substring(paraStartPoint, paraEndPoint);
+                String  paraVal = "";
+                if(list.size() == 1){
+                    paraEndPoint = 4 + Integer.valueOf(frameParaInfo.getParaStrLen());
+                    paraVal  =  paraValueStr.substring(4, paraEndPoint);
+                }else{
+                    paraEndPoint = paraStartPoint + Integer.valueOf(frameParaInfo.getParaStrLen());
+                    paraVal  =  paraValueStr.substring(paraStartPoint, paraEndPoint);
+                }
                 FrameParaData subFrame = genFramePara(frameParaInfo, respData.getDevNo(), paraVal);
                 frameParaDataList.add(subFrame);
                 paraStartPoint = paraEndPoint;
@@ -149,7 +157,8 @@ public class ShipAcuPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
         //特定字解析
         if (param.getParaNo().equals("15")) {
             Flag = frameParaData.getParaVal();
-        }else if(param.getNdpaRemark3Data().contains("false")){
+        }
+        if(param.getNdpaRemark3Data().contains("false")){
             DevParaInfoContainer.setIsShow(respData.getDevNo(), param.getParaNo(), false);
         }
         frameParaDataList.add(frameParaData);
