@@ -80,7 +80,7 @@ public class MsctImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData,
         //数据体
         byte[] paramBytes = byteArrayCopy(bytes, 7, len);
         PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameRespData.getDevType(), hexPrtcCmd);
-        String operateType = BaseInfoContainer.getOptByPrtcl(prtclFormat, hexPrtcCmd);
+        String operateType = BaseInfoContainer.getOptByPrtcl(prtclFormat, hexRespType);
         frameRespData.setOperType(operateType);
         frameRespData.setCmdMark(hexPrtcCmd);
         frameRespData.setParamBytes(paramBytes);

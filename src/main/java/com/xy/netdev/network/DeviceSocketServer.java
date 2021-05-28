@@ -34,7 +34,7 @@ import static com.xy.netdev.container.BaseInfoContainer.getDevInfos;
 @Component
 @Order(2)
 @Slf4j
-public class DeviceSocketServer  implements ApplicationRunner {
+public class DeviceSocketServer {
 
     @Autowired
     private ISysParamService sysParamService;
@@ -43,10 +43,11 @@ public class DeviceSocketServer  implements ApplicationRunner {
 
     private List<BaseInfo> tcpList;
 
-    @Override
-    public void run(ApplicationArguments args) throws Exception {
-        start();
-    }
+//    @Override
+//    public void run(ApplicationArguments args) throws Exception {
+//        start();
+//    }
+    @PostConstruct
     public void start() {
         udpPort = new HashSet<>();
         tcpList = new ArrayList<>();

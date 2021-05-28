@@ -31,9 +31,8 @@ import static com.xy.netdev.container.BaseInfoContainer.getDevInfo;
  * @author cc
  */
 @Component
-@Order(3)
 @Slf4j
-public class DeviceSocketSubscribe  implements ApplicationRunner {
+public class DeviceSocketSubscribe {
 
     @Autowired
     private StationControlHandler stationControlHandler;
@@ -46,11 +45,11 @@ public class DeviceSocketSubscribe  implements ApplicationRunner {
      */
     private FIFOCache<String, AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData>> cache;
 
-    @Override
-    public void run(ApplicationArguments args) throws Exception {
-        init();
-    }
-
+//    @Override
+//    public void run(ApplicationArguments args) throws Exception {
+//        init();
+//    }
+    @PostConstruct
     public void init(){
         //队列
         cache = CacheUtil.newFIFOCache(absSocketHandlerList.size());

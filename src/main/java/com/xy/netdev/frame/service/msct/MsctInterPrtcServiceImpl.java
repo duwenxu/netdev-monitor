@@ -71,6 +71,7 @@ public class MsctInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService
             boolean isStr = MonitorConstants.STRING_CODE.equals(paraInfo.getDataType());
             if (isStr) {
                 frameParaData.setParaVal(paraValueStr.substring(startIndex * 2, endIndex * 2));
+                frameParaDataList.add(frameParaData);
             } else {
                 Number paraVal = byteToNumber(paraValBytes, startIndex, len
                         , isUnsigned(sysParamService, paraInfo.getDataType())
@@ -121,15 +122,20 @@ public class MsctInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService
         return decimal;
     }
 
+    /**
+     * 获取卫星信道终端当前工作模式
+     */
     public void initDeviceModel(){
-
-        List<BaseInfo> baseInfos = BaseInfoContainer.getDevInfoByNo()
-        FrameReqData reqInfo = new FrameReqData();
-        reqInfo.setCmdMark("05AA");
-        reqInfo.setDevType(SysConfigConstant.DEVICE_MSCT);
-        reqInfo.setDevNo("51");
-        reqInfo.setAccessType();
+        List<BaseInfo> baseInfos = BaseInfoContainer.getDevInfosByType(SysConfigConstant.DEVICE_MSCT);
+        for (BaseInfo baseInfo : baseInfos) {
+            FrameReqData reqInfo = new FrameReqData();
+            reqInfo.setCmdMark("05AA");
+            reqInfo.setDevNo(baseInfo.getDevNo());
+            reqInfo.setDevType(SysConfigConstant.DEVICE_MSCT);
+            reqInfo.setAccessType(SysConfigConstant.ACCESS_TYPE_INTERF);
+            reqInfo.setOperType(SysConfigConstant.OPREATE_QUERY);
+            socketMutualService.request(reqInfo, ProtocolRequestEnum.QUERY);
+        }
     }
-
 
 }

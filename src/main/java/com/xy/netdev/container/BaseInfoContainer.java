@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.xy.common.exception.BaseException;
 import com.xy.netdev.admin.service.ISysParamService;
+import com.xy.netdev.admin.service.impl.SysParamServiceImpl;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.ParaHandlerUtil;
 import com.xy.netdev.monitor.bo.DevInterParam;
@@ -523,6 +524,9 @@ public class BaseInfoContainer {
      * @功能：根据设备类型 获取处理类名
      */
     public static String getClassByDevType(String devType) {
+        if(null==sysParamService){
+            sysParamService = new SysParamServiceImpl();
+        }
         return sysParamService.getParaRemark2(devType);
     }
 

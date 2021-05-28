@@ -29,7 +29,7 @@ public class InterExtServiceFactory {
            throw new BaseException("传入的设备类型为空!");
        }
        if(devType.equals(DEV_TYPE_MSCT)){
-           SpringContextUtils.getBean("msctInterExtService");
+        return SpringContextUtils.getBean("msctInterExtService");
        }
        //没有实现扩展的设备类型走此扩展  保持原来的逻辑
        return SpringContextUtils.getBean("doNothingInterExtService");

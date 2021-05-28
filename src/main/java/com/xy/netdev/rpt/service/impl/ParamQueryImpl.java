@@ -76,8 +76,12 @@ public class ParamQueryImpl implements RequestService, ResponseService {
                     String paraDatatype = DevParaInfoContainer.getDevParaView(frameParaData.getDevNo(), frameParaData.getParaNo()).getParaDatatype();
                     byte[] bytes = frameParaData.getParaVal().getBytes(Charset.forName("GB2312"));
                     if (MonitorConstants.BYTE.equals(paraDatatype)){
-                        bytes = HexUtil.decodeHex(frameParaData.getParaVal());
-                    ByteUtils.objToBytes(frameParaData.getParaVal(),frameParaData.getLen());
+                        try {
+                            bytes = HexUtil.decodeHex(frameParaData.getParaVal());
+                            ByteUtils.objToBytes(frameParaData.getParaVal(),frameParaData.getLen());
+                        } catch (Exception e) {
+                            log.warn("上报信息数据体字节转换异常：需要转换的参数值：[{}]",frameParaData.getParaVal());
+                        }
                     }
                     //参数编号
                     tempList.add(ByteUtils.objToBytes(frameParaData.getParaNo(), 1));
