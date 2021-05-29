@@ -12,6 +12,8 @@ import org.snmp4j.transport.DefaultUdpTransportMapping;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -52,7 +54,8 @@ public class SnmpUtil {
      * @param community 设备组织
      * @param oid       参数数据标识
      */
-    public static void snmpGet(String ip, String community, String oid) {
+    public static Map<String,Variable> snmpGet(String ip, String community, String oid) {
+        ConcurrentHashMap<String,Variable> values = new ConcurrentHashMap<>(1);
         CommunityTarget target = createDefault(ip, community);
         Snmp snmp = null;
         try {
@@ -72,6 +75,7 @@ public class SnmpUtil {
                 log.info("SNMP response pdu size is " + response.size());
                 for (int i = 0; i < response.size(); i++) {
                     VariableBinding vb = response.get(i);
+                    values.put(vb.getOid().toString(),vb.getVariable());
                     log.info("SNMP响应数据：oid:[{}]---value:[{}]", vb.getOid(), vb.getVariable());
                 }
             }
@@ -87,6 +91,7 @@ public class SnmpUtil {
             }
 
         }
+        return values;
     }
 
     /**
@@ -96,7 +101,8 @@ public class SnmpUtil {
      * @param community 设备组织
      * @param oidList   参数数据标识列表
      */
-    public static void snmpGetList(String ip, String community, List<String> oidList) {
+    public static Map<String,Object> snmpGetList(String ip, String community, List<String> oidList) {
+        ConcurrentHashMap<String,Object> values = new ConcurrentHashMap<>(oidList.size());
         CommunityTarget target = createDefault(ip, community);
         Snmp snmp = null;
         try {
@@ -118,6 +124,7 @@ public class SnmpUtil {
                 log.info("response pdu size is " + response.size());
                 for (int i = 0; i < response.size(); i++) {
                     VariableBinding vb = response.get(i);
+                    values.put(vb.getOid().toString(),vb.getVariable());
                     log.info("SNMP响应数据：oid:[{}]---value:[{}]", vb.getOid(), vb.getVariable());
                 }
             }
@@ -131,8 +138,8 @@ public class SnmpUtil {
                     snmp = null;
                 }
             }
-
         }
+        return values;
     }
 
     /**
@@ -385,4 +392,15 @@ public class SnmpUtil {
         snmp.send(pdu, target);
         snmp.close();
     }
+//
+//    public static void main(String[] args) {
+//        String ip = "192.168.7.31";
+////        String ip ="127.0.0.1";
+//        String community = "public";
+//        String oid = ".1.3.6.1.4.1.589.10.2.1.3.0";
+////        String tableOid= ".1.3.6.1.2.1.4.20.1.4.127.0.0.1";
+////        String oidval1 = "1.3.6.1.4.1.589.10.2.1.4";
+//        Map<String, Object> map = SnmpUtil.snmpGet(ip, community, oid);
+//        log.info("map:{}",map);
+//    }
 }

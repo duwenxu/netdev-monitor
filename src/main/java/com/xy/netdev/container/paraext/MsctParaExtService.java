@@ -32,7 +32,7 @@ public class MsctParaExtService implements IParaExtService {
 
     @Override
     public void setCacheDevParaViewInfo(String devNo) {
-        devCmdSendService.interfaceQuerySend(devNo,"05AA");
+//        devCmdSendService.interfaceQuerySend(devNo,"05AA");
         initModeParaMap(devNo);
     }
 

@@ -24,6 +24,7 @@ import com.xy.netdev.websocket.send.DevIfeMegSend;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -43,7 +44,7 @@ import static com.xy.netdev.common.constant.SysConfigConstant.IS_DEFAULT_TRUE;
  * @author tangxl
  * @since 2021-03-11
  */
-@Service
+@Component
 @Slf4j
 public class DataReciveServiceImpl implements IDataReciveService {
 
@@ -59,7 +60,7 @@ public class DataReciveServiceImpl implements IDataReciveService {
     @Autowired
     private StationControlHandler stationControlHandler;
 
-    private ExecutorService rptDevExecutor= ThreadUtil.newExecutor(4,4,10);
+    public ExecutorService rptDevExecutor= ThreadUtil.newExecutor(4,4,10);
 
     /**
      * 参数查询接收
@@ -82,7 +83,7 @@ public class DataReciveServiceImpl implements IDataReciveService {
      * 主动上报推送参数状态信息
      * @param respData 上报数据
      */
-    private void stationRptParamsByDev(FrameRespData respData) {
+    public void stationRptParamsByDev(FrameRespData respData) {
         RptHeadDev headDev = rptParamsByDev(respData);
         stationControlHandler.queryParaResponse(headDev,StationCtlRequestEnums.PARA_QUERY_RESPONSE);
     }
@@ -195,7 +196,7 @@ public class DataReciveServiceImpl implements IDataReciveService {
      * webSokcet推送接口控制数据
      * @param  respData   协议解析响应数据
      */
-    private  void sendCtrlInter(FrameRespData respData){
+    public void sendCtrlInter(FrameRespData respData){
         if(!BaseInfoContainer.getCtrlItfInfo(respData.getDevNo()).isEmpty()){
             DevIfeMegSend.sendDevCtrlItfInfosToDev(respData.getDevNo());
         }

@@ -34,7 +34,7 @@ public class MsctInterExtService implements InterExtService {
 
     @Override
     public void setCacheDevInterViewInfo(String devNo) {
-        devCmdSendService.interfaceQuerySend(devNo,"05AA");
+//        devCmdSendService.interfaceQuerySend(devNo,"05AA");
         initModeIntfMap(devNo);
     }
 
