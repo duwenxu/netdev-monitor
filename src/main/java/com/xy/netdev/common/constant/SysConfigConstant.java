@@ -281,6 +281,11 @@ public interface SysConfigConstant {
     String TCP = "0030002";
 
     /**
+     * SNMP
+     */
+    String SNMP = "0030003";
+
+    /**
      * 设备状态--中断
      */
     String DEV_STATUS_INTERRUPT = "0029001";

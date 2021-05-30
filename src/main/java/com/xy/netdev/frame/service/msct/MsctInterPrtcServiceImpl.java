@@ -1,19 +1,27 @@
 package com.xy.netdev.frame.service.msct;
 
 import cn.hutool.core.util.HexUtil;
+import com.alibaba.fastjson.JSON;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
+import com.xy.netdev.common.util.BeanFactoryUtil;
+import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
+import com.xy.netdev.factory.SingletonFactory;
+import com.xy.netdev.frame.bo.ExtParamConf;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
+import com.xy.netdev.frame.service.ParamCodec;
 import com.xy.netdev.frame.service.SocketMutualService;
+import com.xy.netdev.frame.service.codec.DirectParamCodec;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.constant.MonitorConstants;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import com.xy.netdev.transit.IDataReciveService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,6 +41,7 @@ import static com.xy.netdev.frame.service.gf.GfPrtcServiceImpl.isUnsigned;
  * @date 2021/4/8
  */
 @Service
+@Slf4j
 public class MsctInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
 
     @Autowired
@@ -62,6 +71,7 @@ public class MsctInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService
             if (StringUtils.isEmpty(paraInfo.getParaNo())) {
                 continue;
             }
+            String val = "";
             //解析简单参数
             FrameParaData frameParaData = FrameParaData.builder()
                     .devType(devType)
@@ -70,15 +80,30 @@ public class MsctInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService
                     .build();
             boolean isStr = MonitorConstants.STRING_CODE.equals(paraInfo.getDataType());
             if (isStr) {
-                frameParaData.setParaVal(paraValueStr.substring(startIndex * 2, endIndex * 2));
-                frameParaDataList.add(frameParaData);
-            } else {
-                Number paraVal = byteToNumber(paraValBytes, startIndex, len
-                        , isUnsigned(sysParamService, paraInfo.getDataType())
-                        , isFloat(sysParamService, paraInfo.getDataType())).floatValue();
+                //默认直接转换
+                ParamCodec codec = SingletonFactory.getInstance(DirectParamCodec.class);
+                //获取参数解析配置信息
+                String confClass = paraInfo.getNdpaRemark2Data();
+                //按配置的解析方式解析
+                if (!StringUtils.isBlank(confClass)) {
+                    codec = BeanFactoryUtil.getBean(confClass);
+                }
+                try {
+                    val = codec.decode(ByteUtils.byteArrayCopy(paraValBytes, startIndex, len), null);
+                } catch (Exception e) {
+                    log.error("参数解析异常：{}",paraInfo);
+                }
+            }else{
+                Number paraVal = 0;
+                try{
+                    paraVal = byteToNumber(paraValBytes, startIndex, len
+                            , isUnsigned(sysParamService, paraInfo.getDataType())
+                            , isFloat(sysParamService, paraInfo.getDataType())).floatValue();
+                }catch (Exception e){
+                    log.error("参数解析异常，参数关键字：{}",paraInfo.getCmdMark());
+                }
                 String desc = paraInfo.getNdpaRemark1Desc();
                 String data = paraInfo.getNdpaRemark1Data();
-                String val = "";
                 if (StringUtils.isNotEmpty(desc) && desc.equals("倍数") && StringUtils.isNotEmpty(data)) {
                     Integer multiple = Integer.parseInt(data);
                     //单个参数值转换
@@ -87,10 +112,10 @@ public class MsctInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService
                 } else {
                     val = String.valueOf(paraVal.intValue());
                 }
-                frameParaData.setParaVal(val);
-                startIndex = endIndex;
-                frameParaDataList.add(frameParaData);
             }
+            frameParaData.setParaVal(val);
+            startIndex = endIndex;
+            frameParaDataList.add(frameParaData);
         }
         respData.setFrameParaList(frameParaDataList);
         //参数查询响应结果接收
@@ -107,16 +132,16 @@ public class MsctInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService
         String decimal = "";
         switch (multiple){
             case 10:
-                decimal =  "###.0#";
+                decimal =  "##0.0#";
                 break;
             case 100:
-                decimal =  "###.00#";
+                decimal =  "##0.00#";
                 break;
             case 1000:
-                decimal =  "###.000#";
+                decimal =  "##0.000#";
                 break;
             default:
-                decimal =  "###";
+                decimal =  "##0";
                 break;
         }
         return decimal;

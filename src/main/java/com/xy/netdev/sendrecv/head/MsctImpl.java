@@ -74,6 +74,10 @@ public class MsctImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData,
         String respStr = new String(HexUtil.encodeHex(socketEntity.getBytes()));
         String hexRespType = respStr.substring(4,6).toUpperCase();
         String hexPrtcCmd = respStr.substring(6,10).toUpperCase();
+        String cmdMark = hexPrtcCmd.substring(2);
+        if(cmdMark.toUpperCase().equals("AA")){
+            hexPrtcCmd = "82"+ respStr.substring(6,10).toUpperCase();
+        }
         if (!Arrays.asList(RESPONSE_SIGNS).contains(hexRespType)){
             log.error("收到包含错误响应标识的帧结构，标识字节：{}----数据体：{}",hexRespType,bytes);
         }
@@ -97,7 +101,11 @@ public class MsctImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData,
         }else {
             cmdType = prtclFormat.getFmtCkey();
         }
-        byte[] keywords = HexUtil.decodeHex(frameReqData.getCmdMark());
+        String cmdMark = frameReqData.getCmdMark().toUpperCase();
+        if(cmdMark.contains("AA")){
+            cmdMark = cmdMark.substring(2);
+        }
+        byte[] keywords = HexUtil.decodeHex(cmdMark);
         int length = 0;
         if(paramBytes!=null){
             length = paramBytes.length;

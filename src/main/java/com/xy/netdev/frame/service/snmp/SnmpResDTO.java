@@ -1,4 +1,4 @@
-package com.xy.netdev.frame.bo;
+package com.xy.netdev.frame.service.snmp;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -6,24 +6,29 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 /**
- * <p>
- * 协议解析响应数据
- * </p>
- *
- * @author tangxl
- * @since 2021-03-10
+ * SNMP响应接受结构体
  */
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class FrameRespData {
+public class SnmpResDTO {
 
     @ApiModelProperty(value = "命令标识符")
     private String cmdMark;
+
+    @ApiModelProperty(value = "参数OID")
+    private String oid;
+
+    @ApiModelProperty(value = "参数编号")
+    private String paraNo;
+
+    @ApiModelProperty(value = "参数值")
+    private String paraVal;
+
+    @ApiModelProperty(value = "参数长度")
+    private Integer len;
     /**
      * 参数表中 0020
      */
@@ -49,18 +54,4 @@ public class FrameRespData {
      */
     @ApiModelProperty(value = "响应码")
     private String respCode;
-
-    @ApiModelProperty(value = "协议解析与收发层交互的数据体")
-    private byte[] paramBytes;
-
-    @ApiModelProperty(value = "接收到的原始数据")
-    private String reciveOriginalData;
-
-    @ApiModelProperty(value = "页面查询接口数据")
-    private String pageQueryJsonStr;
-
-
-    @ApiModelProperty(value = "帧参数列表")
-    private List<FrameParaData> frameParaList;
-
 }
