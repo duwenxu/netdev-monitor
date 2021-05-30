@@ -51,7 +51,7 @@ public class DataHandlerHelper {
             }
         }catch (Exception e){
             log.error("设备编号"+frameReqData.getDevNo()+"标识符是"+frameReqData.getCmdMark()+"的接口未配置协议格式!");
-            throw new BaseException("设备编号"+frameReqData.getDevNo()+"标识符是"+frameReqData.getCmdMark()+"的接口未配置协议格式!");
+            //throw new BaseException("设备编号"+frameReqData.getDevNo()+"标识符是"+frameReqData.getCmdMark()+"的接口未配置协议格式!");
         }
         return service;
     }

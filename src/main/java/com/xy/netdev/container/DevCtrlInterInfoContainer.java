@@ -53,7 +53,7 @@ public class DevCtrlInterInfoContainer {
      * @param inter            设备接口信息
      * @return 展示的接口信息
      */
-    private static InterfaceViewInfo genInter(String devNo,Interface inter){
+    public static InterfaceViewInfo genInter(String devNo,Interface inter){
         InterfaceViewInfo  interfaceViewInfo  = genInterBaseInfo(devNo,inter);
         genInterParaInfo(devNo,interfaceViewInfo);
         genSubInterList(devNo,interfaceViewInfo);
