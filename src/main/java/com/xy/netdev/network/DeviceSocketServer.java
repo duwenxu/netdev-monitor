@@ -32,7 +32,6 @@ import static com.xy.netdev.container.BaseInfoContainer.getDevInfos;
  * @author cc
  */
 @Component
-@Order(2)
 @Slf4j
 public class DeviceSocketServer {
 
@@ -43,10 +42,6 @@ public class DeviceSocketServer {
 
     private List<BaseInfo> tcpList;
 
-//    @Override
-//    public void run(ApplicationArguments args) throws Exception {
-//        start();
-//    }
     @PostConstruct
     public void start() {
         udpPort = new HashSet<>();

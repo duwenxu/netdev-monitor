@@ -550,6 +550,10 @@ public class ByteUtils {
         return -1;
     }
 
+    public static int getInt(byte[] bytes){
+        return (0xff & bytes[0]) | (0xff00 & (bytes[1]<<8)) | (0xff0000 & (bytes[2]<<16)) | (0xff000000 & (bytes[3]<<24));
+    }
+
     public static void main(String[] args) {
         String str = "7e138303000e7d5ef00056322e302d313930393233607e";
 //        byte[] bytes = HexUtil.decodeHex(str);
