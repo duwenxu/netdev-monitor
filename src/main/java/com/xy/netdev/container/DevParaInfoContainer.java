@@ -175,7 +175,7 @@ public class DevParaInfoContainer {
      * @param respData        协议解析响应数据
      * @return 数据是否发生变化
      */
-    public synchronized static boolean   handlerRespDevPara(FrameRespData respData){
+    public synchronized static boolean  handlerRespDevPara(FrameRespData respData){
         //ACU参数一直不停变化，需要特殊处理上报
         if(respData.getDevType().equals(SysConfigConstant.DEVICE_ACU) || respData.getDevType().equals("0020003")){
             return false;

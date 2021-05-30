@@ -7,6 +7,7 @@ import com.xy.common.exception.BaseException;
 import com.xy.netdev.admin.entity.SysParam;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
+import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
@@ -64,6 +65,7 @@ public class ComtechPrtclAnalyseService implements IParaPrtclAnalysisService {
         log.info("接收到Comtech查询响应帧：[{}]", HexUtil.encodeHexStr(bytes));
         String devType = respData.getDevType();
         String cmdMark = respData.getCmdMark();
+        String devNo = respData.getDevNo();
 
         FrameParaInfo paraInfo = BaseInfoContainer.getParaInfoByCmd(devType, cmdMark);
         FrameParaData paraData = new FrameParaData();
@@ -80,7 +82,6 @@ public class ComtechPrtclAnalyseService implements IParaPrtclAnalysisService {
         if (paraByteLen!=actualLen){
             log.error("Comtech收到cmd为：[{}]的响应帧,值长度与预期不一致. 参数编号：{}，参数名：{}，参数长度：{}，数据帧：{}",cmdMark,paraInfo.getParaNo()
                     ,paraInfo.getParaName(),paraInfo.getParaByteLen(),HexUtil.encodeHexStr(bytes));
-            return respData;
         }
 
         //此处按命令字长度截取数据体内容
@@ -97,13 +98,24 @@ public class ComtechPrtclAnalyseService implements IParaPrtclAnalysisService {
                     //处理复杂参数
                 } else if (PARA_COMPLEX_LEVEL_COMPOSE.equals(paraInfo.getCmplexLevel())) {
                     List<FrameParaInfo> subParaList = paraInfo.getSubParaList();
-                    for (FrameParaInfo frameParaInfo : subParaList) {
-                        String value = modemScmmInterPrtcService.doGetValue(frameParaInfo, dataBytes);
+                    for (FrameParaInfo subPara : subParaList) {
+                        //多个字节时获取字节配置位置
+                        String remark1Data = subPara.getNdpaRemark1Data();
+                        int byteIndex = 0;
+                        if (StringUtils.isNoneBlank(remark1Data)){
+                            byteIndex = Integer.parseInt(remark1Data);
+                        }
+                        byte[] subByte = ByteUtils.byteArrayCopy(dataBytes,byteIndex,1);
+                        String value = modemScmmInterPrtcService.doGetValue(subPara, subByte);
                         FrameParaData subParaData = new FrameParaData();
-                        BeanUtil.copyProperties(frameParaInfo, paraData, true);
+                        BeanUtil.copyProperties(subPara, subParaData, true);
                         subParaData.setParaVal(value);
+                        subParaData.setDevNo(devNo);
                         paraList.add(subParaData);
                     }
+                    //添加复杂参数  父参数
+                    paraData.setParaVal(StrUtil.str(dataBytes,StandardCharsets.UTF_8));
+                    paraList.add(paraData);
                 } else {
                     //普通参数
                     String paraVal = StrUtil.str(dataBytes, StandardCharsets.UTF_8);
@@ -157,15 +169,14 @@ public class ComtechPrtclAnalyseService implements IParaPrtclAnalysisService {
      * @param respData  响应数据
      * @return 增加了拒绝码信息的响应字节
      */
-    private FrameRespData rejectCodeHandler(byte[] dataBytes, FrameRespData respData) {
+    public FrameRespData rejectCodeHandler(byte[] dataBytes, FrameRespData respData) {
         String cmdMark = respData.getCmdMark();
         if (dataBytes.length>cmdMark.length()){
-            byte[] errorByte = byteArrayCopy(dataBytes, cmdMark.length(), cmdMark.length() + 1);
+            byte[] errorByte = byteArrayCopy(dataBytes, cmdMark.length(), 1);
             String errCode = StrUtil.str(errorByte, StandardCharsets.UTF_8);
             SysParam errParam = getErr(errCode);
             String errMsg = errParam.getParaName();
             log.info("Comtech拒绝响应：命令标识：[{}],响应code:[{}],响应信息：[{}]", cmdMark, errCode, errMsg);
-            respData.setRespCode(errParam.getRemark2());
         }
         return respData;
     }

@@ -43,6 +43,7 @@ public class MsctInterExtService implements InterExtService {
             devCmdSendService.interfaceQuerySend(devNo,CURRENT_MODE_CMD);
             initModeIntfMap(devNo);
         }
+
     }
 
     @Override

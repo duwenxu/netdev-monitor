@@ -1,5 +1,6 @@
 package com.xy.netdev.frame.service.shipAcu;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.HexUtil;
 import com.xy.common.exception.BaseException;
 import com.xy.netdev.common.util.ByteUtils;
@@ -17,8 +18,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 
 import static com.xy.netdev.common.constant.SysConfigConstant.PARA_DATA_TYPE_INT;
 
@@ -26,7 +28,7 @@ import static com.xy.netdev.common.constant.SysConfigConstant.PARA_DATA_TYPE_INT
  * 1.5米ACU天线控制实现(船载)
  *
  * @author sunchao
- * @create 2021-05-16 11:08
+ * @create 2021-05-19 11:08
  */
 @Service
 @Slf4j
@@ -38,6 +40,16 @@ public class ShipAcuInterPrtcServiceImpl implements ICtrlInterPrtclAnalysisServi
     @Override
     public void ctrlPara(FrameReqData reqData) {
         List<FrameParaData> paraList = reqData.getFrameParaList();
+        List<String> list = new ArrayList(){{add("3");add("5");add("7");}};
+        for(int i=0;i<3;i++){
+            FrameParaData frameParaData = new FrameParaData();
+            BeanUtil.copyProperties(paraList.get(0),frameParaData);
+            FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByNo(frameParaData.getDevType(),list.get(i));
+            frameParaData.setLen(Optional.ofNullable(Integer.valueOf(frameParaInfo.getParaByteLen())).orElse(0));
+            frameParaData.setParaNo(frameParaInfo.getParaNo());
+            //frameParaData.setParaVal(paraList.get(0).getParaVal().replace("0011","0000"));
+            paraList.add(i*2+2,frameParaData);
+        }
         byte[] bytes = new byte[]{};
         for (FrameParaData paraData : paraList) {
             FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByNo(paraData.getDevType(),paraData.getParaNo());
