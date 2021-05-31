@@ -10,6 +10,7 @@ import com.xy.netdev.container.DevStatusContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.service.snmp.SnmpReqDTO;
+import com.xy.netdev.frame.service.snmp.SnmpTransceiverService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.constant.MonitorConstants;
 import com.xy.netdev.monitor.entity.BaseInfo;
@@ -48,6 +49,8 @@ public class ScheduleQuery  implements ApplicationRunner{
     private IDevCmdSendService devCmdSendService;
     @Autowired
     private ISnmpDataReceiveService snmpDataReceiveService;
+    @Autowired
+    private SnmpTransceiverService snmpTransceiverService;
     @Autowired
     private ISysParamService sysParamService;
     private static String PING_THREAD_NAME ="basePingThread";
@@ -202,7 +205,7 @@ public class ScheduleQuery  implements ApplicationRunner{
         Long commonInterval = ScheduleQueryHelper.getQueryInterval();
         snmpBaseReqMap.forEach((snmpBase, queryList) -> {
             long interval = Long.parseLong(snmpBase.getDevIntervalTime() + "");
-            SnmpScheduleQueryTask scheduleReportTask = new SnmpScheduleQueryTask(queryList, interval, commonInterval, snmpDataReceiveService,snmpBase.getDevIpAddr());
+            SnmpScheduleQueryTask scheduleReportTask = new SnmpScheduleQueryTask(queryList, interval, commonInterval, snmpDataReceiveService,snmpTransceiverService,snmpBase.getDevIpAddr());
             Thread thread = new Thread(scheduleReportTask, snmpBase.getDevName() + "-snmpScheduleQuery-thread");
             thread.start();
         });
