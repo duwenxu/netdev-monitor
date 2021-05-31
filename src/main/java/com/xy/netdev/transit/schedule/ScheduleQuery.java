@@ -249,7 +249,7 @@ public class ScheduleQuery  implements ApplicationRunner{
             log.error("参数编号：[{}]的参数oid前缀编号为空",oidPrefixCode);
         }
         String oidPrefix = sysParamService.getParaRemark1(oidPrefixCode);
-        return oidPrefix+ cmdMark;
+        return oidPrefix+ "." + cmdMark;
     }
 
 }
