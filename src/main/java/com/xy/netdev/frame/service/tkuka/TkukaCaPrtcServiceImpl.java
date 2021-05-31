@@ -1,6 +1,5 @@
-package com.xy.netdev.frame.service.shipAcu;
+package com.xy.netdev.frame.service.tkuka;
 
-import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson.JSON;
@@ -33,14 +32,13 @@ import static com.xy.netdev.common.constant.SysConfigConstant.PARA_DATA_TYPE_INT
 import static com.xy.netdev.container.DevLogInfoContainer.PARA_REPS_STATUS_SUCCEED;
 
 /**
- * 1.5米ACU天线查询实现(船载)
- *
+ * TKuka0.9CA监控设备
  * @author sunchao
- * @create 2021-05-19 11:08
+ * @create 2021-05-31 14:00
  */
 @Service
 @Slf4j
-public class ShipAcuPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
+public class TkukaCaPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
     @Autowired
     private SocketMutualService socketMutualService;
     @Autowired
@@ -61,7 +59,7 @@ public class ShipAcuPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
     public FrameRespData queryParaResponse(FrameRespData respData) {
         byte[] bytes = respData.getParamBytes();
         if (ObjectUtil.isNull(bytes)) {
-            log.warn("1.5米ACU查询响应异常, 未获取到数据体, 设备编号：[{}], 信息:[{}]", respData.getDevNo(), JSON.toJSONString(respData));
+            log.warn("TKuka0.9CA监控设备查询响应异常, 未获取到数据体, 设备编号：[{}], 信息:[{}]", respData.getDevNo(), JSON.toJSONString(respData));
             return respData;
         }
         //响应标识 帧头
@@ -73,7 +71,7 @@ public class ShipAcuPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
             respData.setRespCode(PARA_REPS_STATUS_SUCCEED);
             /**错误应答信息*/
         } else {
-            throw new BaseException("1.5米ACU查询响应解析异常：非法的帧头:" + cmdMark);
+            throw new BaseException("TKuka0.9CA监控设备查询响应解析异常：非法的帧头:" + cmdMark);
         }
         respData.setFrameParaList(frameParaDataList);
         dataReciveService.interfaceQueryRecive(respData);
@@ -144,7 +142,7 @@ public class ShipAcuPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
                 FrameParaData subFrame = genFramePara(frameParaInfo, respData.getDevNo(), paraVal);
                 frameParaDataList.add(subFrame);
                 paraStartPoint = paraEndPoint;
-                if(!"78".equals(frameParaInfo.getParaNo()) && !frameParaInfo.getNdpaRemark3Data().contains("false")){
+                if(!"78".equals(frameParaInfo.getParaNo())){
                     value = value+paraVal + "_";
                 }
             }
