@@ -1,5 +1,6 @@
 package com.xy.netdev.monitor.service.impl;
 
+import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.container.DevCtrlInterInfoContainer;
 import com.xy.netdev.container.DevParaInfoContainer;
@@ -9,10 +10,15 @@ import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.service.IShipAcuService;
 import com.xy.netdev.transit.IDevCmdSendService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
+
+import java.util.stream.Collectors;
+
+import static com.xy.netdev.common.constant.SysConfigConstant.*;
 
 /**
  * 船载1.5米ACU 服务实现类
@@ -27,8 +33,15 @@ public class ShipAcuServiceImpl implements IShipAcuService {
 
     @Autowired
     private IDevCmdSendService devCmdSendService;
+
+    @Autowired
+    private static ISysParamService sysParamService;
+
     /*星下点自动执行流程码*/
-    private static String autoOperStr = "0110,0101";
+    private static String autoOperStr = "0101,0110";
+    /*步进流程值*/
+    private static String stepOperStr = "0.15,0.1,0.05";
+
 
     /**
      * 手动执行
@@ -49,19 +62,10 @@ public class ShipAcuServiceImpl implements IShipAcuService {
             jc = pol;
             pol = angel.getFreq();
         }else if("1111".equals(angel.getFunc())){
-            az = DevParaInfoContainer.getDevParaView(angel.getDevNo(),"2").getParaVal();
-            el = DevParaInfoContainer.getDevParaView(angel.getDevNo(),"4").getParaVal();
-            jc = DevParaInfoContainer.getDevParaView(angel.getDevNo(),"6").getParaVal();
-            pol = DevParaInfoContainer.getDevParaView(angel.getDevNo(),"8").getParaVal();
-            if("1".equals(angel.getStepType())){
-                az = String.valueOf(Double.parseDouble(az) + Double.parseDouble(angel.getAz()));
-            }else if("2".equals(angel.getStepType())){
-                el = String.valueOf(Double.parseDouble(el) + Double.parseDouble(angel.getEl()));
-            }else if("3".equals(angel.getStepType())){
-                jc = String.valueOf(Double.parseDouble(jc) + Double.parseDouble(angel.getJc()));
-            }else{
-                pol = String.valueOf(Double.parseDouble(pol) + Double.parseDouble(angel.getPol()));
-            }
+            az = String.valueOf(Double.parseDouble(DevParaInfoContainer.getDevParaView(angel.getDevNo(),"2").getParaVal()) + Double.parseDouble(angel.getAz()));
+            el = String.valueOf(Double.parseDouble(DevParaInfoContainer.getDevParaView(angel.getDevNo(),"4").getParaVal()) + Double.parseDouble(angel.getEl()));
+            jc = String.valueOf(Double.parseDouble(DevParaInfoContainer.getDevParaView(angel.getDevNo(),"6").getParaVal()) + Double.parseDouble(angel.getJc()));
+            pol = String.valueOf(Double.parseDouble(DevParaInfoContainer.getDevParaView(angel.getDevNo(),"8").getParaVal()) + Double.parseDouble(angel.getPol()));
         }
         interfaceViewInfo.getSubParaList().get(0).setParaVal(devStatus);
         interfaceViewInfo.getSubParaList().get(1).setParaVal(az);
@@ -77,17 +81,24 @@ public class ShipAcuServiceImpl implements IShipAcuService {
      */
     @Override
     public void autoCtrl(Angel angel) {
-        autoOperStr = StringUtils.leftPad(autoOperStr,1,angel.getFunc()+",");
-        //按顺序执行自动流程
-        for (String s : autoOperStr.split(",")) {
-            angel.setFunc(s);
-            operCtrl(angel);
-            try {
-                Thread.sleep(2*1000);
-            } catch (InterruptedException e) {
-                log.debug("休眠发生异常！");
+        //autoOperStr = StringUtils.leftPad(autoOperStr,1,angel.getFunc()+",");
+        operCtrl(angel);
+        try {
+            isStage(angel);
+            //按顺序执行自动流程
+            for (String s : autoOperStr.split(",")) {
+                angel.setFunc(s);
+                operCtrl(angel);
+                try {
+                    Thread.sleep(Long.valueOf(sysParamService.getParaRemark1(ACU_SLEEP_TIME)));
+                } catch (Exception e) {
+
+                }
             }
+        } catch (InterruptedException e) {
+            log.debug("1.5米acu发生异常！");
         }
+
     }
 
     /**
@@ -102,5 +113,80 @@ public class ShipAcuServiceImpl implements IShipAcuService {
         angel.setDevJd(devJd);
         angel.setDevWd(devWd);
         return angel;
+    }
+
+    /**
+     * 获取当前状态
+     * @param angel
+     * @return
+     */
+    @Override
+    public Angel getCurrentStage(Angel angel) {
+        String paraVal = DevParaInfoContainer.getDevParaView(angel.getDevNo(),"20").getParaVal();
+        angel.setFunc(paraVal);
+        return angel;
+    }
+
+
+    /**
+     * 自动化
+     * @param angel
+     * @throws InterruptedException
+     */
+    private void isStage(Angel angel) throws InterruptedException {
+        String value = "0";
+        if(isNext(angel.getDevNo())){
+            value = "-1";
+            exec(angel,value);
+            if(isNext(angel.getDevNo())){
+                value = "0.05";
+                exec(angel,value);
+            }
+        }else{
+            value = "0.15";
+            exec(angel,value);
+            if(isNext(angel.getDevNo())){
+                value = "-1";
+                exec(angel,value);
+                if(isNext(angel.getDevNo())){
+                    value = "0.05";
+                    exec(angel,value);
+                }
+            }
+        }
+    }
+
+    /**
+     * 方位角微调
+     * @param angel
+     * @param value
+     * @throws InterruptedException
+     */
+    private void exec(Angel angel,String value) throws InterruptedException {
+        while(isNext(angel.getDevNo())){
+            angel.setFunc("1111");
+            angel.setAz(value);
+            operCtrl(angel);
+            Thread.sleep(Long.valueOf(sysParamService.getParaRemark1(ACU_SLEEP_TIME)));
+        }
+        angel.setFunc("1111");
+        angel.setAz("-"+value);
+        operCtrl(angel);
+        Thread.sleep(Long.valueOf(sysParamService.getParaRemark1(ACU_SLEEP_TIME)));
+    }
+
+    /**
+     * 判断
+     * @param devNo
+     * @return
+     */
+    private boolean isNext(String devNo){
+        String agc = DevParaInfoContainer.getDevParaView(devNo,"9").getParaVal(); //agc
+        String recvStatus = DevParaInfoContainer.getDevParaView(devNo,"48").getSubParaList().stream().filter(paraViewInfo -> paraViewInfo.getDevNo().equals("78")).collect(Collectors.toList()).get(0).getParaVal();  //接收机状态
+        //后续2.5改成可修改的
+        if(Integer.parseInt(agc)> Integer.valueOf(sysParamService.getParaRemark1(ACU_AGE_VALUE)) && recvStatus.equals("1")){
+            return true;
+        }
+        return false;
     }
 }

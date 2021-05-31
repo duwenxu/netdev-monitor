@@ -74,4 +74,14 @@ public class ShipAcuController {
         shipAcuService.autoCtrl(angel);
         return ControllerResultWrapper.genAddResult();
     }
+
+    /**
+     * 获取当前状态
+     * @return
+     */
+    @ApiOperation(value = "获取当前状态", notes = "获取当前状态")
+    @PostMapping(value = "/getCurrentStage")
+    public Result<Angel> getCurrentStage(Angel angel) {
+        return ControllerResultWrapper.genGetOneResult(shipAcuService.getCurrentStage(angel));
+    }
 }
