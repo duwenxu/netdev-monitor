@@ -2,11 +2,11 @@ package com.xy.netdev.frame.service.snmp;
 
 
 /**
- * SNMP收发聚合接口
+ * SNMP收发聚合处理接口
  */
 public interface SnmpTransceiverService {
 
-    SnmpResDTO queryParam(SnmpReqDTO snmpReqDTO);
+    SnmpResDTO queryParam(SnmpReqDTO snmpReqDTO,String baseIp);
 
-    SnmpResDTO queryParamList(SnmpReqDTO snmpReqDTO);
+    SnmpResDTO queryParamList(SnmpReqDTO snmpReqDTO,String baseIp);
 }
