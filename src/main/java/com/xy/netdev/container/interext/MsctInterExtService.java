@@ -8,6 +8,7 @@ import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.bo.InterfaceViewInfo;
 import com.xy.netdev.monitor.bo.ParaViewInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
+import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.transit.IDevCmdSendService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,17 +32,27 @@ public class MsctInterExtService implements InterExtService {
     @Autowired
     private MsctInterPrtcServiceImpl msctInterPrtcService;
     private Map<String,Map<String,List<InterfaceViewInfo>>> devModeMap = new HashMap<>();
+    //当前工作模式查询接口名来字
+    public static final String CURRENT_MODE_CMD = "8205AA";
+
 
     @Override
     public void setCacheDevInterViewInfo(String devNo) {
-//        devCmdSendService.interfaceQuerySend(devNo,"05AA");
-        initModeIntfMap(devNo);
+        Interface intf = BaseInfoContainer.getInterLinkInterface(devNo,CURRENT_MODE_CMD);
+        if(intf.getItfId()!=null){
+            devCmdSendService.interfaceQuerySend(devNo,CURRENT_MODE_CMD);
+            initModeIntfMap(devNo);
+        }
+
     }
 
     @Override
     public List<InterfaceViewInfo> getCacheDevInterViewInfo(String devNo) {
         String mode = getDevCurrMode(devNo);
-        return devModeMap.get(devNo).get(mode);
+        List<InterfaceViewInfo> intfs = new ArrayList<>();
+        intfs.addAll(devModeMap.get(devNo).get("AA"));
+        intfs.addAll(devModeMap.get(devNo).get(mode));
+        return intfs;
     }
 
     /**

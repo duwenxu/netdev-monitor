@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
  * @since 2021-03-09
  */
 @Slf4j
-@Order(4)
+@Order(50)
 @Component
 public class BaseContainerLoader implements ApplicationRunner {
 
@@ -59,13 +59,13 @@ public class BaseContainerLoader implements ApplicationRunner {
         initDevLog();
         //初始化告警信息
         initDevAlert();
-        //初始化设备参数容器
-        initDevParam();
         log.info("容器信息更新完成，耗时:[" + (System.currentTimeMillis() - time) + "ms]");
     }
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
+        //初始化设备参数容器
+        initDevParam();
         //初始化设备控制接口信息容器
         DevCtrlInterInfoContainer.initData();
         //初始化设备状态容器

@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -39,6 +40,7 @@ import static com.xy.netdev.monitor.constant.MonitorConstants.*;
  * @create 2021-03-10 11:39
  */
 @Slf4j
+@Order(200)
 @Component
 public class ScheduleQuery  implements ApplicationRunner{
 

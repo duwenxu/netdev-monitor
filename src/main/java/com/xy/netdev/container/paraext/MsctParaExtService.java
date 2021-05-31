@@ -25,21 +25,28 @@ import java.util.*;
 public class MsctParaExtService implements IParaExtService {
 
 
-
     @Autowired
     private IDevCmdSendService devCmdSendService;
     private Map<String,Map<String,List<ParaViewInfo>>> devModeMap = new HashMap<>();
+    //当前工作模式查询接口名来字
+    public static final String CURRENT_MODE_CMD = "8205AA";
 
     @Override
     public void setCacheDevParaViewInfo(String devNo) {
-//        devCmdSendService.interfaceQuerySend(devNo,"05AA");
-        initModeParaMap(devNo);
+        Interface intf = BaseInfoContainer.getInterLinkInterface(devNo,CURRENT_MODE_CMD);
+        if(intf.getItfId()!=null) {
+            devCmdSendService.interfaceQuerySend(devNo, CURRENT_MODE_CMD);
+            initModeParaMap(devNo);
+        }
     }
 
     @Override
     public List<ParaViewInfo> getCacheDevParaViewInfo(String devNo) {
         String mode = getDevCurrMode(devNo);
-        return devModeMap.get(devNo).get(mode);
+        List<ParaViewInfo> paras = new ArrayList<>();
+        paras.addAll(devModeMap.get(devNo).get("05"));
+        paras.addAll(devModeMap.get(devNo).get(mode));
+        return paras;
     }
 
     /**
@@ -108,7 +115,6 @@ public class MsctParaExtService implements IParaExtService {
                                 paraList.add(para);
                                 devModeMap.get(devNo).put(key,paraList);
                             }
-
                     }
                 }
             }

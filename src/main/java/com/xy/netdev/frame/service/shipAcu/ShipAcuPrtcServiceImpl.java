@@ -138,12 +138,17 @@ public class ShipAcuPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
                     paraEndPoint = paraStartPoint + Integer.valueOf(frameParaInfo.getParaStrLen());
                     paraVal  =  paraValueStr.substring(paraStartPoint, paraEndPoint);
                 }
+                if("79".equals(frameParaInfo.getParaNo())){
+                    paraVal = BitToHexStr(paraVal);
+                }
                 FrameParaData subFrame = genFramePara(frameParaInfo, respData.getDevNo(), paraVal);
                 frameParaDataList.add(subFrame);
                 paraStartPoint = paraEndPoint;
-                value = value+paraVal + "_";
+                if(!"78".equals(frameParaInfo.getParaNo())){
+                    value = value+paraVal + "_";
+                }
             }
-            frameParaData = genFramePara(param, respData.getDevNo(), value);
+            frameParaData = genFramePara(param, respData.getDevNo(), value.substring(0,value.length()-1));
         } else if (StringUtils.isNotBlank(param.getNdpaRemark1Data())) {
             ParamCodec handler = SpringContextUtils.getBean(param.getNdpaRemark1Data());
             if (PARA_DATA_TYPE_INT.equals(param.getDataType())) {
@@ -180,5 +185,19 @@ public class ShipAcuPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
                 .build();
         frameParaData.setParaVal(paraValueStr);
         return frameParaData;
+    }
+
+    /**
+     * Bit转Byte
+     */
+    private String BitToHexStr(String byteStr) {
+        byteStr = StringUtils.leftPad(byteStr,8-byteStr.length(),"0");
+        int re ;
+        if (byteStr.charAt(0) == '0') {// 正数
+            re = Integer.parseInt(byteStr, 2);
+        } else {// 负数
+            re = Integer.parseInt(byteStr, 2) - 256;
+        }
+        return HexUtil.encodeHexStr(new byte[]{(byte) re}) ;
     }
 }
