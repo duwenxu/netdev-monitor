@@ -35,10 +35,10 @@ public class ShipAcuServiceImpl implements IShipAcuService {
     private IDevCmdSendService devCmdSendService;
 
     @Autowired
-    private static ISysParamService sysParamService;
+    private ISysParamService sysParamService;
 
     /*星下点自动执行流程码*/
-    private static String autoOperStr = "0101,0110";
+    private static String autoOperStr = "0110,0101";
     /*步进流程值*/
     private static String stepOperStr = "0.15,0.1,0.05";
 
@@ -57,15 +57,23 @@ public class ShipAcuServiceImpl implements IShipAcuService {
         String jc = angel.getJc(); // 交叉角
         String pol = angel.getPol(); // 极化角
         //默认待机、自跟踪、扫描跟踪、手速、指向
-        if("0011".equals(angel.getFunc()) || "0100".equals(angel.getFunc())){
+        if("0011".equals(angel.getFunc())){
             //空间指向
             jc = pol;
             pol = angel.getFreq();
+        }else if("0100".equals(angel.getFunc())){
+            //星下点
+            az = angel.getSatJd();
+            el = angel.getSatWd();
+            jc = angel.getIsLevel() == true ? "0" : "90";
+            pol = angel.getFreq();
         }else if("1111".equals(angel.getFunc())){
-            az = String.valueOf(Double.parseDouble(DevParaInfoContainer.getDevParaView(angel.getDevNo(),"2").getParaVal()) + Double.parseDouble(angel.getAz()));
-            el = String.valueOf(Double.parseDouble(DevParaInfoContainer.getDevParaView(angel.getDevNo(),"4").getParaVal()) + Double.parseDouble(angel.getEl()));
-            jc = String.valueOf(Double.parseDouble(DevParaInfoContainer.getDevParaView(angel.getDevNo(),"6").getParaVal()) + Double.parseDouble(angel.getJc()));
-            pol = String.valueOf(Double.parseDouble(DevParaInfoContainer.getDevParaView(angel.getDevNo(),"8").getParaVal()) + Double.parseDouble(angel.getPol()));
+            devStatus = "0010";
+            //步进
+            az = String.format("%.2f",Double.parseDouble(DevParaInfoContainer.getDevParaView(angel.getDevNo(),"2").getParaVal()) + Double.parseDouble(angel.getAz()));
+            el = String.format("%.2f",Double.parseDouble(DevParaInfoContainer.getDevParaView(angel.getDevNo(),"4").getParaVal()) + Double.parseDouble(angel.getEl()));
+            jc = String.format("%.2f",Double.parseDouble(DevParaInfoContainer.getDevParaView(angel.getDevNo(),"6").getParaVal()) + Double.parseDouble(angel.getJc()));
+            pol = String.format("%.2f",Double.parseDouble(DevParaInfoContainer.getDevParaView(angel.getDevNo(),"8").getParaVal()) + Double.parseDouble(angel.getPol()));
         }
         interfaceViewInfo.getSubParaList().get(0).setParaVal(devStatus);
         interfaceViewInfo.getSubParaList().get(1).setParaVal(az);
@@ -122,7 +130,7 @@ public class ShipAcuServiceImpl implements IShipAcuService {
      */
     @Override
     public Angel getCurrentStage(Angel angel) {
-        String paraVal = DevParaInfoContainer.getDevParaView(angel.getDevNo(),"20").getParaVal();
+        String paraVal = DevParaInfoContainer.getDevParaView(angel.getDevNo(),"1").getSubParaList().stream().filter(paraViewInfo -> paraViewInfo.getParaNo().equals("20")).collect(Collectors.toList()).get(0).getParaVal();
         angel.setFunc(paraVal);
         return angel;
     }
@@ -164,13 +172,13 @@ public class ShipAcuServiceImpl implements IShipAcuService {
      */
     private void exec(Angel angel,String value) throws InterruptedException {
         while(isNext(angel.getDevNo())){
-            angel.setFunc("1111");
+            angel.setFunc("0011");
             angel.setAz(value);
             operCtrl(angel);
             Thread.sleep(Long.valueOf(sysParamService.getParaRemark1(ACU_SLEEP_TIME)));
         }
-        angel.setFunc("1111");
-        angel.setAz("-"+value);
+        angel.setFunc("0011");
+        angel.setAz((-Double.valueOf(value)) + "");
         operCtrl(angel);
         Thread.sleep(Long.valueOf(sysParamService.getParaRemark1(ACU_SLEEP_TIME)));
     }
@@ -182,9 +190,8 @@ public class ShipAcuServiceImpl implements IShipAcuService {
      */
     private boolean isNext(String devNo){
         String agc = DevParaInfoContainer.getDevParaView(devNo,"9").getParaVal(); //agc
-        String recvStatus = DevParaInfoContainer.getDevParaView(devNo,"48").getSubParaList().stream().filter(paraViewInfo -> paraViewInfo.getDevNo().equals("78")).collect(Collectors.toList()).get(0).getParaVal();  //接收机状态
-        //后续2.5改成可修改的
-        if(Integer.parseInt(agc)> Integer.valueOf(sysParamService.getParaRemark1(ACU_AGE_VALUE)) && recvStatus.equals("1")){
+        String recvStatus = DevParaInfoContainer.getDevParaView(devNo,"48").getSubParaList().stream().filter(paraViewInfo -> paraViewInfo.getParaNo().equals("76")).collect(Collectors.toList()).get(0).getParaVal();  //接收机状态
+        if(Double.parseDouble(agc)> Double.parseDouble(sysParamService.getParaRemark1(ACU_AGE_VALUE)) && recvStatus.equals("1")){
             return true;
         }
         return false;

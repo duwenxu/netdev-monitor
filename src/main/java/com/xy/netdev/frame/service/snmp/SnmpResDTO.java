@@ -1,10 +1,13 @@
 package com.xy.netdev.frame.service.snmp;
 
+import com.xy.netdev.frame.bo.FrameParaData;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 /**
  * SNMP响应接受结构体
@@ -18,17 +21,6 @@ public class SnmpResDTO {
     @ApiModelProperty(value = "命令标识符")
     private String cmdMark;
 
-    @ApiModelProperty(value = "参数OID")
-    private String oid;
-
-    @ApiModelProperty(value = "参数编号")
-    private String paraNo;
-
-    @ApiModelProperty(value = "参数值")
-    private String paraVal;
-
-    @ApiModelProperty(value = "参数长度")
-    private Integer len;
     /**
      * 参数表中 0020
      */
@@ -54,4 +46,7 @@ public class SnmpResDTO {
      */
     @ApiModelProperty(value = "响应码")
     private String respCode;
+
+    @ApiModelProperty(value = "SNMP参数列表")
+    private List<FrameParaData> frameParaList;
 }

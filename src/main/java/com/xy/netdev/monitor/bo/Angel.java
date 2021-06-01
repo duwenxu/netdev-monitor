@@ -57,10 +57,4 @@ public class  Angel {
 
     @ApiModelProperty(value = "极化")
     private String pol = "0";
-
-    /**
-     * 1:方位 2：俯仰 3：交叉  4：极化
-     */
-    @ApiModelProperty(value = "步进类型")
-    private String stepType = "0";
 }

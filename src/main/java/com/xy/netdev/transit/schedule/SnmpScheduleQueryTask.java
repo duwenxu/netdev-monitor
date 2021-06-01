@@ -45,19 +45,20 @@ public class SnmpScheduleQueryTask implements Runnable {
             }
             snmpReqDataList.forEach(data -> {
                 String accessType = data.getAccessType();
-                //分别调用接口或参数查询方法
+                String devNo = data.getDevNo();
+                //分别调用接口或参数查询方法/
                 try {
                     if (SysConfigConstant.ACCESS_TYPE_PARAM.equals(accessType)) {
                         SnmpResDTO snmpResDTO = snmpTransceiverService.queryParam(data,ip);
-                        log.debug("baseInfo query:设备编号：{}--参数编号：{}--参数指令:{}", data.getDevNo(), data.getParaNo(), data.getCmdMark());
+                        log.debug("baseInfo query:设备编号：{}--参数编号：{}--参数指令:{}", devNo, data.getFrameParaList().get(0).getParaNo(), data.getCmdMark());
                         snmpDataReceiveService.paraQueryRecive(snmpResDTO);
                     } else if (SysConfigConstant.ACCESS_TYPE_INTERF.equals(accessType)) {
                         SnmpResDTO snmpResDTO = snmpTransceiverService.queryParamList(data,ip);
-                        log.debug("baseInfo query:设备编号：{}-接口指令:{}", data.getDevNo(), data.getCmdMark());
+                        log.debug("baseInfo query:设备编号：{}-接口指令:{}", devNo, data.getCmdMark());
                         snmpDataReceiveService.paraQueryRecive(snmpResDTO);
                     }
                 } catch (Exception e) {
-                    log.error("定时查询线程执行异常.当前查询设备编号：{}，当前查询类型：{}", data.getDevNo(), accessType,e);
+                    log.error("定时查询线程执行异常.当前查询设备编号：{}，当前查询类型：{}", devNo, accessType,e);
                 }
                 //根据不同设备指定间隔查询
                 try {

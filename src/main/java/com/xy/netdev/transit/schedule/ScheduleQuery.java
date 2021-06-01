@@ -6,12 +6,15 @@ import cn.hutool.core.thread.ThreadUtil;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
+import com.xy.netdev.container.DevParaInfoContainer;
 import com.xy.netdev.container.DevStatusContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.service.snmp.SnmpReqDTO;
 import com.xy.netdev.frame.service.snmp.SnmpTransceiverService;
+import com.xy.netdev.frame.service.snmp.SnmpTransceiverServiceImpl;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
+import com.xy.netdev.monitor.bo.ParaViewInfo;
 import com.xy.netdev.monitor.constant.MonitorConstants;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.Interface;
@@ -31,6 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
+import static com.xy.netdev.common.constant.SysConfigConstant.PARA_COMPLEX_LEVEL_SUB;
 import static com.xy.netdev.common.constant.SysConfigConstant.SNMP;
 import static com.xy.netdev.monitor.constant.MonitorConstants.*;
 
@@ -50,9 +54,7 @@ public class ScheduleQuery  implements ApplicationRunner{
     @Autowired
     private ISnmpDataReceiveService snmpDataReceiveService;
     @Autowired
-    private SnmpTransceiverService snmpTransceiverService;
-    @Autowired
-    private ISysParamService sysParamService;
+    private SnmpTransceiverServiceImpl snmpTransceiverService;
     private static String PING_THREAD_NAME ="basePingThread";
 
     @Override
@@ -75,7 +77,6 @@ public class ScheduleQuery  implements ApplicationRunner{
         List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(base -> base.getDevType().equals("0020007")||base.getDevType().equals("0020005")||base.getDevType().equals("0020006")).collect(Collectors.toList());
 
         List<BaseInfo> pingBaseInfo = ScheduleQueryHelper.getAvailableBases();
-        List<BaseInfo> snmpBases = ScheduleQueryHelper.getAvailableSnmpBases();
         //单个设备所有查询对象的封装list映射
         Map<BaseInfo, List<FrameReqData>> scheduleReqBodyMap = new ConcurrentHashMap<>(20);
         //单个设备所有查询对象的封装list映射---SNMP
@@ -215,6 +216,7 @@ public class ScheduleQuery  implements ApplicationRunner{
 
     /**
      * 将普通设备的查询对象转换为SNMP的查询对象
+     * 子参数将会在其对应的父参数一起接口查询，子参数不单独查询
      * @param scheduleSnmpReqBodyMap 普通设备的查询结构体
      * @return SNMP设备的查询对象
      */
@@ -223,16 +225,27 @@ public class ScheduleQuery  implements ApplicationRunner{
         for (Map.Entry<BaseInfo, List<FrameReqData>> entry : scheduleSnmpReqBodyMap.entrySet()) {
             List<SnmpReqDTO> snmpList = new CopyOnWriteArrayList<>();
             for (FrameReqData frameReqData : entry.getValue()) {
-                FrameParaData frameParaData = frameReqData.getFrameParaList().get(0);
+                List<FrameParaData> frameParaList = frameReqData.getFrameParaList();
+                String paraCmcLv="";
+                for (FrameParaData frameParaData : frameParaList) {
+                    ParaViewInfo devParaView = DevParaInfoContainer.getDevParaView(frameParaData.getDevNo(), frameParaData.getParaNo());
+                    String cmdMark = devParaView.getParaCmdMark();
+                    frameParaData.setParaCmk(cmdMark);
+                    frameParaData.setOid(snmpTransceiverService.oidSplic(cmdMark,frameParaData.getDevType()));
+                    paraCmcLv = devParaView.getParaCmplexLevel();
+                }
+                if (PARA_COMPLEX_LEVEL_SUB.equals(paraCmcLv)){
+                    continue;
+                }
                 SnmpReqDTO snmpReqDTO = SnmpReqDTO.builder()
                         .accessType(frameReqData.getAccessType())
-                        .oid(oidSplic(frameReqData))
                         .cmdMark(frameReqData.getCmdMark())
                         .devNo(frameReqData.getDevNo())
                         .devType(frameReqData.getDevType())
                         .operType(frameReqData.getOperType())
+                        .frameParaList(frameParaList)
                         .build();
-                BeanUtil.copyProperties(frameParaData,snmpReqDTO,true);
+                BeanUtil.copyProperties(frameReqData,snmpReqDTO,true);
                 snmpList.add(snmpReqDTO);
             }
             snmpBaseMap.put(entry.getKey(),snmpList);
@@ -240,21 +253,5 @@ public class ScheduleQuery  implements ApplicationRunner{
         return snmpBaseMap;
     }
 
-    /**
-     * 拼接OID
-     * @param frameReqData 参数结构体
-     * @return 参数OID
-     */
-    private String oidSplic(FrameReqData frameReqData) {
-        String cmdMark = frameReqData.getCmdMark();
-        String devType = frameReqData.getDevType();
-        FrameParaInfo paraInfo = BaseInfoContainer.getParaInfoByCmd(devType, cmdMark);
-        String oidPrefixCode = paraInfo.getNdpaRemark1Data();
-        if (StringUtils.isBlank(oidPrefixCode)){
-            log.error("参数编号：[{}]的参数oid前缀编号为空",oidPrefixCode);
-        }
-        String oidPrefix = sysParamService.getParaRemark1(oidPrefixCode);
-        return oidPrefix+ "." + cmdMark;
-    }
 
 }
