@@ -70,10 +70,10 @@ public class ShipAcuServiceImpl implements IShipAcuService {
         }else if("1111".equals(angel.getFunc())){
             devStatus = "0010";
             //步进
-            az = String.valueOf(Double.parseDouble(DevParaInfoContainer.getDevParaView(angel.getDevNo(),"2").getParaVal()) + Double.parseDouble(angel.getAz()));
-            el = String.valueOf(Double.parseDouble(DevParaInfoContainer.getDevParaView(angel.getDevNo(),"4").getParaVal()) + Double.parseDouble(angel.getEl()));
-            jc = String.valueOf(Double.parseDouble(DevParaInfoContainer.getDevParaView(angel.getDevNo(),"6").getParaVal()) + Double.parseDouble(angel.getJc()));
-            pol = String.valueOf(Double.parseDouble(DevParaInfoContainer.getDevParaView(angel.getDevNo(),"8").getParaVal()) + Double.parseDouble(angel.getPol()));
+            az = String.format("%.2f",Double.parseDouble(DevParaInfoContainer.getDevParaView(angel.getDevNo(),"2").getParaVal()) + Double.parseDouble(angel.getAz()));
+            el = String.format("%.2f",Double.parseDouble(DevParaInfoContainer.getDevParaView(angel.getDevNo(),"4").getParaVal()) + Double.parseDouble(angel.getEl()));
+            jc = String.format("%.2f",Double.parseDouble(DevParaInfoContainer.getDevParaView(angel.getDevNo(),"6").getParaVal()) + Double.parseDouble(angel.getJc()));
+            pol = String.format("%.2f",Double.parseDouble(DevParaInfoContainer.getDevParaView(angel.getDevNo(),"8").getParaVal()) + Double.parseDouble(angel.getPol()));
         }
         interfaceViewInfo.getSubParaList().get(0).setParaVal(devStatus);
         interfaceViewInfo.getSubParaList().get(1).setParaVal(az);
@@ -172,17 +172,15 @@ public class ShipAcuServiceImpl implements IShipAcuService {
      */
     private void exec(Angel angel,String value) throws InterruptedException {
         while(isNext(angel.getDevNo())){
-            angel.setFunc("0010");
+            angel.setFunc("0011");
             angel.setAz(value);
             operCtrl(angel);
             Thread.sleep(Long.valueOf(sysParamService.getParaRemark1(ACU_SLEEP_TIME)));
         }
-        while(!isNext(angel.getDevNo())){
-            angel.setFunc("0010");
-            angel.setAz((-Integer.valueOf(value))+"");
-            operCtrl(angel);
-            Thread.sleep(Long.valueOf(sysParamService.getParaRemark1(ACU_SLEEP_TIME)));
-        }
+        angel.setFunc("0011");
+        angel.setAz((-Double.valueOf(value)) + "");
+        operCtrl(angel);
+        Thread.sleep(Long.valueOf(sysParamService.getParaRemark1(ACU_SLEEP_TIME)));
     }
 
     /**
