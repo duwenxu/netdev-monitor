@@ -73,7 +73,6 @@ public class ScheduleQuery  implements ApplicationRunner{
     public void doScheduleQuery() {
         List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(base-> base.getDevType().equals("0020024")).collect(Collectors.toList());
         List<BaseInfo> pingBaseInfo = ScheduleQueryHelper.getAvailableBases();
-        List<BaseInfo> snmpBases = ScheduleQueryHelper.getAvailableSnmpBases();
         //单个设备所有查询对象的封装list映射
         Map<BaseInfo, List<FrameReqData>> scheduleReqBodyMap = new ConcurrentHashMap<>(20);
         //单个设备所有查询对象的封装list映射---SNMP
@@ -249,7 +248,7 @@ public class ScheduleQuery  implements ApplicationRunner{
         FrameParaInfo paraInfo = BaseInfoContainer.getParaInfoByCmd(devType, cmdMark);
         String oidPrefixCode = paraInfo.getNdpaRemark1Data();
         if (StringUtils.isBlank(oidPrefixCode)){
-            log.error("参数编号：[{}]的参数oid前缀编号为空",oidPrefixCode);
+            log.error("参数编号：[{}]的参数oid前缀编号为空",paraInfo.getParaNo());
         }
         String oidPrefix = sysParamService.getParaRemark1(oidPrefixCode);
         return oidPrefix+ "." + cmdMark;
