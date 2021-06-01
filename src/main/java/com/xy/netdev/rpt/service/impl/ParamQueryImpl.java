@@ -69,9 +69,9 @@ public class ParamQueryImpl implements RequestService, ResponseService {
     public byte[] pack(RptHeadDev rptHeadDev,StationCtlRequestEnums stationCtlRequestEnums) {
         List<byte[]> dataBytes = commonPack(rptHeadDev, (devParaList, tempList) -> {
             devParaList.forEach(frameParaData -> {
-                if (frameParaData.getLen() == null) {
-                    log.warn("参数查询命令生成失败:{}", JSON.toJSONString(frameParaData));
-                }
+//                if (frameParaData.getLen() == null) {
+//                    log.warn("参数查询命令生成失败:{}", JSON.toJSONString(frameParaData));
+//                }
                 if (StrUtil.isNotBlank(frameParaData.getParaVal())) {
                     String paraDatatype = DevParaInfoContainer.getDevParaView(frameParaData.getDevNo(), frameParaData.getParaNo()).getParaDatatype();
                     byte[] bytes = frameParaData.getParaVal().getBytes(Charset.forName("GB2312"));

@@ -434,7 +434,12 @@ public interface SysConfigConstant {
     String INTERFACE_TYPE_SUB = "0027006";
 
     /**
-     * 参数数据类型--str
+     * 参数数据类型--BYTE
+     */
+    String PARA_DATA_TYPE_BYTE = "0023001";
+
+    /**
+     * 参数数据类型--int
      */
     String PARA_DATA_TYPE_INT = "0023002";
 

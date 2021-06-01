@@ -172,7 +172,7 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
             localPort = Integer.parseInt(stationInfo.getDevLocalPort());
         }
         NettyUtil.sendMsg(bodyBytes, localPort, stationInfo.getDevIpAddr(), port, Integer.parseInt(iSysParamService.getParaRemark1(stationInfo.getDevNetPtcl())));
-        //log.info("发送站控数据, 本地端口：{}，  目标地址:{}:{}, 数据体:{}", localPort, stationInfo.getDevIpAddr(), port, HexUtil.encodeHexStr(bodyBytes));
+        log.info("发送站控数据, 本地端口：{}，  目标地址:{}:{}, 数据体:{}", localPort, stationInfo.getDevIpAddr(), port, HexUtil.encodeHexStr(bodyBytes));
     }
 
 
@@ -199,8 +199,7 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
      */
     //todo luo
     public static void queryHeadNext(List<byte[]> tempList, RptBodyDev rptBodyDev) {
-        //String devCode = sysParamService.getParaRemark1(rptBodyDev.getDevTypeCode());
-        String devCode = rptBodyDev.getDevTypeCode();
+        String devCode = sysParamService.getParaRemark1(rptBodyDev.getDevTypeCode());
         byte codeByte = objToBytes(devCode, 1)[0];
         byte[] bytes = {0x39, codeByte};
         //设备型号

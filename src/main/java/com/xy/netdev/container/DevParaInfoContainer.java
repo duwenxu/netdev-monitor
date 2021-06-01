@@ -177,9 +177,9 @@ public class DevParaInfoContainer {
      */
     public synchronized static boolean  handlerRespDevPara(FrameRespData respData){
         //ACU参数一直不停变化，需要特殊处理上报
-        if(respData.getDevType().equals(SysConfigConstant.DEVICE_ACU) || respData.getDevType().equals("0020003")){
-            return false;
-        }
+//        if(respData.getDevType().equals(SysConfigConstant.DEVICE_ACU)){
+//            return false;
+//        }
         List<FrameParaData> frameParaList = respData.getFrameParaList();
         int num = 0;
         if(frameParaList!=null&&!frameParaList.isEmpty()){

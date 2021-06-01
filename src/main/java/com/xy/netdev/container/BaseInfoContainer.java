@@ -206,6 +206,18 @@ public class BaseInfoContainer {
                     .filter(anInterface -> anInterface.getDevType().equals(devType))
                     .collect(Collectors.toList()));
         });
+//        for (Interface anInterface : interfaces) {
+//            String devType = anInterface.getDevType();
+//            if(devType.equals(DEVICE_QHDY)){
+//                devType = DEVICE_BPQ;
+//            }
+//            if(null!=devTypeInterMap.get(devType)){
+//                devTypeInterMap.get(devType).add(anInterface);
+//            }else{
+//                List<Interface> intfs = new ArrayList(){{add(interfaces);}};
+//                devTypeInterMap.put(devType,intfs);
+//            }
+//        }
     }
 
     /**
@@ -624,9 +636,9 @@ public class BaseInfoContainer {
             //内外转换map
             if(DEV_STATUS_DEFAULT.equals(paraInfo.getNdpaAlertPara()) && paraInfo.getNdpaOutterStatus().equals(IS_DEFAULT_TRUE)){
                 //当字段类型为无且对外展示时
-                Map<String, String> mapIn = Optional.ofNullable(JSONObject.parseObject(paraInfo.getNdpaTransRule(), Map.class)).orElse(new HashMap());
+                Map<String, Integer> mapIn = Optional.ofNullable(JSONObject.parseObject(paraInfo.getNdpaTransRule(), Map.class)).orElse(new HashMap());
                 frameParaInfo.setTransIntoOutMap(mapIn);    //数据内->外转换值域map
-                Map<String, String> mapOut = new HashMap<>();
+                Map<Integer, String> mapOut = new HashMap<>();
                 mapIn.forEach((key, value) -> {
                     mapOut.put(value, key);
                 });

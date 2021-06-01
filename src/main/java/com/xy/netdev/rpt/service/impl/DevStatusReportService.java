@@ -56,18 +56,7 @@ public class DevStatusReportService implements IDevStatusReportService {
         devStatusInfo.setIsAlarm(status);
         reportDevStatus(devStatusInfo);
     }
-//
-//    /**
-//     * 上报设备未中断，恢复连接
-//     * @param devNo
-//     * @param status
-//     */
-//    @Override
-//    public void rptUnInterrupted(String devNo, String status) {
-//        DevStatusInfo devStatusInfo = createDevStatusInfo(devNo);
-//        devStatusInfo.setIsInterrupt(status);
-//        reportDevStatus(devStatusInfo);
-//    }
+
 
     /**
      * 上报设备中断

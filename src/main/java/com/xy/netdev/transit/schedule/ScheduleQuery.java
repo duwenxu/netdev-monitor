@@ -60,8 +60,8 @@ public class ScheduleQuery  implements ApplicationRunner{
         log.info("-----设备状态定时查询开始...");
         try {
            doScheduleQuery();
-//            List<BaseInfo> pingBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(baseInfo -> !baseInfo.getDevNo().equals("30")&&!baseInfo.getDevNo().equals("31")).collect(Collectors.toList());
-//            execBasePing(pingBaseInfo);
+           //List<BaseInfo> pingBaseInfo = ScheduleQueryHelper.getAvailableBases();
+           //execBasePing(pingBaseInfo);
         } catch (Exception e) {
             log.error("设备状态定时查询异常...", e);
         }
@@ -71,7 +71,9 @@ public class ScheduleQuery  implements ApplicationRunner{
      * 设备参数定时查询
      */
     public void doScheduleQuery() {
-        List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(base-> base.getDevType().equals("0020024")).collect(Collectors.toList());
+        //List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(base -> base.getDevType().equals("0020007")||base.getDevType().equals("0020001")||base.getDevType().equals("0020005")||base.getDevType().equals("0020006")||base.getDevType().equals("0020008")||base.getDevType().equals("0020003")).collect(Collectors.toList());
+        List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(base -> base.getDevType().equals("0020007")||base.getDevType().equals("0020005")||base.getDevType().equals("0020006")).collect(Collectors.toList());
+
         List<BaseInfo> pingBaseInfo = ScheduleQueryHelper.getAvailableBases();
         List<BaseInfo> snmpBases = ScheduleQueryHelper.getAvailableSnmpBases();
         //单个设备所有查询对象的封装list映射

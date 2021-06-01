@@ -152,6 +152,9 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
             paraMap.put("-name", ParaHandlerUtil.generateEmptyStr(ParaHandlerUtil.generateEmptyStr(parainfo.getNdpaName())));
             //特殊处理：当权限为null(0022004)时全设置为可读
             String access = sysParamService.getParaRemark1(parainfo.getNdpaAccessRight());
+            if(access.equals("cmd")){
+                access = "read";
+            }
             paraMap.put("-access", StringUtils.isNotBlank(access) && !access.equals("null") ? access : "read");
             paraMap.put("-unit", ParaHandlerUtil.generateEmptyStr(parainfo.getNdpaUnit()));
             /***********************增加showModel节点****************************/
@@ -174,7 +177,7 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
                 List modelList = new ArrayList();
                 if (DEV_STATUS_DEFAULT.equals(parainfo.getNdpaAlertPara()) && StringUtils.isNotEmpty(parainfo.getNdpaTransRule())) {
                     /***********************增加type节点********************************/
-                    typeMap.put("-name", ParaHandlerUtil.generateEmptyStr(sysParamService.getParaName(PARA_DATA_TYPE_INT)));
+                    typeMap.put("-name", ParaHandlerUtil.generateEmptyStr(sysParamService.getParaName(PARA_DATA_TYPE_BYTE)));
                     //当数据类型为字符串指定字符串的len
                     paraMap.put("type", typeMap);
                     //当字段类型为无且对外转换字段不为空时

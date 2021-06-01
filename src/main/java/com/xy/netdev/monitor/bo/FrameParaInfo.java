@@ -100,14 +100,14 @@ public class FrameParaInfo {
      * on:1
      */
     @ApiModelProperty(value = "数据内->外转换值域map")
-    private Map<String,String> transIntoOutMap;
+    private Map<String,Integer> transIntoOutMap;
 
     /**
      * 数据内->外转换值域map
      * 1:on
      */
     @ApiModelProperty(value = "数据外->内转换值域map")
-    private Map<String,String> transOuttoInMap;
+    private Map<Integer,String> transOuttoInMap;
 
     @ApiModelProperty(value = "字段类型")
     private String alertPara;
