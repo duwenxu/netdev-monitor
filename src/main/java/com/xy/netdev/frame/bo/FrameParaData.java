@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.checkerframework.checker.units.qual.A;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * <p>
@@ -40,4 +41,11 @@ public class FrameParaData {
 
     @ApiModelProperty(value = "参数长度")
     private Integer len;
+
+    /**SNMP协议复用参数结构体 增加以下字段*/
+    @ApiModelProperty(value = "参数标识")
+    private String paraCmk;
+
+    @ApiModelProperty(value = "参数OID")
+    private String oid;
 }
