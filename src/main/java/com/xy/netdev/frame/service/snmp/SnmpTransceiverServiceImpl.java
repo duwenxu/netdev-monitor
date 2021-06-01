@@ -39,11 +39,12 @@ public class SnmpTransceiverServiceImpl implements SnmpTransceiverService {
 
         Map<String, Variable> snmpMap = SnmpUtil.snmpGet(baseIp, COMMUNITY, reqOid);
         Variable variable = snmpMap.get(reqOid);
-        Assert.isTrue(variable !=null,"SNMP请求失败不存在当前oid:["+reqOid+"]的结果");
 
         SnmpResDTO snmpResDTO = new SnmpResDTO();
         BeanUtil.copyProperties(snmpReqDTO, snmpResDTO, true);
-        paraData.setParaVal(variable.toString());
+        if (variable!=null){
+            paraData.setParaVal(variable.toString());
+        }
         snmpResDTO.getFrameParaList().add(paraData);
         return snmpResDTO;
     }
