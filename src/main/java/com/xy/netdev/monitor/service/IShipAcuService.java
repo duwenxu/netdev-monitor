@@ -28,4 +28,11 @@ public interface IShipAcuService{
      * @return
      */
     Angel getLocalDeg(Angel angel);
+
+    /**
+     * 获取当前状态
+     * @param angel
+     * @return
+     */
+    Angel getCurrentStage(Angel angel);
 }

@@ -519,4 +519,14 @@ public interface SysConfigConstant {
      */
     String CURR_CAR_TYPE = "0100011";
 
+    /**
+     * 1.5米ACU方位角调整休眠时间
+     */
+    String ACU_SLEEP_TIME = "0100012";
+
+    /**
+     * 1.5米ACU中agc阈值
+     */
+    String ACU_AGE_VALUE = "0100013";
+
 }
