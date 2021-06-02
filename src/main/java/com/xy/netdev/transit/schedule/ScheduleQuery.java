@@ -3,7 +3,6 @@ package com.xy.netdev.transit.schedule;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.net.NetUtil;
 import cn.hutool.core.thread.ThreadUtil;
-import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.container.DevParaInfoContainer;
@@ -11,7 +10,6 @@ import com.xy.netdev.container.DevStatusContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.service.snmp.SnmpReqDTO;
-import com.xy.netdev.frame.service.snmp.SnmpTransceiverService;
 import com.xy.netdev.frame.service.snmp.SnmpTransceiverServiceImpl;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.bo.ParaViewInfo;
@@ -73,7 +71,7 @@ public class ScheduleQuery  implements ApplicationRunner{
      * 设备参数定时查询
      */
     public void doScheduleQuery() {
-        List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(base-> base.getDevType().equals("0020024")).collect(Collectors.toList());
+        List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(base-> base.getDevType().equals("0020025")).collect(Collectors.toList());
         List<BaseInfo> pingBaseInfo = ScheduleQueryHelper.getAvailableBases();
         //单个设备所有查询对象的封装list映射
         Map<BaseInfo, List<FrameReqData>> scheduleReqBodyMap = new ConcurrentHashMap<>(20);
@@ -223,32 +221,39 @@ public class ScheduleQuery  implements ApplicationRunner{
         for (Map.Entry<BaseInfo, List<FrameReqData>> entry : scheduleSnmpReqBodyMap.entrySet()) {
             List<SnmpReqDTO> snmpList = new CopyOnWriteArrayList<>();
             for (FrameReqData frameReqData : entry.getValue()) {
-                List<FrameParaData> frameParaList = frameReqData.getFrameParaList();
-                String paraCmcLv="";
-                for (FrameParaData frameParaData : frameParaList) {
-                    ParaViewInfo devParaView = DevParaInfoContainer.getDevParaView(frameParaData.getDevNo(), frameParaData.getParaNo());
-                    String cmdMark = devParaView.getParaCmdMark();
-                    frameParaData.setParaCmk(cmdMark);
-                    frameParaData.setOid(snmpTransceiverService.oidSplic(cmdMark,frameParaData.getDevType()));
-                    paraCmcLv = devParaView.getParaCmplexLevel();
+                SnmpReqDTO snmpReqDTO = frameReq2SnmpReq(frameReqData);
+                if (snmpReqDTO!=null){
+                    snmpList.add(snmpReqDTO);
                 }
-                if (PARA_COMPLEX_LEVEL_SUB.equals(paraCmcLv)){
-                    continue;
-                }
-                SnmpReqDTO snmpReqDTO = SnmpReqDTO.builder()
-                        .accessType(frameReqData.getAccessType())
-                        .cmdMark(frameReqData.getCmdMark())
-                        .devNo(frameReqData.getDevNo())
-                        .devType(frameReqData.getDevType())
-                        .operType(frameReqData.getOperType())
-                        .frameParaList(frameParaList)
-                        .build();
-                BeanUtil.copyProperties(frameReqData,snmpReqDTO,true);
-                snmpList.add(snmpReqDTO);
             }
             snmpBaseMap.put(entry.getKey(),snmpList);
         }
         return snmpBaseMap;
+    }
+
+    public SnmpReqDTO frameReq2SnmpReq(FrameReqData frameReqData) {
+        List<FrameParaData> frameParaList = frameReqData.getFrameParaList();
+        String paraCmcLv="";
+        for (FrameParaData frameParaData : frameParaList) {
+            ParaViewInfo devParaView = DevParaInfoContainer.getDevParaView(frameParaData.getDevNo(), frameParaData.getParaNo());
+            String cmdMark = devParaView.getParaCmdMark();
+            frameParaData.setParaCmk(cmdMark);
+            frameParaData.setOid(snmpTransceiverService.oidSplic(cmdMark,frameParaData.getDevType()));
+            paraCmcLv = devParaView.getParaCmplexLevel();
+        }
+        if (PARA_COMPLEX_LEVEL_SUB.equals(paraCmcLv)){
+            return null;
+        }
+        SnmpReqDTO snmpReqDTO = SnmpReqDTO.builder()
+                .accessType(frameReqData.getAccessType())
+                .cmdMark(frameReqData.getCmdMark())
+                .devNo(frameReqData.getDevNo())
+                .devType(frameReqData.getDevType())
+                .operType(frameReqData.getOperType())
+                .frameParaList(frameParaList)
+                .build();
+        BeanUtil.copyProperties(frameReqData,snmpReqDTO,true);
+        return snmpReqDTO;
     }
 
 

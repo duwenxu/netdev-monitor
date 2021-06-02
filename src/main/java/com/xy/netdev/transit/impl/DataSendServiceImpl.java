@@ -40,8 +40,6 @@ public class DataSendServiceImpl implements IDataSendService {
      * @param  frameReqData   协议解析请求数据
      */
     public void paraCtrSend(FrameReqData frameReqData) {
-        frameReqData.setAccessType(SysConfigConstant.ACCESS_TYPE_PARAM);
-        frameReqData.setOperType(SysConfigConstant.OPREATE_CONTROL);
         DataHandlerHelper.getParaPrtclAnalysisService(frameReqData).ctrlPara(frameReqData);
     }
 
