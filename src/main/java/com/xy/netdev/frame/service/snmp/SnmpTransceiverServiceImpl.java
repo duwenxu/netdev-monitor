@@ -77,14 +77,13 @@ public class SnmpTransceiverServiceImpl implements SnmpTransceiverService {
         for (FrameParaInfo paraInfo : interLinkParaList) {
             if (PARA_COMPLEX_LEVEL_COMPOSE.equals(paraInfo.getCmplexLevel())){
                 addToQueryMap(snmpReqDTO, queryMap, paraInfo);
-                String oid = oidSplic(paraInfo.getCmdMark(), paraInfo.getDevType());
                 StringBuilder parentParaBuf = new StringBuilder();
-                for (FrameParaInfo info : paraInfo.getSubParaList()) {
+                for (FrameParaData info : queryMap.values()) {
                     if (!StringUtils.isBlank(info.getParaVal())){
                         parentParaBuf.append(info.getParaVal());
                     }
                 }
-                queryMap.get(oid).setParaVal(parentParaBuf.toString());
+                queryMap.get(paraInfo.getCmdMark()).setParaVal(parentParaBuf.toString());
             }
         }
 
