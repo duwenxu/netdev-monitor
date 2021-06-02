@@ -39,9 +39,6 @@ public class TkukaCaImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
     private static final String CMD_MARK = "7c";
     /**帧尾**/
 
-    /**流水码(此协议专有)**/
-    private static int streamCode = 0;
-
     @Override
     public void callback(FrameRespData frameRespData, IParaPrtclAnalysisService iParaPrtclAnalysisService, IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService, ICtrlInterPrtclAnalysisService ctrlInterPrtclAnalysisService) {
         switch (frameRespData.getOperType()) {
@@ -81,7 +78,7 @@ public class TkukaCaImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
             return frameRespData;
         }
         //数据体
-        byte[] paramBytes = byteArrayCopy(bytes, 2, bytes.length - 3);
+        byte[] paramBytes = byteArrayCopy(bytes, 1, bytes.length - 2);
         frameRespData.setParamBytes(paramBytes);
         return frameRespData;
     }
@@ -94,7 +91,7 @@ public class TkukaCaImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
     @Override
     public byte[] pack(FrameReqData frameReqData) {
         byte[] bytes = frameReqData.getParamBytes();
-        if(bytes.length<20 || bytes.length>20){
+        if(bytes.length != 13){
             log.warn("TKuka0.9CA监控设备数据帧长度错误, 数据体长度:{}, 数据体:{}，请检查!!", bytes.length, HexUtil.encodeHexStr(bytes));
             return new byte[]{};
         }
@@ -102,39 +99,10 @@ public class TkukaCaImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
         //数据帧总长= 参数正文长度
         //帧头:1
         lists.add(new byte[]{0x7b});
-        //流水码:1
-        lists.add(getStreamCode());
-        //参数体
+        //参数体(包含工作模式)：13
         lists.add(bytes);
-        //校验和
-        lists.add(addGetBottom(lists));
         //帧尾
         lists.add(new byte[]{0x7d});
         return ByteUtils.listToBytes(lists);
-    }
-
-    /**
-     * 累加从 长度 到 参数体 的所有内容作为校验和
-     *
-     * @param entity 数据体
-     * @return 校验和字节
-     */
-    private byte[] addGetBottom(List<byte[]> entity) {
-        byte[] bytes = listToBytes(entity);
-        byte check = ByteUtils.addGetBottom(bytes, 0, bytes.length);
-        return new byte[]{check};
-    }
-
-    /***
-     * 获取16进制的一个字节的流水码
-     * @return
-     */
-    private synchronized byte[] getStreamCode(){
-        byte[] bytes = ByteUtils.objToBytes(streamCode,1);
-        streamCode++;
-        if(streamCode == 50){
-            streamCode = 0;
-        }
-        return bytes;
     }
 }

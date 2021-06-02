@@ -84,28 +84,8 @@ public class TkukaCaPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
         for (FrameParaInfo param : frameParaInfos) {
             byte[] byte1 = ByteUtils.byteArrayCopy(bytes, param.getParaStartPoint(), Integer.valueOf(param.getParaByteLen()));
             genFramePara(param, respData, byte1, frameParaDataList);
-            //特定字解析
-            if (param.getParaNo().equals("15")) {
-                List<FrameParaInfo> list = BaseInfoContainer.getParasByDevType(respData.getDevType())
-                        .stream().filter(frameParaInfo -> frameParaInfo.getNdpaRemark3Data().contains(Flag))
-                        .collect(Collectors.toList());
-                //解析特定字及后续参数
-                byte[] byteEnd = ByteUtils.byteArrayCopy(bytes, 33, 12);
-                int paraStartPoint = 0;
-                //排序
-                list.sort(Comparator.comparing(frameParaInfo -> Integer.valueOf(frameParaInfo.getParaNo())));
-                for (FrameParaInfo frameParaData1 : list) {
-                    byte[] byteNext = ByteUtils.byteArrayCopy(byteEnd, paraStartPoint, Integer.valueOf(frameParaData1.getParaByteLen()));
-                    genFramePara(frameParaData1, respData, byteNext, frameParaDataList);
-                    paraStartPoint = paraStartPoint + Integer.valueOf(frameParaData1.getParaByteLen());
-                    //DevParaInfoContainer.setIsShow(respData.getDevNo(), frameParaData1.getParaNo(), true);
-                }
-                /*List<FrameParaInfo> listNoShow = BaseInfoContainer.getParasByDevType(respData.getDevType())
-                        .stream().filter(frameParaInfo -> StringUtils.isNotBlank(frameParaInfo.getNdpaRemark3Data())
-                                && !Flag.equals(frameParaInfo.getNdpaRemark3Data())).collect(Collectors.toList());
-                listNoShow.forEach(frameParaInfo -> {
-                    DevParaInfoContainer.setIsShow(respData.getDevNo(), frameParaInfo.getParaNo(), false);
-                });*/
+            if(param.getNdpaRemark3Data().contains("false")){
+                DevParaInfoContainer.setIsShow(respData.getDevNo(),param.getParaNo(),false);
             }
         }
     }
@@ -118,51 +98,11 @@ public class TkukaCaPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
      */
     private void genFramePara(FrameParaInfo param, FrameRespData respData, byte[] byte1, List<FrameParaData> frameParaDataList) {
         FrameParaData frameParaData = null;
-        if (PARA_COMPLEX_LEVEL_COMPOSE.equals(param.getCmplexLevel())) {
-            String value = "";
-            //比特位分解
-            String paraValueStr = ByteUtils.byteToBinary(byte1[00]);
-            int paraStartPoint = 0;
-            int paraEndPoint = 0;
-            List<FrameParaInfo> list = param.getSubParaList();
-            list.sort(Comparator.comparing(paraInfo -> Integer.valueOf(paraInfo.getParaNo())));
-            for (int i = 1; i <= list.size(); i++) {
-                FrameParaInfo frameParaInfo = list.get(i-1);
-                String  paraVal = "";
-                if(list.size() == 1){
-                    paraEndPoint = 4 + Integer.valueOf(frameParaInfo.getParaStrLen());
-                    paraVal  =  paraValueStr.substring(4, paraEndPoint);
-                }else{
-                    paraEndPoint = paraStartPoint + Integer.valueOf(frameParaInfo.getParaStrLen());
-                    paraVal  =  paraValueStr.substring(paraStartPoint, paraEndPoint);
-                }
-                if("79".equals(frameParaInfo.getParaNo())){
-                    paraVal = BitToHexStr(paraVal);
-                }
-                FrameParaData subFrame = genFramePara(frameParaInfo, respData.getDevNo(), paraVal);
-                frameParaDataList.add(subFrame);
-                paraStartPoint = paraEndPoint;
-                if(!"78".equals(frameParaInfo.getParaNo())){
-                    value = value+paraVal + "_";
-                }
-            }
-            frameParaData = genFramePara(param, respData.getDevNo(), value.substring(0,value.length()-1));
-        } else if (StringUtils.isNotBlank(param.getNdpaRemark1Data())) {
-            ParamCodec handler = SpringContextUtils.getBean(param.getNdpaRemark1Data());
-            if (PARA_DATA_TYPE_INT.equals(param.getDataType())) {
-                frameParaData = genFramePara(param, respData.getDevNo(), String.valueOf(handler.decode(byte1, param.getNdpaRemark2Data())));
-            } else {
-                frameParaData = genFramePara(param, respData.getDevNo(), String.valueOf(handler.decode(byte1, null)));
-            }
+        if (StringUtils.isNotBlank(param.getNdpaRemark2Data())) {
+            ParamCodec handler = SpringContextUtils.getBean(param.getNdpaRemark2Data());
+            frameParaData = genFramePara(param, respData.getDevNo(), String.valueOf(handler.decode(byte1, null)));
         } else {
             frameParaData = genFramePara(param, respData.getDevNo(), HexUtil.encodeHexStr(byte1));
-        }
-        //特定字解析
-        if (param.getParaNo().equals("15")) {
-            Flag = frameParaData.getParaVal();
-        }
-        if(param.getNdpaRemark3Data().contains("false")){
-            DevParaInfoContainer.setIsShow(respData.getDevNo(), param.getParaNo(), false);
         }
         frameParaDataList.add(frameParaData);
     }
@@ -183,19 +123,5 @@ public class TkukaCaPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
                 .build();
         frameParaData.setParaVal(paraValueStr);
         return frameParaData;
-    }
-
-    /**
-     * Bit转Byte
-     */
-    private String BitToHexStr(String byteStr) {
-        byteStr = StringUtils.leftPad(byteStr,8-byteStr.length(),"0");
-        int re ;
-        if (byteStr.charAt(0) == '0') {// 正数
-            re = Integer.parseInt(byteStr, 2);
-        } else {// 负数
-            re = Integer.parseInt(byteStr, 2) - 256;
-        }
-        return HexUtil.encodeHexStr(new byte[]{(byte) re}) ;
     }
 }
