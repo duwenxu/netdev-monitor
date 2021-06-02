@@ -80,7 +80,9 @@ public class SnmpTransceiverServiceImpl implements SnmpTransceiverService {
                 String oid = oidSplic(paraInfo.getCmdMark(), paraInfo.getDevType());
                 StringBuilder parentParaBuf = new StringBuilder();
                 for (FrameParaInfo info : paraInfo.getSubParaList()) {
-                    parentParaBuf.append(info.getParaVal());
+                    if (!StringUtils.isBlank(info.getParaVal())){
+                        parentParaBuf.append(info.getParaVal());
+                    }
                 }
                 queryMap.get(oid).setParaVal(parentParaBuf.toString());
             }
