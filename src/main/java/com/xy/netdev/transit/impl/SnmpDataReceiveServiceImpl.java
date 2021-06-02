@@ -3,7 +3,6 @@ package com.xy.netdev.transit.impl;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.DevLogInfoContainer;
 import com.xy.netdev.container.DevParaInfoContainer;
-import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.service.snmp.SnmpResDTO;
 import com.xy.netdev.transit.ISnmpDataReceiveService;
@@ -11,9 +10,6 @@ import com.xy.netdev.websocket.send.DevIfeMegSend;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -43,20 +39,11 @@ public class SnmpDataReceiveServiceImpl implements ISnmpDataReceiveService {
     }
 
     private FrameRespData convertFrameDto(SnmpResDTO snmpResDTO) {
-        List<FrameParaData> paraDataList = new ArrayList<>(1);
-        FrameParaData frameParaData = FrameParaData.builder()
-                .devType(snmpResDTO.getDevType())
-                .paraNo(snmpResDTO.getParaNo())
-                .devNo(snmpResDTO.getDevNo())
-                .paraVal(snmpResDTO.getParaVal())
-                .len(snmpResDTO.getLen())
-                .build();
-        paraDataList.add(frameParaData);
         FrameRespData respData = FrameRespData.builder()
                 .accessType(snmpResDTO.getAccessType())
                 .cmdMark(snmpResDTO.getCmdMark())
                 .devNo(snmpResDTO.getDevNo())
-                .frameParaList(paraDataList)
+                .frameParaList(snmpResDTO.getFrameParaList())
                 .devType(snmpResDTO.getDevType())
                 .operType(snmpResDTO.getOperType())
                 .build();

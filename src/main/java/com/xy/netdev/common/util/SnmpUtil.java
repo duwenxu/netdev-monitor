@@ -101,8 +101,8 @@ public class SnmpUtil {
      * @param community 设备组织
      * @param oidList   参数数据标识列表
      */
-    public static Map<String,Object> snmpGetList(String ip, String community, List<String> oidList) {
-        ConcurrentHashMap<String,Object> values = new ConcurrentHashMap<>(oidList.size());
+    public static Map<String,Variable> snmpGetList(String ip, String community, List<String> oidList) {
+        ConcurrentHashMap<String,Variable> values = new ConcurrentHashMap<>(oidList.size());
         CommunityTarget target = createDefault(ip, community);
         Snmp snmp = null;
         try {
