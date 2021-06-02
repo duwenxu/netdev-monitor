@@ -143,6 +143,72 @@ public class SnmpUtil {
     }
 
     /**
+     * 根据OID和指定string来设置设备的数据
+     * @param ip  设备IP
+     * @param community 设备组织
+     * @param oid 对象参数ID
+     * @param val 需要设置的参数值
+     */
+    public static String setPDU(String ip, String community, String oid, String val) {
+        CommunityTarget target = createDefault(ip, community);
+        Snmp snmp = new Snmp();
+        PDU pdu = new PDU();
+        pdu.add(new VariableBinding(new OID(oid), new OctetString(val)));
+        pdu.setType(PDU.SET);
+        //默认成功
+        String respCode = "0";
+
+        try {
+            DefaultUdpTransportMapping transport = new DefaultUdpTransportMapping();
+            snmp = new Snmp(transport);
+            snmp.listen();
+            log.info("发送SNMP设置帧到ip:[{}],参数oid:[{}]---参数值：[{}]", ip, oid, val);
+            ResponseEvent responseEvent = snmp.send(pdu, target);
+            PDU response = responseEvent.getResponse();
+            if (response == null) {
+                log.info("Control response is null, request time out");
+                respCode = "1";
+            } else {
+                //todo  判断控制结果
+                if (responseEvent.getError()!=null){
+                    respCode = "1";
+                }
+            }
+        } catch (Exception e) {
+            log.error("SNMP发送控制参数命令异常：oid=[{}],设置参数值：[{}]",oid,val,e);
+        } finally {
+            try {
+                snmp.close();
+            } catch (IOException ex1) {
+            }
+        }
+        return respCode;
+    }
+
+    /**
+     * 根据OID和指定string来设置设备的数据
+     * @param ip  设备IP
+     * @param community 设备组织
+     * @param oid 对象参数ID
+     * @param val 需要设置的参数值
+     * @throws IOException
+     */
+    public static void trapPDU(String ip, String community, String oid, String val) throws IOException {
+        CommunityTarget target = createDefault(ip, community);
+        Snmp snmp;
+        PDU pdu = new PDU();
+        pdu.add(new VariableBinding(new OID(oid), new OctetString(val)));
+        pdu.setType(PDU.TRAP);
+
+        DefaultUdpTransportMapping transport = new DefaultUdpTransportMapping();
+        snmp = new Snmp(transport);
+        snmp.listen();
+        log.info("发送SNMP设置帧到ip:[{}],参数oid:[{}]---参数值：[{}]",ip,oid,val);
+        snmp.send(pdu, target);
+        snmp.close();
+    }
+
+    /**
      * 根据OID列表，采用异步方式一次获取多条OID数据，并且以List形式返回
      *
      * @param ip        设备IP
@@ -377,30 +443,17 @@ public class SnmpUtil {
         }
     }
 
-    /*根据OID和指定string来设置设备的数据*/
-    public static void setPDU(String ip, String community, String oid, String val) throws IOException {
-        CommunityTarget target = createDefault(ip, community);
-        Snmp snmp = null;
-        PDU pdu = new PDU();
-        pdu.add(new VariableBinding(new OID(oid), new OctetString(val)));
-        pdu.setType(PDU.SET);
 
-        DefaultUdpTransportMapping transport = new DefaultUdpTransportMapping();
-        snmp = new Snmp(transport);
-        snmp.listen();
-        log.info("-------> 发送PDU <-------");
-        snmp.send(pdu, target);
-        snmp.close();
-    }
-//
-//    public static void main(String[] args) {
+    public static void main(String[] args) {
 //        String ip = "192.168.7.31";
-////        String ip ="127.0.0.1";
-//        String community = "public";
+        String ip ="127.0.0.1";
+        String community = "public";
 //        String oid = ".1.3.6.1.4.1.589.10.2.1.3.0";
-////        String tableOid= ".1.3.6.1.2.1.4.20.1.4.127.0.0.1";
-////        String oidval1 = "1.3.6.1.4.1.589.10.2.1.4";
-//        Map<String, Object> map = SnmpUtil.snmpGet(ip, community, oid);
-//        log.info("map:{}",map);
-//    }
+        String localOid= ".1.3.6.1.2.1.4.20.1.4.127.0.0.1";
+//        String oidval1 = "1.3.6.1.4.1.589.10.2.1.4";
+        Map<String, Variable> map = SnmpUtil.snmpGet(ip, community, localOid);
+        log.info("map:{}",map);
+//        SnmpUtil.setPDU(ip, community, localOid,);
+
+    }
 }

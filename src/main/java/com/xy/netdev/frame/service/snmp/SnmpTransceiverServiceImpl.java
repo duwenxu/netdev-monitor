@@ -5,7 +5,11 @@ import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.util.SnmpUtil;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
+import com.xy.netdev.frame.bo.FrameReqData;
+import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
+import com.xy.netdev.transit.IDataSendService;
+import com.xy.netdev.transit.impl.SnmpDataReceiveServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.snmp4j.smi.Variable;
@@ -14,11 +18,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 import static com.xy.netdev.common.constant.SysConfigConstant.PARA_COMPLEX_LEVEL_COMPOSE;
 
@@ -31,6 +33,10 @@ public class SnmpTransceiverServiceImpl implements SnmpTransceiverService {
     private static final String COMMUNITY = "public";
     @Autowired
     private ISysParamService sysParamService;
+    @Autowired
+    private IDataSendService dataSendService;
+    @Autowired
+    private SnmpDataReceiveServiceImpl snmpDataReceiveService;
 
     @Override
     public SnmpResDTO queryParam(SnmpReqDTO snmpReqDTO,String baseIp) {
@@ -39,11 +45,12 @@ public class SnmpTransceiverServiceImpl implements SnmpTransceiverService {
 
         Map<String, Variable> snmpMap = SnmpUtil.snmpGet(baseIp, COMMUNITY, reqOid);
         Variable variable = snmpMap.get(reqOid);
-        Assert.isTrue(variable !=null,"SNMP请求失败不存在当前oid:["+reqOid+"]的结果");
 
         SnmpResDTO snmpResDTO = new SnmpResDTO();
         BeanUtil.copyProperties(snmpReqDTO, snmpResDTO, true);
-        paraData.setParaVal(variable.toString());
+        if (variable!=null){
+            paraData.setParaVal(variable.toString());
+        }
         snmpResDTO.getFrameParaList().add(paraData);
         return snmpResDTO;
     }
@@ -76,12 +83,13 @@ public class SnmpTransceiverServiceImpl implements SnmpTransceiverService {
         for (FrameParaInfo paraInfo : interLinkParaList) {
             if (PARA_COMPLEX_LEVEL_COMPOSE.equals(paraInfo.getCmplexLevel())){
                 addToQueryMap(snmpReqDTO, queryMap, paraInfo);
-                String oid = oidSplic(paraInfo.getCmdMark(), paraInfo.getDevType());
                 StringBuilder parentParaBuf = new StringBuilder();
-                for (FrameParaInfo info : paraInfo.getSubParaList()) {
-                    parentParaBuf.append(info.getParaVal());
+                for (FrameParaData info : queryMap.values()) {
+                    if (!StringUtils.isBlank(info.getParaVal())){
+                        parentParaBuf.append(info.getParaVal());
+                    }
                 }
-                queryMap.get(oid).setParaVal(parentParaBuf.toString());
+                queryMap.get(paraInfo.getCmdMark()).setParaVal(parentParaBuf.toString());
             }
         }
 
@@ -92,6 +100,39 @@ public class SnmpTransceiverServiceImpl implements SnmpTransceiverService {
         return snmpResDTO;
     }
 
+    @Override
+    public void paramCtrl(SnmpReqDTO snmpReqDTO, String baseIp) {
+        List<FrameParaData> frameParaList = snmpReqDTO.getFrameParaList();
+        for (FrameParaData paraData : frameParaList) {
+            String oid = paraData.getOid();
+            String paraVal = paraData.getParaVal();
+            String respCode = "0";
+            Assert.isTrue(!StringUtils.isBlank(oid)&&!StringUtils.isBlank(paraVal),"SNMP参数控制:oid和paraVal不能为空,oid:"+oid+",paraVal:"+paraVal);
+            try {
+                respCode = SnmpUtil.setPDU(baseIp, COMMUNITY, oid, paraVal);
+            } catch (Exception e) {
+                log.error("SNMP参数设置异常：IP:[{}],设备编号：[{}],参数编号：[{}],参数OID：[{}],参数值：[{}]",baseIp,paraData.getDevNo(),paraData.getParaNo(),oid,paraVal);
+            }
+            FrameReqData frameReqData = convertFrameReqDto(snmpReqDTO,respCode);
+            //回调
+            dataSendService.notifyNetworkResult(frameReqData);
+        }
+
+    }
+
+    private FrameReqData convertFrameReqDto(SnmpReqDTO snmpReqDTO,String respCode) {
+        FrameReqData frameReqData = new FrameReqData();
+        BeanUtil.copyProperties(snmpReqDTO,frameReqData,true);
+        frameReqData.setIsOk(respCode);
+        return frameReqData;
+    }
+
+    /**
+     * 组装查询map
+     * @param snmpReqDTO snmp查询结构体
+     * @param queryMap 查询map
+     * @param frameParaInfo 需要添加的参数体
+     */
     private void addToQueryMap(SnmpReqDTO snmpReqDTO, ConcurrentHashMap<String, FrameParaData> queryMap, FrameParaInfo frameParaInfo) {
         Assert.isTrue(frameParaInfo.getParaByteLen().length()!=0,"设备类型"+ frameParaInfo.getDevType()+" 参数编号"+ frameParaInfo.getParaNo()+"的参数字节长度配置错误");
         String oid = oidSplic(frameParaInfo.getCmdMark(), snmpReqDTO.getDevType());

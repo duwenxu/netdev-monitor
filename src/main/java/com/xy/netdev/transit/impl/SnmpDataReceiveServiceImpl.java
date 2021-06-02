@@ -25,7 +25,7 @@ public class SnmpDataReceiveServiceImpl implements ISnmpDataReceiveService {
     @Override
     public void paraQueryRecive(SnmpResDTO snmpResDTO) {
         snmpResDTO.setOperType(SysConfigConstant.OPREATE_QUERY_RESP);
-        FrameRespData respData = convertFrameDto(snmpResDTO);
+        FrameRespData respData = convertFrameResDto(snmpResDTO);
         assert respData != null;
         if(DevParaInfoContainer.handlerRespDevPara(respData)){
             DevIfeMegSend.sendParaToDev(respData.getDevNo());//如果设备参数变化,websocet推前台
@@ -38,7 +38,7 @@ public class SnmpDataReceiveServiceImpl implements ISnmpDataReceiveService {
 //        handlerAlertInfo(respData);//处理报警、主备等信息
     }
 
-    private FrameRespData convertFrameDto(SnmpResDTO snmpResDTO) {
+    public FrameRespData convertFrameResDto(SnmpResDTO snmpResDTO) {
         FrameRespData respData = FrameRespData.builder()
                 .accessType(snmpResDTO.getAccessType())
                 .cmdMark(snmpResDTO.getCmdMark())

@@ -1,6 +1,5 @@
 package com.xy.netdev.frame.service.tkuka;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.HexUtil;
 import com.xy.common.exception.BaseException;
 import com.xy.netdev.common.util.ByteUtils;
@@ -19,11 +18,10 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static com.xy.netdev.common.constant.SysConfigConstant.PARA_DATA_TYPE_INT;
+import static com.xy.netdev.common.constant.SysConfigConstant.PARA_DATA_TYPE_STR;
 
 /**
  * TKuka0.9CA监控设备
@@ -41,32 +39,18 @@ public class TkukaCaInterPrtcServiceImpl implements ICtrlInterPrtclAnalysisServi
     @Override
     public void ctrlPara(FrameReqData reqData) {
         List<FrameParaData> paraList = reqData.getFrameParaList();
-        List<String> list = new ArrayList(){{add("3");add("5");add("7");}};
-        for(int i=0;i<3;i++){
-            FrameParaData frameParaData = new FrameParaData();
-            BeanUtil.copyProperties(paraList.get(0),frameParaData);
-            FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByNo(frameParaData.getDevType(),list.get(i));
-            frameParaData.setLen(Optional.ofNullable(Integer.valueOf(frameParaInfo.getParaByteLen())).orElse(0));
-            frameParaData.setParaNo(frameParaInfo.getParaNo());
-            //frameParaData.setParaVal(paraList.get(0).getParaVal().replace("0011","0000"));
-            paraList.add(i*2+2,frameParaData);
-        }
-        byte[] bytes = new byte[]{};
+        byte[] bytes = new byte[13];
         for (FrameParaData paraData : paraList) {
             FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByNo(paraData.getDevType(),paraData.getParaNo());
-            String paraValStr = "";
-            if(paraData.getLen()==1){
-                paraValStr = BitToHexStr(paraData.getParaVal().replaceAll("[^0-9]",""));
-            }else if (StringUtils.isNotBlank(frameParaInfo.getNdpaRemark1Data())){
-                ParamCodec handler = SpringContextUtils.getBean(frameParaInfo.getNdpaRemark1Data());
-                if (PARA_DATA_TYPE_INT.equals(frameParaInfo.getDataType())) {
-                    paraValStr = HexUtil.encodeHexStr(handler.encode(paraData.getParaVal(), frameParaInfo.getNdpaRemark2Data(),frameParaInfo.getParaByteLen()));
-                }
-            } else{
-                paraValStr = HexUtil.encodeHexStr(ByteUtils.objToBytes(paraData.getParaVal(),paraData.getLen(),true));
+            if(PARA_DATA_TYPE_STR.equals(frameParaInfo.getDataType())){
+                String paraVal = StringUtils.leftPad(paraData.getParaVal(),Integer.valueOf(frameParaInfo.getParaByteLen())*2-paraData.getParaVal().length(),"0");
+                frameParaInfo.setParaVal(paraVal);
+            }else{
+                ParamCodec handler = SpringContextUtils.getBean(frameParaInfo.getNdpaRemark2Data());
+                String paraValStr = HexUtil.encodeHexStr(handler.encode(paraData.getParaVal(), frameParaInfo.getNdpaRemark1Data()));
+                frameParaInfo.setParaVal(paraValStr);
             }
-            paraData.setParaVal(paraValStr);
-            byte[] frameBytes = HexUtil.decodeHex(paraValStr);
+            byte[] frameBytes = HexUtil.decodeHex(frameParaInfo.getParaVal());
             bytes = ByteUtils.bytesMerge(bytes, frameBytes);
         }
         reqData.setParamBytes(bytes);
@@ -78,29 +62,5 @@ public class TkukaCaInterPrtcServiceImpl implements ICtrlInterPrtclAnalysisServi
     @Override
     public FrameRespData ctrlParaResponse(FrameRespData respData) {
         return null;
-    }
-
-    /**
-     * Bit转Byte
-     */
-    private String BitToHexStr(String byteStr) {
-        int re, len;
-        if (null == byteStr) {
-            throw new BaseException("比特位长度异常，请检查");
-        }
-        len = byteStr.length();
-        if (len==4) {
-            byteStr = "0011" + byteStr;
-        }
-        if (len == 8) {// 8 bit处理
-            if (byteStr.charAt(0) == '0') {// 正数
-                re = Integer.parseInt(byteStr, 2);
-            } else {// 负数
-                re = Integer.parseInt(byteStr, 2) - 256;
-            }
-        } else {//4 bit处理
-            re = Integer.parseInt(byteStr, 2);
-        }
-        return HexUtil.encodeHexStr(new byte[]{(byte) re}) ;
     }
 }
