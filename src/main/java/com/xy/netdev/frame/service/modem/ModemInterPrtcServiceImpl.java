@@ -84,7 +84,7 @@ public class ModemInterPrtcServiceImpl implements IQueryInterPrtclAnalysisServic
                 }
                 //获取单个参数的解析结果
                 FrameParaData paraData = doGetParam(respData, targetBytes, param);
-                if (paraData.getParaCmk().equals("0B")){
+                if (null!=paraData.getParaCmk() && paraData.getParaCmk().equals("0B")){
                     paraData.setParaVal("-"+ paraData.getParaVal());
                 }
                 frameParaDataList.add(paraData);

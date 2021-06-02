@@ -85,7 +85,11 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
         List<FrameParaData> frameParaList = new ArrayList<>();
         for (String param : params) {
             String cmdMark = convertCmdMark(param.split("_")[0],respData.getCmdMark());
-            String value = param.split("_")[1];
+            String value = "";
+            String[] values = param.split("_");
+            if(values.length>1){
+                value = values[1];
+            }
             FrameParaData paraInfo = new FrameParaData();
             FrameParaInfo frameParaDetail = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),cmdMark);
             BeanUtil.copyProperties(frameParaDetail, paraInfo, true);

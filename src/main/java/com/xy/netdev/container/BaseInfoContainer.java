@@ -601,6 +601,7 @@ public class BaseInfoContainer {
             frameParaInfo.setParaName(paraInfo.getNdpaName());  //参数名称
             frameParaInfo.setCmdMark(paraInfo.getNdpaCmdMark()); //命令标识
             frameParaInfo.setNdpaUnit(paraInfo.getNdpaUnit());
+            frameParaInfo.setNdpaShowMode(paraInfo.getNdpaShowMode());//参数展示方式
             frameParaInfo.setParaByteLen(paraInfo.getNdpaByteLen());  // 字节长度
             frameParaInfo.setParaStrLen(paraInfo.getNdpaStrLen());    //参数长度
             frameParaInfo.setDataType(paraInfo.getNdpaDatatype());//数值类型
@@ -633,12 +634,13 @@ public class BaseInfoContainer {
                 frameParaInfo.setInterfacePrtcl(prtclFormats.get(0));      //解析协议
             }
             frameParaInfo.setTransRule(paraInfo.getNdpaTransRule()); //内外转换值域
+            frameParaInfo.setCombRule(paraInfo.getNdpaCombRule());
             //内外转换map
-            if(DEV_STATUS_DEFAULT.equals(paraInfo.getNdpaAlertPara()) && paraInfo.getNdpaOutterStatus().equals(IS_DEFAULT_TRUE)){
+            if(PARA_SHOW_MODEL.equals(paraInfo.getNdpaShowMode()) && org.apache.commons.lang3.StringUtils.isNoneBlank(paraInfo.getNdpaCombRule())){
                 //当字段类型为无且对外展示时
-                Map<String, Integer> mapIn = Optional.ofNullable(JSONObject.parseObject(paraInfo.getNdpaTransRule(), Map.class)).orElse(new HashMap());
+                Map<String, String> mapIn = Optional.ofNullable(JSONObject.parseObject(paraInfo.getNdpaCombRule(), Map.class)).orElse(new HashMap());
                 frameParaInfo.setTransIntoOutMap(mapIn);    //数据内->外转换值域map
-                Map<Integer, String> mapOut = new HashMap<>();
+                Map<String, String> mapOut = new HashMap<>();
                 mapIn.forEach((key, value) -> {
                     mapOut.put(value, key);
                 });

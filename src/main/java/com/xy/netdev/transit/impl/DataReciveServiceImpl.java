@@ -100,7 +100,8 @@ public class DataReciveServiceImpl implements IDataReciveService {
         RptBodyDev rptBodyDev = new RptBodyDev();
         //获取指定设备当前可读且可以对外上报的参数列表
         List<ParaViewInfo> devParaViewList = DevParaInfoContainer.getDevParaViewList(devStatusInfo.getDevNo()).stream()
-                .filter(paraView -> !SysConfigConstant.ONLY_WRITE.equals(paraView.getAccessRight()) && IS_DEFAULT_TRUE.equals(paraView.getNdpaOutterStatus()))
+               // .filter(paraView -> !SysConfigConstant.ONLY_WRITE.equals(paraView.getAccessRight()) && IS_DEFAULT_TRUE.equals(paraView.getNdpaOutterStatus()))
+                .filter(paraView ->  IS_DEFAULT_TRUE.equals(paraView.getNdpaOutterStatus()))
                 .collect(Collectors.toList());
 
         //当前设备的查询响应参数列表

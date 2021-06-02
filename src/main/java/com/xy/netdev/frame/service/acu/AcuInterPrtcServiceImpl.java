@@ -13,6 +13,7 @@ import com.xy.netdev.transit.IDataReciveService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -54,16 +55,30 @@ public class AcuInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
                     BeanUtil.copyProperties(frameParaInfo, paraInfo, true);
                     BeanUtil.copyProperties(respData, paraInfo, true);
                     paraInfo.setLen(Integer.parseInt(frameParaInfo.getParaByteLen()));
-                    paraInfo.setParaVal(
-                            byteToNumber(bytes, frameParaInfo.getParaStartPoint(),
-                                    Integer.parseInt(frameParaInfo.getParaByteLen())
+                    String val = byteToNumber(bytes, frameParaInfo.getParaStartPoint(),
+                            Integer.parseInt(frameParaInfo.getParaByteLen())
                             ,isUnsigned(sysParamService, frameParaInfo.getAlertPara())
                             ,isFloat(sysParamService, frameParaInfo.getAlertPara())
-                            ).toString());
+                    ).toString();
+                    if(paraInfo.getParaNo().equals("18") || paraInfo.getParaNo().equals("20")){
+                        if(val.length()>=4){
+                            val = val.substring(0,3)+"."+val.substring(3,4);
+                        }
+                    }
+                    if(paraInfo.getParaNo().equals("19")){
+                        if(val.length()>=3){
+                            val = val.substring(0,2)+"."+val.substring(2,3);
+                        }
+                    }
+                    paraInfo.setParaVal(val);
                     return paraInfo;
                 }).collect(Collectors.toList());
         respData.setFrameParaList(frameParaDataList);
         dataReciveService.paraQueryRecive(respData);
         return respData;
     }
+
+
+
+
 }

@@ -95,19 +95,24 @@ public class FrameParaInfo {
     @ApiModelProperty(value = "数据内外转换值域")
     private String transRule;
 
+    @ApiModelProperty(value = "上报网管下拉选则映射")
+    private String combRule;
+
+    @ApiModelProperty(value = "显示模式")
+    private String ndpaShowMode;
     /**
      * 数据内->外转换值域map
      * on:1
      */
     @ApiModelProperty(value = "数据内->外转换值域map")
-    private Map<String,Integer> transIntoOutMap;
+    private Map<String,String> transIntoOutMap;
 
     /**
      * 数据内->外转换值域map
      * 1:on
      */
     @ApiModelProperty(value = "数据外->内转换值域map")
-    private Map<Integer,String> transOuttoInMap;
+    private Map<String,String> transOuttoInMap;
 
     @ApiModelProperty(value = "字段类型")
     private String alertPara;

@@ -444,6 +444,10 @@ public interface SysConfigConstant {
     String PARA_DATA_TYPE_INT = "0023002";
 
     /**
+     * 参数数据类型--uint
+     */
+    String PARA_DATA_TYPE_UINT = "0023003";
+    /**
      * 参数数据类型--str
      */
     String  PARA_DATA_TYPE_STR = "0023004";
