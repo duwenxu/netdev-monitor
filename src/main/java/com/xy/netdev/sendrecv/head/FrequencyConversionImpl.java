@@ -91,7 +91,7 @@ public class FrequencyConversionImpl extends AbsDeviceSocketHandler<SocketEntity
         if(StringUtils.isNotEmpty(frameRespData.getCmdMark())){
             //获取设备CMD信息, '/'为调制解调器特殊格式, 因为调制解调器cmd为字符串, 不能进行十六进制转换, 所以特殊区分
             if (!StrUtil.contains(frameRespData.getCmdMark(), '/') && !StrUtil.contains(frameRespData.getCmdMark(), '?')) {
-                cmdMark =  Integer.toHexString(Integer.parseInt(frameRespData.getCmdMark(), 16));
+                cmdMark =  frameRespData.getCmdMark();
             } else {
                 cmdMark =  StrUtil.removeAll(frameRespData.getCmdMark(), '/','?');
             }

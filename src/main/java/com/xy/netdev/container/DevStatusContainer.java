@@ -9,6 +9,7 @@ import com.xy.netdev.monitor.bo.DevStatusInfo;
 import com.xy.netdev.monitor.bo.ParaViewInfo;
 import com.xy.netdev.monitor.bo.TransRule;
 import com.xy.netdev.monitor.entity.BaseInfo;
+import com.xy.netdev.rpt.bo.RptParaStatus;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,6 +34,13 @@ public class DevStatusContainer {
      * 设备日志信息MAP K设备编号 V设备状态信息
      */
     private static Map<String,DevStatusInfo> devStatusMap = new HashMap<>();
+
+    /**
+     * 设备上报参数状态记录信息
+     */
+    private static Map<String,Map<String,List<RptParaStatus>>> devParamRptMap  = new HashMap<>();
+
+    private static String EXCEPTION_STATUS = "1";
 
     /**
      * @功能：当系统启动时,进行初始化各设备报警信息
@@ -113,7 +121,8 @@ public class DevStatusContainer {
      * @param isInterrupt    中断状态
      * @return 状态是否发生改变  true 改变  false 未改变
      */
-    public synchronized static boolean setInterrupt(String devNo,String isInterrupt) {
+    public synchronized static boolean setInterrupt(String devNo,String isInterrupt,String rptType) {
+        isInterrupt = getDevAllPramsStatus(devNo,isInterrupt,rptType);
         DevStatusInfo devStatusInfo = devStatusMap.get(devNo);
         if(!devStatusInfo.getIsInterrupt().equals(isInterrupt)){
             devStatusInfo.setIsInterrupt(isInterrupt);
@@ -123,13 +132,17 @@ public class DevStatusContainer {
         return false;
     }
 
+
+
     /**
      * @功能：添加设备报警状态
      * @param devNo    设备编号
      * @param isAlarm    报警状态
+     * @param rptType    上报类型
      * @return 状态是否发生改变  true 改变  false 未改变
      */
-    public synchronized static boolean setAlarm(String devNo,String isAlarm) {
+    public synchronized static boolean setAlarm(String devNo,String isAlarm,String rptType) {
+        isAlarm = getDevAllPramsStatus(devNo,isAlarm,rptType);
         DevStatusInfo devStatusInfo = devStatusMap.get(devNo);
         if(!devStatusInfo.getIsAlarm().equals(isAlarm)){
             devStatusInfo.setIsAlarm(isAlarm);
@@ -144,7 +157,8 @@ public class DevStatusContainer {
      * @param isUseStandby    启用主备状态
      * @return 状态是否发生改变  true 改变  false 未改变
      */
-    public synchronized static boolean setUseStandby(String devNo,String isUseStandby) {
+    public synchronized static boolean setUseStandby(String devNo,String isUseStandby,String rptType) {
+        isUseStandby = getDevAllPramsStatus(devNo,isUseStandby,rptType);
         DevStatusInfo devStatusInfo = devStatusMap.get(devNo);
         if(!devStatusInfo.getIsUseStandby().equals(isUseStandby)){
             devStatusInfo.setIsUseStandby(isUseStandby);
@@ -160,7 +174,8 @@ public class DevStatusContainer {
      * @param masterOrSlave    主用还是备用状态
      * @return 状态是否发生改变  true 改变  false 未改变
      */
-    public synchronized static boolean setMasterOrSlave(String devNo,String masterOrSlave) {
+    public synchronized static boolean setMasterOrSlave(String devNo,String masterOrSlave,String rptType) {
+        masterOrSlave = getDevAllPramsStatus(devNo,masterOrSlave,rptType);
         //设置主备列表中非当前变化设备的主备状态
         BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(devNo);
         String devType = baseInfo.getDevType();
@@ -172,7 +187,7 @@ public class DevStatusContainer {
         }else if (baseInfo.getDevType().equals(SysConfigConstant.DEVICE_CAR_GF)){
             return handlerMasterOfGf(devNo,masterOrSlave);
         } else {
-            masterSlaveDevList.forEach(devInfo->{
+            for (BaseInfo devInfo : masterSlaveDevList) {
                 if(!devInfo.getDevNo().equals(devNo)){
                     if(masterOrSlave.equals(SysConfigConstant.RPT_DEV_STATUS_MASTERORSLAVE_SLAVE)){
                         devStatusMap.get(devInfo.getDevNo()).setMasterOrSlave(SysConfigConstant.RPT_DEV_STATUS_MASTERORSLAVE_MASTER);
@@ -180,7 +195,7 @@ public class DevStatusContainer {
                         devStatusMap.get(devInfo.getDevNo()).setMasterOrSlave(SysConfigConstant.RPT_DEV_STATUS_MASTERORSLAVE_SLAVE);
                     }
                 }
-            });
+            }
             //设置当前设备的主备状态,如果发生变化返回true
             DevStatusInfo devStatusInfo = devStatusMap.get(devNo);
             if(!devStatusInfo.getMasterOrSlave().equals(masterOrSlave)){
@@ -300,7 +315,8 @@ public class DevStatusContainer {
      * @param workStatus    工作状态
      * @return 状态是否发生改变  true 改变  false 未改变
      */
-    public synchronized static boolean setWorkStatus(String devNo,String workStatus) {
+    public synchronized static boolean setWorkStatus(String devNo,String workStatus,String rptType) {
+        workStatus = getDevAllPramsStatus(devNo,workStatus,rptType);
         DevStatusInfo devStatusInfo = devStatusMap.get(devNo);
         if(!devStatusInfo.getWorkStatus().equals(workStatus)){
             devStatusInfo.setWorkStatus(workStatus);
@@ -342,4 +358,61 @@ public class DevStatusContainer {
     public static void cleanCache(){
         devStatusMap.clear();
     }
+
+
+    /**
+     * 添加设备参数状态上报记录
+     * @param devNo
+     * @param paramNo
+     * @param rptType
+     * @param status
+     */
+    public static void addParamStatus(String devNo,String paramNo,String rptType, String status){
+        RptParaStatus paraStatus = new RptParaStatus();
+        paraStatus.setParamNo(paramNo);
+        paraStatus.setRptType(rptType);
+        paraStatus.setStatus(status);
+        if(devParamRptMap.containsKey(devNo)){
+            Map<String,List<RptParaStatus>> paraRptMap = devParamRptMap.get(devNo);
+            if(paraRptMap.containsKey(rptType)){
+                paraRptMap.get(rptType).add(paraStatus);
+            }else{
+                List<RptParaStatus> paras = new ArrayList<>();
+                paras.add(paraStatus);
+                paraRptMap.put(rptType,paras);
+            }
+        }else{
+            Map<String,List<RptParaStatus>> paraRptMap = new HashMap<>();
+            List<RptParaStatus> paras = new ArrayList<>();
+            paras.add(paraStatus);
+            devParamRptMap.put(devNo,paraRptMap);
+        }
+    }
+
+    /**
+     * 获取设备参数状态上报记录
+     * @return
+     */
+    public static Map<String,Map<String,List<RptParaStatus>>> getDevParamRptMap(){
+        return  devParamRptMap;
+    }
+
+    /**
+     * 获取设备所以参数的上报状态
+     * @param devNo
+     * @param status
+     * @param rptType
+     * @return
+     */
+    public static String getDevAllPramsStatus(String devNo,String status,String rptType){
+        List<RptParaStatus> paraStatuses =  devParamRptMap.get(devNo).get(rptType);
+        for (RptParaStatus paraStatus : paraStatuses) {
+            if(paraStatus.getStatus().equals(EXCEPTION_STATUS)){
+                status = EXCEPTION_STATUS;
+                break;
+            }
+        }
+        return status;
+    }
+
 }

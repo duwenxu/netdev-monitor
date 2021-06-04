@@ -163,7 +163,7 @@ public class ScheduleQuery  implements ApplicationRunner{
                     String devNo = baseInfo.getDevNo();
                     log.debug("设备：[{}]Ping地址：[{}]成功：{}", baseInfo.getDevName(),baseInfo.getDevIpAddr(),ping);
                     String isActive = ping ? "0" : "1";
-                    DevStatusContainer.setInterrupt(devNo, isActive);
+                    DevStatusContainer.setInterrupt(devNo, isActive,SysConfigConstant.DEV_STATUS_INTERRUPT);
 //                    devStatusReportService.rptInterrupted(devNo,isActive);
                 });
             }
