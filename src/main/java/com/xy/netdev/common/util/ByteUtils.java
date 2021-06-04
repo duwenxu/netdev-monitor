@@ -129,6 +129,16 @@ public class ByteUtils {
                 break;
             default:
                 data = obj.toString().getBytes(Charset.forName("GB2312"));
+//                int dataLen = data.length;
+//                List<byte[]> dataList = new ArrayList<>();
+//                if(dataLen<len){
+//                    for (int i = 0; i < len-dataLen ; i++) {
+//                        byte[] val = {(byte)0x00};
+//                        dataList.add(val);
+//                    }
+//                }
+//                dataList.add(data);
+//                data = listToBytes(dataList);
                 break;
         }
         return data;
