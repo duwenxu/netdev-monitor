@@ -3,20 +3,14 @@ package com.xy.netdev.container;
 
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
-import com.xy.netdev.frame.bo.FrameParaData;
-import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.monitor.bo.DevStatusInfo;
 import com.xy.netdev.monitor.bo.ParaViewInfo;
-import com.xy.netdev.monitor.bo.TransRule;
 import com.xy.netdev.monitor.entity.BaseInfo;
-import com.xy.netdev.rpt.bo.RptParaStatus;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
-
-import static com.xy.netdev.monitor.constant.MonitorConstants.SUB_MODEM;
 
 /**
  * <p>
@@ -38,7 +32,7 @@ public class DevStatusContainer {
     /**
      * 设备上报参数状态记录信息
      */
-    private static Map<String,Map<String,List<RptParaStatus>>> devParamRptMap  = new HashMap<>();
+    private static Map<String,Map<String,Map<String,String>>> devParamRptMap  = new HashMap<>();
 
     private static String EXCEPTION_STATUS = "1";
 
@@ -368,23 +362,19 @@ public class DevStatusContainer {
      * @param status
      */
     public static void addParamStatus(String devNo,String paramNo,String rptType, String status){
-        RptParaStatus paraStatus = new RptParaStatus();
-        paraStatus.setParamNo(paramNo);
-        paraStatus.setRptType(rptType);
-        paraStatus.setStatus(status);
         if(devParamRptMap.containsKey(devNo)){
-            Map<String,List<RptParaStatus>> paraRptMap = devParamRptMap.get(devNo);
+            Map<String,Map<String,String>> paraRptMap = devParamRptMap.get(devNo);
             if(paraRptMap.containsKey(rptType)){
-                paraRptMap.get(rptType).add(paraStatus);
+                paraRptMap.get(rptType).put(paramNo,status);
             }else{
-                List<RptParaStatus> paras = new ArrayList<>();
-                paras.add(paraStatus);
+                Map<String,String> paras = new HashMap<>();
+                paras.put(paramNo,status);
                 paraRptMap.put(rptType,paras);
             }
         }else{
-            Map<String,List<RptParaStatus>> paraRptMap = new HashMap<>();
-            List<RptParaStatus> paras = new ArrayList<>();
-            paras.add(paraStatus);
+            Map<String,Map<String,String>> paraRptMap = new HashMap<>();
+            Map<String,String> paras = new HashMap<>();
+            paras.put(paramNo,status);
             devParamRptMap.put(devNo,paraRptMap);
         }
     }
@@ -393,7 +383,7 @@ public class DevStatusContainer {
      * 获取设备参数状态上报记录
      * @return
      */
-    public static Map<String,Map<String,List<RptParaStatus>>> getDevParamRptMap(){
+    public static Map<String,Map<String,Map<String,String>>> getDevParamRptMap(){
         return  devParamRptMap;
     }
 
@@ -405,9 +395,9 @@ public class DevStatusContainer {
      * @return
      */
     public static String getDevAllPramsStatus(String devNo,String status,String rptType){
-        List<RptParaStatus> paraStatuses =  devParamRptMap.get(devNo).get(rptType);
-        for (RptParaStatus paraStatus : paraStatuses) {
-            if(paraStatus.getStatus().equals(EXCEPTION_STATUS)){
+        Map<String,String> paraStatusMap =  devParamRptMap.get(devNo).get(rptType);
+        for (String value : paraStatusMap.values()) {
+            if(value.equals(EXCEPTION_STATUS)){
                 status = EXCEPTION_STATUS;
                 break;
             }
