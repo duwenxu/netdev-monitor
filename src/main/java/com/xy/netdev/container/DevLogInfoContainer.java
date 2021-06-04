@@ -105,6 +105,10 @@ public class DevLogInfoContainer {
         devParaSetRespStatusMap.get(devNo).put(paraNo,paraRespstatus);
     }
 
+    public synchronized static String getParaRespStatus(String devNo,String paraNo) {
+        return devParaSetRespStatusMap.get(devNo).get(paraNo);
+    }
+
     /**
      * @功能：设备参数发送前初始化响应状态
      * @param devNo             设备编号
@@ -273,7 +277,6 @@ public class DevLogInfoContainer {
         if(reqData.getIsOk().equals("0")){
             return "执行结果:发送成功";
         }
-        setReqParaRepsStatus("1",reqData);
         return "执行结果:发送失败";
     }
     /**
@@ -282,12 +285,12 @@ public class DevLogInfoContainer {
      * @param reqData        协议解析请求数据
      * @return
      */
-    private static void setReqParaRepsStatus(String repsStatus,FrameReqData reqData){
+    public static void setReqParaRepsStatus(String repsStatus,FrameReqData reqData){
         //当参数控制发送时,未发送成功时,设置参数响应状态为失败
-        if(reqData.getOperType().equals(SysConfigConstant.OPREATE_CONTROL)&&!repsStatus.equals("0")){
+        if(reqData.getOperType().equals(SysConfigConstant.OPREATE_CONTROL)&&repsStatus.equals("0")){
             if(reqData.getFrameParaList()!=null&&!reqData.getFrameParaList().isEmpty()){
                 reqData.getFrameParaList().forEach(frameParaData -> {
-                    addParaRespStatus(reqData.getDevNo(),frameParaData.getParaNo(),PARA_REPS_STATUS_FAIL);
+                    addParaRespStatus(reqData.getDevNo(),frameParaData.getParaNo(),PARA_REPS_STATUS_SUCCEED);
                 });
             }
         }

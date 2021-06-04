@@ -82,6 +82,8 @@ public class DataSendServiceImpl implements IDataSendService {
     public void notifyNetworkResult(FrameReqData frameReqData) {
         DevLogInfoContainer.handlerReqDevPara(frameReqData);//记录日志
         DevIfeMegSend.sendLogToDev(frameReqData.getDevNo());//操作日志websocet推前台
+        //更新设置状态
+        DevLogInfoContainer.setReqParaRepsStatus(frameReqData.getIsOk(),frameReqData);
         handlerAlertInfo(frameReqData);//处理报警信息
     }
 }

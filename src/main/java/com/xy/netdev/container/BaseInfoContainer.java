@@ -322,16 +322,16 @@ public class BaseInfoContainer {
      * @功能：根据设备IP地址 获取设备信息
      */
     public static List<BaseInfo> getDevInfo(String devIPAddr) {
+        List<BaseInfo> baseInfos = new ArrayList<>();
         if (devMap.containsKey(devIPAddr)) {
-            return devMap.get(devIPAddr);
+            baseInfos.addAll( devMap.get(devIPAddr));
         } else {
             String rptIpAddr = sysParamService.getParaRemark1(RPT_IP_ADDR);
             if (rptIpAddr.equals(devIPAddr)) {
-                List<BaseInfo> baseInfos = new ArrayList<>();
                 baseInfos.add(genRptBaseInfo());
             }
         }
-        throw new BaseException("接收到的IP地址有误,IP地址为:" + devIPAddr + ",请检查!");
+        return baseInfos;
     }
 
     /**

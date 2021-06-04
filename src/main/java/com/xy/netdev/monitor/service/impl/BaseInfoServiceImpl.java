@@ -213,15 +213,15 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
             } else {
                 paraMap.put("showMode", showMap);
                 /***********************增加range节点********************************/
-                if (!StringUtils.isBlank(parainfo.getNdpaValMax())) {
+                if (!StringUtils.isBlank(parainfo.getNdpaValMax1())) {
                     Map<String, Object> rangeMap = new LinkedHashMap<>();
                     String name = sysParamService.getParaRemark2(parainfo.getNdpaDatatype());
                     if (StringUtils.isBlank(name)) {
                         throw new BaseException("参数["+parainfo.getNdpaName()+"]数据类型配置有误!");
                     } else {
                         rangeMap.put("-name", name);
-                        rangeMap.put("-down", ParaHandlerUtil.generateEmptyStr(parainfo.getNdpaValMin()));
-                        rangeMap.put("-up", ParaHandlerUtil.generateEmptyStr(parainfo.getNdpaValMax()));
+                        rangeMap.put("-down", ParaHandlerUtil.generateEmptyStr(parainfo.getNdpaValMin1()));
+                        rangeMap.put("-up", ParaHandlerUtil.generateEmptyStr(parainfo.getNdpaValMax1()));
                         rangeMap.put("-step", ParaHandlerUtil.generateEmptyStr(parainfo.getNdpaValStep()));
                         paraMap.put("range", new LinkedHashMap() {{
                             put("IRange", rangeMap);

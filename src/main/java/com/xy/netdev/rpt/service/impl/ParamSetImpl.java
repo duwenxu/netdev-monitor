@@ -2,9 +2,11 @@ package com.xy.netdev.rpt.service.impl;
 
 import cn.hutool.core.util.HexUtil;
 import com.xy.netdev.admin.service.ISysParamService;
+import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
+import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.rpt.bo.RptBodyDev;
 import com.xy.netdev.rpt.bo.RptHeadDev;
 import com.xy.netdev.rpt.enums.StationCtlRequestEnums;
@@ -68,9 +70,17 @@ public class ParamSetImpl implements RequestService, ResponseService {
             index+=2;
             FrameParaData frameParaData = new FrameParaData();
             frameParaData.setParaNo(String.valueOf(paraNo));
-            frameParaData.setParaVal(HexUtil.encodeHexStr(ByteUtils.byteArrayCopy(dataBytes, index, devParamLen)));
+            String devType = BaseInfoContainer.getDevInfoByNo(String.valueOf(devNo)).getDevType();
+            FrameParaInfo paraDetail = BaseInfoContainer.getParaInfoByNo(devType,String.valueOf(paraNo));
+            String val = "";
+            if(paraDetail.getDataType().equals(SysConfigConstant.PARA_DATA_TYPE_BYTE)){
+                val = HexUtil.encodeHexStr(ByteUtils.byteArrayCopy(dataBytes, index, devParamLen));
+            }else{
+                val = new String(ByteUtils.byteArrayCopy(dataBytes, index, devParamLen));
+            }
+            frameParaData.setParaVal(val);
             frameParaData.setDevNo(String.valueOf(devNo));
-            frameParaData.setDevType(BaseInfoContainer.getDevInfoByNo(String.valueOf(devNo)).getDevType());
+            frameParaData.setDevType(devType);
             frameParaData.setLen(devParamLen);
             index+=devParamLen;
             devParaList.add(frameParaData);

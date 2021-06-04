@@ -78,13 +78,21 @@ public class ParaInfo extends Model<ParaInfo> {
     @Param
     private String ndpaShowMode;
 
-    @ApiModelProperty(value = "最大值")
-    @TableField(value = "NDPA_VAL_MAX")
-    private String ndpaValMax;
+    @ApiModelProperty(value = "最大值1")
+    @TableField(value = "NDPA_VAL_MAX1")
+    private String ndpaValMax1;
 
-    @ApiModelProperty(value = "最小值")
-    @TableField(value = "NDPA_VAL_MIN")
-    private String ndpaValMin;
+    @ApiModelProperty(value = "最小值1")
+    @TableField(value = "NDPA_VAL_MIN1")
+    private String ndpaValMin1;
+
+    @ApiModelProperty(value = "最大值2")
+    @TableField(value = "NDPA_VAL_MAX2")
+    private String ndpaValMax2;
+
+    @ApiModelProperty(value = "最小值2")
+    @TableField(value = "NDPA_VAL_MIN2")
+    private String ndpaValMin2;
 
     @ApiModelProperty(value = "设备XML模型数据格式")
     @TableField(value = "NDPA_VAL_FORMAT")
