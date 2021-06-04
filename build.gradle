@@ -12,6 +12,9 @@ repositories {
 	maven { url = 'http://nexus.xy.in/repository/xy-maven/' }
 	maven { url = 'http://maven.aliyun.com/nexus/contet/groups/public/' }
 	mavenCentral()
+	flatDir{
+		dirs 'libs'
+	}
 }
 
 dependencies {
@@ -30,19 +33,22 @@ dependencies {
 	compile 'org.projectlombok:lombok:1.18.18'
 	implementation 'cn.hutool:hutool-all:5.5.8'
 	implementation 'com.lmax:disruptor:3.4.2'
+	//snmp协议支持
+	implementation group: 'org.snmp4j', name: 'snmp4j', version: '2.5.0'
+
 
 //	若无法读取中心jar则放开如下配置，并注释compile 'com.xy:xy-base-core:1.0.3-SNAPSHOT'
-//	implementation 'org.springframework.boot:spring-boot-starter-web:2.1.7.RELEASE'
-//	implementation 'org.springframework.boot:spring-boot-starter-aop:2.1.7.RELEASE'
-//	implementation 'org.springframework.boot:spring-boot-starter-jdbc:2.1.7.RELEASE'
-//	implementation 'org.springframework.boot:spring-boot-starter-test:2.1.7.RELEASE'
-//	implementation 'commons-io:commons-io:2.5'
-//	implementation 'javax.servlet:javax.servlet-api:4.0.1'
-//	implementation 'mysql:mysql-connector-java:8.0.16'
-//	implementation 'joda-time:joda-time:2.10'
-//	implementation 'com.auth0:java-jwt:3.11.0'
-//	implementation 'commons-beanutils:commons-beanutils:1.9.3'
-//	implementation 'org.apache.commons:commons-lang3:3.3.2'
+	implementation 'org.springframework.boot:spring-boot-starter-web:2.1.7.RELEASE'
+	implementation 'org.springframework.boot:spring-boot-starter-aop:2.1.7.RELEASE'
+	implementation 'org.springframework.boot:spring-boot-starter-jdbc:2.1.7.RELEASE'
+	implementation 'org.springframework.boot:spring-boot-starter-test:2.1.7.RELEASE'
+	implementation 'commons-io:commons-io:2.5'
+	implementation 'javax.servlet:javax.servlet-api:4.0.1'
+	implementation 'mysql:mysql-connector-java:8.0.16'
+	implementation 'joda-time:joda-time:2.10'
+	implementation 'com.auth0:java-jwt:3.11.0'
+	implementation 'commons-beanutils:commons-beanutils:1.9.3'
+	implementation 'org.apache.commons:commons-lang3:3.3.2'
 }
 
 test {

@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSON;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.util.BeanFactoryUtil;
 import com.xy.netdev.container.BaseInfoContainer;
+import com.xy.netdev.factory.SingletonFactory;
 import com.xy.netdev.frame.bo.ExtParamConf;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
@@ -72,7 +73,7 @@ public class ModemScmmPrtcServiceImpl implements IParaPrtclAnalysisService {
         FrameParaInfo paraInfoByNo = BaseInfoContainer.getParaInfoByNo(paraData.getDevType(), paraData.getParaNo());
         String configClass = paraInfoByNo.getNdpaRemark2Data();
         String configParams = paraInfoByNo.getNdpaRemark3Data();
-        ParamCodec handler = new DirectParamCodec();
+        ParamCodec handler = SingletonFactory.getInstance(DirectParamCodec.class);
         Object[] params = new Object[0];
         ExtParamConf paramConf = new ExtParamConf();
         if (!StringUtils.isBlank(configParams)) {

@@ -6,14 +6,14 @@ import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
-import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.service.IBaseInfoService;
+import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import com.xy.netdev.transit.IDataReciveService;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -40,6 +40,8 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
     /**设备物理广播地址*/
     public final static String BROADCAST_ADDR = "255";
 
+    public final static String FORMAT = "#";
+
 
     @Autowired
     SocketMutualService socketMutualService;
@@ -56,7 +58,7 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
     @Override
     public void queryPara(FrameReqData reqInfo) {
         StringBuilder sb = new StringBuilder();
-        String localAddr = getDevLocalAddr(reqInfo);
+        String localAddr = "001";
         sb.append(SEND_START_MARK).append(localAddr).append("/")
                 .append(reqInfo.getCmdMark());
         String command = sb.toString();
@@ -72,17 +74,27 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
     @Override
     public FrameRespData queryParaResponse(FrameRespData respData) {
         String respStr = new String(respData.getParamBytes());
-        int beginIdx = respStr.indexOf("/");
-        int endIdx = respStr.indexOf("_");
-        String value = respStr.substring(endIdx+1,respStr.indexOf(StrUtil.CRLF));
+        respStr = respStr.substring(1);
+        String[] respArr = null;
+        if(respStr.contains(RESP_START_MARK)){
+            respArr = respStr.split(RESP_START_MARK);
+        }else{
+            respArr = new String[]{respStr};
+        }
         List<FrameParaData> frameParas = new ArrayList<>();
-        FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),respData.getCmdMark());
-        FrameParaData frameParaData = new FrameParaData();
-        String cmdMark = respData.getCmdMark();
-        BeanUtil.copyProperties(frameParaInfo, frameParaData, true);
-        frameParaData.setDevNo(respData.getDevNo());
-        frameParaData.setParaVal(value);
-        frameParas.add(frameParaData);
+        for (int i = 0; i < respArr.length; i++) {
+            String addr = respArr[i].substring(0,3);
+            int beginIdx = respArr[i].indexOf("/");
+            int endIdx = respArr[i].indexOf("_");
+            String value = respStr.substring(endIdx+1,respStr.indexOf(StrUtil.CRLF));
+            FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),respData.getCmdMark());
+            FrameParaData frameParaData = new FrameParaData();
+            String cmdMark = respData.getCmdMark();
+            BeanUtil.copyProperties(frameParaInfo, frameParaData, true);
+            frameParaData.setDevNo(getDevNo(addr));
+            frameParaData.setParaVal(value);
+            frameParas.add(frameParaData);
+        }
         respData.setFrameParaList(frameParas);
         dataReciveService.paraQueryRecive(respData);
         return respData;
@@ -95,7 +107,7 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
     @Override
     public void ctrlPara(FrameReqData reqInfo) {
         StringBuilder sb = new StringBuilder();
-        String localAddr = getDevLocalAddr(reqInfo);
+        String localAddr = "001";
         sb.append(SEND_START_MARK).append(localAddr).append("/").append(reqInfo.getCmdMark())
                 .append("_").append(reqInfo.getFrameParaList().get(0).getParaVal());
         String command = sb.toString();
@@ -159,6 +171,25 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
         baseInfo.setDevLocalAddr(reqInfo.getFrameParaList().get(0).getParaVal());
         baseInfoService.updateById(baseInfo);
         BaseInfoContainer.updateBaseInfo(devNo);
+    }
+
+    private String getDevNo(String addr){
+        String devNo = "";
+        switch (addr){
+            case "001":
+                devNo = "42";
+                break;
+            case "010":
+                devNo = "40";
+                break;
+            case "011":
+                devNo = "41";
+                break;
+            default:
+                devNo = "42";
+                break;
+        }
+        return devNo;
     }
 
 }

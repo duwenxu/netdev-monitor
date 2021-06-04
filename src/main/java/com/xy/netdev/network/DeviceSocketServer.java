@@ -13,6 +13,9 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -21,6 +24,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import static com.xy.netdev.common.constant.SysConfigConstant.RPT_IP_ADDR;
 import static com.xy.netdev.container.BaseInfoContainer.getDevInfos;
 
 /**
@@ -45,7 +49,6 @@ public class DeviceSocketServer {
         Collection<BaseInfo> devInfos = getDevInfos();
         ThreadUtil.execute(() -> run(devInfos));
     }
-
     @SneakyThrows
     private void run(Collection<BaseInfo> devInfos)  {
         Optional<String> optional = devInfos.stream()
@@ -71,6 +74,8 @@ public class DeviceSocketServer {
                 tcpList.add(baseInfo);
             }
         });
+        Integer port_54 = Integer.parseInt(sysParamService.getParaRemark2(RPT_IP_ADDR));
+        udpPort.add(port_54);
         udpStart(udpPort);
         tcpStart(tcpList);
     }

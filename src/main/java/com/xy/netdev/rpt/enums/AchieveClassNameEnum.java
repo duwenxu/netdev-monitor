@@ -2,6 +2,7 @@ package com.xy.netdev.rpt.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.ToString;
 
 @AllArgsConstructor
 @Getter
@@ -14,5 +15,5 @@ public enum AchieveClassNameEnum {
     ;
 
     private final String classNameZh;
-    private final String className;
+    private final String clazzName;
 }

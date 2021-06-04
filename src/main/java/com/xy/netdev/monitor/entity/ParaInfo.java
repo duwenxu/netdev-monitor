@@ -86,6 +86,10 @@ public class ParaInfo extends Model<ParaInfo> {
     @TableField(value = "NDPA_VAL_MIN")
     private String ndpaValMin;
 
+    @ApiModelProperty(value = "设备XML模型数据格式")
+    @TableField(value = "NDPA_VAL_FORMAT")
+    private String ndpaValFormat;
+
     @ApiModelProperty(value = "步进")
     @TableField(value = "NDPA_VAL_STEP")
     private String ndpaValStep;
@@ -112,9 +116,13 @@ public class ParaInfo extends Model<ParaInfo> {
     @TableField(value = "NDPA_OUTTER_STATUS")
     private String ndpaOutterStatus;
 
-    @ApiModelProperty(value = "提供给54所时 数据映射规则")
+    @ApiModelProperty(value = "设备状态上报数据映射规则")
     @TableField(value = "NDPA_TRANS_RULE")
     private String ndpaTransRule;
+
+    @ApiModelProperty(value = "枚举类型参数，上报规则")
+    @TableField(value = "NDPA_COMB_RULE")
+    private String ndpaCombRule;
 
     @ApiModelProperty(value = "字段类型")
     @Param

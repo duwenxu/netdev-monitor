@@ -90,6 +90,10 @@ public class BaseInfo extends Model<BaseInfo> {
     @Param
     private String devDeployType;
 
+    @ApiModelProperty(value = "菜单显示顺序")
+    @TableField(value = "DEV_MENU_SEQ")
+    private Integer devMenuSeq;
+
     /**
      * 0032001 设备使用状态-在用  0032002 设备使用状态-不在用
      */

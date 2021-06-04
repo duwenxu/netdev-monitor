@@ -4,6 +4,8 @@ import cn.hutool.core.util.HexUtil;
 import com.xy.netdev.frame.service.ParamCodec;
 import org.springframework.stereotype.Component;
 
+import java.util.Locale;
+
 /**
  * 16进制byte[]直接转换
  *
@@ -15,7 +17,7 @@ public class DirectParamCodec implements ParamCodec {
 
     @Override
     public String decode(byte[] bytes, Object... objects) {
-        return HexUtil.encodeHexStr(bytes);
+        return HexUtil.encodeHexStr(bytes).toUpperCase();
     }
 
     @Override

@@ -1,11 +1,17 @@
 package com.xy.netdev.rpt.service.impl;
 
+import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.util.ByteUtils;
+import com.xy.netdev.container.BaseInfoContainer;
+import com.xy.netdev.container.DevParaInfoContainer;
+import com.xy.netdev.monitor.bo.FrameParaInfo;
+import com.xy.netdev.monitor.constant.MonitorConstants;
 import com.xy.netdev.rpt.bo.RptBodyDev;
 import com.xy.netdev.rpt.bo.RptHeadDev;
+import com.xy.netdev.rpt.enums.StationCtlRequestEnums;
 import com.xy.netdev.rpt.service.RequestService;
 import com.xy.netdev.rpt.service.ResponseService;
 import lombok.extern.slf4j.Slf4j;
@@ -14,9 +20,12 @@ import org.springframework.stereotype.Service;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import static com.xy.netdev.common.util.ByteUtils.listToBytes;
+import static com.xy.netdev.common.util.ByteUtils.placeholderByte;
 import static com.xy.netdev.rpt.service.StationControlHandler.*;
 
 /**
@@ -59,14 +68,23 @@ public class ParamQueryImpl implements RequestService, ResponseService {
     }
 
     @Override
-    public byte[] pack(RptHeadDev rptHeadDev) {
-        return commonPack(rptHeadDev, (devParaList, tempList) -> {
+    public byte[] pack(RptHeadDev rptHeadDev,StationCtlRequestEnums stationCtlRequestEnums) {
+        List<byte[]> dataBytes = commonPack(rptHeadDev, (devParaList, tempList) -> {
             devParaList.forEach(frameParaData -> {
-                if (frameParaData.getLen() == null){
-                log.warn("参数查询命令生成失败:{}",JSON.toJSONString(frameParaData));
-                }
-                if (StrUtil.isNotBlank(frameParaData.getParaVal())){
+//                if (frameParaData.getLen() == null) {
+//                    log.warn("参数查询命令生成失败:{}", JSON.toJSONString(frameParaData));
+//                }
+                if (StrUtil.isNotBlank(frameParaData.getParaVal())) {
+                    String paraDatatype = DevParaInfoContainer.getDevParaView(frameParaData.getDevNo(), frameParaData.getParaNo()).getParaDatatype();
                     byte[] bytes = frameParaData.getParaVal().getBytes(Charset.forName("GB2312"));
+                    if (MonitorConstants.BYTE.equals(paraDatatype)){
+                        try {
+                            bytes = HexUtil.decodeHex(frameParaData.getParaVal());
+                            ByteUtils.objToBytes(frameParaData.getParaVal(),frameParaData.getLen());
+                        } catch (Exception e) {
+                            log.warn("上报信息数据体字节转换异常：需要转换的参数值：[{}]",frameParaData.getParaVal());
+                        }
+                    }
                     //参数编号
                     tempList.add(ByteUtils.objToBytes(frameParaData.getParaNo(), 1));
                     //数据长度
@@ -77,8 +95,21 @@ public class ParamQueryImpl implements RequestService, ResponseService {
                 }
             });
         });
+        byte[] bytes = packHeadBytes(dataBytes, stationCtlRequestEnums);
+        return bytes;
     }
 
+    public byte[] packHeadBytes(List<byte[]> dataBytes,StationCtlRequestEnums stationCtlRequestEnums) {
+        byte[] data = listToBytes(dataBytes);
+        //数据字段长度
+        byte[] dataLen = ByteUtils.objToBytes(data.length, 2);
+        //数据头 预留字段
+        byte[] headPlaceHolder = placeholderByte(4);
+        //信息类别
+        byte[] type = ByteUtils.objToBytes(Integer.parseInt(stationCtlRequestEnums.getCmdCode()), 2);
+        List<byte[]> headBytes = Arrays.asList(type, dataLen, headPlaceHolder);
+        return ByteUtils.bytesMerge(listToBytes(headBytes), data);
+    }
 
 
 }

@@ -82,7 +82,7 @@ public class PowerAmpImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqD
         String hexRespType = HexUtil.toHex(respType);
 
         //数据体
-        byte[] paramBytes = byteArrayCopy(bytes, 8, hexLen);
+        byte[] paramBytes = byteArrayCopy(bytes, 8, bytes.length-10);
         //判断操作类型赋值
         if (QUERY_RES.equals(hexRespType)){
             frameRespData.setCmdMark(QUERY_CMD);

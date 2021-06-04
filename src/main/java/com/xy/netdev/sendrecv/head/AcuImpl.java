@@ -44,7 +44,6 @@ public class AcuImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, 
     @Override
     public FrameRespData unpack(SocketEntity socketEntity, FrameRespData frameRespData) {
         byte[] bytes = socketEntity.getBytes();
-        log.info(HexUtil.encodeHexStr(bytes));
         //长度为69则为主动上报. 否则为参数
         if (bytes.length == 69){
             String cmd = new String(Objects.requireNonNull(byteArrayCopy(bytes, 1, 3)));

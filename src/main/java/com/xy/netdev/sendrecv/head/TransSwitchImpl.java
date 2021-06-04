@@ -111,6 +111,8 @@ public class TransSwitchImpl extends AbsDeviceSocketHandler<SocketEntity, FrameR
         lists.add(new byte[]{0x10});
         //地址字节：1字节（00-7F）
         lists.add(HexUtil.decodeHex(BaseInfoContainer.getDevInfoByNo(frameReqData.getDevNo()).getDevRemark1Data()));
+        /**后续修改*/
+        lists.add(new byte[]{0x00});
         //获取操作关键字： 查询关键字/控制关键字
         PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameReqData.getDevType(), frameReqData.getCmdMark());
         //默认为查询
@@ -125,6 +127,7 @@ public class TransSwitchImpl extends AbsDeviceSocketHandler<SocketEntity, FrameR
         lists.add(frameReqData.getParamBytes());
         byte[] byteCheck = listToBytes(lists);
         System.arraycopy(byteCheck, 0, frameByte, 1, frameLen + 4);
+        /**************(后续修改)**************/
         //校验字节 1
         System.arraycopy(new byte[]{addGetBottom256(byteCheck,0,1)}, 0, frameByte, frameLen + 5, 1);
         //结束符 :1

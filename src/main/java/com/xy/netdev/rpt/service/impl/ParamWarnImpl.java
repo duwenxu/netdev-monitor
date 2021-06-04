@@ -1,12 +1,13 @@
 package com.xy.netdev.rpt.service.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.monitor.entity.AlertInfo;
 import com.xy.netdev.rpt.bo.RptBodyDev;
 import com.xy.netdev.rpt.bo.RptHeadDev;
+import com.xy.netdev.rpt.enums.StationCtlRequestEnums;
 import com.xy.netdev.rpt.service.RequestService;
 import com.xy.netdev.rpt.service.ResponseService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.Charset;
@@ -23,6 +24,9 @@ import static com.xy.netdev.rpt.service.StationControlHandler.*;
 @Service
 public class ParamWarnImpl implements RequestService, ResponseService {
 
+    @Autowired
+    private ParamQueryImpl paramQuery;
+
     @Override
     public RptHeadDev unpackBody(StationControlHeadEntity stationControlHeadEntity, RptHeadDev headDev) {
         return unpackCommonHead(stationControlHeadEntity, headDev, bytes ->  paramBuilder(bytes, new ArrayList<>()));
@@ -34,8 +38,8 @@ public class ParamWarnImpl implements RequestService, ResponseService {
             return list;
         }
         //设备型号
-        int devTypeCode = ByteUtils.byteToNumber(dataBytes, 0, 2).intValue();
-        //参数编号
+        int devTypeCode = ByteUtils.byteToNumber(dataBytes, 1, 1).intValue();
+        //设备编号
         int devNo = ByteUtils.byteToNumber(dataBytes, 2, 1).byteValue();
         //设备参数数量
         int paramNum = ByteUtils.byteToNumber(dataBytes, 3, 1).intValue();
@@ -54,7 +58,7 @@ public class ParamWarnImpl implements RequestService, ResponseService {
 
     @Override
     @SuppressWarnings("unchecked")
-    public byte[] pack(RptHeadDev rptHeadDev) {
+    public byte[] pack(RptHeadDev rptHeadDev,StationCtlRequestEnums stationCtlRequestEnums) {
         List<AlertInfo> alertInfos = (List<AlertInfo>) rptHeadDev.getParam();
         List<byte[]> tempList = new ArrayList<>();
         //设置头
@@ -70,6 +74,6 @@ public class ParamWarnImpl implements RequestService, ResponseService {
             tempList.add(alertDesc);
 
         });
-        return ByteUtils.listToBytes(tempList);
+        return paramQuery.packHeadBytes(tempList, StationCtlRequestEnums.PARA_ALARM_REPORT);
     }
 }

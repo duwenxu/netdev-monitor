@@ -49,6 +49,10 @@ public class FrameParaInfo {
 
     @ApiModelProperty(value = "字节长度")
     private String paraByteLen;
+
+    @ApiModelProperty(value = "字符长度")
+    private String paraStrLen;
+
     /**
      * 按照序号 累加 字节长度
      */
@@ -91,6 +95,11 @@ public class FrameParaInfo {
     @ApiModelProperty(value = "数据内外转换值域")
     private String transRule;
 
+    @ApiModelProperty(value = "上报网管下拉选则映射")
+    private String combRule;
+
+    @ApiModelProperty(value = "显示模式")
+    private String ndpaShowMode;
     /**
      * 数据内->外转换值域map
      * on:1
@@ -137,6 +146,12 @@ public class FrameParaInfo {
 
     @ApiModelProperty(value = "子参数列表")
     private List<FrameParaInfo> subParaList;
+
+    /**
+     * 是否在拓扑图显示
+     */
+    @ApiModelProperty(value = "是否在拓扑图显示")
+    private Boolean ndpaIsTopology ;
 
     /**
      * 增加参数的子参数

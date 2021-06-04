@@ -1,5 +1,6 @@
 package com.xy.netdev.container.paraext;
 
+import com.xy.netdev.common.util.ParaHandlerUtil;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.container.DevCtrlInterInfoContainer;
 import com.xy.netdev.container.DevParaInfoContainer;
@@ -10,6 +11,7 @@ import com.xy.netdev.monitor.constant.MonitorConstants;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.transit.IDevCmdSendService;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,21 +25,28 @@ import java.util.*;
 public class MsctParaExtService implements IParaExtService {
 
 
-
     @Autowired
     private IDevCmdSendService devCmdSendService;
-    private Map<String,List<ParaViewInfo>> modeMap = new HashMap<>();
+    private Map<String,Map<String,List<ParaViewInfo>>> devModeMap = new HashMap<>();
+    //当前工作模式查询接口名来字
+    public static final String CURRENT_MODE_CMD = "8205AA";
 
     @Override
     public void setCacheDevParaViewInfo(String devNo) {
-        devCmdSendService.paraQuerySend(devNo,"AA");
-        initModeParaMap(devNo);
+        Interface intf = BaseInfoContainer.getInterLinkInterface(devNo,CURRENT_MODE_CMD);
+        if(intf.getItfId()!=null) {
+            devCmdSendService.interfaceQuerySend(devNo, CURRENT_MODE_CMD);
+            initModeParaMap(devNo);
+        }
     }
 
     @Override
     public List<ParaViewInfo> getCacheDevParaViewInfo(String devNo) {
         String mode = getDevCurrMode(devNo);
-        return modeMap.get(mode);
+        List<ParaViewInfo> paras = new ArrayList<>();
+        paras.addAll(devModeMap.get(devNo).get("05"));
+        paras.addAll(devModeMap.get(devNo).get(mode));
+        return paras;
     }
 
     /**
@@ -47,7 +56,11 @@ public class MsctParaExtService implements IParaExtService {
     private String getDevCurrMode(String devNo){
         BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(devNo);
         FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(baseInfo.getDevType(),"AA");
-        String mode = frameParaInfo.getParaVal();
+        ParaViewInfo paraViewInfo = DevParaInfoContainer.getDevParaView(devNo,frameParaInfo.getParaNo());
+        String mode = paraViewInfo.getParaVal();
+        if(StringUtils.isEmpty(mode)){
+            mode = "00";
+        }
         return mode;
     }
 
@@ -56,6 +69,10 @@ public class MsctParaExtService implements IParaExtService {
      * @param devNo
      */
     private void  initModeParaMap(String devNo){
+        if(!devModeMap.containsKey(devNo)){
+            Map<String,List<ParaViewInfo>> modeMap = new HashMap<>();
+            devModeMap.put(devNo,modeMap);
+        }
         BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(devNo);
         List<Interface> interfaces = BaseInfoContainer.getInterfacesByDevType(baseInfo.getDevType());
         Map<String, Set<String>> modeParas = new HashMap<>();
@@ -63,34 +80,42 @@ public class MsctParaExtService implements IParaExtService {
             String cmdMark = anInterface.getItfCmdMark();
             String itfType = anInterface.getItfType();
             String mode = "";
-            if(itfType.equals(MonitorConstants.SINGLE_QUERY) || itfType.equals(MonitorConstants.SUB_QUERY)){
+            mode = cmdMark.substring(0,2);
+            if(itfType.equals(MonitorConstants.SINGLE_QUERY)){
                 mode = cmdMark.substring(0,2);
-                String format = anInterface.getItfDataFormat();
-                if(format.length()>0){
-                    String[] paras = format.split(",");
-                    for (int i = 0; i < paras.length; i++) {
-                        if(modeParas.containsKey(mode)){
-                            modeParas.get(mode).add(paras[i]);
-                        }else{
-                            Set<String> paraSet = new HashSet<>();
-                            paraSet.add(paras[i]);
-                            modeParas.put(mode,paraSet);
-                        }
+            }
+            if(itfType.equals(MonitorConstants.SUB_QUERY) && anInterface.getItfCmdMark().length()==6){
+                mode = cmdMark.substring(2,4);
+            }
+            String format = anInterface.getItfDataFormat();
+            if(format.length()>0){
+                String[] paras = format.split(",");
+                for (int i = 0; i < paras.length; i++) {
+                    if(modeParas.containsKey(mode)){
+                        modeParas.get(mode).add(paras[i]);
+                    }else{
+                        Set<String> paraSet = new HashSet<>();
+                        paraSet.add(paras[i]);
+                        modeParas.put(mode,paraSet);
                     }
                 }
             }
         }
         List<ParaViewInfo> paras = DevParaInfoContainer.getDevParaExtViewList(devNo);
-        for (ParaViewInfo para : paras) {
-            Integer paraId = para.getParaId();
-            for (Map.Entry<String, Set<String>> paraSet : modeParas.entrySet()) {
-                String key = paraSet.getKey();
-                if(modeMap.containsKey(key)){
-                    modeMap.get(key).add(para);
-                }else{
-                    List<ParaViewInfo> paraList = new ArrayList<>();
-                    paraList.add(para);
-                    modeMap.put(key,paraList);
+        for (Map.Entry<String, Set<String>> paraSet : modeParas.entrySet()) {
+            String key = paraSet.getKey();
+            Set<String> val = paraSet.getValue();
+            for (ParaViewInfo para : paras) {
+                for (String s : val) {
+                    if(para.getParaId()==Integer.parseInt(s)){
+                            if(devModeMap.get(devNo).containsKey(key)){
+                                devModeMap.get(devNo).get(key).add(para);
+                            }else{
+                                List<ParaViewInfo> paraList = new ArrayList<>();
+                                paraList.add(para);
+                                devModeMap.get(devNo).put(key,paraList);
+                            }
+                    }
                 }
             }
         }

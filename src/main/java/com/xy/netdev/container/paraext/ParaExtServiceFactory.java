@@ -31,7 +31,7 @@ public class ParaExtServiceFactory {
            throw new BaseException("传入的设备类型为空!");
        }
         if(devType.equals(DEV_TYPE_MSCT)){
-            SpringContextUtils.getBean("msctParaExtService");
+           return  SpringContextUtils.getBean("msctParaExtService");
         }
         //没有实现扩展的设备类型走此扩展  保持原来的逻辑
         return SpringContextUtils.getBean("doNothingParaExtService");

@@ -1,6 +1,8 @@
 package com.xy.netdev.common.constant;
 
 
+import org.apache.ibatis.type.NStringTypeHandler;
+
 /**
  * 系统配置常量*
  *
@@ -210,11 +212,6 @@ public interface SysConfigConstant {
     String  DEV_ALTER_SAVE_DAY="0100008";
 
     /**
-     * L频段4X4开关矩阵错误类型响应 设备控制到位
-     */
-    String DEV_COMMON_TYPE_CODE = "0100010";
-
-    /**
      * 操作类型--查询
      */
     String OPREATE_QUERY = "0026001";
@@ -284,6 +281,11 @@ public interface SysConfigConstant {
     String TCP = "0030002";
 
     /**
+     * SNMP
+     */
+    String SNMP = "0030003";
+
+    /**
      * 设备状态--中断
      */
     String DEV_STATUS_INTERRUPT = "0029001";
@@ -319,7 +321,7 @@ public interface SysConfigConstant {
     String PUBLIC_PARA_STATION_NO = "0100001";
 
     /**
-     * 公共参数--54所ID地址
+     * 公共参数--54所IP地址、端口号
      */
     String RPT_IP_ADDR = "0100006";
 
@@ -397,6 +399,11 @@ public interface SysConfigConstant {
     String ERR_PARENT_ID_GF = "0060";
 
     /**
+     * Comtech控制响应 应答帧错误类型 父CODE
+     */
+    String ERR_PARENT_COMTECH = "0065";
+
+    /**
      * 6914变频器 应答帧错误类型 父CODE
      */
     String ERR_PARENT_ID_6914 = "0063";
@@ -427,10 +434,19 @@ public interface SysConfigConstant {
     String INTERFACE_TYPE_SUB = "0027006";
 
     /**
-     * 参数数据类型--str
+     * 参数数据类型--BYTE
+     */
+    String PARA_DATA_TYPE_BYTE = "0023001";
+
+    /**
+     * 参数数据类型--int
      */
     String PARA_DATA_TYPE_INT = "0023002";
 
+    /**
+     * 参数数据类型--uint
+     */
+    String PARA_DATA_TYPE_UINT = "0023003";
     /**
      * 参数数据类型--str
      */
@@ -457,9 +473,45 @@ public interface SysConfigConstant {
     String  DEVICE_CAR_ANTENNA = "0020011";
 
     /**
+     * 设备类型--切换单元
+     */
+    String  DEVICE_QHDY = "0020005";
+
+    /**
+     * 设备类型--多体制卫星信道终端
+     */
+    String DEVICE_MSCT = "0020015";
+
+    /**
+     * 设备类型--转换开关
+     */
+    String DEVICE_TRANS_SWITCH = "0020021";
+
+    /**
+     * 设备类型--ACU
+     */
+    String  DEVICE_ACU = "0020001";
+
+
+    /**
+     * 设备类型--650-MODEL
+     */
+    String  DEVICE_MODEM_650 = "0020007";
+
+    /**
+     * 设备类型--变频器
+     */
+    String  DEVICE_BPQ = "0020006";
+
+    /**
      * 设备类型--君威子功放
      */
     String  DEVICE_CAR_GF = "0020003";
+
+    /**
+     * 设备类型--Comtech功放
+     */
+    String COMTECH_GF = "0020023";
 
     /**
      * 数据类型--str默认长度
@@ -470,4 +522,20 @@ public interface SysConfigConstant {
      * L频段4X4开关矩阵错误类型响应 设备控制到位
      */
     String LPD_CTRL_SUCCESS = "0064001";
+
+    /**
+     * 当前车类型
+     */
+    String CURR_CAR_TYPE = "0100011";
+
+    /**
+     * 1.5米ACU方位角调整休眠时间
+     */
+    String ACU_SLEEP_TIME = "0100012";
+
+    /**
+     * 1.5米ACU中agc阈值
+     */
+    String ACU_AGE_VALUE = "0100013";
+
 }

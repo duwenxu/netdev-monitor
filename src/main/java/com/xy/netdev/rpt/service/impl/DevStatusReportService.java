@@ -5,15 +5,18 @@ import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.container.DevAlertInfoContainer;
+import com.xy.netdev.container.DevParaInfoContainer;
 import com.xy.netdev.container.DevStatusContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.monitor.bo.DevStatusInfo;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
+import com.xy.netdev.monitor.bo.ParaViewInfo;
 import com.xy.netdev.monitor.bo.TransRule;
 import com.xy.netdev.monitor.entity.AlertInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.service.IBaseInfoService;
+import com.xy.netdev.rpt.bo.RptBodyDev;
 import com.xy.netdev.rpt.bo.RptHeadDev;
 import com.xy.netdev.rpt.enums.StationCtlRequestEnums;
 import com.xy.netdev.rpt.service.IDevStatusReportService;
@@ -26,6 +29,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.xy.netdev.common.constant.SysConfigConstant.IS_DEFAULT_TRUE;
 
 @Service
 @Slf4j
@@ -51,17 +57,6 @@ public class DevStatusReportService implements IDevStatusReportService {
         reportDevStatus(devStatusInfo);
     }
 
-    /**
-     * 上报设备未中断，恢复连接
-     * @param devNo
-     * @param status
-     */
-    @Override
-    public void rptUnInterrupted(String devNo, String status) {
-        DevStatusInfo devStatusInfo = createDevStatusInfo(devNo);
-        devStatusInfo.setIsInterrupt(status);
-        reportDevStatus(devStatusInfo);
-    }
 
     /**
      * 上报设备中断
@@ -114,13 +109,14 @@ public class DevStatusReportService implements IDevStatusReportService {
      * @param devNo
      * @return
      */
-    private DevStatusInfo createDevStatusInfo(String devNo){
+    public DevStatusInfo createDevStatusInfo(String devNo){
         DevStatusInfo devStatusInfo = new DevStatusInfo();
         BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(devNo);
         if(baseInfo==null){
             baseInfo = baseInfoService.getById(devNo);
         }
         devStatusInfo.setDevNo(baseInfo.getDevNo());
+        //TODO 上报站号 待确定 暂时先配置一个值
         devStatusInfo.setStationId(sysParamService.getParaRemark1(SysConfigConstant.PUBLIC_PARA_STATION_NO));
         devStatusInfo.setDevTypeCode(sysParamService.getParaRemark1(baseInfo.getDevType()));
         return devStatusInfo;
@@ -134,8 +130,8 @@ public class DevStatusReportService implements IDevStatusReportService {
         RptHeadDev rptHeadDev = crateRptHeadDev(devStatusInfo);
         //推送前端
         DevIfeMegSend.sendDevStatusToDev();
-        //上报站控
-        upRptPrtclAnalysisService.queryParaResponse(rptHeadDev);
+        //上报54所网关站控
+        upRptPrtclAnalysisService.queryParaResponse(rptHeadDev,StationCtlRequestEnums.DEV_STATUS_REPORT);
     }
 
 
@@ -182,7 +178,7 @@ public class DevStatusReportService implements IDevStatusReportService {
                     case SysConfigConstant.DEV_STATUS_INTERRUPT:
                         //参数返回值是否恢复中断
                         if(DevStatusContainer.setInterrupt(devNo,outerStatus)){
-                            rptUnInterrupted(devNo,outerStatus);
+                            rptInterrupted(devNo,outerStatus);
                         }
                         break;
                     case SysConfigConstant.DEV_STATUS_SWITCH:
@@ -240,7 +236,7 @@ public class DevStatusReportService implements IDevStatusReportService {
             //利用websocket主动推送告警信息
             DevIfeMegSend.sendAlertToDev(respData.getDevNo());
             RptHeadDev rptHeadDev = crateRptHeadDev(alertInfo);
-            upRptPrtclAnalysisService.queryParaResponse(rptHeadDev);
+            upRptPrtclAnalysisService.queryParaResponse(rptHeadDev,StationCtlRequestEnums.PARA_ALARM_REPORT);
         }
     }
 
@@ -259,9 +255,6 @@ public class DevStatusReportService implements IDevStatusReportService {
         rptHeadDev.setDevNo(alertInfo.getDevNo());
         return rptHeadDev;
     }
-
-
-
 
 
 }

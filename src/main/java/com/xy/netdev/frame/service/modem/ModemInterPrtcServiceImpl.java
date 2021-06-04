@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSON;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.util.BeanFactoryUtil;
 import com.xy.netdev.container.BaseInfoContainer;
+import com.xy.netdev.factory.SingletonFactory;
 import com.xy.netdev.frame.bo.ExtParamConf;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
@@ -83,6 +84,9 @@ public class ModemInterPrtcServiceImpl implements IQueryInterPrtclAnalysisServic
                 }
                 //获取单个参数的解析结果
                 FrameParaData paraData = doGetParam(respData, targetBytes, param);
+                if (null!=paraData.getParaCmk() && paraData.getParaCmk().equals("0B")){
+                    paraData.setParaVal("-"+ paraData.getParaVal());
+                }
                 frameParaDataList.add(paraData);
             }
         }
@@ -111,7 +115,7 @@ public class ModemInterPrtcServiceImpl implements IQueryInterPrtclAnalysisServic
         String confClass = currentPara.getNdpaRemark2Data();
         String confParams = currentPara.getNdpaRemark3Data();
         //默认直接转换
-        ParamCodec codec = new DirectParamCodec();
+        ParamCodec codec = SingletonFactory.getInstance(DirectParamCodec.class);
         ExtParamConf paramConf = new ExtParamConf();
         Object[] params = new Object[0];
         if (!StringUtils.isBlank(confParams)) {

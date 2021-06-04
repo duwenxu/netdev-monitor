@@ -52,6 +52,7 @@
     <logger name="org.apache.kafka" level="ERROR" additivity="true"/>
     <logger name="com.alibaba.nacos.client.naming" level="error" />
     <logger name="com.alibaba.nacos.client.naming.updater" level="error" />
+    <logger name="com.xy.netdev.websocket.send.DevIfeMegSend" level="info"/>
 
     <root level="INFO">
         <appender-ref ref="FILE" />

@@ -1,9 +1,9 @@
 package com.xy.netdev.container;
 
-import cn.hutool.core.thread.ThreadUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
+import com.xy.netdev.common.util.BeanFactoryUtil;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.entity.ParaInfo;
@@ -12,15 +12,14 @@ import com.xy.netdev.monitor.service.IBaseInfoService;
 import com.xy.netdev.monitor.service.IInterfaceService;
 import com.xy.netdev.monitor.service.IParaInfoService;
 import com.xy.netdev.monitor.service.IPrtclFormatService;
-import com.xy.netdev.network.handler.SimpleTcpMessage;
-import com.xy.netdev.network.server.NettyTcpClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-
 import javax.annotation.PostConstruct;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 /**
@@ -32,8 +31,9 @@ import java.util.stream.Collectors;
  * @since 2021-03-09
  */
 @Slf4j
+@Order(50)
 @Component
-public class BaseContainerLoader {
+public class BaseContainerLoader implements ApplicationRunner {
 
     @Autowired
     private IBaseInfoService baseInfoService;
@@ -45,7 +45,8 @@ public class BaseContainerLoader {
     private IPrtclFormatService prtclFormatService;
     @Autowired
     private ISysParamService sysParamService;
-
+    //第三类设备-动中通
+    private static String DEV_TYPE_DZT = "3";
     /**
      * 初始化信息加载
      */
@@ -58,13 +59,17 @@ public class BaseContainerLoader {
         initDevLog();
         //初始化告警信息
         initDevAlert();
+        log.info("容器信息更新完成，耗时:[" + (System.currentTimeMillis() - time) + "ms]");
+    }
+
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
         //初始化设备参数容器
         initDevParam();
         //初始化设备控制接口信息容器
         DevCtrlInterInfoContainer.initData();
         //初始化设备状态容器
         DevStatusContainer.init(sysParamService);
-        log.info("容器信息更新完成，耗时:[" + (System.currentTimeMillis() - time) + "ms]");
     }
 
     /**
@@ -121,5 +126,21 @@ public class BaseContainerLoader {
         int devAlertInfoSize = Integer.parseInt(sysParamService.getParaRemark1(SysConfigConstant.DEV_ALERT_INFO_SZIE));
         //初始化各设备日志
         DevAlertInfoContainer.init(devAlertInfoSize);
+    }
+
+    /**
+     * 清空缓存
+     */
+    public void cleanCache(){
+        BaseInfoContainer.cleanCache();
+        DevParaInfoContainer.cleanCache();
+        DevCtrlInterInfoContainer.cleanCache();
+        DevStatusContainer.cleanCache();
+        load();
+        //初始化设备参数容器
+        initDevParam();
+        DevStatusContainer.init(BeanFactoryUtil.getBean(ISysParamService.class));
+        DevCtrlInterInfoContainer.initData();
+
     }
 }

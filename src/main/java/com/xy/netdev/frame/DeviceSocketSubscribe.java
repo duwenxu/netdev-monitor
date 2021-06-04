@@ -15,6 +15,9 @@ import com.xy.netdev.sendrecv.base.AbsDeviceSocketHandler;
 import com.xy.netdev.sendrecv.entity.SocketEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -42,7 +45,10 @@ public class DeviceSocketSubscribe {
      */
     private FIFOCache<String, AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData>> cache;
 
-
+//    @Override
+//    public void run(ApplicationArguments args) throws Exception {
+//        init();
+//    }
     @PostConstruct
     public void init(){
         //队列
@@ -54,10 +60,10 @@ public class DeviceSocketSubscribe {
      * @param socketEntity socket实体
      */
     public void doResponse(SocketEntity socketEntity) throws BaseException{
-        BaseInfo devInfo = getDevInfo(socketEntity.getRemoteAddress());
+        BaseInfo devInfo = getDevInfo(socketEntity.getRemoteAddress()).get(0);
         //站控响应
         if (devInfo.getIsRptIp()!= null && Integer.parseInt(devInfo.getIsRptIp()) == 0){
-            log.debug("收到站控数据, 远端地址:{}:{},数据体:{}"
+            log.warn("收到站控数据, 远端地址:{}:{},数据体:{}"
                     , socketEntity.getRemoteAddress()
                     , socketEntity.getRemotePort()
                     , HexUtil.encodeHexStr(socketEntity.getBytes()).toUpperCase());
@@ -89,7 +95,7 @@ public class DeviceSocketSubscribe {
             return Optional.of(socketHandler);
         }
         //设备信息
-        BaseInfo devInfo = getDevInfo(ip);
+        BaseInfo devInfo = getDevInfo(ip).get(0);
         if (devInfo == null){
             log.warn("响应处理未找到指定设备信息, 执行方法getDevInfo(ip), 设备ip:{}", ip);
             return Optional.empty();

@@ -6,6 +6,7 @@ import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson.JSON;
 import com.xy.netdev.common.util.BeanFactoryUtil;
 import com.xy.netdev.container.BaseInfoContainer;
+import com.xy.netdev.factory.SingletonFactory;
 import com.xy.netdev.frame.bo.ExtParamConf;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
@@ -17,6 +18,7 @@ import com.xy.netdev.frame.service.codec.DirectParamCodec;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import com.xy.netdev.transit.IDataReciveService;
+import com.xy.netdev.transit.impl.DataReciveServiceImpl;
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -41,7 +43,7 @@ public class ModemScmmInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSe
     @Autowired
     private SocketMutualService socketMutualService;
     @Autowired
-    private IDataReciveService dataReciveService;
+    private DataReciveServiceImpl dataReciveService;
 
     @Override
     public void queryPara(FrameReqData reqInfo) {
@@ -88,7 +90,7 @@ public class ModemScmmInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSe
                 }else {
                     targetBytes = previousBytes;
                 }
-                String value = doGetValue(param, paraInfo, targetBytes);
+                String value = doGetValue(param, targetBytes);
 
                 paraInfo.setParaVal(value);
                 frameParaDataList.add(paraInfo);
@@ -101,14 +103,18 @@ public class ModemScmmInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSe
         return respData;
     }
 
-
-
-    private String doGetValue(FrameParaInfo param, FrameParaData paraInfo, byte[] targetBytes) {
+    /**
+     * 2300 获取参数值 对应存在 bit类型数据，需要复用字节的设备协议
+     * @param param 参数
+     * @param targetBytes 参数字节
+     * @return 参数值
+     */
+    public String doGetValue(FrameParaInfo param, byte[] targetBytes) {
         //获取参数解析配置信息
         String confClass = param.getNdpaRemark2Data();
         String confParams = param.getNdpaRemark3Data();
         //默认直接转换
-        ParamCodec codec = new DirectParamCodec();
+        ParamCodec codec = SingletonFactory.getInstance(DirectParamCodec.class);
         ExtParamConf paramConf = new ExtParamConf();
         Object[] params = new Object[0];
         if (!StringUtils.isBlank(confParams)) {
@@ -128,7 +134,7 @@ public class ModemScmmInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSe
         try {
             value = codec.decode(targetBytes, params);
         } catch (Exception e) {
-            log.error("参数解析异常：{}",paraInfo);
+            log.error("参数解析异常：{}",param);
         }
         return value;
     }

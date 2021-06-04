@@ -59,7 +59,7 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
         RptHeadDev resBody = new RptHeadDev();
         try {
             switch (cmdMarkHexStr) {
-                case "0005":
+                case "5":
                     doParaSetAction(headDev);
                     break;
                 default:
@@ -128,7 +128,7 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
         //过滤参数长度不为空的设置参数
         List<RptBodyDev> realRptBody = new CopyOnWriteArrayList<>();
         for (RptBodyDev bodyDev : rptBodyDev) {
-            List<FrameParaData> currentList = bodyDev.getDevParaList().stream().filter(param -> param.getLen() != null && param.getLen() != 0).collect(Collectors.toList());
+            List<FrameParaData> currentList = bodyDev.getDevParaList().stream().filter(param -> param.getParaVal()!=null).collect(Collectors.toList());
             bodyDev.setDevParaList(currentList);
             realRptBody.add(bodyDev);
         }
@@ -219,15 +219,20 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
         return headDev;
     }
 
-    private FrameParaData frameParaDataWrapper(ParaViewInfo paraView) {
-        String paramVal = transParamVal(paraView,IN_TO_OUT);
-        FrameParaData.FrameParaDataBuilder frameParaDataBuilder = FrameParaData.builder()
-                .paraNo(paraView.getParaNo())
-                .paraVal(paramVal)
-                .devType(paraView.getDevType())
-                .devNo(paraView.getDevNo());
-        if (StrUtil.isNotBlank(paraView.getParaByteLen())){
-            frameParaDataBuilder.len(Integer.parseInt(paraView.getParaByteLen()));
+    public FrameParaData frameParaDataWrapper(ParaViewInfo paraView) {
+        FrameParaData.FrameParaDataBuilder frameParaDataBuilder = null;
+        try {
+            String paramVal = transParamVal(paraView,IN_TO_OUT);
+            frameParaDataBuilder = FrameParaData.builder()
+                    .paraNo(paraView.getParaNo())
+                    .paraVal(paramVal)
+                    .devType(paraView.getDevType())
+                    .devNo(paraView.getDevNo());
+            if (StrUtil.isNotBlank(paraView.getParaByteLen())){
+                frameParaDataBuilder.len(Integer.parseInt(paraView.getParaByteLen()));
+            }
+        } catch (Exception e) {
+            log.error("参数包装异常：参数编号：{}",paraView.getParaNo());
         }
         return frameParaDataBuilder.build();
     }
@@ -242,16 +247,22 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
         FrameParaInfo infoByNo = BaseInfoContainer.getParaInfoByNo(paraView.getDevType(), paraView.getParaNo());
         String paramVal = paraView.getParaVal();
         String showMode = paraView.getParahowMode();
-        String transRule = infoByNo.getTransRule();
+        String transRule = infoByNo.getCombRule();
         /**参数为下拉框 且 存在转换规则*/
-        if (PARA_SHOW_MODEL.equals(showMode) && StringUtils.isNoneBlank(transRule)) {
+        if (PARA_SHOW_MODEL.equals(showMode) && StringUtils.isNoneBlank(transRule) &&  StringUtils.isNotEmpty(paramVal)) {
             if (sign == IN_TO_OUT){
                 Map<String, String> intoOutMap = infoByNo.getTransIntoOutMap();
+                if (intoOutMap==null){
+                    return null;
+                }
                 if (intoOutMap.containsKey(paramVal)){
                     paramVal = intoOutMap.get(paramVal);
                 }
             }else {
                 Map<String, String> outInMap = infoByNo.getTransOuttoInMap();
+                if (outInMap==null){
+                    return null;
+                }
                 if (outInMap.containsKey(paramVal)){
                     paramVal = outInMap.get(paramVal);
                 }
@@ -269,6 +280,7 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
     private RptHeadDev doParaWarnQueryAction(RptHeadDev headDev) {
         List<RptBodyDev> rptBodyDev = (List<RptBodyDev>) headDev.getParam();
         List<AlertInfo> alertInfoList = new ArrayList<>();
+        headDev.setCmdMarkHexStr(StationCtlRequestEnums.PARA_WARNING_QUERY_RESP.getCmdCode());
         rptBodyDev.forEach(rptBody -> {
             //获取指定设备的报警信息
             List<AlertInfo> alertInfoLists = DevAlertInfoContainer.getDevAlertInfoList(rptBody.getDevNo());

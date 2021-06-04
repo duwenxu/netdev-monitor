@@ -8,6 +8,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import java.util.Objects;
+
 /**
  * <p>
  * 设备状态信息
@@ -51,7 +53,7 @@ public class DevStatusInfo extends Model<DevStatusInfo>  {
     @ApiModelProperty(value = "是否启用主备")
     private String isUseStandby = "0";
     /**
-     * 0:主用|1:备用
+     * 0:主用|1:备用    目前主用即 在用，备用即 不在用
      */
     @ApiModelProperty(value = "主用还是备用")
     private String masterOrSlave = "0";
@@ -67,4 +69,11 @@ public class DevStatusInfo extends Model<DevStatusInfo>  {
     @ApiModelProperty(value = "测站编号")
     private String stationId;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DevStatusInfo that = (DevStatusInfo) o;
+        return Objects.equals(devTypeCode, that.devTypeCode) && Objects.equals(devNo, that.devNo) && Objects.equals(devDeployType, that.devDeployType) && Objects.equals(isInterrupt, that.isInterrupt) && Objects.equals(isAlarm, that.isAlarm) && Objects.equals(isUseStandby, that.isUseStandby) && Objects.equals(masterOrSlave, that.masterOrSlave) && Objects.equals(workStatus, that.workStatus) && Objects.equals(stationId, that.stationId);
+    }
 }

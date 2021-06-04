@@ -512,6 +512,28 @@ public class ByteUtils {
         return rv;
     }
 
+    /**
+     * 转换byte数组为int（大端）
+     * @return
+     * @note 数组长度至少为4，按小端方式转换，即传入的bytes是大端的，按这个规律组织成int
+     */
+    public static int Bytes2Int_BE(byte[] bytes){
+        if(bytes.length == 4 || bytes.length ==2){
+            int iRst = (bytes[0] << 24) & 0xFF;
+            iRst |= (bytes[1] << 16) & 0xFF;
+            if(bytes.length == 4){
+                iRst |= (bytes[2] << 8) & 0xFF;
+                iRst |= bytes[3] & 0xFF;
+            }
+            return iRst;
+        }
+        return -1;
+    }
+
+    public static int getInt(byte[] bytes){
+        return (0xff & bytes[0]) | (0xff00 & (bytes[1]<<8)) | (0xff0000 & (bytes[2]<<16)) | (0xff000000 & (bytes[3]<<24));
+    }
+
     public static void main(String[] args) {
         String str = "7e138303000e7d5ef00056322e302d313930393233607e";
 //        byte[] bytes = HexUtil.decodeHex(str);

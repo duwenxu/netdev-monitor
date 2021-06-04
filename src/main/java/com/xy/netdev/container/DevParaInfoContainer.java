@@ -1,6 +1,7 @@
 package com.xy.netdev.container;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
@@ -14,6 +15,8 @@ import com.xy.netdev.monitor.entity.ParaInfo;
 import org.apache.commons.lang.StringUtils;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.xy.netdev.common.constant.SysConfigConstant.PARA_COMPLEX_LEVEL_COMPOSE;
 
 /**
  * <p>
@@ -30,7 +33,7 @@ public class DevParaInfoContainer {
     /**
      * 设备参数MAP K设备编号  V设备参数信息
      */
-    private static Map<String, Map<String, ParaViewInfo>> devParaMap = new HashMap<>();
+    private static Map<String, Map<String, ParaViewInfo>> devParaMap = new LinkedHashMap<>();
 
 
     /**
@@ -77,13 +80,19 @@ public class DevParaInfoContainer {
      * @return 设备显示列表
      */
     private static Map<String,ParaViewInfo> assembleViewList(String devNo,List<ParaInfo> devTypeParaList){
-        Map<String,ParaViewInfo>  paraViewMap = new TreeMap<>();
+        //此处改为LinkedHashMap为了排序
+        Map<String,ParaViewInfo>  paraViewMap = new LinkedHashMap<>();
         if(devTypeParaList!=null&&!devTypeParaList.isEmpty()){
+            devTypeParaList.sort(Comparator.comparing(paraInfo -> Integer.valueOf(paraInfo.getNdpaNo())));
             for(ParaInfo paraInfo:devTypeParaList){
-                if(paraInfo.getNdpaCmplexLevel().equals(SysConfigConstant.PARA_COMPLEX_LEVEL_SUB)){
-                    paraViewMap.get(ParaHandlerUtil.genLinkKey(devNo,paraInfo.getNdpaParentNo())).addSubPara(genParaViewInfo(devNo,paraInfo));
-                }else{
+                //确保复杂参数在子参数之前被添加
+                if (!paraInfo.getNdpaCmplexLevel().equals(SysConfigConstant.PARA_COMPLEX_LEVEL_SUB)){
                     paraViewMap.put(ParaHandlerUtil.genLinkKey(devNo,paraInfo.getNdpaNo()),genParaViewInfo(devNo,paraInfo));
+                }
+            }
+            for (ParaInfo paraInfo : devTypeParaList) {
+                if(paraInfo.getNdpaCmplexLevel().equals(SysConfigConstant.PARA_COMPLEX_LEVEL_SUB)){
+                    paraViewMap.get(ParaHandlerUtil.genLinkKey(devNo, paraInfo.getNdpaParentNo())).addSubPara(genParaViewInfo(devNo,paraInfo));
                 }
             }
         }
@@ -140,7 +149,7 @@ public class DevParaInfoContainer {
      * @return  设备显示参数列表
      */
     public static List<ParaViewInfo>   getDevParaExtViewList(String devNo){
-        return new ArrayList(devParaMap.get(devNo).values());
+        return devParaMap.get(devNo).values().stream().filter(paraViewInfo->paraViewInfo.getIsShow()==true).collect(Collectors.toList());
     }
     /**
      * @功能：根据设备编号和参数编号 返回参数显示信息
@@ -151,14 +160,31 @@ public class DevParaInfoContainer {
     public static ParaViewInfo   getDevParaView(String devNo,String paraNo){
         return devParaMap.get(devNo).get(ParaHandlerUtil.genLinkKey(devNo,paraNo));
     }
+
+    /**
+     * @功能：修改指定参数是否显示
+     * @param devNo        设备编号
+     * @param paraNo       参数编号
+     * @return  设备参数显示信息
+     */
+    public static void  setIsShow(String devNo,String paraNo,boolean result){
+        ParaViewInfo paraViewInfo =  devParaMap.get(devNo).get(ParaHandlerUtil.genLinkKey(devNo,paraNo));
+        if(ObjectUtil.isNotEmpty(paraViewInfo)){
+            paraViewInfo.setIsShow(result);
+        }
+    }
+
     /**
      * @功能：设置设备响应参数信息
      * @param respData        协议解析响应数据
      * @return 数据是否发生变化
      */
-    public synchronized static boolean   handlerRespDevPara(FrameRespData respData){
+    public synchronized static boolean  handlerRespDevPara(FrameRespData respData){
+        //ACU参数一直不停变化，需要特殊处理上报
+//        if(respData.getDevType().equals(SysConfigConstant.DEVICE_ACU)){
+//            return false;
+//        }
         List<FrameParaData> frameParaList = respData.getFrameParaList();
-
         int num = 0;
         if(frameParaList!=null&&!frameParaList.isEmpty()){
             for(FrameParaData frameParaData:frameParaList) {
@@ -167,6 +193,12 @@ public class DevParaInfoContainer {
                 ParaViewInfo paraViewInfo = devParaMap.get(devNo).get(ParaHandlerUtil.genLinkKey(devNo, paraNo));
                 if (paraViewInfo!=null&&StringUtils.isNotEmpty(frameParaData.getParaVal()) && !frameParaData.getParaVal().equals(paraViewInfo.getParaVal())) {
                     paraViewInfo.setParaVal(frameParaData.getParaVal());
+                    //组合参数修改子参数值
+                    if(paraViewInfo.getParaCmplexLevel().equals(PARA_COMPLEX_LEVEL_COMPOSE)){
+                        for(ParaViewInfo paraViewInfo1 : paraViewInfo.getSubParaList()){
+                            paraViewInfo1.setParaVal(frameParaList.stream().filter(frameParaData1 -> frameParaData1.getParaNo().equals(paraViewInfo1.getParaNo())).collect(Collectors.toList()).get(0).getParaVal());
+                        }
+                    }
                     num++;
                 }
                 //功放设备的特殊处理
@@ -178,4 +210,10 @@ public class DevParaInfoContainer {
         return num>0;
     }
 
+    /**
+     * 清空缓存
+     */
+    public static void cleanCache(){
+        devParaMap.clear();
+    }
 }
