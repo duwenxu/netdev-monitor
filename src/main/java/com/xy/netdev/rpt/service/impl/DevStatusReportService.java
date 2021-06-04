@@ -169,9 +169,9 @@ public class DevStatusReportService implements IDevStatusReportService {
                 String devNo = frameParaData.getDevNo();
                 switch(type) {
                     case SysConfigConstant.DEV_STATUS_ALARM:
-//                        if(DevStatusContainer.setAlarm(devNo,outerStatus)){
-//                            rptWarning(devNo,outerStatus);
-//                        }
+                        if(DevStatusContainer.setAlarm(devNo,outerStatus)){
+                            rptWarning(devNo,outerStatus);
+                        }
                         //上报告警信息
                         reportDevAlertInfo(frameParaData,paraInfo,outerStatus);
                     break;
