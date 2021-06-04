@@ -9,6 +9,7 @@ import com.xy.netdev.common.util.ParaHandlerUtil;
 import com.xy.netdev.container.paraext.ParaExtServiceFactory;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameRespData;
+import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.bo.ParaSpinnerInfo;
 import com.xy.netdev.monitor.bo.ParaViewInfo;
 import com.xy.netdev.monitor.entity.ParaInfo;
@@ -34,6 +35,7 @@ public class DevParaInfoContainer {
      * 设备参数MAP K设备编号  V设备参数信息
      */
     private static Map<String, Map<String, ParaViewInfo>> devParaMap = new LinkedHashMap<>();
+
 
 
     /**

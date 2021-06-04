@@ -167,9 +167,10 @@ public class DevStatusReportService implements IDevStatusReportService {
             if(rule.getInner().equals(frameParaData.getParaVal())) {
                 String outerStatus = rule.getOuter();
                 String devNo = frameParaData.getDevNo();
+                DevStatusContainer.addParamStatus(frameParaData.getDevNo(),frameParaData.getParaNo(),type,outerStatus);
                 switch(type) {
                     case SysConfigConstant.DEV_STATUS_ALARM:
-                        if(DevStatusContainer.setAlarm(devNo,outerStatus)){
+                        if(DevStatusContainer.setAlarm(devNo,outerStatus,type)){
                             rptWarning(devNo,outerStatus);
                         }
                         //上报告警信息
@@ -177,25 +178,25 @@ public class DevStatusReportService implements IDevStatusReportService {
                     break;
                     case SysConfigConstant.DEV_STATUS_INTERRUPT:
                         //参数返回值是否恢复中断
-                        if(DevStatusContainer.setInterrupt(devNo,outerStatus)){
+                        if(DevStatusContainer.setInterrupt(devNo,outerStatus,type)){
                             rptInterrupted(devNo,outerStatus);
                         }
                         break;
                     case SysConfigConstant.DEV_STATUS_SWITCH:
                         //参数返回值是否启用主备
-                        if(DevStatusContainer.setUseStandby(devNo,outerStatus)){
+                        if(DevStatusContainer.setUseStandby(devNo,outerStatus,type)){
                             rptUseStandby(devNo,outerStatus);
                         }
                         break;
                     case SysConfigConstant.DEV_STATUS_STANDBY:
                         //参数返回主备状态
-                        if(DevStatusContainer.setMasterOrSlave(devNo,outerStatus)){
+                        if(DevStatusContainer.setMasterOrSlave(devNo,outerStatus,type)){
                             rptMasterOrSlave(devNo,outerStatus);
                         }
                         break;
                     case SysConfigConstant.DEV_STATUS_MAINTAIN:
                         //参数返回设备工作状态
-                        if(DevStatusContainer.setWorkStatus(devNo,outerStatus)){
+                        if(DevStatusContainer.setWorkStatus(devNo,outerStatus,type)){
                             rptWorkStatus(devNo,outerStatus);
                         }
                         break;

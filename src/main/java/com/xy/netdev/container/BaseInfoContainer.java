@@ -114,6 +114,7 @@ public class BaseInfoContainer {
      */
     private static Map<String, List<Interface>> devAssConItfMap = new HashMap<>();
 
+
     /**
      * @功能：当系统启动时,进行初始化各设备日志
      */
@@ -186,6 +187,7 @@ public class BaseInfoContainer {
                 }
                 paramCmdMap.put(ParaHandlerUtil.genLinkKey(paraInfo.getDevType(), paraInfo.getCmdMark()), paraInfo);
                 paramNoMap.put(ParaHandlerUtil.genLinkKey(paraInfo.getDevType(), paraInfo.getParaNo()), paraInfo);
+
 
             } catch (Exception e) {
                 log.error("参数[" + paraInfo.getParaName() + "]的设备类型或命令标识或参数编号存在异常，请检查:" + e.getMessage());
