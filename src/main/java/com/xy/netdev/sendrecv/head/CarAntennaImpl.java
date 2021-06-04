@@ -44,7 +44,9 @@ public class CarAntennaImpl extends AbsDeviceSocketHandler<SocketEntity, FrameRe
     private ISysParamService sysParamService;
 
     @Override
-    public void callback(FrameRespData respData, IParaPrtclAnalysisService iParaPrtclAnalysisService, IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService, ICtrlInterPrtclAnalysisService ctrlInterPrtclAnalysisService) {
+    public void callback(FrameRespData respData, IParaPrtclAnalysisService iParaPrtclAnalysisService,
+                         IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService,
+                         ICtrlInterPrtclAnalysisService ctrlInterPrtclAnalysisService) {
 
         if(respData.getOperType().equals(SysConfigConstant.OPREATE_CONTROL_RESP)) {
             if (ctrlInterPrtclAnalysisService != null) {
