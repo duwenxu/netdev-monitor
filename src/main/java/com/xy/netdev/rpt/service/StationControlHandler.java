@@ -134,9 +134,11 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
                 String msgType = headDev.getCmdMarkHexStr();
                 if(headDev.getCmdMarkHexStr().equals("4")){
                     this.queryParaResponse(headDev, StationCtlRequestEnums.PARA_QUERY_RESPONSE);
-                }else{
-                    this.queryParaResponse(headDev, StationCtlRequestEnums.PARA_SET_RESPONSE);
-                }
+                }else if(headDev.getCmdMarkHexStr().equals("8")) {
+                    this.queryParaResponse(headDev, StationCtlRequestEnums.PARA_WARNING_QUERY_RESP);
+                }else {
+                        this.queryParaResponse(headDev, StationCtlRequestEnums.PARA_SET_RESPONSE);
+                    }
             } catch (InterruptedException e) {
                 log.error("站控等待返回缓存结果异常中断, 中断原因:{}", e.getMessage(), e);
             }
