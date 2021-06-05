@@ -92,9 +92,10 @@ public class LpdSwitch extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
         //起始字节:1
         System.arraycopy(new byte[]{0x3A}, 0, frameByte, 0, 1);
         List<byte[]> lists = new ArrayList<>();
+        /**************(后续修改：确认后可设置到设备信息的备注1中)**************/
         //设备地址:2字节(暂时写定，后续确认再改)
-        /**************(后续修改)**************/
-        lists.add(new byte[]{0x00, 0x01});
+        //地址字节：1字节（00-7F）
+        lists.add(HexUtil.decodeHex(BaseInfoContainer.getDevInfoByNo(frameReqData.getDevNo()).getDevRemark1Data()));
         //获取操作关键字： 查询关键字/控制关键字
         PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameReqData.getDevType(), frameReqData.getCmdMark());
         //默认为查询
@@ -116,9 +117,48 @@ public class LpdSwitch extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
         System.arraycopy(byteCheck, 0, frameByte, 1, frameLen+6);
         /**************(后续修改)**************/
         //校验字：LRC校验
+        String  str = getLRC(byteCheck);
         System.arraycopy(new byte[]{0x00,0x02}, 0, frameByte, frameLen+7, 2);
         //结束符 :1
         System.arraycopy(new byte[]{0x0D,0x0A}, 0, frameByte, frameLen+9, 2);
         return frameByte;
     }
+
+    /*
+     * 输入byte[] data , 返回LRC校验byte
+     */
+    private String getLRC(byte[] data) {
+        StringBuilder sb = new StringBuilder();
+        int tmp = 0;
+        for (int i = 0; i < data.length; i++) {
+            tmp = tmp + (byte) data[i];
+        }
+        tmp = ~tmp;
+        tmp = (tmp & (0xff));
+        tmp += 1;
+        String hexStr = HexUtil.encodeHexStr(new byte[]{(byte) tmp});
+        for(int len = 0;len<hexStr.length();len++){
+            sb.append(convertHexToString(hexStr.substring(len,len+1)));
+        }
+        return sb.toString();
+    }
+
+    /**
+     * 将16进制转换为ASCII
+     * @param hex
+     * @return
+     */
+    public String convertHexToString(String hex){
+        StringBuilder sb = new StringBuilder();
+        StringBuilder temp = new StringBuilder();
+        for( int i=0; i<hex.length()-1; i+=2 ){
+            String output = hex.substring(i, (i + 2));
+            int decimal = Integer.parseInt(output, 16);
+            sb.append((char)decimal);
+            temp.append(decimal);
+        }
+
+        return sb.toString();
+    }
+
 }
