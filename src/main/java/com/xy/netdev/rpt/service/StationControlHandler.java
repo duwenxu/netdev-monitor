@@ -168,7 +168,7 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
             localPort = Integer.parseInt(stationInfo.getDevLocalPort());
         }
         NettyUtil.sendMsg(bodyBytes, localPort, stationInfo.getDevIpAddr(), port, Integer.parseInt(iSysParamService.getParaRemark1(stationInfo.getDevNetPtcl())));
-        log.info("发送站控数据, 本地端口：{}，  目标地址:{}:{}, 数据体:{}", localPort, stationInfo.getDevIpAddr(), port, HexUtil.encodeHexStr(bodyBytes));
+        log.debug("发送站控数据, 本地端口：{}，  目标地址:{}:{}, 数据体:{}", localPort, stationInfo.getDevIpAddr(), port, HexUtil.encodeHexStr(bodyBytes));
     }
 
 

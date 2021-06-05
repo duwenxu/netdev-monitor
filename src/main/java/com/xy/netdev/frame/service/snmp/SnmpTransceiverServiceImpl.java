@@ -6,10 +6,8 @@ import com.xy.netdev.common.util.SnmpUtil;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
-import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.transit.IDataSendService;
-import com.xy.netdev.transit.impl.SnmpDataReceiveServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.snmp4j.smi.Variable;
@@ -35,8 +33,6 @@ public class SnmpTransceiverServiceImpl implements SnmpTransceiverService {
     private ISysParamService sysParamService;
     @Autowired
     private IDataSendService dataSendService;
-    @Autowired
-    private SnmpDataReceiveServiceImpl snmpDataReceiveService;
 
     @Override
     public SnmpResDTO queryParam(SnmpReqDTO snmpReqDTO,String baseIp) {
