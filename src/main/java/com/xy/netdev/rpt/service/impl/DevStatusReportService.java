@@ -220,13 +220,19 @@ public class DevStatusReportService implements IDevStatusReportService {
             BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(respData.getDevNo());
             String alertDesc = DataHandlerHelper.genAlertDesc(baseInfo,paraInfo);
             log.warn("告警信息：{}",alertDesc);
+            String alertLevel = SysConfigConstant.ALERT_LEVEL_OK;
+            //判断参数是否触发告警，如果没有触发上报恢复（设置恢复告警级别给0）
+            String isAlarm = DevStatusContainer.getDevParamRptMap().get(respData.getDevNo()).get(SysConfigConstant.DEV_STATUS_ALARM).get(paraInfo.getParaNo());
+            if(isAlarm.equals("1")){
+                alertLevel = paraInfo.getAlertLevel();
+            }
             AlertInfo alertInfo = new AlertInfo().builder()
                     .devType(respData.getDevType())
                     //前端websocket推送使用 sunchao
                     .devTypeName(sysParamService.getParaName(respData.getDevType()))
-                    .alertLevel(paraInfo.getAlertLevel())
+                    .alertLevel(alertLevel)
                     //前端websocket推送使用 sunchao
-                    .alertLevelName(sysParamService.getParaName(paraInfo.getAlertLevel()))
+                    .alertLevelName(sysParamService.getParaName(alertLevel))
                     .devNo(respData.getDevNo())
                     .alertTime(DateUtils.now())
                     .alertNum(1)
