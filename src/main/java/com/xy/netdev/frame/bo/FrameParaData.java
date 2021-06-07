@@ -48,4 +48,7 @@ public class FrameParaData {
 
     @ApiModelProperty(value = "参数OID")
     private String oid;
+
+    @ApiModelProperty(value = "参数原始字节数组")
+    private byte[] paraOrigByte;
 }
