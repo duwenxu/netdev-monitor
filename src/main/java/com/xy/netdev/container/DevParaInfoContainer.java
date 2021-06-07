@@ -114,8 +114,10 @@ public class DevParaInfoContainer {
         viewInfo.setParaSimpleDatatype(sysParamService.getParaRemark3(paraInfo.getNdpaDatatype()));
         viewInfo.setParaStrLen(paraInfo.getNdpaStrLen());
         viewInfo.setParahowMode(paraInfo.getNdpaShowMode());
-        viewInfo.setParaValMax(paraInfo.getNdpaValMax1());
-        viewInfo.setParaValMin(paraInfo.getNdpaValMin1());
+        viewInfo.setParaValMax1(paraInfo.getNdpaValMax1());  //最大值1
+        viewInfo.setParaValMin1(paraInfo.getNdpaValMin1());  //最小值1
+        viewInfo.setParaValMax2(paraInfo.getNdpaValMax2());  //最大值2
+        viewInfo.setParaValMin2(paraInfo.getNdpaValMin2());  //最小值2
         viewInfo.setParaValStep(paraInfo.getNdpaValStep());
         viewInfo.setParaSpellFmt(paraInfo.getNdpaSpellFmt());
         viewInfo.setParaViewFmt(paraInfo.getNdpaViewFmt());
