@@ -41,7 +41,7 @@ public class PpjcInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService
     @Autowired
     private IDataReciveService dataReciveService;
     //频谱监测设备协议分隔符
-    private static String separator = "2c";
+    private static final String separator = "2c";
 
     /**
      * 查询设备参数
