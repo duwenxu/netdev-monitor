@@ -77,6 +77,9 @@ public class ParamSetImpl implements RequestService, ResponseService {
                 val = HexUtil.encodeHexStr(ByteUtils.byteArrayCopy(dataBytes, index, devParamLen));
             }else{
                 val = new String(ByteUtils.byteArrayCopy(dataBytes, index, devParamLen));
+                if(paraDetail.getTransOuttoInMap().size()>0){
+                    val = paraDetail.getTransOuttoInMap().get(val);
+                }
             }
             frameParaData.setParaVal(val);
             frameParaData.setDevNo(String.valueOf(devNo));
