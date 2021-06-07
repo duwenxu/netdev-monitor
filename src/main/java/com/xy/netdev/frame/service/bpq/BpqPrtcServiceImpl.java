@@ -2,6 +2,7 @@ package com.xy.netdev.frame.service.bpq;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
+import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
@@ -96,6 +97,12 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
             frameParas.add(frameParaData);
         }
         respData.setFrameParaList(frameParas);
+        //切换单元的参数需要改变设备编号
+        FrameParaData para = frameParas.get(0);
+        if(para.getDevType().equals(SysConfigConstant.DEVICE_QHDY)){
+            respData.setDevNo(frameParas.get(0).getDevNo());
+            respData.setDevType(SysConfigConstant.DEVICE_QHDY);
+        }
         dataReciveService.paraQueryRecive(respData);
         return respData;
     }

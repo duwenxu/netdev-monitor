@@ -84,6 +84,7 @@ public class ModemInterPrtcServiceImpl implements IQueryInterPrtclAnalysisServic
                 }
                 //获取单个参数的解析结果
                 FrameParaData paraData = doGetParam(respData, targetBytes, param);
+                paraData.setParaOrigByte(targetBytes);
                 //特殊处理 发载波电平
                 if (paraData.getParaNo().equals("9")){
                     paraData.setParaVal("-"+ paraData.getParaVal());

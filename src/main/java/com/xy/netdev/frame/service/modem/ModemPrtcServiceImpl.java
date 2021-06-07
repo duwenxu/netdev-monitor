@@ -94,7 +94,7 @@ public class ModemPrtcServiceImpl implements IParaPrtclAnalysisService {
             log.error("参数解析异常：{}",paraInfo);
         }
         paraInfo.setParaVal(value);
-
+        paraInfo.setParaOrigByte(paraValBytes);
         CopyOnWriteArrayList<FrameParaData> paraData = new CopyOnWriteArrayList<>();
         paraData.add(paraInfo);
         respData.setFrameParaList(paraData);
