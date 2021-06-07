@@ -80,6 +80,7 @@ public class PpjcInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService
                     .devType(devType)
                     .devNo(respData.getDevNo())
                     .paraNo(currentPara.getParaNo())
+                    .paraOrigByte(paraValBytes)
                     .build();
             frameParaData.setParaVal(paraValueStr);
             frameParaDataList.add(frameParaData);
