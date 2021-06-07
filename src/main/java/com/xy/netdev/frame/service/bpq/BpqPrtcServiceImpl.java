@@ -108,6 +108,9 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
     public void ctrlPara(FrameReqData reqInfo) {
         StringBuilder sb = new StringBuilder();
         String localAddr = "001";
+//        if(reqInfo.getCmdMark().equals("FRE")){
+//            localAddr = getDevLocalAddr(reqInfo);
+//        }
         sb.append(SEND_START_MARK).append(localAddr).append("/").append(reqInfo.getCmdMark())
                 .append("_").append(reqInfo.getFrameParaList().get(0).getParaVal());
         String command = sb.toString();

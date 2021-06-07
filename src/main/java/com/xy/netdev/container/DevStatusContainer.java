@@ -142,6 +142,9 @@ public class DevStatusContainer {
             devStatusInfo.setIsAlarm(isAlarm);
             return true;
         }
+        if(isAlarm.equals("1")){
+            return true;
+        }
         return false;
     }
 
