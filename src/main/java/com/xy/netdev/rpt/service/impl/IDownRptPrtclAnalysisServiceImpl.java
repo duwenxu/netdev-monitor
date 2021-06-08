@@ -227,7 +227,8 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
                     .paraNo(paraView.getParaNo())
                     .paraVal(paramVal)
                     .devType(paraView.getDevType())
-                    .devNo(paraView.getDevNo());
+                    .devNo(paraView.getDevNo())
+                    .paraOrigByte(paraView.getParaOrigByte());
             if (StrUtil.isNotBlank(paraView.getParaByteLen())){
                 frameParaDataBuilder.len(Integer.parseInt(paraView.getParaByteLen()));
             }

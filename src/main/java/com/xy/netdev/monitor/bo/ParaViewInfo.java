@@ -43,6 +43,9 @@ public class ParaViewInfo {
     @ApiModelProperty(value = "参数值")
     private String paraVal;
 
+    @ApiModelProperty(value = "参数原始字节数组")
+    private byte[] paraOrigByte;
+
     /**
      * 0022001 只写  0022002 只读  0022003读写  0022004无权限  0022005命令
      */

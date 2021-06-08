@@ -179,25 +179,25 @@ public class DevStatusReportService implements IDevStatusReportService {
                     break;
                     case SysConfigConstant.DEV_STATUS_INTERRUPT:
                         //参数返回值是否恢复中断
-                        if(DevStatusContainer.setInterrupt(devNo,outerStatus,type)){
+                        if(DevStatusContainer.setInterrupt(devNo,outerStatus)){
                             rptInterrupted(devNo,outerStatus);
                         }
                         break;
                     case SysConfigConstant.DEV_STATUS_SWITCH:
                         //参数返回值是否启用主备
-                        if(DevStatusContainer.setUseStandby(devNo,outerStatus,type)){
+                        if(DevStatusContainer.setUseStandby(devNo,outerStatus)){
                             rptUseStandby(devNo,outerStatus);
                         }
                         break;
                     case SysConfigConstant.DEV_STATUS_STANDBY:
                         //参数返回主备状态
-                        if(DevStatusContainer.setMasterOrSlave(devNo,outerStatus,type)){
+                        if(DevStatusContainer.setMasterOrSlave(devNo,outerStatus)){
                             rptMasterOrSlave(devNo,outerStatus);
                         }
                         break;
                     case SysConfigConstant.DEV_STATUS_MAINTAIN:
                         //参数返回设备工作状态
-                        if(DevStatusContainer.setWorkStatus(devNo,outerStatus,type)){
+                        if(DevStatusContainer.setWorkStatus(devNo,outerStatus)){
                             rptWorkStatus(devNo,outerStatus);
                         }
                         break;
