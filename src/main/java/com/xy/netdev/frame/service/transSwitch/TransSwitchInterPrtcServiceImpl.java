@@ -60,15 +60,14 @@ public class TransSwitchInterPrtcServiceImpl implements IQueryInterPrtclAnalysis
         String[] paramStrs = dataStr.split(SEPAR_CHAR);
         //全查询：按容器中的参数顺序解析
         String devType = respData.getDevType();
-        List<FrameParaInfo> frameParaInfos = BaseInfoContainer.getInterLinkParaList(devType,respData.getCmdMark());
         List<FrameParaData> frameParaDataList = new ArrayList<>();
-        for (FrameParaInfo frameParaInfo : frameParaInfos){
-            String data = paramStrs[frameParaInfo.getParaSeq()-1];
-            String paraCmk = data.substring(0, 2);
-            String paraValueStr = data.substring(2);
+        for(String str : paramStrs){
+            String paraCmk = str.substring(0, 2);  //关键字
+            String paraValueStr = str.substring(2);
+            byte[] paraByte = HexUtil.decodeHex(paraValueStr);
             FrameParaInfo currentPara = BaseInfoContainer.getParaInfoByCmd(devType, paraCmk);
             if (StringUtils.isEmpty(currentPara.getParaNo())){ continue;}
-            if(frameParaInfo.getCmplexLevel().equals(PARA_COMPLEX_LEVEL_COMPOSE)){
+            if(currentPara.getCmplexLevel().equals(PARA_COMPLEX_LEVEL_COMPOSE)){
                 paraValueStr = HexStrToBit(paraValueStr).substring(4);
                 StringBuffer sb = new StringBuffer(paraValueStr);
                 sb.insert(1,"_");
@@ -78,13 +77,14 @@ public class TransSwitchInterPrtcServiceImpl implements IQueryInterPrtclAnalysis
                 //改变子参数的数据
                 String[] paraList = paraValueStr.split("_");
                 for(int i=0; i< paraList.length;i++){
-                    FrameParaData subFrame = genFramePara(frameParaInfo.getSubParaList().get(i),paraList[i]);
+                    FrameParaData subFrame = genFramePara(currentPara.getSubParaList().get(i),paraList[i]);
                     subFrame.setDevNo(respData.getDevNo());
                     frameParaDataList.add(subFrame);
                 }
             }
             FrameParaData frameParaData = genFramePara(currentPara,paraValueStr);
             frameParaData.setDevNo(respData.getDevNo());
+            frameParaData.setParaOrigByte(paraByte);
             frameParaDataList.add(frameParaData);
         }
         respData.setFrameParaList(frameParaDataList);

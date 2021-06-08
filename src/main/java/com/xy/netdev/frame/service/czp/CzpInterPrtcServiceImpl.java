@@ -67,6 +67,7 @@ public class CzpInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
             String paraCmk = data.substring(0, 2);
             StringBuffer paraValueStr = new StringBuffer();
             paraValueStr.append(data.substring(2));
+            byte[] paraByte = HexUtil.decodeHex(data.substring(2));
             if(PARA_COMPLEX_LEVEL_COMPOSE.equals(frameParaInfo.getCmplexLevel())){
                 //当为复杂参数，则按照数据库配置的样式进行处理
                 paraValueStr.insert(2,"_");
@@ -77,6 +78,7 @@ public class CzpInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
                     .devType(devType)
                     .devNo(respData.getDevNo())
                     .paraNo(currentPara.getParaNo())
+                    .paraOrigByte(paraByte)
                     .build();
             frameParaData.setParaVal(paraValueStr.toString());
             frameParaDataList.add(frameParaData);
