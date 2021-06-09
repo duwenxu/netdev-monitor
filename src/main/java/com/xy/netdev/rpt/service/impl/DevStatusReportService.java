@@ -220,7 +220,7 @@ public class DevStatusReportService implements IDevStatusReportService {
             paraInfo.setParaVal(respData.getParaVal());
             BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(respData.getDevNo());
             String alertDesc = DataHandlerHelper.genAlertDesc(baseInfo,paraInfo);
-            log.warn("告警信息：{}",alertDesc);
+            log.debug("告警信息：{}",alertDesc);
             String alertLevel = SysConfigConstant.ALERT_LEVEL_OK;
             //判断参数是否触发告警，如果没有触发上报恢复（设置恢复告警级别给0）
             String isAlarm = DevStatusContainer.getDevParamRptMap().get(respData.getDevNo()).get(SysConfigConstant.DEV_STATUS_ALARM).get(paraInfo.getParaNo());

@@ -1,6 +1,7 @@
 package com.xy.netdev.sendrecv.base.service;
 
 import com.xy.netdev.frame.bo.FrameRespData;
+import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.sendrecv.entity.SocketEntity;
 
 /**
@@ -13,5 +14,5 @@ public interface ProtocolResponseService<T extends FrameRespData> {
      * socket 数据响应
      * @param socketEntity socket实体
      */
-    void socketResponse(SocketEntity socketEntity);
+    void socketResponse(SocketEntity socketEntity, BaseInfo devInfo);
 }

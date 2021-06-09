@@ -109,10 +109,7 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
 
     @Override
     @SuppressWarnings("unchecked")
-    public void socketResponse(SocketEntity socketEntity) {
-        //获取设备参数信息
-        List<BaseInfo> baseInfos = getDevInfo(socketEntity.getRemoteAddress());
-        for (BaseInfo devInfo : baseInfos) {
+    public void socketResponse(SocketEntity socketEntity,BaseInfo devInfo) {
             R r = (R)new FrameRespData();
             r.setDevType(devInfo.getDevType());
             r.setDevNo(devInfo.getDevNo());
@@ -170,7 +167,6 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
             this.callback(unpackBytes, iParaPrtclAnalysisService, queryInterPrtclAnalysisService, iCtrlInterPrtclAnalysisService);
             log.debug("设备数据已发送至对应模块, 数据体:{}", JSON.toJSONString(unpackBytes));
         }
-    }
 
     /**
      * 不同协议 cmd 关键字转换处理 默认不做转换
