@@ -179,25 +179,25 @@ public class DevStatusReportService implements IDevStatusReportService {
                     break;
                     case SysConfigConstant.DEV_STATUS_INTERRUPT:
                         //参数返回值是否恢复中断
-                        if(DevStatusContainer.setInterrupt(devNo,outerStatus,type)){
+                        if(DevStatusContainer.setInterrupt(devNo,outerStatus)){
                             rptInterrupted(devNo,outerStatus);
                         }
                         break;
                     case SysConfigConstant.DEV_STATUS_SWITCH:
                         //参数返回值是否启用主备
-                        if(DevStatusContainer.setUseStandby(devNo,outerStatus,type)){
+                        if(DevStatusContainer.setUseStandby(devNo,outerStatus)){
                             rptUseStandby(devNo,outerStatus);
                         }
                         break;
                     case SysConfigConstant.DEV_STATUS_STANDBY:
                         //参数返回主备状态
-                        if(DevStatusContainer.setMasterOrSlave(devNo,outerStatus,type)){
+                        if(DevStatusContainer.setMasterOrSlave(devNo,outerStatus)){
                             rptMasterOrSlave(devNo,outerStatus);
                         }
                         break;
                     case SysConfigConstant.DEV_STATUS_MAINTAIN:
                         //参数返回设备工作状态
-                        if(DevStatusContainer.setWorkStatus(devNo,outerStatus,type)){
+                        if(DevStatusContainer.setWorkStatus(devNo,outerStatus)){
                             rptWorkStatus(devNo,outerStatus);
                         }
                         break;
@@ -220,7 +220,7 @@ public class DevStatusReportService implements IDevStatusReportService {
             paraInfo.setParaVal(respData.getParaVal());
             BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(respData.getDevNo());
             String alertDesc = DataHandlerHelper.genAlertDesc(baseInfo,paraInfo);
-            log.warn("告警信息：{}",alertDesc);
+            log.debug("告警信息：{}",alertDesc);
             String alertLevel = SysConfigConstant.ALERT_LEVEL_OK;
             //判断参数是否触发告警，如果没有触发上报恢复（设置恢复告警级别给0）
             String isAlarm = DevStatusContainer.getDevParamRptMap().get(respData.getDevNo()).get(SysConfigConstant.DEV_STATUS_ALARM).get(paraInfo.getParaNo());

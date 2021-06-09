@@ -137,20 +137,35 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
     @Override
     public FrameRespData ctrlParaResponse(FrameRespData respData) {
         String respStr = new String(respData.getParamBytes());
-        int beginIdx = respStr.indexOf("/");
-        int endIdx = respStr.indexOf("_");
-        String value = respStr.substring(endIdx+1,respStr.indexOf(StrUtil.CRLF));
-        String cmdMark = respData.getCmdMark();
-        FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),cmdMark);
-        List<FrameParaData> frameParaDatas = new ArrayList<>();
-        FrameParaData frameParaData = new FrameParaData();
-        BeanUtil.copyProperties(frameParaInfo, frameParaData, true);
-        frameParaData.setDevNo(respData.getDevNo());
-        frameParaData.setParaVal(value);
-        frameParaDatas.add(frameParaData);
-        respData.setFrameParaList(frameParaDatas);
-        respData.setReciveOriginalData(respStr);
-        dataReciveService.paraCtrRecive(respData);
+        respStr = respStr.substring(1);
+        String[] respArr = null;
+        if(respStr.contains(RESP_START_MARK)){
+            respArr = respStr.split(RESP_START_MARK);
+        }else{
+            respArr = new String[]{respStr};
+        }
+        List<FrameParaData> frameParas = new ArrayList<>();
+        for (int i = 0; i < respArr.length; i++) {
+            String addr = respArr[i].substring(0,3);
+            int beginIdx = respArr[i].indexOf("/");
+            int endIdx = respArr[i].indexOf("_");
+            String value = respStr.substring(endIdx+1,respStr.indexOf(StrUtil.CRLF));
+            FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),respData.getCmdMark());
+            FrameParaData frameParaData = new FrameParaData();
+            String cmdMark = respData.getCmdMark();
+            BeanUtil.copyProperties(frameParaInfo, frameParaData, true);
+            frameParaData.setDevNo(getDevNo(addr));
+            frameParaData.setParaVal(value);
+            frameParas.add(frameParaData);
+        }
+        respData.setFrameParaList(frameParas);
+        //切换单元的参数需要改变设备编号
+        FrameParaData para = frameParas.get(0);
+        if(para.getDevType().equals(SysConfigConstant.DEVICE_QHDY)){
+            respData.setDevNo(frameParas.get(0).getDevNo());
+            respData.setDevType(SysConfigConstant.DEVICE_QHDY);
+        }
+        dataReciveService.paraQueryRecive(respData);
         return respData;
     }
 

@@ -99,8 +99,22 @@ public class DataReciveServiceImpl implements IDataReciveService {
         RptHeadDev headDev = initDevHead(devStatusInfo);
         RptBodyDev rptBodyDev = new RptBodyDev();
         //获取指定设备当前可读且可以对外上报的参数列表
-        List<ParaViewInfo> devParaViewList = DevParaInfoContainer.getDevParaViewList(devStatusInfo.getDevNo()).stream()
-               // .filter(paraView -> !SysConfigConstant.ONLY_WRITE.equals(paraView.getAccessRight()) && IS_DEFAULT_TRUE.equals(paraView.getNdpaOutterStatus()))
+        List<ParaViewInfo> devParaViews = DevParaInfoContainer.getDevParaViewList(devStatusInfo.getDevNo());
+        List<ParaViewInfo> allParaViews = new ArrayList<>();
+        //取复杂参数和组合参数的子参数推送二级网管显示
+        for (ParaViewInfo paraView : devParaViews) {
+            if(paraView.getParaCmplexLevel().equals(SysConfigConstant.PARA_COMPLEX_LEVEL_COMPOSE) ||  paraView.getParaCmplexLevel().equals(SysConfigConstant.PARA_COMPLEX_LEVEL_COMPLEX)) {
+                List<ParaViewInfo> subParaList = paraView.getSubParaList();
+                for (ParaViewInfo paraViewInfo : subParaList) {
+                    if (paraView.getNdpaOutterStatus().equals(SysConfigConstant.IS_DEFAULT_TRUE)) {
+                        allParaViews.add(paraViewInfo);
+                    }
+                }
+            }else{
+                allParaViews.add(paraView);
+            }
+        }
+        List<ParaViewInfo> devParaViewList = allParaViews.stream()
                 .filter(paraView ->  IS_DEFAULT_TRUE.equals(paraView.getNdpaOutterStatus()))
                 .collect(Collectors.toList());
 

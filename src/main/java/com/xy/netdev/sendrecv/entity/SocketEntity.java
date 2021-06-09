@@ -2,6 +2,7 @@ package com.xy.netdev.sendrecv.entity;
 
 
 import cn.hutool.core.clone.CloneSupport;
+import com.xy.netdev.monitor.entity.BaseInfo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,7 +25,6 @@ public class SocketEntity extends CloneSupport<SocketEntity>  {
 
     @ApiModelProperty("数据体")
     private byte[] bytes;
-
 
     public static class SocketEntityFactory{
     private static final SocketEntity ENTITY = new SocketEntity();

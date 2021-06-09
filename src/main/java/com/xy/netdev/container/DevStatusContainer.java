@@ -115,8 +115,7 @@ public class DevStatusContainer {
      * @param isInterrupt    中断状态
      * @return 状态是否发生改变  true 改变  false 未改变
      */
-    public synchronized static boolean setInterrupt(String devNo,String isInterrupt,String rptType) {
-        isInterrupt = getDevAllPramsStatus(devNo,isInterrupt,rptType);
+    public synchronized static boolean setInterrupt(String devNo,String isInterrupt) {
         DevStatusInfo devStatusInfo = devStatusMap.get(devNo);
         if(!devStatusInfo.getIsInterrupt().equals(isInterrupt)){
             devStatusInfo.setIsInterrupt(isInterrupt);
@@ -154,8 +153,7 @@ public class DevStatusContainer {
      * @param isUseStandby    启用主备状态
      * @return 状态是否发生改变  true 改变  false 未改变
      */
-    public synchronized static boolean setUseStandby(String devNo,String isUseStandby,String rptType) {
-        isUseStandby = getDevAllPramsStatus(devNo,isUseStandby,rptType);
+    public synchronized static boolean setUseStandby(String devNo,String isUseStandby) {
         DevStatusInfo devStatusInfo = devStatusMap.get(devNo);
         if(!devStatusInfo.getIsUseStandby().equals(isUseStandby)){
             devStatusInfo.setIsUseStandby(isUseStandby);
@@ -171,8 +169,7 @@ public class DevStatusContainer {
      * @param masterOrSlave    主用还是备用状态
      * @return 状态是否发生改变  true 改变  false 未改变
      */
-    public synchronized static boolean setMasterOrSlave(String devNo,String masterOrSlave,String rptType) {
-        masterOrSlave = getDevAllPramsStatus(devNo,masterOrSlave,rptType);
+    public synchronized static boolean setMasterOrSlave(String devNo,String masterOrSlave) {
         //设置主备列表中非当前变化设备的主备状态
         BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(devNo);
         String devType = baseInfo.getDevType();
@@ -312,8 +309,7 @@ public class DevStatusContainer {
      * @param workStatus    工作状态
      * @return 状态是否发生改变  true 改变  false 未改变
      */
-    public synchronized static boolean setWorkStatus(String devNo,String workStatus,String rptType) {
-        workStatus = getDevAllPramsStatus(devNo,workStatus,rptType);
+    public synchronized static boolean setWorkStatus(String devNo,String workStatus) {
         DevStatusInfo devStatusInfo = devStatusMap.get(devNo);
         if(!devStatusInfo.getWorkStatus().equals(workStatus)){
             devStatusInfo.setWorkStatus(workStatus);
@@ -398,14 +394,20 @@ public class DevStatusContainer {
      * @return
      */
     public static String getDevAllPramsStatus(String devNo,String status,String rptType){
-        Map<String,String> paraStatusMap =  devParamRptMap.get(devNo).get(rptType);
-        for (String value : paraStatusMap.values()) {
-            if(value.equals(EXCEPTION_STATUS)){
-                status = EXCEPTION_STATUS;
-                break;
+        Map<String,Map<String,String>> devRptMap = devParamRptMap.get(devNo);
+        if(devRptMap.size()>0){
+            Map<String,String> paraStatusMap =  devRptMap.get(rptType);
+            for (String value : paraStatusMap.values()) {
+                if(value.equals(EXCEPTION_STATUS)){
+                    status = EXCEPTION_STATUS;
+                    break;
+                }
             }
+            return status;
+        }else{
+            return "1";
         }
-        return status;
+
     }
 
 }

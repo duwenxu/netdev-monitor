@@ -69,6 +69,7 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
     public FrameRespData queryParaResponse(FrameRespData respData) {
         String respStr = new String(respData.getParamBytes());
         String addr = respStr.substring(1,4);
+        respData.setDevNo(getDevNo(addr));
         int startIdx = respStr.indexOf("_");
         int endIdx = respStr.indexOf(StrUtil.LF);
         if(endIdx==-1){

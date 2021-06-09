@@ -16,7 +16,7 @@ public class RetryPolicyImpl implements RetryPolicy {
     /**
      * 最大可以重连的次数
      */
-    private static final int MAX_RETRY_LIMIT = 10;
+    private static final int MAX_RETRY_LIMIT = Integer.MAX_VALUE;
     /**
      * 默认重连最长的等待时间
      */
@@ -62,7 +62,8 @@ public class RetryPolicyImpl implements RetryPolicy {
         if(retryCount.get() > MAX_RETRY_LIMIT){
             retryCount.set(MAX_RETRY_LIMIT);
         }
-        long sleepMs = baseSleepTimeMs * Math.max(1, random.nextInt(1 << retryCount.get()));
+        //long sleepMs = baseSleepTimeMs * Math.max(1, random.nextInt(1 << retryCount.get()));
+        long sleepMs = 1000L;
         if(sleepMs > maxSleepMs){
             sleepMs = maxSleepMs;
         }

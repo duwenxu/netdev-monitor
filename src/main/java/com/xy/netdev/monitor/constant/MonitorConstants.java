@@ -50,4 +50,6 @@ public interface MonitorConstants {
     String UINT="0023003";
     String BYTE="0023001";
     String FLOAT = "0023008";
+    String IpAddress = "0023006";
+    String IpMask = "0023007";
 }

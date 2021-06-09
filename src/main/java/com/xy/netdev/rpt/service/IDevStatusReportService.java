@@ -17,7 +17,7 @@ public interface IDevStatusReportService {
      * 上报设备告警
      */
     void rptWarning(String devNo, String status);
-//
+
 //    /**
 //     * 上报设备未中断，恢复连接
 //     */
