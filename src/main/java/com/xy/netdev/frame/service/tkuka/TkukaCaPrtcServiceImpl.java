@@ -47,7 +47,7 @@ public class TkukaCaPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
     /**
      * 状态上报包帧头标识
      */
-    private static final String RPT_IDS = "7c";
+    private static final String RPT_IDS = "7b";
     private static String Flag = "T";
 
     @Override
@@ -84,7 +84,7 @@ public class TkukaCaPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
         for (FrameParaInfo param : frameParaInfos) {
             byte[] byte1 = ByteUtils.byteArrayCopy(bytes, param.getParaStartPoint(), Integer.valueOf(param.getParaByteLen()));
             genFramePara(param, respData, byte1, frameParaDataList);
-            if(param.getNdpaRemark3Data().contains("false")){
+            if(StringUtils.isNotBlank(param.getNdpaRemark3Data()) && param.getNdpaRemark3Data().contains("false")){
                 DevParaInfoContainer.setIsShow(respData.getDevNo(),param.getParaNo(),false);
             }
         }
