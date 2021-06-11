@@ -36,7 +36,6 @@ public class TkukaCaImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
     /**帧头**/
     private static final String FRAME_HEAD = "7b";
     private static final String FRAME_END = "7d";
-    private static final String CMD_MARK = "7c";
     /**帧尾**/
 
     @Override
@@ -60,8 +59,12 @@ public class TkukaCaImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
     @Override
     public FrameRespData unpack(SocketEntity socketEntity, FrameRespData frameRespData) {
         byte[] bytes = socketEntity.getBytes();
+        //截取合适的数据包
+        String hexStr = HexUtil.encodeHexStr(bytes);
+        int num = hexStr.indexOf("7b");
+        bytes = HexUtil.decodeHex(hexStr.substring(num,num+296));
         int len = bytes.length;
-        if (len != 124) {
+        if (len != 148) {
             log.warn("TKuka0.9CA监控设备响应数据长度错误, 未能正确解析, 数据体长度:{}, 数据体:{}", bytes.length, HexUtil.encodeHexStr(bytes));
             return frameRespData;
         }
@@ -70,7 +73,7 @@ public class TkukaCaImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
         String endFrame = HexUtil.encodeHexStr(ByteUtils.byteArrayCopy(bytes,len-1,1));  //帧尾
         //判断操作类型赋值
         if (FRAME_HEAD.equals(headFrame) && FRAME_END.equals(endFrame)){
-            frameRespData.setCmdMark(CMD_MARK);
+            frameRespData.setCmdMark(FRAME_HEAD);
             frameRespData.setOperType(OPREATE_QUERY_RESP);
             frameRespData.setAccessType(ACCESS_TYPE_INTERF);
         }else{

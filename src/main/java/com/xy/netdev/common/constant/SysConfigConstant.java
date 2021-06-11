@@ -325,6 +325,12 @@ public interface SysConfigConstant {
      */
     String RPT_IP_ADDR = "0100006";
 
+
+    /**
+     * 公共参数--给54所发送数据的端口
+     */
+    String RPT_SEND_PORT = "0100011";
+
     /**
      * 站控-设备状态上报--中断状态-中断
      */
