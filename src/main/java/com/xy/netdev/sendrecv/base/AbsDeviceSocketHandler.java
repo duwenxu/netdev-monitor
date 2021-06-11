@@ -219,6 +219,11 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
         if (StrUtil.isNotBlank(devInfo.getDevLocalPort())){
             localPort = Integer.parseInt(devInfo.getDevLocalPort());
         }
+        if(t.getDevNo().equals("30") || t.getDevNo().equals("31")){
+            if(t.getOperType().equals(SysConfigConstant.OPREATE_CONTROL)){
+                log.warn("转换开关控制帧："+HexUtil.encodeHexStr(bytes));
+            }
+        }
         return NettyUtil.sendMsg(bytes, localPort, devInfo.getDevIpAddr(), port, Integer.parseInt(sysParamService.getParaRemark1(devInfo.getDevNetPtcl())));
     }
 

@@ -35,6 +35,10 @@ public class DevParaInfoContainer {
      * 设备参数MAP K设备编号  V设备参数信息
      */
     private static Map<String, Map<String, ParaViewInfo>> devParaMap = new LinkedHashMap<>();
+    /**
+     * 设备响应次数
+     */
+    public static int respNum = 0;
 
 
 
@@ -185,9 +189,14 @@ public class DevParaInfoContainer {
      */
     public synchronized static boolean  handlerRespDevPara(FrameRespData respData){
         //ACU参数一直不停变化，需要特殊处理上报
-//        if(respData.getDevType().equals(SysConfigConstant.DEVICE_ACU)){
-//            return false;
-//        }
+        if(respData.getDevType().equals(SysConfigConstant.DEVICE_ACU)){
+            respNum++;
+            if(respNum%5==0){
+                respNum=0;
+            }else{
+                return false;
+            }
+        }
         List<FrameParaData> frameParaList = respData.getFrameParaList();
         int num = 0;
         if(frameParaList!=null&&!frameParaList.isEmpty()){
