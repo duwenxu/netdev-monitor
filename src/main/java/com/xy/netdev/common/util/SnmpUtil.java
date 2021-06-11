@@ -102,6 +102,7 @@ public class SnmpUtil {
      * @param oidList   参数数据标识列表
      */
     public static Map<String,Variable> snmpGetList(String ip, String community, List<String> oidList) {
+        log.info("SNMP获取参数信息：oidList=[{}]",oidList);
         ConcurrentHashMap<String,Variable> values = new ConcurrentHashMap<>(oidList.size());
         CommunityTarget target = createDefault(ip, community);
         Snmp snmp = null;
@@ -150,6 +151,7 @@ public class SnmpUtil {
      * @param val 需要设置的参数值
      */
     public static String setPDU(String ip, String community, String oid, String val) {
+        long timeStart = System.currentTimeMillis();
         CommunityTarget target = createDefault(ip, community);
         Snmp snmp = new Snmp();
         PDU pdu = new PDU();
@@ -182,6 +184,7 @@ public class SnmpUtil {
             } catch (IOException ex1) {
             }
         }
+        log.info("SNMP单次设置值耗时：[{}]",System.currentTimeMillis()-timeStart);
         return respCode;
     }
 
