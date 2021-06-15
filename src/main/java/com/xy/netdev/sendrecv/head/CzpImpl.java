@@ -87,6 +87,7 @@ public class CzpImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, 
             Byte cmd = bytesToNum(bytes, 8, 1, ByteBuf::readByte);
             String hexCmd = numToHexStr(Long.valueOf(cmd));
             frameRespData.setCmdMark(hexCmd);
+            frameRespData.setAccessType(ACCESS_TYPE_PARAM);
         }
         //数据体
         byte[] paramBytes = byteArrayCopy(bytes, 8, bytes.length - 10);
