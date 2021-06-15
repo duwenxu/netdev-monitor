@@ -76,7 +76,7 @@ public class CzpImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, 
             return frameRespData;
         }
         //获取16进制命令字
-        String hexRespType = HexUtil.toHex(bytesToNum(bytes, 7, 1, ByteBuf::readUnsignedByte));
+        String hexRespType = HexUtil.encodeHexStr(ByteUtils.byteArrayCopy(bytes,7,1));
         //判断操作类型赋值
         if (QUERY_RES.equals(hexRespType)){
             frameRespData.setCmdMark(QUERY_CMD);
@@ -126,7 +126,7 @@ public class CzpImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, 
         System.arraycopy(new byte[]{0x16}, 0, frameByte, 2, 1);
         List<byte[]> lists = new ArrayList<>();
         //设备地址:2
-        lists.add(new byte[]{0x00, 0x01});
+        lists.add(HexUtil.decodeHex(BaseInfoContainer.getDevInfoByNo(frameReqData.getDevNo()).getDevRemark1Data()));
         //长度:2   命令字+参数体
         lists.add(ByteUtils.objToBytes(frameLen-9, 2));
         //命令字 :1

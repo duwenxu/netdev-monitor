@@ -2,7 +2,6 @@ package com.xy.netdev.frame.service.czp;
 
 import cn.hutool.core.util.HexUtil;
 import com.xy.netdev.admin.service.ISysParamService;
-import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
@@ -21,6 +20,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import static com.xy.netdev.common.constant.SysConfigConstant.*;
 
 /**
  * C中频切换矩阵
@@ -62,10 +62,14 @@ public class CzpPrtcServiceImpl  implements IParaPrtclAnalysisService {
         List<byte[]> list = new ArrayList<>();
         reqInfo.getFrameParaList().forEach(frameParaData->{
             FrameParaInfo paraInfoByNo = BaseInfoContainer.getParaInfoByNo(frameParaData.getDevType(), frameParaData.getParaNo());
-            String newVal = frameParaData.getParaVal().replaceAll("[^0-9]","");
+            String newVal = frameParaData.getParaVal();
+            String dataBody = paraInfoByNo.getCmdMark() + newVal;
             //赋值处理后的参数值
             frameParaData.setParaVal(newVal);
-            String dataBody = paraInfoByNo.getCmdMark() + newVal;
+            if(PARA_COMPLEX_LEVEL_SUB.equals(paraInfoByNo.getCmplexLevel())){
+                FrameParaInfo paraInfoByNoParent = BaseInfoContainer.getParaInfoByNo(frameParaData.getDevType(), paraInfoByNo.getParentParaNo());
+                dataBody = paraInfoByNoParent.getCmdMark()+dataBody;
+            }
             //处理复杂参数:利用正则表达式过滤数字
             list.add(HexUtil.decodeHex(dataBody));
         });
@@ -82,8 +86,8 @@ public class CzpPrtcServiceImpl  implements IParaPrtclAnalysisService {
     public FrameRespData ctrlParaResponse(FrameRespData respData) {
         byte[] bytes =respData.getParamBytes();
         String data = HexUtil.encodeHexStr(bytes);
-        String controlSuccessCode = sysParamService.getParaRemark1(SysConfigConstant.CONTROL_SUCCESS);
-        String controlFailCode = sysParamService.getParaRemark1(SysConfigConstant.CONTROL_FAIL);
+        String controlSuccessCode = sysParamService.getParaRemark1(CONTROL_SUCCESS);
+        String controlFailCode = sysParamService.getParaRemark1(CONTROL_FAIL);
         if (data.contains(controlSuccessCode)) {
             respData.setRespCode(controlSuccessCode);
         } else if (data.contains(controlFailCode)) {
