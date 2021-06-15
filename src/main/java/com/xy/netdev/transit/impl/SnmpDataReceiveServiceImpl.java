@@ -1,6 +1,5 @@
 package com.xy.netdev.transit.impl;
 
-import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.DevLogInfoContainer;
 import com.xy.netdev.container.DevParaInfoContainer;
 import com.xy.netdev.frame.bo.FrameRespData;
@@ -24,14 +23,14 @@ public class SnmpDataReceiveServiceImpl implements ISnmpDataReceiveService {
 
     @Override
     public void paraQueryRecive(SnmpResDTO snmpResDTO) {
-        snmpResDTO.setOperType(SysConfigConstant.OPREATE_QUERY_RESP);
         FrameRespData respData = convertFrameResDto(snmpResDTO);
         assert respData != null;
-        if(DevParaInfoContainer.handlerRespDevPara(respData)){
+
+        if (DevParaInfoContainer.handlerRespDevPara(respData)) {
             DevIfeMegSend.sendParaToDev(respData.getDevNo());//如果设备参数变化,websocet推前台
             dataReciveService.sendCtrlInter(respData);
             //站控主动上报
-            dataReciveService.rptDevExecutor.submit(()->dataReciveService.stationRptParamsByDev(respData));
+            dataReciveService.rptDevExecutor.submit(() -> dataReciveService.stationRptParamsByDev(respData));
         }
         DevLogInfoContainer.handlerRespDevPara(respData);//记录日志
         DevIfeMegSend.sendLogToDev(respData.getDevNo());//操作日志websocet推前台
