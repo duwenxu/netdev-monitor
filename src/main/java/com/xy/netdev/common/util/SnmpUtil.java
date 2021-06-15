@@ -67,16 +67,16 @@ public class SnmpUtil {
             snmp.listen();
             pdu.setType(PDU.GET);
             ResponseEvent respEvent = snmp.send(pdu, target);
-            log.info("SNMP发送PDU类型：[{}]到地址：[{}]---", pdu.getType(),respEvent.getPeerAddress());
+            log.debug("SNMP发送PDU类型：[{}]到地址：[{}]---", pdu.getType(),respEvent.getPeerAddress());
             PDU response = respEvent.getResponse();
             if (response == null) {
                 log.warn("SNMP response is null, request time out");
             } else {
-                log.info("SNMP response pdu size is " + response.size());
+                log.debug("SNMP response pdu size is " + response.size());
                 for (int i = 0; i < response.size(); i++) {
                     VariableBinding vb = response.get(i);
                     values.put(vb.getOid().toString(),vb.getVariable());
-                    log.info("SNMP响应数据：oid:[{}]---value:[{}]", vb.getOid(), vb.getVariable());
+                    log.debug("SNMP响应数据：oid:[{}]---value:[{}]", vb.getOid(), vb.getVariable());
                 }
             }
         } catch (Exception e) {
@@ -102,7 +102,7 @@ public class SnmpUtil {
      * @param oidList   参数数据标识列表
      */
     public static Map<String,Variable> snmpGetList(String ip, String community, List<String> oidList) {
-        log.info("SNMP获取参数信息：oidList=[{}]",oidList);
+        log.debug("SNMP获取参数信息：oidList=[{}]",oidList);
         ConcurrentHashMap<String,Variable> values = new ConcurrentHashMap<>(oidList.size());
         CommunityTarget target = createDefault(ip, community);
         Snmp snmp = null;
@@ -116,17 +116,17 @@ public class SnmpUtil {
             snmp.listen();
             pdu.setType(PDU.GET);
             ResponseEvent respEvent = snmp.send(pdu, target);
-            log.info("SNMP发送PDU到地址：[{}]---", respEvent.getPeerAddress());
+            log.debug("SNMP发送PDU到地址：[{}]---", respEvent.getPeerAddress());
             PDU response = respEvent.getResponse();
 
             if (response == null) {
-                log.info("response is null, request time out");
+                log.debug("response is null, request time out");
             } else {
-                log.info("response pdu size is " + response.size());
+                log.debug("response pdu size is " + response.size());
                 for (int i = 0; i < response.size(); i++) {
                     VariableBinding vb = response.get(i);
                     values.put(vb.getOid().toString(),vb.getVariable());
-                    log.info("SNMP响应数据：oid:[{}]---value:[{}]", vb.getOid(), vb.getVariable());
+                    log.debug("SNMP响应数据：oid:[{}]---value:[{}]", vb.getOid(), vb.getVariable());
                 }
             }
         } catch (Exception e) {
@@ -147,37 +147,35 @@ public class SnmpUtil {
      * 根据OID和指定string来设置设备的数据
      * @param ip  设备IP
      * @param community 设备组织
-     * @param oid 对象参数ID
      * @param val 需要设置的参数值
      */
-    public static String setPDU(String ip, String community, String oid, String val) {
+    public static String setPDU(String ip, String community, VariableBinding val) {
         long timeStart = System.currentTimeMillis();
         CommunityTarget target = createDefault(ip, community);
         Snmp snmp = new Snmp();
         PDU pdu = new PDU();
-        pdu.add(new VariableBinding(new OID(oid), new OctetString(val)));
+        pdu.add(val);
         pdu.setType(PDU.SET);
         //默认成功
         String respCode = "0";
-
         try {
             DefaultUdpTransportMapping transport = new DefaultUdpTransportMapping();
             snmp = new Snmp(transport);
             snmp.listen();
-            log.info("发送SNMP设置帧到ip:[{}],参数oid:[{}]---参数值：[{}]", ip, oid, val);
+            log.info("发送SNMP设置帧到ip:[{}],参数oid:[{}]---参数值：[{}]", ip, val.getOid(), val);
             ResponseEvent responseEvent = snmp.send(pdu, target);
             PDU response = responseEvent.getResponse();
             if (response == null) {
                 log.info("Control response is null, request time out");
                 respCode = "1";
             } else {
-                //todo  判断控制结果
-                if (responseEvent.getError()!=null){
+                if (response.getErrorStatus()!=0){
                     respCode = "1";
                 }
+                log.info("SNMP控制响应：错误码：[{}],错误信息：[{}]",response.getErrorStatus(),response.getErrorStatusText());
             }
         } catch (Exception e) {
-            log.error("SNMP发送控制参数命令异常：oid=[{}],设置参数值：[{}]",oid,val,e);
+            log.error("SNMP发送控制参数命令异常：oid=[{}],设置参数值：[{}]",val.getOid(),val,e);
         } finally {
             try {
                 snmp.close();
@@ -206,7 +204,7 @@ public class SnmpUtil {
         DefaultUdpTransportMapping transport = new DefaultUdpTransportMapping();
         snmp = new Snmp(transport);
         snmp.listen();
-        log.info("发送SNMP设置帧到ip:[{}],参数oid:[{}]---参数值：[{}]",ip,oid,val);
+        log.debug("发送SNMP设置帧到ip:[{}],参数oid:[{}]---参数值：[{}]",ip,oid,val);
         snmp.send(pdu, target);
         snmp.close();
     }
@@ -231,7 +229,7 @@ public class SnmpUtil {
             snmp.listen();
             pdu.setType(PDU.GET);
             ResponseEvent respEvent = snmp.send(pdu, target);
-            log.info("SNMP发送PDU到地址：[{}]---", respEvent.getPeerAddress());
+            log.debug("SNMP发送PDU到地址：[{}]---", respEvent.getPeerAddress());
             PDU response = respEvent.getResponse();
 
             /**异步获取*/
@@ -241,21 +239,21 @@ public class SnmpUtil {
                     ((Snmp) event.getSource()).cancel(event.getRequest(), this);
                     PDU response = event.getResponse();
                     PDU request = event.getRequest();
-                    log.info("[request]:" + request);
+                    log.debug("[request]:" + request);
                     if (response == null) {
-                        log.info("[ERROR]: response is null");
+                        log.debug("[ERROR]: response is null");
                     } else if (response.getErrorStatus() != 0) {
-                        log.info("[ERROR]: response status"
+                        log.debug("[ERROR]: response status"
                                 + response.getErrorStatus() + " Text:"
                                 + response.getErrorStatusText());
                     } else {
-                        log.info("Received response Success!");
+                        log.debug("Received response Success!");
                         for (int i = 0; i < response.size(); i++) {
                             VariableBinding vb = response.get(i);
-                            log.info(vb.getOid() + " = "
+                            log.debug(vb.getOid() + " = "
                                     + vb.getVariable());
                         }
-                        log.info("SNMP Asyn GetList OID finished. ");
+                        log.debug("SNMP Asyn GetList OID finished. ");
                         latch.countDown();
                     }
                 }
@@ -263,14 +261,14 @@ public class SnmpUtil {
 
             pdu.setType(PDU.GET);
             snmp.send(pdu, target, null, listener);
-            log.info("asyn send pdu wait for response...");
+            log.debug("asyn send pdu wait for response...");
 
             boolean wait = latch.await(30, TimeUnit.SECONDS);
-            log.info("latch.await =:" + wait);
+            log.debug("latch.await =:" + wait);
 
             snmp.close();
 
-            log.info("SNMP GET one OID value finished !");
+            log.debug("SNMP GET one OID value finished !");
         } catch (Exception e) {
             log.error("SNMP异步获取OID列表信息异常: oidList:[{}]", oidList, e);
         } finally {
@@ -306,13 +304,13 @@ public class SnmpUtil {
             pdu.add(new VariableBinding(targetOID));
 
             boolean finished = false;
-            log.info("SNMP开始Walk节点：[{}]...",targetOid);
+            log.debug("SNMP开始Walk节点：[{}]...",targetOid);
             while (!finished) {
                 VariableBinding vb;
                 ResponseEvent respEvent = snmp.getNext(pdu, target);
                 PDU response = respEvent.getResponse();
                 if (null == response) {
-                    log.info("snmpWalk方法获取到response为空");
+                    log.debug("snmpWalk方法获取到response为空");
                     finished = true;
                     break;
                 } else {
@@ -321,18 +319,18 @@ public class SnmpUtil {
                 // check finish
                 finished = checkWalkFinished(targetOID, pdu, vb);
                 if (!finished) {
-                    log.info("==== walk each vlaue :");
-                    log.info(vb.getOid() + " = " + vb.getVariable());
+                    log.debug("==== walk each vlaue :");
+                    log.debug(vb.getOid() + " = " + vb.getVariable());
 
                     // Set up the variable binding for the next entry.
                     pdu.setRequestID(new Integer32(0));
                     pdu.set(0, vb);
                 } else {
-                    log.info("SNMP walk OID has finished.");
+                    log.debug("SNMP walk OID has finished.");
                     snmp.close();
                 }
             }
-            log.info("----> demo end <----");
+            log.debug("----> demo end <----");
         } catch (Exception e) {
             log.error("SNMP遍历walk节点信息异常: oid:[{}]", targetOid, e);
         } finally {
@@ -349,26 +347,26 @@ public class SnmpUtil {
     private static boolean checkWalkFinished(OID targetOID, PDU pdu, VariableBinding vb) {
         boolean finished = false;
         if (pdu.getErrorStatus() != 0) {
-            log.info("[true] responsePDU.getErrorStatus() != 0 ");
-            log.info(pdu.getErrorStatusText());
+            log.debug("[true] responsePDU.getErrorStatus() != 0 ");
+            log.debug(pdu.getErrorStatusText());
             finished = true;
         } else if (vb.getOid() == null) {
-            log.info("[true] vb.getOid() == null");
+            log.debug("[true] vb.getOid() == null");
             finished = true;
         } else if (vb.getOid().size() < targetOID.size()) {
-            log.info("[true] vb.getOid().size() < targetOID.size()");
+            log.debug("[true] vb.getOid().size() < targetOID.size()");
             finished = true;
         } else if (targetOID.leftMostCompare(targetOID.size(), vb.getOid()) != 0) {
-            log.info("[true] targetOID.leftMostCompare() != 0");
+            log.debug("[true] targetOID.leftMostCompare() != 0");
             finished = true;
         } else if (Null.isExceptionSyntax(vb.getVariable().getSyntax())) {
             System.out
                     .println("[true] Null.isExceptionSyntax(vb.getVariable().getSyntax())");
             finished = true;
         } else if (vb.getOid().compareTo(targetOID) <= 0) {
-            log.info("[true] Variable received is not "
+            log.debug("[true] Variable received is not "
                     + "lexicographic successor of requested " + "one:");
-            log.info(vb.toString() + " <= " + targetOID);
+            log.debug(vb.toString() + " <= " + targetOID);
             finished = true;
         }
         return finished;
@@ -380,7 +378,7 @@ public class SnmpUtil {
         final CommunityTarget target = createDefault(ip, community);
         Snmp snmp = null;
         try {
-            log.info("----> demo start <----");
+            log.debug("----> demo start <----");
 
             DefaultUdpTransportMapping transport = new DefaultUdpTransportMapping();
             snmp = new Snmp(transport);
@@ -398,11 +396,11 @@ public class SnmpUtil {
                     try {
                         PDU response = event.getResponse();
                         // PDU request = event.getRequest();
-                        // log.info("[request]:" + request);
+                        // log.debug("[request]:" + request);
                         if (response == null) {
-                            log.info("[ERROR]: response is null");
+                            log.debug("[ERROR]: response is null");
                         } else if (response.getErrorStatus() != 0) {
-                            log.info("[ERROR]: response status"
+                            log.debug("[ERROR]: response status"
                                     + response.getErrorStatus() + " Text:"
                                     + response.getErrorStatusText());
                         } else {
@@ -413,7 +411,7 @@ public class SnmpUtil {
                             boolean finished = checkWalkFinished(targetOID,
                                     pdu, vb);
                             if (!finished) {
-                                log.info(vb.getOid() + " = "
+                                log.debug(vb.getOid() + " = "
                                         + vb.getVariable());
                                 pdu.setRequestID(new Integer32(0));
                                 pdu.set(0, vb);
@@ -433,16 +431,16 @@ public class SnmpUtil {
             };
 
             snmp.getNext(pdu, target, null, listener);
-            log.info("pdu 已发送,等到异步处理结果...");
+            log.debug("pdu 已发送,等到异步处理结果...");
 
             boolean wait = latch.await(30, TimeUnit.SECONDS);
-            log.info("latch.await =:" + wait);
+            log.debug("latch.await =:" + wait);
             snmp.close();
 
-            log.info("----> demo end <----");
+            log.debug("----> demo end <----");
         } catch (Exception e) {
             e.printStackTrace();
-            log.info("SNMP Asyn Walk Exception:" + e);
+            log.debug("SNMP Asyn Walk Exception:" + e);
         }
     }
 
@@ -455,7 +453,7 @@ public class SnmpUtil {
         String localOid= ".1.3.6.1.2.1.4.20.1.4.127.0.0.1";
 //        String oidval1 = "1.3.6.1.4.1.589.10.2.1.4";
         Map<String, Variable> map = SnmpUtil.snmpGet(ip, community, localOid);
-        log.info("map:{}",map);
+        log.debug("map:{}",map);
 //        SnmpUtil.setPDU(ip, community, localOid,);
 
     }

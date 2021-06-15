@@ -6,7 +6,6 @@ import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
-import com.xy.netdev.frame.service.ParamCodec;
 import com.xy.netdev.frame.service.codec.IPAddressCodec;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.constant.MonitorConstants;
@@ -20,13 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
-import static com.xy.netdev.common.util.ByteUtils.listToBytes;
-import static com.xy.netdev.common.util.ByteUtils.placeholderByte;
 import static com.xy.netdev.rpt.service.StationControlHandler.*;
 
 /**
@@ -86,7 +80,7 @@ public class ParamSetImpl implements RequestService, ResponseService {
                     val = String.valueOf(ByteUtils.byteToNumber(orgVal,0,orgVal.length).intValue());
                 }
 
-            }else if(MonitorConstants.IpAddress.equals(paraDetail.getDataType()) || MonitorConstants.IpMask.equals(paraDetail.getDataType())){
+            }else if(MonitorConstants.IP_ADDRESS.equals(paraDetail.getDataType()) || MonitorConstants.IP_MASK.equals(paraDetail.getDataType())){
                 val = ipAddressCodec.decode(ByteUtils.byteArrayCopy(dataBytes, index, devParamLen),null);
             }else {
                 val = new String(ByteUtils.byteArrayCopy(dataBytes, index, devParamLen));

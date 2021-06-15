@@ -2,7 +2,6 @@ package com.xy.netdev.rpt.service.impl;
 
 import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSON;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.ByteUtils;
@@ -92,7 +91,7 @@ public class ParamQueryImpl implements RequestService, ResponseService {
                             log.warn("上报信息数据体字节转换异常：需要转换的参数值：[{}]",frameParaData.getParaVal());
                         }
                     }
-                    if (MonitorConstants.IpAddress.equals(paraDatatype) || MonitorConstants.IpMask.equals(paraDatatype) || (MonitorConstants.BYTE.equals(paraDatatype) && !paraDetail.getNdpaShowMode().equals(SysConfigConstant.PARA_SHOW_MODEL))){
+                    if (MonitorConstants.IP_ADDRESS.equals(paraDatatype) || MonitorConstants.IP_MASK.equals(paraDatatype) || (MonitorConstants.BYTE.equals(paraDatatype) && !paraDetail.getNdpaShowMode().equals(SysConfigConstant.PARA_SHOW_MODEL))){
                         if(frameParaData.getParaOrigByte()!=null && frameParaData.getParaOrigByte().length>0){
                             bytes = frameParaData.getParaOrigByte();
                         }
