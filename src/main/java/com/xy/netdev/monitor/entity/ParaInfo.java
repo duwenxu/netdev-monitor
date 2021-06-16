@@ -208,6 +208,10 @@ public class ParaInfo extends Model<ParaInfo> {
     @TableField(exist = false)
     private String devTypeCode;
 
+    @ApiModelProperty(value = "上报OID")
+    @TableField(value = "NDPA_RPT_OID")
+    private String ndpaRptOid;
+
     @Override
     protected Serializable pkVal() {
         return this.ndpaId;
