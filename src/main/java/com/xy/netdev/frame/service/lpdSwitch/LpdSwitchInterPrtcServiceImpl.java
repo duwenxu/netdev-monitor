@@ -65,6 +65,7 @@ public class LpdSwitchInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSe
                     .devType(devType)
                     .devNo(respData.getDevNo())
                     .paraNo(currentPara.getParaNo())
+                    .paraOrigByte(paraValBytes)
                     .build();
             frameParaData.setParaVal(data);
             frameParaDataList.add(frameParaData);

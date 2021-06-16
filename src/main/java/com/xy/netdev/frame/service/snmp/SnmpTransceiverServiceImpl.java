@@ -10,7 +10,7 @@ import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.transit.IDataSendService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.snmp4j.smi.Variable;
+import org.snmp4j.smi.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -20,7 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.xy.netdev.common.constant.SysConfigConstant.PARA_COMPLEX_LEVEL_COMPOSE;
+import static com.xy.netdev.common.constant.SysConfigConstant.*;
+import static com.xy.netdev.monitor.constant.MonitorConstants.*;
 
 /**
  * SNMP协议接口查询实现
@@ -28,7 +29,8 @@ import static com.xy.netdev.common.constant.SysConfigConstant.PARA_COMPLEX_LEVEL
 @Service
 @Slf4j
 public class SnmpTransceiverServiceImpl implements SnmpTransceiverService {
-    private static final String COMMUNITY = "public";
+    private static final String COMMUNITY_GET = "public";
+    private static final String COMMUNITY_SET = "private";
     @Autowired
     private ISysParamService sysParamService;
     @Autowired
@@ -39,7 +41,7 @@ public class SnmpTransceiverServiceImpl implements SnmpTransceiverService {
         FrameParaData paraData = snmpReqDTO.getFrameParaList().get(0);
         String reqOid = paraData.getOid();
 
-        Map<String, Variable> snmpMap = SnmpUtil.snmpGet(baseIp, COMMUNITY, reqOid);
+        Map<String, Variable> snmpMap = SnmpUtil.snmpGet(baseIp, COMMUNITY_GET, reqOid);
         Variable variable = snmpMap.get(reqOid);
 
         SnmpResDTO snmpResDTO = new SnmpResDTO();
@@ -47,7 +49,16 @@ public class SnmpTransceiverServiceImpl implements SnmpTransceiverService {
         if (variable!=null){
             paraData.setParaVal(variable.toString());
         }
-        snmpResDTO.getFrameParaList().add(paraData);
+        //区分控制后回查和单参数查询
+        if (OPREATE_CONTROL.equals(snmpReqDTO.getOperType())){
+            ArrayList<FrameParaData> data = new ArrayList<>();
+            data.add(paraData);
+            snmpResDTO.setOperType(OPREATE_CONTROL_RESP);
+            snmpResDTO.setFrameParaList(data);
+        }else {
+            snmpResDTO.setOperType(OPREATE_QUERY_RESP);
+            snmpResDTO.getFrameParaList().add(paraData);
+        }
         return snmpResDTO;
     }
 
@@ -68,7 +79,7 @@ public class SnmpTransceiverServiceImpl implements SnmpTransceiverService {
         }
         List<String> oidList = new ArrayList<>(queryMap.keySet());
         //查询赋值
-        Map<String, Variable> resMap = SnmpUtil.snmpGetList(baseIp, COMMUNITY, oidList);
+        Map<String, Variable> resMap = SnmpUtil.snmpGetList(baseIp, COMMUNITY_GET, oidList);
         for (Map.Entry<String, FrameParaData> resEntry : queryMap.entrySet()) {
             Variable variable = resMap.get(resEntry.getKey());
             if (variable!=null){
@@ -93,6 +104,7 @@ public class SnmpTransceiverServiceImpl implements SnmpTransceiverService {
         BeanUtil.copyProperties(snmpReqDTO,snmpResDTO,true);
         List<FrameParaData> resParaList = new ArrayList<>(queryMap.values());
         snmpResDTO.setFrameParaList(resParaList);
+        snmpResDTO.setOperType(OPREATE_QUERY_RESP);
         return snmpResDTO;
     }
 
@@ -105,7 +117,8 @@ public class SnmpTransceiverServiceImpl implements SnmpTransceiverService {
             String respCode = "0";
             Assert.isTrue(!StringUtils.isBlank(oid)&&!StringUtils.isBlank(paraVal),"SNMP参数控制:oid和paraVal不能为空,oid:"+oid+",paraVal:"+paraVal);
             try {
-                respCode = SnmpUtil.setPDU(baseIp, COMMUNITY, oid, paraVal);
+                VariableBinding variableBinding = packSnmpVal(paraData);
+                respCode = SnmpUtil.setPDU(baseIp, COMMUNITY_SET, variableBinding);
             } catch (Exception e) {
                 log.error("SNMP参数设置异常：IP:[{}],设备编号：[{}],参数编号：[{}],参数OID：[{}],参数值：[{}]",baseIp,paraData.getDevNo(),paraData.getParaNo(),oid,paraVal);
             }
@@ -113,7 +126,32 @@ public class SnmpTransceiverServiceImpl implements SnmpTransceiverService {
             //回调
             dataSendService.notifyNetworkResult(frameReqData);
         }
+    }
 
+    /**
+     * 按参数类型包装SNMP设置参数
+     *
+     * @param paraData 设置参数DTO
+     * @return SNMP oid && value
+     */
+    private VariableBinding packSnmpVal(FrameParaData paraData) {
+        String oid = paraData.getOid();
+        String paraVal = paraData.getParaVal();
+        FrameParaInfo paraInfo = BaseInfoContainer.getParaInfoByNo(paraData.getDevType(), paraData.getParaNo());
+        String dataType = paraInfo.getDataType();
+        VariableBinding variableBinding = new VariableBinding(new OID(oid));
+        try {
+            if (INT.equals(dataType)){
+                variableBinding.setVariable(new Integer32(Integer.parseInt(paraVal)));
+            }else if (STR.equals(dataType)){
+                variableBinding.setVariable(new OctetString(paraVal));
+            }else if (IP_ADDRESS.equals(dataType)){
+                variableBinding.setVariable(new IpAddress(paraVal));
+            }
+        } catch (Exception e) {
+            log.error("SNMP控制参数组装错误：设备类型：[{}],参数编号：[{}],参数值：[{}],配置的参数类型编码：[{}]",paraData.getDevType(),paraData.getParaNo(),paraVal,dataType);
+        }
+        return variableBinding;
     }
 
     private FrameReqData convertFrameReqDto(SnmpReqDTO snmpReqDTO,String respCode) {

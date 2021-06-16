@@ -35,6 +35,10 @@ public class DevParaInfoContainer {
      * 设备参数MAP K设备编号  V设备参数信息
      */
     private static Map<String, Map<String, ParaViewInfo>> devParaMap = new LinkedHashMap<>();
+    /**
+     * 设备响应次数
+     */
+    public static int respNum = 0;
 
 
 
@@ -185,9 +189,14 @@ public class DevParaInfoContainer {
      */
     public synchronized static boolean  handlerRespDevPara(FrameRespData respData){
         //ACU参数一直不停变化，需要特殊处理上报
-//        if(respData.getDevType().equals(SysConfigConstant.DEVICE_ACU)){
-//            return false;
-//        }
+        if(respData.getDevType().equals(SysConfigConstant.DEVICE_ACU)){
+            respNum++;
+            if(respNum%5==0){
+                respNum=0;
+            }else{
+                return false;
+            }
+        }
         List<FrameParaData> frameParaList = respData.getFrameParaList();
         int num = 0;
         if(frameParaList!=null&&!frameParaList.isEmpty()){
@@ -197,10 +206,12 @@ public class DevParaInfoContainer {
                 ParaViewInfo paraViewInfo = devParaMap.get(devNo).get(ParaHandlerUtil.genLinkKey(devNo, paraNo));
                 if (paraViewInfo!=null&&StringUtils.isNotEmpty(frameParaData.getParaVal()) && !frameParaData.getParaVal().equals(paraViewInfo.getParaVal())) {
                     paraViewInfo.setParaVal(frameParaData.getParaVal());
+                    paraViewInfo.setParaOrigByte(frameParaData.getParaOrigByte());
                     //组合参数修改子参数值
                     if(paraViewInfo.getParaCmplexLevel().equals(PARA_COMPLEX_LEVEL_COMPOSE)){
                         for(ParaViewInfo paraViewInfo1 : paraViewInfo.getSubParaList()){
                             paraViewInfo1.setParaVal(frameParaList.stream().filter(frameParaData1 -> frameParaData1.getParaNo().equals(paraViewInfo1.getParaNo())).collect(Collectors.toList()).get(0).getParaVal());
+                            paraViewInfo1.setParaOrigByte(frameParaList.stream().filter(frameParaData1 -> frameParaData1.getParaNo().equals(paraViewInfo1.getParaNo())).collect(Collectors.toList()).get(0).getParaOrigByte());
                         }
                     }
                     num++;

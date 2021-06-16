@@ -32,6 +32,9 @@ public class FrameParaInfo {
     @ApiModelProperty(value = "参数编号")
     private String paraNo;
 
+    @ApiModelProperty(value = "父参数编号")
+    private String parentParaNo;
+
     @ApiModelProperty(value = "参数编码")
     private String paraCode;
 

@@ -6,7 +6,9 @@ import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
+import com.xy.netdev.frame.service.codec.IPAddressCodec;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
+import com.xy.netdev.monitor.constant.MonitorConstants;
 import com.xy.netdev.rpt.bo.RptBodyDev;
 import com.xy.netdev.rpt.bo.RptHeadDev;
 import com.xy.netdev.rpt.enums.StationCtlRequestEnums;
@@ -17,13 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
-import static com.xy.netdev.common.util.ByteUtils.listToBytes;
-import static com.xy.netdev.common.util.ByteUtils.placeholderByte;
 import static com.xy.netdev.rpt.service.StationControlHandler.*;
 
 /**
@@ -36,6 +33,8 @@ public class ParamSetImpl implements RequestService, ResponseService {
 
     @Autowired
     private ParamQueryImpl paramQuery;
+    @Autowired
+    private IPAddressCodec ipAddressCodec;
 
     @Autowired
     private ISysParamService sysParamService;
@@ -74,8 +73,16 @@ public class ParamSetImpl implements RequestService, ResponseService {
             FrameParaInfo paraDetail = BaseInfoContainer.getParaInfoByNo(devType,String.valueOf(paraNo));
             String val = "";
             if(paraDetail.getDataType().equals(SysConfigConstant.PARA_DATA_TYPE_BYTE)){
-                val = HexUtil.encodeHexStr(ByteUtils.byteArrayCopy(dataBytes, index, devParamLen));
-            }else{
+                if(paraDetail.getNdpaShowMode().equals(SysConfigConstant.PARA_SHOW_MODEL)){
+                    val = HexUtil.encodeHexStr(ByteUtils.byteArrayCopy(dataBytes, index, devParamLen));
+                }else{
+                    byte[] orgVal = ByteUtils.byteArrayCopy(dataBytes, index, devParamLen);
+                    val = String.valueOf(ByteUtils.byteToNumber(orgVal,0,orgVal.length).intValue());
+                }
+
+            }else if(MonitorConstants.IP_ADDRESS.equals(paraDetail.getDataType()) || MonitorConstants.IP_MASK.equals(paraDetail.getDataType())){
+                val = ipAddressCodec.decode(ByteUtils.byteArrayCopy(dataBytes, index, devParamLen),null);
+            }else {
                 val = new String(ByteUtils.byteArrayCopy(dataBytes, index, devParamLen));
                 if(null!=paraDetail.getTransOuttoInMap() && paraDetail.getTransOuttoInMap().size()>0){
                     val = paraDetail.getTransOuttoInMap().get(val);

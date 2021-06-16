@@ -42,7 +42,7 @@ public class WSHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, TextWebSocketFrame msg) throws Exception {
         // 获取客户端传输过来的消息
         String content = msg.text();
-        log.info("后端websocket接收到数据：" + content);
+        log.debug("后端websocket接收到数据：" + content);
         Map map = JSON.parseObject(content);
         Object interfaceMark = map.get("interfaceMark");
         Object devCd = map.get("devNo");

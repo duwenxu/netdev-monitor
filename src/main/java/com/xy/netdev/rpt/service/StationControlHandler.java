@@ -7,6 +7,7 @@ import cn.hutool.core.util.StrUtil;
 import com.xy.common.exception.BaseException;
 import com.xy.netdev.admin.service.ISysDepartService;
 import com.xy.netdev.admin.service.ISysParamService;
+import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.BeanFactoryUtil;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
@@ -166,11 +167,11 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
             e.printStackTrace();
         }
         int localPort = port;
-        if (StrUtil.isNotBlank(stationInfo.getDevLocalPort())){
-            localPort = Integer.parseInt(stationInfo.getDevLocalPort());
+        if (StrUtil.isNotBlank(sysParamService.getParaRemark1(SysConfigConstant.RPT_SEND_PORT))){
+            port = Integer.parseInt(sysParamService.getParaRemark1(SysConfigConstant.RPT_SEND_PORT));
         }
         NettyUtil.sendMsg(bodyBytes, localPort, stationInfo.getDevIpAddr(), port, Integer.parseInt(iSysParamService.getParaRemark1(stationInfo.getDevNetPtcl())));
-        log.warn("发送站控数据, 本地端口：{}，  目标地址:{}:{}, 数据体:{}", localPort, stationInfo.getDevIpAddr(), port, HexUtil.encodeHexStr(bodyBytes));
+       log.warn("发送站控数据, 本地端口：{}，  目标地址:{}:{}, 数据体:{}", localPort, stationInfo.getDevIpAddr(), port, HexUtil.encodeHexStr(bodyBytes));
     }
 
 

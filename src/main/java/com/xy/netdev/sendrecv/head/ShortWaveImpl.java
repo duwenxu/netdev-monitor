@@ -1,7 +1,10 @@
 package com.xy.netdev.sendrecv.head;
 
 import cn.hutool.core.util.HexUtil;
+import com.google.common.primitives.Longs;
 import com.xy.common.exception.BaseException;
+import com.xy.netdev.common.util.crc.Crc16;
+import com.xy.netdev.common.util.crc.CrcCalculator;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
@@ -96,7 +99,7 @@ public class ShortWaveImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReq
                 .serialNum(serialNumBytes)
                 .build();
         //CRC校验和
-        byte[] checkSum = crcCheck(waveEntity);
+        byte[] checkSum = crc16Check(waveEntity);
         waveEntity.setCrc(checkSum);
         byte[] pack = pack(waveEntity);
 
@@ -125,7 +128,23 @@ public class ShortWaveImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReq
      * @param waveEntity 校验实体类
      * @return CRC校验码
      */
-    private byte[] crcCheck(ShortWaveEntity waveEntity) {
-        return new byte[]{0x55,(byte) 0xAA};
+    private byte[] crc16Check(ShortWaveEntity waveEntity) {
+        byte[] bytes = packForCrc(waveEntity);
+        CrcCalculator crcCalculator = new CrcCalculator(Crc16.Crc16Arc);
+        long crc16 = crcCalculator.Calc(bytes, 0, bytes.length + 1);
+        byte[] crcBytes = Longs.toByteArray(crc16);
+        return crcBytes;
+    }
+
+
+    private byte[] packForCrc(ShortWaveEntity entity) {
+        List<byte[]> list = new ArrayList<>();
+        list.add(entity.getFrameHead());
+        list.add(new byte[]{entity.getCmk()});
+        if (entity.getData() != null) {
+            list.add(entity.getData());
+        }
+        list.add(entity.getSerialNum());
+        return listToBytes(list);
     }
 }
