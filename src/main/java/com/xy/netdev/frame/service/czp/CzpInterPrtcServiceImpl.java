@@ -1,7 +1,6 @@
 package com.xy.netdev.frame.service.czp;
 
 import cn.hutool.core.util.HexUtil;
-import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
@@ -10,19 +9,14 @@ import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
-import com.xy.netdev.monitor.constant.MonitorConstants;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import com.xy.netdev.transit.IDataReciveService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import static com.xy.netdev.common.constant.SysConfigConstant.*;
-import static com.xy.netdev.common.util.ByteUtils.byteToNumber;
-import static com.xy.netdev.frame.service.gf.GfPrtcServiceImpl.isFloat;
-import static com.xy.netdev.frame.service.gf.GfPrtcServiceImpl.isUnsigned;
 
 /**
  * C中频切换矩阵
@@ -63,29 +57,36 @@ public class CzpInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
         for (FrameParaInfo frameParaInfo : frameParaInfos){
             //参数下标--->参数下标+参数字节长度+关键字（2）
             byte[] paraValBytes = ByteUtils.byteArrayCopy(bytes,frameParaInfo.getParaStartPoint(),Integer.valueOf(frameParaInfo.getParaByteLen()));
-            String data = HexUtil.encodeHexStr(paraValBytes);
-            String paraCmk = data.substring(0, 2);
-            StringBuffer paraValueStr = new StringBuffer();
-            paraValueStr.append(data.substring(2));
-            byte[] paraByte = HexUtil.decodeHex(data.substring(2));
             if(PARA_COMPLEX_LEVEL_COMPOSE.equals(frameParaInfo.getCmplexLevel())){
-                //当为复杂参数，则按照数据库配置的样式进行处理
-                paraValueStr.insert(2,"_");
+                //子参数列表
+                List<FrameParaInfo> subList = frameParaInfo.getSubParaList();
+                for(int i=0;i<subList.size();i++){
+                    FrameParaData frameParaData = genFramePara(subList.get(i),ByteUtils.byteArrayCopy(paraValBytes,i,1),respData.getDevNo());
+                    frameParaDataList.add(frameParaData);
+                }
             }
-            FrameParaInfo currentPara = BaseInfoContainer.getParaInfoByCmd(devType, paraCmk);
-            if (StringUtils.isEmpty(currentPara.getParaNo())){ continue;}
-            FrameParaData frameParaData = FrameParaData.builder()
-                    .devType(devType)
-                    .devNo(respData.getDevNo())
-                    .paraNo(currentPara.getParaNo())
-                    .paraOrigByte(paraByte)
-                    .build();
-            frameParaData.setParaVal(paraValueStr.toString());
-            frameParaDataList.add(frameParaData);
+            frameParaDataList.add(genFramePara(frameParaInfo,paraValBytes,respData.getDevNo()));
         }
         respData.setFrameParaList(frameParaDataList);
         //接口查询响应结果接收
         dataReciveService.interfaceQueryRecive(respData);
         return respData;
+    }
+
+    /**
+     * 生成FrameParaData
+     * @param currentPara
+     * @param paraValueByte
+     * @return
+     */
+    private  FrameParaData genFramePara(FrameParaInfo currentPara,byte[] paraValueByte,String devNo){
+        FrameParaData frameParaData = FrameParaData.builder()
+                .devType(currentPara.getDevType())
+                .paraNo(currentPara.getParaNo())
+                .paraOrigByte(paraValueByte)
+                .devNo(devNo)
+                .paraVal(HexUtil.encodeHexStr(paraValueByte))
+                .build();
+        return frameParaData;
     }
 }

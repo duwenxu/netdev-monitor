@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.xy.common.exception.BaseException;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.admin.service.impl.SysParamServiceImpl;
-import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.ParaHandlerUtil;
 import com.xy.netdev.monitor.bo.DevInterParam;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
@@ -494,7 +493,9 @@ public class BaseInfoContainer {
         FrameParaInfo frameParaInfo = paramCmdMap.get(ParaHandlerUtil.genLinkKey(devType, cmdMark));
         if (frameParaInfo != null) {
             PrtclFormat prtclFormat= frameParaInfo.getInterfacePrtcl();
-            prtclFormat.setIsPrtclParam(0);
+            if (prtclFormat!=null){
+                prtclFormat.setIsPrtclParam(0);
+            }
             return prtclFormat;
         }
         return new PrtclFormat();
@@ -599,6 +600,7 @@ public class BaseInfoContainer {
             FrameParaInfo frameParaInfo = new FrameParaInfo();
             frameParaInfo.setParaId(paraInfo.getNdpaId());  //参数id
             frameParaInfo.setParaNo(paraInfo.getNdpaNo());  //参数编号
+            frameParaInfo.setParentParaNo(paraInfo.getNdpaParentNo());  //父参数编号
             frameParaInfo.setParaCode(paraInfo.getNdpaCode());  //参数编码
             frameParaInfo.setParaName(paraInfo.getNdpaName());  //参数名称
             frameParaInfo.setCmdMark(paraInfo.getNdpaCmdMark()); //命令标识

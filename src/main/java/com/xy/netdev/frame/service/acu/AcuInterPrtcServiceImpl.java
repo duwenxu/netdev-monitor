@@ -70,6 +70,20 @@ public class AcuInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
                             val = val.substring(0,2)+"."+val.substring(2,3);
                         }
                     }
+                    if(paraInfo.getParaNo().equals("8")||paraInfo.getParaNo().equals("11")){
+                        if(val.length()>=5){
+                            val = val.substring(0,3)+"."+val.substring(3,5);
+                        }
+                    }
+                    if(paraInfo.getParaNo().equals("9")||paraInfo.getParaNo().equals("10")||paraInfo.getParaNo().equals("12")||paraInfo.getParaNo().equals("13")){
+                        Double num = Double.parseDouble(val);
+                        if(num>=0 && val.length()>=4){
+                            val = val.substring(0,2)+"."+val.substring(2,4);
+                        }
+                        if(num<0 && val.length()>=5){
+                            val = val.substring(0,3)+"."+val.substring(3,5);
+                        }
+                    }
                     paraInfo.setParaVal(val);
                     return paraInfo;
                 }).collect(Collectors.toList());
