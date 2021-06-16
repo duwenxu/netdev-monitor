@@ -56,7 +56,7 @@ public class ScheduleQuery  implements ApplicationRunner{
     private SnmpTransceiverServiceImpl snmpTransceiverService;
     @Autowired
     private IDevStatusReportService devStatusReportService;
-    private static String PING_THREAD_NAME ="basePingThread";
+    private static final String PING_THREAD_NAME ="basePingThread";
 
     @Override
     public void run(ApplicationArguments args) throws Exception {

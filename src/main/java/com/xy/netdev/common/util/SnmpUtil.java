@@ -28,6 +28,8 @@ public class SnmpUtil {
     public static final int DEFAULT_PORT = 161;
     public static final long DEFAULT_TIMEOUT = 3 * 1000L;
     public static final int DEFAULT_RETRY = 3;
+    //trap端口
+    public static final int DEFAULT_TRAP_PORT = 162;
 
     /**
      * 创建对象communityTarget，用于返回target
@@ -54,8 +56,8 @@ public class SnmpUtil {
      * @param community 设备组织
      * @param oid       参数数据标识
      */
-    public static Map<String,Variable> snmpGet(String ip, String community, String oid) {
-        ConcurrentHashMap<String,Variable> values = new ConcurrentHashMap<>(1);
+    public static Map<String, Variable> snmpGet(String ip, String community, String oid) {
+        ConcurrentHashMap<String, Variable> values = new ConcurrentHashMap<>(1);
         CommunityTarget target = createDefault(ip, community);
         Snmp snmp = null;
         try {
@@ -67,7 +69,7 @@ public class SnmpUtil {
             snmp.listen();
             pdu.setType(PDU.GET);
             ResponseEvent respEvent = snmp.send(pdu, target);
-            log.debug("SNMP发送PDU类型：[{}]到地址：[{}]---", pdu.getType(),respEvent.getPeerAddress());
+            log.debug("SNMP发送PDU类型：[{}]到地址：[{}]---", pdu.getType(), respEvent.getPeerAddress());
             PDU response = respEvent.getResponse();
             if (response == null) {
                 log.warn("SNMP response is null, request time out");
@@ -75,7 +77,7 @@ public class SnmpUtil {
                 log.debug("SNMP response pdu size is " + response.size());
                 for (int i = 0; i < response.size(); i++) {
                     VariableBinding vb = response.get(i);
-                    values.put(vb.getOid().toString(),vb.getVariable());
+                    values.put(vb.getOid().toString(), vb.getVariable());
                     log.debug("SNMP响应数据：oid:[{}]---value:[{}]", vb.getOid(), vb.getVariable());
                 }
             }
@@ -101,9 +103,9 @@ public class SnmpUtil {
      * @param community 设备组织
      * @param oidList   参数数据标识列表
      */
-    public static Map<String,Variable> snmpGetList(String ip, String community, List<String> oidList) {
-        log.debug("SNMP获取参数信息：oidList=[{}]",oidList);
-        ConcurrentHashMap<String,Variable> values = new ConcurrentHashMap<>(oidList.size());
+    public static Map<String, Variable> snmpGetList(String ip, String community, List<String> oidList) {
+        log.debug("SNMP获取参数信息：oidList=[{}]", oidList);
+        ConcurrentHashMap<String, Variable> values = new ConcurrentHashMap<>(oidList.size());
         CommunityTarget target = createDefault(ip, community);
         Snmp snmp = null;
         try {
@@ -125,7 +127,7 @@ public class SnmpUtil {
                 log.debug("response pdu size is " + response.size());
                 for (int i = 0; i < response.size(); i++) {
                     VariableBinding vb = response.get(i);
-                    values.put(vb.getOid().toString(),vb.getVariable());
+                    values.put(vb.getOid().toString(), vb.getVariable());
                     log.debug("SNMP响应数据：oid:[{}]---value:[{}]", vb.getOid(), vb.getVariable());
                 }
             }
@@ -145,9 +147,10 @@ public class SnmpUtil {
 
     /**
      * 根据OID和指定string来设置设备的数据
-     * @param ip  设备IP
+     *
+     * @param ip        设备IP
      * @param community 设备组织
-     * @param val 需要设置的参数值
+     * @param val       需要设置的参数值
      */
     public static String setPDU(String ip, String community, VariableBinding val) {
         long timeStart = System.currentTimeMillis();
@@ -169,42 +172,44 @@ public class SnmpUtil {
                 log.info("Control response is null, request time out");
                 respCode = "1";
             } else {
-                if (response.getErrorStatus()!=0){
+                if (response.getErrorStatus() != 0) {
                     respCode = "1";
                 }
-                log.info("SNMP控制响应：错误码：[{}],错误信息：[{}]",response.getErrorStatus(),response.getErrorStatusText());
+                log.info("SNMP控制响应：错误码：[{}],错误信息：[{}]", response.getErrorStatus(), response.getErrorStatusText());
             }
         } catch (Exception e) {
-            log.error("SNMP发送控制参数命令异常：oid=[{}],设置参数值：[{}]",val.getOid(),val,e);
+            log.error("SNMP发送控制参数命令异常：oid=[{}],设置参数值：[{}]", val.getOid(), val, e);
         } finally {
             try {
                 snmp.close();
             } catch (IOException ex1) {
             }
         }
-        log.info("SNMP单次设置值耗时：[{}]",System.currentTimeMillis()-timeStart);
+        log.info("SNMP单次设置值耗时：[{}]", System.currentTimeMillis() - timeStart);
         return respCode;
     }
 
     /**
      * 根据OID和指定string来设置设备的数据
-     * @param ip  设备IP
-     * @param community 设备组织
-     * @param oid 对象参数ID
-     * @param val 需要设置的参数值
+     * @param targetAddress TRAP地址
+     * @param community TRAP团体
+     * @param values TRAP消息
      * @throws IOException
      */
-    public static void trapPDU(String ip, String community, String oid, String val) throws IOException {
-        CommunityTarget target = createDefault(ip, community);
+    public static void trapPDU(String targetAddress, String community, List<VariableBinding> values) throws IOException {
+        //trap发送到接收端
+        Address address = GenericAddress.parse(DEFAULT_PROTOCOL + ":" + targetAddress + "/" + DEFAULT_TRAP_PORT);
+        CommunityTarget target = createDefault(targetAddress, community);
+        target.setAddress(address);
+
         Snmp snmp;
         PDU pdu = new PDU();
-        pdu.add(new VariableBinding(new OID(oid), new OctetString(val)));
+        pdu.setVariableBindings(values);
         pdu.setType(PDU.TRAP);
 
         DefaultUdpTransportMapping transport = new DefaultUdpTransportMapping();
         snmp = new Snmp(transport);
-        snmp.listen();
-        log.debug("发送SNMP设置帧到ip:[{}],参数oid:[{}]---参数值：[{}]",ip,oid,val);
+        log.debug("SNMP发送trap帧到ip:[{}],trap消息size:[{}]",address,values.size());
         snmp.send(pdu, target);
         snmp.close();
     }
@@ -304,7 +309,7 @@ public class SnmpUtil {
             pdu.add(new VariableBinding(targetOID));
 
             boolean finished = false;
-            log.debug("SNMP开始Walk节点：[{}]...",targetOid);
+            log.debug("SNMP开始Walk节点：[{}]...", targetOid);
             while (!finished) {
                 VariableBinding vb;
                 ResponseEvent respEvent = snmp.getNext(pdu, target);
@@ -447,13 +452,13 @@ public class SnmpUtil {
 
     public static void main(String[] args) {
 //        String ip = "192.168.7.31";
-        String ip ="127.0.0.1";
+        String ip = "127.0.0.1";
         String community = "public";
 //        String oid = ".1.3.6.1.4.1.589.10.2.1.3.0";
-        String localOid= ".1.3.6.1.2.1.4.20.1.4.127.0.0.1";
+        String localOid = ".1.3.6.1.2.1.4.20.1.4.127.0.0.1";
 //        String oidval1 = "1.3.6.1.4.1.589.10.2.1.4";
         Map<String, Variable> map = SnmpUtil.snmpGet(ip, community, localOid);
-        log.debug("map:{}",map);
+        log.debug("map:{}", map);
 //        SnmpUtil.setPDU(ip, community, localOid,);
 
     }
