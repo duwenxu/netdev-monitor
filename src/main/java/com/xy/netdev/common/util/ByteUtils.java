@@ -115,7 +115,7 @@ public class ByteUtils {
                 break;
             case 4:
                 if (!isFloat){
-                    data = objToBytes(Integer.parseInt(obj.toString()), byteOrder, Unpooled::copyInt);
+                    data = objToBytes((int)Long.parseLong(obj.toString()), byteOrder, Unpooled::copyInt);
                     break;
                 }
                 data = objToBytes(Float.parseFloat(obj.toString()), byteOrder, Unpooled::copyFloat);

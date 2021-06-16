@@ -7,6 +7,7 @@ import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.BeanFactoryUtil;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
+import com.xy.netdev.container.DevParaInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
@@ -14,9 +15,11 @@ import com.xy.netdev.frame.service.ICtrlInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.ParamCodec;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
+import com.xy.netdev.monitor.bo.ParaViewInfo;
 import com.xy.netdev.monitor.constant.MonitorConstants;
 import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
+import com.xy.netdev.transit.IDevCmdSendService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,6 +40,14 @@ public class MsctCtrlInterPrtcServiceImpl implements ICtrlInterPrtclAnalysisServ
     private SocketMutualService socketMutualService;
     @Autowired
     private ISysParamService sysParamService;
+    @Autowired
+    private IDevCmdSendService devCmdSendService;
+    //当前工作模式设置接口
+    public static final String SET_MODE_CMD = "8005AA";
+    //当前工作模式查询接口
+    public static final String CURRENT_MODE_CMD = "8205AA";
+    //当前工作模式，默认为TDMA
+    public static String currMode = "00";
 
 
     @Override
@@ -53,6 +64,7 @@ public class MsctCtrlInterPrtcServiceImpl implements ICtrlInterPrtclAnalysisServ
                     boolean isStr = false;
                     if(cmdMark.equals("AA")){
                          isStr = false;
+                         currMode = reqData.getFrameParaList().get(0).getParaVal();
                     }else{
                          isStr = MonitorConstants.STRING_CODE.equals(param.getDataType());
                     }
@@ -87,6 +99,12 @@ public class MsctCtrlInterPrtcServiceImpl implements ICtrlInterPrtclAnalysisServ
         String data = HexUtil.encodeHexStr(respData.getParamBytes());
         String controlSuccessCode = sysParamService.getParaRemark1(SysConfigConstant.CONTROL_SUCCESS);
         String controlFailCode = sysParamService.getParaRemark1(SysConfigConstant.CONTROL_FAIL);
+        //如果我当前模式设置，需要刷新设置后的缓存
+        if(respData.getCmdMark().equals(SET_MODE_CMD)){
+            FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),"AA");
+            ParaViewInfo paraViewInfo =  DevParaInfoContainer.getDevParaView(respData.getDevNo(),frameParaInfo.getParaNo());
+            paraViewInfo.setParaVal(currMode);
+        }
         if (controlSuccessCode.equals(data)) {
             respData.setRespCode(controlSuccessCode);
         } else if (controlFailCode.equals(data)) {

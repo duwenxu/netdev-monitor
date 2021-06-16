@@ -38,7 +38,8 @@ public class MsctInterExtService implements InterExtService {
 
     @Override
     public void setCacheDevInterViewInfo(String devNo) {
-        Interface intf = BaseInfoContainer.getInterLinkInterface(devNo,CURRENT_MODE_CMD);
+        BaseInfo devInfo = BaseInfoContainer.getDevInfoByNo(devNo);
+        Interface intf = BaseInfoContainer.getInterLinkInterface(devInfo.getDevType(),CURRENT_MODE_CMD);
         if(intf.getItfId()!=null){
             devCmdSendService.interfaceQuerySend(devNo,CURRENT_MODE_CMD);
             initModeIntfMap(devNo);

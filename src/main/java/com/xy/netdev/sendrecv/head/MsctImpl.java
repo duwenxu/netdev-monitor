@@ -76,7 +76,16 @@ public class MsctImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData,
         String hexPrtcCmd = respStr.substring(6,10).toUpperCase();
         String cmdMark = hexPrtcCmd.substring(2);
         if(cmdMark.toUpperCase().equals("AA")){
-            hexPrtcCmd = "82"+ respStr.substring(6,10).toUpperCase();
+            if(hexRespType.equals("81")){
+                hexPrtcCmd = "80"+ respStr.substring(6,10).toUpperCase();
+                log.warn("msct模式切换响应："+ HexUtil.encodeHexStr(bytes).toUpperCase());
+            }else{
+                hexPrtcCmd = "82"+ respStr.substring(6,10).toUpperCase();
+            }
+        }else{
+            if(hexRespType.equals("81")){
+                hexPrtcCmd = "80"+hexPrtcCmd;
+            }
         }
         if (!Arrays.asList(RESPONSE_SIGNS).contains(hexRespType)){
             log.error("收到包含错误响应标识的帧结构，标识字节：{}----数据体：{}",hexRespType,bytes);
@@ -102,6 +111,9 @@ public class MsctImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData,
             cmdType = prtclFormat.getFmtCkey();
         }
         String cmdMark = frameReqData.getCmdMark().toUpperCase();
+        if(cmdMark.startsWith("80")){
+            cmdMark = cmdMark.substring(2);
+        }
         if(cmdMark.contains("AA")){
             cmdMark = cmdMark.substring(2);
         }
@@ -120,6 +132,9 @@ public class MsctImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData,
         //累加校验和
         byte check = check(entity);
         entity.setCheck(check);
+        if(frameReqData.getOperType().equals("0026003")){
+            log.warn("MSCT-控制帧："+HexUtil.encodeHexStr(pack(entity)).toUpperCase());
+        }
         return pack(entity);
     }
 
