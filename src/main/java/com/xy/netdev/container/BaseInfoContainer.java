@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.xy.common.exception.BaseException;
 import com.xy.netdev.admin.service.ISysParamService;
-import com.xy.netdev.common.constant.SysConfigConstant;
+import com.xy.netdev.admin.service.impl.SysParamServiceImpl;
 import com.xy.netdev.common.util.ParaHandlerUtil;
 import com.xy.netdev.monitor.bo.DevInterParam;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
@@ -113,6 +113,7 @@ public class BaseInfoContainer {
      */
     private static Map<String, List<Interface>> devAssConItfMap = new HashMap<>();
 
+
     /**
      * @功能：当系统启动时,进行初始化各设备日志
      */
@@ -186,6 +187,7 @@ public class BaseInfoContainer {
                 paramCmdMap.put(ParaHandlerUtil.genLinkKey(paraInfo.getDevType(), paraInfo.getCmdMark()), paraInfo);
                 paramNoMap.put(ParaHandlerUtil.genLinkKey(paraInfo.getDevType(), paraInfo.getParaNo()), paraInfo);
 
+
             } catch (Exception e) {
                 log.error("参数[" + paraInfo.getParaName() + "]的设备类型或命令标识或参数编号存在异常，请检查:" + e.getMessage());
             }
@@ -205,6 +207,18 @@ public class BaseInfoContainer {
                     .filter(anInterface -> anInterface.getDevType().equals(devType))
                     .collect(Collectors.toList()));
         });
+//        for (Interface anInterface : interfaces) {
+//            String devType = anInterface.getDevType();
+//            if(devType.equals(DEVICE_QHDY)){
+//                devType = DEVICE_BPQ;
+//            }
+//            if(null!=devTypeInterMap.get(devType)){
+//                devTypeInterMap.get(devType).add(anInterface);
+//            }else{
+//                List<Interface> intfs = new ArrayList(){{add(interfaces);}};
+//                devTypeInterMap.put(devType,intfs);
+//            }
+//        }
     }
 
     /**
@@ -221,7 +235,7 @@ public class BaseInfoContainer {
             if(null!=devTypeParamMap.get(devType)){
                 devTypeParamMap.get(devType).add(frameParaInfo);
             }else{
-                List<FrameParaInfo> paras = new ArrayList<>();
+                List<FrameParaInfo> paras = new ArrayList(){{add(frameParaInfo);}};
                 devTypeParamMap.put(devType,paras);
             }
         }
@@ -309,16 +323,16 @@ public class BaseInfoContainer {
      * @功能：根据设备IP地址 获取设备信息
      */
     public static List<BaseInfo> getDevInfo(String devIPAddr) {
+        List<BaseInfo> baseInfos = new ArrayList<>();
         if (devMap.containsKey(devIPAddr)) {
-            return devMap.get(devIPAddr);
+            baseInfos.addAll( devMap.get(devIPAddr));
         } else {
             String rptIpAddr = sysParamService.getParaRemark1(RPT_IP_ADDR);
             if (rptIpAddr.equals(devIPAddr)) {
-                List<BaseInfo> baseInfos = new ArrayList<>();
                 baseInfos.add(genRptBaseInfo());
             }
         }
-        throw new BaseException("接收到的IP地址有误,IP地址为:" + devIPAddr + ",请检查!");
+        return baseInfos;
     }
 
     /**
@@ -479,7 +493,9 @@ public class BaseInfoContainer {
         FrameParaInfo frameParaInfo = paramCmdMap.get(ParaHandlerUtil.genLinkKey(devType, cmdMark));
         if (frameParaInfo != null) {
             PrtclFormat prtclFormat= frameParaInfo.getInterfacePrtcl();
-            prtclFormat.setIsPrtclParam(0);
+            if (prtclFormat!=null){
+                prtclFormat.setIsPrtclParam(0);
+            }
             return prtclFormat;
         }
         return new PrtclFormat();
@@ -523,6 +539,9 @@ public class BaseInfoContainer {
      * @功能：根据设备类型 获取处理类名
      */
     public static String getClassByDevType(String devType) {
+        if(null==sysParamService){
+            sysParamService = new SysParamServiceImpl();
+        }
         return sysParamService.getParaRemark2(devType);
     }
 
@@ -581,10 +600,12 @@ public class BaseInfoContainer {
             FrameParaInfo frameParaInfo = new FrameParaInfo();
             frameParaInfo.setParaId(paraInfo.getNdpaId());  //参数id
             frameParaInfo.setParaNo(paraInfo.getNdpaNo());  //参数编号
+            frameParaInfo.setParentParaNo(paraInfo.getNdpaParentNo());  //父参数编号
             frameParaInfo.setParaCode(paraInfo.getNdpaCode());  //参数编码
             frameParaInfo.setParaName(paraInfo.getNdpaName());  //参数名称
             frameParaInfo.setCmdMark(paraInfo.getNdpaCmdMark()); //命令标识
             frameParaInfo.setNdpaUnit(paraInfo.getNdpaUnit());
+            frameParaInfo.setNdpaShowMode(paraInfo.getNdpaShowMode());//参数展示方式
             frameParaInfo.setParaByteLen(paraInfo.getNdpaByteLen());  // 字节长度
             frameParaInfo.setParaStrLen(paraInfo.getNdpaStrLen());    //参数长度
             frameParaInfo.setDataType(paraInfo.getNdpaDatatype());//数值类型
@@ -617,10 +638,11 @@ public class BaseInfoContainer {
                 frameParaInfo.setInterfacePrtcl(prtclFormats.get(0));      //解析协议
             }
             frameParaInfo.setTransRule(paraInfo.getNdpaTransRule()); //内外转换值域
+            frameParaInfo.setCombRule(paraInfo.getNdpaCombRule());
             //内外转换map
-            if(DEV_STATUS_DEFAULT.equals(paraInfo.getNdpaAlertPara()) && paraInfo.getNdpaOutterStatus().equals(IS_DEFAULT_TRUE)){
+            if(PARA_SHOW_MODEL.equals(paraInfo.getNdpaShowMode()) && org.apache.commons.lang3.StringUtils.isNoneBlank(paraInfo.getNdpaCombRule())){
                 //当字段类型为无且对外展示时
-                Map<String, String> mapIn = Optional.ofNullable(JSONObject.parseObject(paraInfo.getNdpaTransRule(), Map.class)).orElse(new HashMap());
+                Map<String, String> mapIn = Optional.ofNullable(JSONObject.parseObject(paraInfo.getNdpaCombRule(), Map.class)).orElse(new HashMap());
                 frameParaInfo.setTransIntoOutMap(mapIn);    //数据内->外转换值域map
                 Map<String, String> mapOut = new HashMap<>();
                 mapIn.forEach((key, value) -> {
@@ -702,5 +724,20 @@ public class BaseInfoContainer {
 
         });
         return devInterParams;
+    }
+
+    /**
+     * 清空缓存
+     */
+    public static void cleanCache(){
+        devMap.clear();
+        devNoMap.clear();
+        InterLinkParaMap.clear();
+        paramCmdMap.clear();
+        paramNoMap.clear();
+        devTypeInterMap.clear();
+        devTypeParamMap.clear();
+        devPageItfMap.clear();
+        devAssConItfMap.clear();
     }
 }

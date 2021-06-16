@@ -1,6 +1,8 @@
 package com.xy.netdev.common.constant;
 
 
+import org.apache.ibatis.type.NStringTypeHandler;
+
 /**
  * 系统配置常量*
  *
@@ -279,6 +281,11 @@ public interface SysConfigConstant {
     String TCP = "0030002";
 
     /**
+     * SNMP
+     */
+    String SNMP = "0030003";
+
+    /**
      * 设备状态--中断
      */
     String DEV_STATUS_INTERRUPT = "0029001";
@@ -317,6 +324,12 @@ public interface SysConfigConstant {
      * 公共参数--54所IP地址、端口号
      */
     String RPT_IP_ADDR = "0100006";
+
+
+    /**
+     * 公共参数--给54所发送数据的端口
+     */
+    String RPT_SEND_PORT = "0100011";
 
     /**
      * 站控-设备状态上报--中断状态-中断
@@ -427,10 +440,19 @@ public interface SysConfigConstant {
     String INTERFACE_TYPE_SUB = "0027006";
 
     /**
-     * 参数数据类型--str
+     * 参数数据类型--BYTE
+     */
+    String PARA_DATA_TYPE_BYTE = "0023001";
+
+    /**
+     * 参数数据类型--int
      */
     String PARA_DATA_TYPE_INT = "0023002";
 
+    /**
+     * 参数数据类型--uint
+     */
+    String PARA_DATA_TYPE_UINT = "0023003";
     /**
      * 参数数据类型--str
      */
@@ -462,6 +484,11 @@ public interface SysConfigConstant {
     String  DEVICE_QHDY = "0020005";
 
     /**
+     * 设备类型--多体制卫星信道终端
+     */
+    String DEVICE_MSCT = "0020015";
+
+    /**
      * 设备类型--转换开关
      */
     String DEVICE_TRANS_SWITCH = "0020021";
@@ -488,6 +515,11 @@ public interface SysConfigConstant {
     String  DEVICE_CAR_GF = "0020003";
 
     /**
+     * 设备类型--Comtech功放
+     */
+    String COMTECH_GF = "0020023";
+
+    /**
      * 数据类型--str默认长度
      */
     String  DATA_TYPE_LEN = "0100009";
@@ -501,5 +533,36 @@ public interface SysConfigConstant {
      * 当前车类型
      */
     String CURR_CAR_TYPE = "0100011";
+
+    /**
+     * 1.5米ACU方位角调整休眠时间
+     */
+    String ACU_SLEEP_TIME = "0100012";
+
+    /**
+     * 1.5米ACU中agc阈值
+     */
+    String ACU_AGE_VALUE = "0100013";
+
+    /**
+     * 私有MIB前缀
+     */
+    String PRIVATE_MIB_PREFIX = "0101001";
+    /**
+     * 私有MIB固定1
+     */
+    String FIXED_MIB_1 = "0101002";
+    /**
+     * 私有MIB固定2
+     */
+    String FIXED_MIB_2 = "0101003";
+    /**
+     * 私有MIB区域号
+     */
+    String PRIVATE_MIB_REGION = "0101004";
+    /**
+     * 私有MIB站号
+     */
+    String PRIVATE_MIB_STATION = "0101005";
 
 }

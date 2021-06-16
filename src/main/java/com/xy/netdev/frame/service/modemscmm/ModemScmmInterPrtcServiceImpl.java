@@ -93,6 +93,7 @@ public class ModemScmmInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSe
                 String value = doGetValue(param, targetBytes);
 
                 paraInfo.setParaVal(value);
+                paraInfo.setParaOrigByte(targetBytes);
                 frameParaDataList.add(paraInfo);
             }
         }

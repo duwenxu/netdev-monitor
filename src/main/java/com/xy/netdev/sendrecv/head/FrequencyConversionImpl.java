@@ -1,6 +1,7 @@
 package com.xy.netdev.sendrecv.head;
 
 import cn.hutool.core.util.StrUtil;
+import com.xy.common.exception.BaseException;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.service.ICtrlInterPrtclAnalysisService;
@@ -14,6 +15,7 @@ import com.xy.netdev.sendrecv.entity.SocketEntity;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.Charset;
@@ -52,10 +54,16 @@ public class FrequencyConversionImpl extends AbsDeviceSocketHandler<SocketEntity
             frameRespData.setRespCode(SysConfigConstant.RPT_DEV_STATUS_ISALARM_NO);
         }
         int endOffset = StrUtil.indexOf(data, '_');
-        String paramMark = StrUtil.sub(data, beginOffset, endOffset);
-        frameRespData.setCmdMark(paramMark);
-        frameRespData.setParamBytes(socketEntity.getBytes());
-        frameRespData.setAccessType(getAccessType(frameRespData.getDevType(),paramMark.substring(1)));
+        String paramMark = "";
+        if(endOffset>beginOffset){
+            paramMark= StrUtil.sub(data, beginOffset, endOffset);
+            frameRespData.setCmdMark(paramMark);
+            frameRespData.setParamBytes(socketEntity.getBytes());
+            frameRespData.setAccessType(getAccessType(frameRespData.getDevType(),paramMark.substring(1)));
+        }else{
+            log.error("变频器返回数据异常：{}",data);
+        }
+
         return frameRespData;
     }
 
@@ -79,12 +87,16 @@ public class FrequencyConversionImpl extends AbsDeviceSocketHandler<SocketEntity
 
     @Override
     public String cmdMarkConvert(FrameRespData frameRespData) {
-        //获取设备CMD信息, '/'为调制解调器特殊格式, 因为调制解调器cmd为字符串, 不能进行十六进制转换, 所以特殊区分
-        if (!StrUtil.contains(frameRespData.getCmdMark(), '/') && !StrUtil.contains(frameRespData.getCmdMark(), '?')) {
-            return Integer.toHexString(Integer.parseInt(frameRespData.getCmdMark(), 16));
-        } else {
-            return StrUtil.removeAll(frameRespData.getCmdMark(), '/','?');
+        String cmdMark = "";
+        if(StringUtils.isNotEmpty(frameRespData.getCmdMark())){
+            //获取设备CMD信息, '/'为调制解调器特殊格式, 因为调制解调器cmd为字符串, 不能进行十六进制转换, 所以特殊区分
+            if (!StrUtil.contains(frameRespData.getCmdMark(), '/') && !StrUtil.contains(frameRespData.getCmdMark(), '?')) {
+                cmdMark =  frameRespData.getCmdMark();
+            } else {
+                cmdMark =  StrUtil.removeAll(frameRespData.getCmdMark(), '/','?');
+            }
         }
+        return cmdMark;
     }
 
     @Override

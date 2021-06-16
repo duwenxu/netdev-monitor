@@ -39,6 +39,9 @@ public class ReportWarnImpl implements RequestService {
         tempList.add(ByteUtils.objToBytes(alertInfo.getAlertNum(), 1));
         //告警时间
         tempList.add(ByteUtils.objToBytes(alertInfo.getAlertTime(), 20));
+        //时间转出来只有19字节末位补0
+        byte[] val = {(byte)0x00};
+        tempList.add(val);
         //站号
         tempList.add(ByteUtils.objToBytes(alertInfo.getAlertStationNo(), 1));
         byte[] devType= new byte[2];
@@ -51,7 +54,7 @@ public class ReportWarnImpl implements RequestService {
         //参数编号
         tempList.add(ByteUtils.objToBytes(alertInfo.getNdpaNo(), 1));
         //告警级别
-        tempList.add(ByteUtils.objToBytes(sysParamService.getParaRemark1(alertInfo.getAlertLevel()), 4));
+        tempList.add(ByteUtils.objToBytes(Integer.parseInt(sysParamService.getParaRemark1(alertInfo.getAlertLevel())), 4));
         //描述
         byte[] alertDesc = alertInfo.getAlertDesc().getBytes(Charset.forName("GB2312"));
         //告警描述长度

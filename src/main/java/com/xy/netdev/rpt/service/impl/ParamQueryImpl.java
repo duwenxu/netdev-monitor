@@ -2,10 +2,13 @@ package com.xy.netdev.rpt.service.impl;
 
 import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSON;
 import com.xy.netdev.admin.service.ISysParamService;
+import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.ByteUtils;
+import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.container.DevParaInfoContainer;
+import com.xy.netdev.monitor.bo.FrameParaInfo;
+import com.xy.netdev.monitor.bo.ParaViewInfo;
 import com.xy.netdev.monitor.constant.MonitorConstants;
 import com.xy.netdev.rpt.bo.RptBodyDev;
 import com.xy.netdev.rpt.bo.RptHeadDev;
@@ -69,15 +72,29 @@ public class ParamQueryImpl implements RequestService, ResponseService {
     public byte[] pack(RptHeadDev rptHeadDev,StationCtlRequestEnums stationCtlRequestEnums) {
         List<byte[]> dataBytes = commonPack(rptHeadDev, (devParaList, tempList) -> {
             devParaList.forEach(frameParaData -> {
-                if (frameParaData.getLen() == null) {
-                    log.warn("参数查询命令生成失败:{}", JSON.toJSONString(frameParaData));
-                }
+//                if (frameParaData.getLen() == null) {
+//                    log.warn("参数查询命令生成失败:{}", JSON.toJSONString(frameParaData));
+//                }
                 if (StrUtil.isNotBlank(frameParaData.getParaVal())) {
-                    String paraDatatype = DevParaInfoContainer.getDevParaView(frameParaData.getDevNo(), frameParaData.getParaNo()).getParaDatatype();
+                    String paraDatatype = SysConfigConstant.PARA_DATA_TYPE_STR;
+                    ParaViewInfo paraView = DevParaInfoContainer.getDevParaView(frameParaData.getDevNo(), frameParaData.getParaNo());
+                    if(paraView!=null){
+                         paraDatatype = paraView.getParaDatatype();
+                    }
                     byte[] bytes = frameParaData.getParaVal().getBytes(Charset.forName("GB2312"));
-                    if (MonitorConstants.BYTE.equals(paraDatatype)){
-                        bytes = HexUtil.decodeHex(frameParaData.getParaVal());
-                    ByteUtils.objToBytes(frameParaData.getParaVal(),frameParaData.getLen());
+                    FrameParaInfo paraDetail = BaseInfoContainer.getParaInfoByNo(frameParaData.getDevType(),String.valueOf(frameParaData.getParaNo()));
+                    if (MonitorConstants.BYTE.equals(paraDatatype) && paraDetail.getNdpaShowMode().equals(SysConfigConstant.PARA_SHOW_MODEL)){
+                        try {
+                            bytes = HexUtil.decodeHex(frameParaData.getParaVal());
+                            ByteUtils.objToBytes(frameParaData.getParaVal(),frameParaData.getLen());
+                        } catch (Exception e) {
+                            log.warn("上报信息数据体字节转换异常：需要转换的参数值：[{}]",frameParaData.getParaVal());
+                        }
+                    }
+                    if (MonitorConstants.IP_ADDRESS.equals(paraDatatype) || MonitorConstants.IP_MASK.equals(paraDatatype) || (MonitorConstants.BYTE.equals(paraDatatype) && !paraDetail.getNdpaShowMode().equals(SysConfigConstant.PARA_SHOW_MODEL))){
+                        if(frameParaData.getParaOrigByte()!=null && frameParaData.getParaOrigByte().length>0){
+                            bytes = frameParaData.getParaOrigByte();
+                        }
                     }
                     //参数编号
                     tempList.add(ByteUtils.objToBytes(frameParaData.getParaNo(), 1));
@@ -85,13 +102,15 @@ public class ParamQueryImpl implements RequestService, ResponseService {
                     tempList.add(ByteUtils.objToBytes(bytes.length, 2));
                     //数据体内容
                     tempList.add(bytes);
-//                    tempList.add( ByteUtils.objToBytes(frameParaData.getParaVal(), frameParaData.getLen()));
                 }
             });
         });
         byte[] bytes = packHeadBytes(dataBytes, stationCtlRequestEnums);
         return bytes;
     }
+
+
+
 
     public byte[] packHeadBytes(List<byte[]> dataBytes,StationCtlRequestEnums stationCtlRequestEnums) {
         byte[] data = listToBytes(dataBytes);

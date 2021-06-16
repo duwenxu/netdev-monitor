@@ -62,7 +62,7 @@ public class NettyTcpClient implements Runnable {
     public void doConnect() {
         Bootstrap bootstrap = setBootstrap();
         ChannelFuture channelFuture = bootstrap.connect(new InetSocketAddress(host, port),
-                new InetSocketAddress(localPort)).sync()
+                new InetSocketAddress(localPort))
                 .addListener((GenericFutureListener<ChannelFuture>) this::isSuccess);
         channelFuture.channel().closeFuture().await();
     }
@@ -76,6 +76,7 @@ public class NettyTcpClient implements Runnable {
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(eventLoopGroup)
                 .channel(Epoll.isAvailable()? EpollSocketChannel.class: NioSocketChannel.class)
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS,1000)
                 .option(ChannelOption.SO_KEEPALIVE, true)
                 .option(ChannelOption.SO_REUSEADDR, true)
                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
@@ -149,7 +150,7 @@ public class NettyTcpClient implements Runnable {
         if (!future.isSuccess() && retryPolicy.allowRetry(retryCount)){
             long sleepTimeMs = retryPolicy.getSleepTimeMs(retryCount);
             final EventLoop eventLoop = future.channel().eventLoop();
-            log.warn("与服务端{}:{}连接失败!{}m之后准备尝试重连!, 重连次数{}", host, port, sleepTimeMs, retryCount.get());
+            log.debug("与服务端{}:{}连接失败!{}m之后准备尝试重连!, 重连次数{}", host, port, sleepTimeMs, retryCount.get());
             eventLoop.schedule(this::doConnect, sleepTimeMs, TimeUnit.MILLISECONDS);
         }
     }

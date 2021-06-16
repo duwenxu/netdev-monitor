@@ -69,8 +69,12 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
     public FrameRespData queryParaResponse(FrameRespData respData) {
         String respStr = new String(respData.getParamBytes());
         String addr = respStr.substring(1,4);
+        respData.setDevNo(getDevNo(addr));
         int startIdx = respStr.indexOf("_");
         int endIdx = respStr.indexOf(StrUtil.LF);
+        if(endIdx==-1){
+            endIdx = respStr.length();
+        }
         String[] params = null;
         try{
             String str = respStr.substring(startIdx+2,endIdx);
@@ -82,10 +86,20 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
         List<FrameParaData> frameParaList = new ArrayList<>();
         for (String param : params) {
             String cmdMark = convertCmdMark(param.split("_")[0],respData.getCmdMark());
-            String value = param.split("_")[1];
+            String value = "";
+            String[] values = param.split("_");
+            if(values.length>1){
+                value = values[1];
+            }
             FrameParaData paraInfo = new FrameParaData();
             FrameParaInfo frameParaDetail = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),cmdMark);
             BeanUtil.copyProperties(frameParaDetail, paraInfo, true);
+            if(cmdMark.equals("POUT") && value.length()>1){
+                value = value.substring(0,value.length()-3);
+            }
+            if(cmdMark.equals("POW") && value.length()>1){
+                value = value.substring(0,value.length()-1);
+            }
             paraInfo.setParaVal(value);
             paraInfo.setDevNo(getDevNo(addr));
             frameParaList.add(paraInfo);
@@ -125,19 +139,32 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
      * @param addr
      * @return
      */
+//    private String getDevNo(String addr){
+//        String devNo = "";
+//        Map<String, BaseInfo> addrMap =  getBPQAddrMap();
+//        if(addrMap.get(addr) != null){
+//            devNo = addrMap.get(addr).getDevNo();
+//        }
+//        return devNo;
+//    }
+
     private String getDevNo(String addr){
         String devNo = "";
-        Map<String, BaseInfo> addrMap =  getBPQAddrMap();
-        if(addrMap.get(addr) != null){
-            devNo = addrMap.get(addr).getDevNo();
+        switch (addr){
+            case "001":
+                devNo = "42";
+                break;
+            case "010":
+                devNo = "40";
+                break;
+            case "011":
+                devNo = "41";
+                break;
+            default:
+                devNo = "42";
+                break;
         }
         return devNo;
     }
-
-//    public getQHDYLocalAddr(FrameReqData reqInfo){
-//        BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(reqInfo.getDevNo());
-//        String parentNo = baseInfo.getDevParentNo();
-//
-//    }
 
 }

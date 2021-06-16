@@ -32,6 +32,9 @@ public class FrameParaInfo {
     @ApiModelProperty(value = "参数编号")
     private String paraNo;
 
+    @ApiModelProperty(value = "父参数编号")
+    private String parentParaNo;
+
     @ApiModelProperty(value = "参数编码")
     private String paraCode;
 
@@ -95,6 +98,11 @@ public class FrameParaInfo {
     @ApiModelProperty(value = "数据内外转换值域")
     private String transRule;
 
+    @ApiModelProperty(value = "上报网管下拉选则映射")
+    private String combRule;
+
+    @ApiModelProperty(value = "显示模式")
+    private String ndpaShowMode;
     /**
      * 数据内->外转换值域map
      * on:1

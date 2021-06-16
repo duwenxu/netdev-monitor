@@ -109,10 +109,7 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
 
     @Override
     @SuppressWarnings("unchecked")
-    public void socketResponse(SocketEntity socketEntity) {
-        //获取设备参数信息
-        List<BaseInfo> baseInfos = getDevInfo(socketEntity.getRemoteAddress());
-        for (BaseInfo devInfo : baseInfos) {
+    public void socketResponse(SocketEntity socketEntity,BaseInfo devInfo) {
             R r = (R)new FrameRespData();
             r.setDevType(devInfo.getDevType());
             r.setDevNo(devInfo.getDevNo());
@@ -129,7 +126,7 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
                 prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(r.getDevType(), cmdHexStr);
             }
             if (prtclFormat.getFmtId() == null){
-                log.warn("设备:{}, 未找到数据体处理类", r.getDevNo());
+                //log.warn("设备:{}, 未找到数据体处理类", r.getDevNo());
                 return;
             }
             if (prtclFormat.getIsPrtclParam() == null){
@@ -170,7 +167,6 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
             this.callback(unpackBytes, iParaPrtclAnalysisService, queryInterPrtclAnalysisService, iCtrlInterPrtclAnalysisService);
             log.debug("设备数据已发送至对应模块, 数据体:{}", JSON.toJSONString(unpackBytes));
         }
-    }
 
     /**
      * 不同协议 cmd 关键字转换处理 默认不做转换
@@ -222,6 +218,11 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
         int localPort = port;
         if (StrUtil.isNotBlank(devInfo.getDevLocalPort())){
             localPort = Integer.parseInt(devInfo.getDevLocalPort());
+        }
+        if(t.getDevNo().equals("30") || t.getDevNo().equals("31")){
+            if(t.getOperType().equals(SysConfigConstant.OPREATE_CONTROL)){
+                log.warn("转换开关控制帧："+HexUtil.encodeHexStr(bytes));
+            }
         }
         return NettyUtil.sendMsg(bytes, localPort, devInfo.getDevIpAddr(), port, Integer.parseInt(sysParamService.getParaRemark1(devInfo.getDevNetPtcl())));
     }

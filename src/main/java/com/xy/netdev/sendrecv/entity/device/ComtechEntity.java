@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 /**
  * Comtech协议对象数据体DTO
@@ -14,6 +15,7 @@ import lombok.Setter;
 @Setter
 @Getter
 @Builder
+@ToString
 public class ComtechEntity {
 
     @ApiModelProperty(value = "起始字节", notes = "STX")

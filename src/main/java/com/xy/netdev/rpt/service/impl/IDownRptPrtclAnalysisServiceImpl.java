@@ -227,7 +227,8 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
                     .paraNo(paraView.getParaNo())
                     .paraVal(paramVal)
                     .devType(paraView.getDevType())
-                    .devNo(paraView.getDevNo());
+                    .devNo(paraView.getDevNo())
+                    .paraOrigByte(paraView.getParaOrigByte());
             if (StrUtil.isNotBlank(paraView.getParaByteLen())){
                 frameParaDataBuilder.len(Integer.parseInt(paraView.getParaByteLen()));
             }
@@ -247,9 +248,9 @@ public class IDownRptPrtclAnalysisServiceImpl implements IDownRptPrtclAnalysisSe
         FrameParaInfo infoByNo = BaseInfoContainer.getParaInfoByNo(paraView.getDevType(), paraView.getParaNo());
         String paramVal = paraView.getParaVal();
         String showMode = paraView.getParahowMode();
-        String transRule = infoByNo.getTransRule();
+        String transRule = infoByNo.getCombRule();
         /**参数为下拉框 且 存在转换规则*/
-        if (PARA_SHOW_MODEL.equals(showMode) && StringUtils.isNoneBlank(transRule)) {
+        if (PARA_SHOW_MODEL.equals(showMode) && StringUtils.isNoneBlank(transRule) &&  StringUtils.isNotEmpty(paramVal)) {
             if (sign == IN_TO_OUT){
                 Map<String, String> intoOutMap = infoByNo.getTransIntoOutMap();
                 if (intoOutMap==null){

@@ -24,6 +24,7 @@ import com.xy.netdev.websocket.send.DevIfeMegSend;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -43,7 +44,7 @@ import static com.xy.netdev.common.constant.SysConfigConstant.IS_DEFAULT_TRUE;
  * @author tangxl
  * @since 2021-03-11
  */
-@Service
+@Component
 @Slf4j
 public class DataReciveServiceImpl implements IDataReciveService {
 
@@ -59,7 +60,7 @@ public class DataReciveServiceImpl implements IDataReciveService {
     @Autowired
     private StationControlHandler stationControlHandler;
 
-    private ExecutorService rptDevExecutor= ThreadUtil.newExecutor(4,4,10);
+    public ExecutorService rptDevExecutor= ThreadUtil.newExecutor(4,4,10);
 
     /**
      * 参数查询接收
@@ -82,7 +83,7 @@ public class DataReciveServiceImpl implements IDataReciveService {
      * 主动上报推送参数状态信息
      * @param respData 上报数据
      */
-    private void stationRptParamsByDev(FrameRespData respData) {
+    public void stationRptParamsByDev(FrameRespData respData) {
         RptHeadDev headDev = rptParamsByDev(respData);
         stationControlHandler.queryParaResponse(headDev,StationCtlRequestEnums.PARA_QUERY_RESPONSE);
     }
@@ -98,8 +99,23 @@ public class DataReciveServiceImpl implements IDataReciveService {
         RptHeadDev headDev = initDevHead(devStatusInfo);
         RptBodyDev rptBodyDev = new RptBodyDev();
         //获取指定设备当前可读且可以对外上报的参数列表
-        List<ParaViewInfo> devParaViewList = DevParaInfoContainer.getDevParaViewList(devStatusInfo.getDevNo()).stream()
-                .filter(paraView -> !SysConfigConstant.ONLY_WRITE.equals(paraView.getAccessRight()) && IS_DEFAULT_TRUE.equals(paraView.getNdpaOutterStatus()))
+        List<ParaViewInfo> devParaViews = DevParaInfoContainer.getDevParaViewList(devStatusInfo.getDevNo());
+        List<ParaViewInfo> allParaViews = new ArrayList<>();
+        //取复杂参数和组合参数的子参数推送二级网管显示
+        for (ParaViewInfo paraView : devParaViews) {
+            if(paraView.getParaCmplexLevel().equals(SysConfigConstant.PARA_COMPLEX_LEVEL_COMPOSE) ||  paraView.getParaCmplexLevel().equals(SysConfigConstant.PARA_COMPLEX_LEVEL_COMPLEX)) {
+                List<ParaViewInfo> subParaList = paraView.getSubParaList();
+                for (ParaViewInfo paraViewInfo : subParaList) {
+                    if (paraView.getNdpaOutterStatus().equals(SysConfigConstant.IS_DEFAULT_TRUE)) {
+                        allParaViews.add(paraViewInfo);
+                    }
+                }
+            }else{
+                allParaViews.add(paraView);
+            }
+        }
+        List<ParaViewInfo> devParaViewList = allParaViews.stream()
+                .filter(paraView ->  IS_DEFAULT_TRUE.equals(paraView.getNdpaOutterStatus()))
                 .collect(Collectors.toList());
 
         //当前设备的查询响应参数列表
@@ -195,7 +211,7 @@ public class DataReciveServiceImpl implements IDataReciveService {
      * webSokcet推送接口控制数据
      * @param  respData   协议解析响应数据
      */
-    private  void sendCtrlInter(FrameRespData respData){
+    public void sendCtrlInter(FrameRespData respData){
         if(!BaseInfoContainer.getCtrlItfInfo(respData.getDevNo()).isEmpty()){
             DevIfeMegSend.sendDevCtrlItfInfosToDev(respData.getDevNo());
         }

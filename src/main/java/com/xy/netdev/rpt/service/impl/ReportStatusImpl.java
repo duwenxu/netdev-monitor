@@ -42,7 +42,11 @@ public class ReportStatusImpl implements RequestService {
             //设备型号
             byte[] devType= new byte[2];
             devType[0] = 0x39;
-            devType[1] = (byte) Integer.parseInt(sysParamService.getParaRemark1(devStatusInfo.getDevTypeCode()),16);
+            String devSubType = devStatusInfo.getDevTypeCode();
+            if(devSubType.length()==7 && devSubType.startsWith("0020")){
+                devSubType = sysParamService.getParaRemark1(devStatusInfo.getDevTypeCode());
+            }
+            devType[1] = (byte) Integer.parseInt(devSubType,16);
             tempList.add(devType);
             //设备编号
             tempList.add(ByteUtils.objToBytes(devStatusInfo.getDevNo(), 1));

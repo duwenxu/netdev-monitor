@@ -74,13 +74,26 @@ public class MsctImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData,
         String respStr = new String(HexUtil.encodeHex(socketEntity.getBytes()));
         String hexRespType = respStr.substring(4,6).toUpperCase();
         String hexPrtcCmd = respStr.substring(6,10).toUpperCase();
+        String cmdMark = hexPrtcCmd.substring(2);
+        if(cmdMark.toUpperCase().equals("AA")){
+            if(hexRespType.equals("81")){
+                hexPrtcCmd = "80"+ respStr.substring(6,10).toUpperCase();
+                log.warn("msct模式切换响应："+ HexUtil.encodeHexStr(bytes).toUpperCase());
+            }else{
+                hexPrtcCmd = "82"+ respStr.substring(6,10).toUpperCase();
+            }
+        }else{
+            if(hexRespType.equals("81")){
+                hexPrtcCmd = "80"+hexPrtcCmd;
+            }
+        }
         if (!Arrays.asList(RESPONSE_SIGNS).contains(hexRespType)){
             log.error("收到包含错误响应标识的帧结构，标识字节：{}----数据体：{}",hexRespType,bytes);
         }
         //数据体
         byte[] paramBytes = byteArrayCopy(bytes, 7, len);
         PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameRespData.getDevType(), hexPrtcCmd);
-        String operateType = BaseInfoContainer.getOptByPrtcl(prtclFormat, hexPrtcCmd);
+        String operateType = BaseInfoContainer.getOptByPrtcl(prtclFormat, hexRespType);
         frameRespData.setOperType(operateType);
         frameRespData.setCmdMark(hexPrtcCmd);
         frameRespData.setParamBytes(paramBytes);
@@ -97,7 +110,14 @@ public class MsctImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData,
         }else {
             cmdType = prtclFormat.getFmtCkey();
         }
-        byte[] keywords = HexUtil.decodeHex(frameReqData.getCmdMark());
+        String cmdMark = frameReqData.getCmdMark().toUpperCase();
+        if(cmdMark.startsWith("80")){
+            cmdMark = cmdMark.substring(2);
+        }
+        if(cmdMark.contains("AA")){
+            cmdMark = cmdMark.substring(2);
+        }
+        byte[] keywords = HexUtil.decodeHex(cmdMark);
         int length = 0;
         if(paramBytes!=null){
             length = paramBytes.length;
@@ -112,6 +132,9 @@ public class MsctImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData,
         //累加校验和
         byte check = check(entity);
         entity.setCheck(check);
+        if(frameReqData.getOperType().equals("0026003")){
+            log.warn("MSCT-控制帧："+HexUtil.encodeHexStr(pack(entity)).toUpperCase());
+        }
         return pack(entity);
     }
 
@@ -160,12 +183,13 @@ public class MsctImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData,
     }
 
     public static void main(String[] args) {
-        byte[] bytes1 = {0x04, 0x10, 0x00, 0x13};
+       byte[] bytes1 = {0x04, 0x10, 0x00, 0x13};
+        //byte[] bytes1 = {0xEB, 0x90, 0x82, 0x03, 0xAA, 0x00};
 //        AscIIParamCodec paramCodec = new AscIIParamCodec();
 //        String decode = paramCodec.decode(bytes);
 //        System.out.println(decode);
 //        byte[] encode = paramCodec.encode(decode);
-        System.out.println(addGetBottom256(bytes1,0,4));
+        System.out.println(addGetBottom256(bytes1,0,6));
 //        byte temp = bytes1[0];
 //        for (int i = 1; i < bytes1.length; i++) {
 //            temp ^= bytes1[i];

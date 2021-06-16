@@ -78,13 +78,21 @@ public class ParaInfo extends Model<ParaInfo> {
     @Param
     private String ndpaShowMode;
 
-    @ApiModelProperty(value = "最大值")
-    @TableField(value = "NDPA_VAL_MAX")
-    private String ndpaValMax;
+    @ApiModelProperty(value = "最大值1")
+    @TableField(value = "NDPA_VAL_MAX1")
+    private String ndpaValMax1;
 
-    @ApiModelProperty(value = "最小值")
-    @TableField(value = "NDPA_VAL_MIN")
-    private String ndpaValMin;
+    @ApiModelProperty(value = "最小值1")
+    @TableField(value = "NDPA_VAL_MIN1")
+    private String ndpaValMin1;
+
+    @ApiModelProperty(value = "最大值2")
+    @TableField(value = "NDPA_VAL_MAX2")
+    private String ndpaValMax2;
+
+    @ApiModelProperty(value = "最小值2")
+    @TableField(value = "NDPA_VAL_MIN2")
+    private String ndpaValMin2;
 
     @ApiModelProperty(value = "设备XML模型数据格式")
     @TableField(value = "NDPA_VAL_FORMAT")
@@ -116,9 +124,13 @@ public class ParaInfo extends Model<ParaInfo> {
     @TableField(value = "NDPA_OUTTER_STATUS")
     private String ndpaOutterStatus;
 
-    @ApiModelProperty(value = "提供给54所时 数据映射规则")
+    @ApiModelProperty(value = "设备状态上报数据映射规则")
     @TableField(value = "NDPA_TRANS_RULE")
     private String ndpaTransRule;
+
+    @ApiModelProperty(value = "枚举类型参数，上报规则")
+    @TableField(value = "NDPA_COMB_RULE")
+    private String ndpaCombRule;
 
     @ApiModelProperty(value = "字段类型")
     @Param
@@ -195,6 +207,10 @@ public class ParaInfo extends Model<ParaInfo> {
     @ApiModelProperty(value = "设备类型编码")
     @TableField(exist = false)
     private String devTypeCode;
+
+    @ApiModelProperty(value = "上报OID")
+    @TableField(value = "NDPA_RPT_OID")
+    private String ndpaRptOid;
 
     @Override
     protected Serializable pkVal() {

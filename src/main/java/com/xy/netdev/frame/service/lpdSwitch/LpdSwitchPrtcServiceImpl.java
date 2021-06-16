@@ -60,10 +60,13 @@ public class LpdSwitchPrtcServiceImpl implements IParaPrtclAnalysisService {
         List<byte[]> list = new ArrayList<>();
         reqInfo.getFrameParaList().forEach(frameParaData->{
             FrameParaInfo paraInfoByNo = BaseInfoContainer.getParaInfoByNo(frameParaData.getDevType(), frameParaData.getParaNo());
+            //将参数值进行映射转换
             String paraValStr = paraInfoByNo.getTransIntoOutMap().get(frameParaData.getParaVal());
-            //设置转换后的值
+            //将参数标识进行转换
+            String cmdMarkStr = paraInfoByNo.getTransIntoOutMap().get(paraInfoByNo.getCmdMark());
+            //设置转换后的值(此处用于页面显示)
             /*frameParaData.setParaVal(paraValStr);*/
-            String dataBody = paraInfoByNo.getCmdMark() + paraValStr;
+            String dataBody = cmdMarkStr + paraValStr;
             list.add(HexUtil.decodeHex(dataBody));
         });
         reqInfo.setParamBytes(ByteUtils.listToBytes(list));

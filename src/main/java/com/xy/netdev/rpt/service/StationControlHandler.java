@@ -7,6 +7,7 @@ import cn.hutool.core.util.StrUtil;
 import com.xy.common.exception.BaseException;
 import com.xy.netdev.admin.service.ISysDepartService;
 import com.xy.netdev.admin.service.ISysParamService;
+import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.BeanFactoryUtil;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
@@ -22,6 +23,7 @@ import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -130,7 +132,14 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
                 //重新获取缓存
                 RptHeadDev headDev = iDownRptPrtclAnalysisService.queryNewCache(finalRptHeadDev);
                 //调用数据外发
-                this.queryParaResponse(headDev, StationCtlRequestEnums.PARA_QUERY_RESPONSE);
+                String msgType = headDev.getCmdMarkHexStr();
+                if(headDev.getCmdMarkHexStr().equals("4")){
+                    this.queryParaResponse(headDev, StationCtlRequestEnums.PARA_QUERY_RESPONSE);
+                }else if(headDev.getCmdMarkHexStr().equals("8")) {
+                    this.queryParaResponse(headDev, StationCtlRequestEnums.PARA_WARNING_QUERY_RESP);
+                }else {
+                        this.queryParaResponse(headDev, StationCtlRequestEnums.PARA_SET_RESPONSE);
+                    }
             } catch (InterruptedException e) {
                 log.error("站控等待返回缓存结果异常中断, 中断原因:{}", e.getMessage(), e);
             }
@@ -157,22 +166,12 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
         } catch (Exception e) {
             e.printStackTrace();
         }
-//        //拼数据头
-//        byte[] bytes = ArrayUtil.addAll(
-//                //信息类别
-//                  ByteUtils.objToBytes(cmd, 2)
-//                //数据字段长度
-//                , ByteUtils.objToBytes(bodyBytes.length, 2)
-//                //预留
-//                , ByteUtils.objToBytes(0, 4)
-//                //数据字段
-//                , bodyBytes);
         int localPort = port;
-        if (StrUtil.isNotBlank(stationInfo.getDevLocalPort())){
-            localPort = Integer.parseInt(stationInfo.getDevLocalPort());
+        if (StrUtil.isNotBlank(sysParamService.getParaRemark1(SysConfigConstant.RPT_SEND_PORT))){
+            port = Integer.parseInt(sysParamService.getParaRemark1(SysConfigConstant.RPT_SEND_PORT));
         }
         NettyUtil.sendMsg(bodyBytes, localPort, stationInfo.getDevIpAddr(), port, Integer.parseInt(iSysParamService.getParaRemark1(stationInfo.getDevNetPtcl())));
-        log.info("发送站控数据, 本地端口：{}，  目标地址:{}:{}, 数据体:{}", localPort, stationInfo.getDevIpAddr(), port, HexUtil.encodeHexStr(bodyBytes));
+       log.warn("发送站控数据, 本地端口：{}，  目标地址:{}:{}, 数据体:{}", localPort, stationInfo.getDevIpAddr(), port, HexUtil.encodeHexStr(bodyBytes));
     }
 
 
@@ -185,7 +184,8 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
         //保留
         tempList.add(placeholderByte(4));
         //查询标志
-        tempList.add(ByteUtils.objToBytes(Integer.parseInt(rptHeadDev.getCmdMarkHexStr(), 16), 1));
+        String sn = StringUtils.isEmpty(rptHeadDev.getSN()) ? "0" : rptHeadDev.getSN();
+        tempList.add(ByteUtils.objToBytes(Integer.parseInt(sn, 16), 1));
         //站号
         tempList.add(ByteUtils.objToBytes(rptHeadDev.getStationNo(), 1));
         //设备数量
@@ -199,8 +199,12 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
      */
     //todo luo
     public static void queryHeadNext(List<byte[]> tempList, RptBodyDev rptBodyDev) {
-        //String devCode = sysParamService.getParaRemark1(rptBodyDev.getDevTypeCode());
-        String devCode = rptBodyDev.getDevTypeCode();
+        String devCode = "";
+        if(rptBodyDev.getDevTypeCode().length()==7 && rptBodyDev.getDevTypeCode().startsWith("0020")){
+            devCode = sysParamService.getParaRemark1(rptBodyDev.getDevTypeCode());
+        }else{
+            devCode = rptBodyDev.getDevTypeCode();
+        }
         byte codeByte = objToBytes(devCode, 1)[0];
         byte[] bytes = {0x39, codeByte};
         //设备型号
@@ -219,8 +223,8 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
     public static RptHeadDev unpackCommonHead(StationControlHeadEntity stationControlHeadEntity,
                                               RptHeadDev rptHeadDev, Function<byte[], List<RptBodyDev>> function) {
         byte[] paramData = stationControlHeadEntity.getParamData();
-        //查询标识  todo 这里解析到的查询标识始终是:0
-        int cmdMark = ByteUtils.byteToNumber(paramData, 4, 1).intValue();
+        //查询标识和设置标号  todo 这里解析到的查询标识始终是:0
+        int sn = ByteUtils.byteToNumber(paramData, 4, 1).intValue();
         //站号
         int stationNo = ByteUtils.byteToNumber(paramData, 5, 1).intValue();
         //设备数量
@@ -229,7 +233,7 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
         byte[] dataBytes = ByteUtils.byteArrayCopy(paramData, 7, paramData.length - 7);
         List<RptBodyDev> rptBodyDevs = function.apply(dataBytes);
         rptHeadDev.setStationNo(String.valueOf(stationNo));
-        //rptHeadDev.setCmdMarkHexStr(Integer.toHexString(cmdMark));
+        rptHeadDev.setSN(String.valueOf(sn));
         rptHeadDev.setParam(rptBodyDevs);
         rptHeadDev.setDevNum(devNum);
         rptHeadDev.setDevNo(stationControlHeadEntity.getBaseInfo().getDevNo());
@@ -307,8 +311,7 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
                 achieveClassNameEnum = AchieveClassNameEnum.REPORT_WARN;
                 break;
             case 3:
-                achieveClassNameEnum = AchieveClassNameEnum.PARAM_QUERY;
-                break;
+                       break;
             case 4:
                 achieveClassNameEnum = AchieveClassNameEnum.PARAM_QUERY;
                 break;
@@ -316,7 +319,7 @@ public class StationControlHandler implements IUpRptPrtclAnalysisService{
                 achieveClassNameEnum = AchieveClassNameEnum.PARAM_SET;
                 break;
             case 6:
-                achieveClassNameEnum = AchieveClassNameEnum.PARAM_SET;
+                achieveClassNameEnum = AchieveClassNameEnum.PARAM_SET_RESP;
                 break;
             case 7:
                 achieveClassNameEnum = AchieveClassNameEnum.PARAM_WARN;

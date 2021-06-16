@@ -14,6 +14,7 @@ import com.xy.netdev.rpt.service.StationControlHandler;
 import com.xy.netdev.sendrecv.base.AbsDeviceSocketHandler;
 import com.xy.netdev.sendrecv.entity.SocketEntity;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -31,9 +32,8 @@ import static com.xy.netdev.container.BaseInfoContainer.getDevInfo;
  * @author cc
  */
 @Component
-@Order(3)
 @Slf4j
-public class DeviceSocketSubscribe  implements ApplicationRunner {
+public class DeviceSocketSubscribe {
 
     @Autowired
     private StationControlHandler stationControlHandler;
@@ -46,11 +46,11 @@ public class DeviceSocketSubscribe  implements ApplicationRunner {
      */
     private FIFOCache<String, AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData>> cache;
 
-    @Override
-    public void run(ApplicationArguments args) throws Exception {
-        init();
-    }
-
+//    @Override
+//    public void run(ApplicationArguments args) throws Exception {
+//        init();
+//    }
+    @PostConstruct
     public void init(){
         //队列
         cache = CacheUtil.newFIFOCache(absSocketHandlerList.size());
@@ -61,7 +61,24 @@ public class DeviceSocketSubscribe  implements ApplicationRunner {
      * @param socketEntity socket实体
      */
     public void doResponse(SocketEntity socketEntity) throws BaseException{
-        BaseInfo devInfo = getDevInfo(socketEntity.getRemoteAddress()).get(0);
+
+        BaseInfo devInfo = null;
+        List<BaseInfo> devInfos = getDevInfo(socketEntity.getRemoteAddress());
+        if(devInfos!=null && devInfos.size()>1){
+            for (BaseInfo baseInfo : devInfos) {
+                if(baseInfo.getDevPort().equals(String.valueOf(socketEntity.getRemotePort()))){
+                    if(StringUtils.isNotEmpty(baseInfo.getDevLocalPort())){
+                        if(baseInfo.getDevLocalPort().equals(String.valueOf(socketEntity.getLocalPort()))){
+                            devInfo = baseInfo;
+                        }
+                    }else{
+                        devInfo = baseInfo;
+                    }
+                }
+            }
+        }else {
+            devInfo = devInfos.get(0);
+        }
         //站控响应
         if (devInfo.getIsRptIp()!= null && Integer.parseInt(devInfo.getIsRptIp()) == 0){
             log.warn("收到站控数据, 远端地址:{}:{},数据体:{}"
@@ -75,12 +92,13 @@ public class DeviceSocketSubscribe  implements ApplicationRunner {
         //执行设备数据响应
         Optional<AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData>> socketHandler
                 = getHandler(socketEntity.getRemoteAddress());
+        BaseInfo finalDevInfo = devInfo;
         socketHandler.ifPresent(handler -> {
             log.debug("收到设备数据, 远端地址:{}:{},数据体:{}"
                     , socketEntity.getRemoteAddress()
                     , socketEntity.getRemotePort()
                     , HexUtil.encodeHexStr(socketEntity.getBytes()).toUpperCase());
-            handler.socketResponse(socketEntity);
+            handler.socketResponse(socketEntity, finalDevInfo);
         });
     }
 

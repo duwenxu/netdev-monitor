@@ -43,6 +43,9 @@ public class ParaViewInfo {
     @ApiModelProperty(value = "参数值")
     private String paraVal;
 
+    @ApiModelProperty(value = "参数原始字节数组")
+    private byte[] paraOrigByte;
+
     /**
      * 0022001 只写  0022002 只读  0022003读写  0022004无权限  0022005命令
      */
@@ -85,13 +88,26 @@ public class ParaViewInfo {
      * 参数数据类型是 0023001,0023002,0023003 时,并数据合法时,设置时需判断最大值
      */
     @ApiModelProperty(value = "最大值")
-    private String paraValMax;
+    private String paraValMax1;
 
     /**
      * 参数数据类型是 0023001,0023002,0023003 时,设置时需判断最小值
      */
     @ApiModelProperty(value = "最小值")
-    private String paraValMin;
+    private String paraValMin1;
+
+    /**
+     * 参数数据类型是 0023001,0023002,0023003 时,并数据合法时,设置时需判断最大值
+     */
+    @ApiModelProperty(value = "最大值")
+    private String paraValMax2;
+
+    /**
+     * 参数数据类型是 0023001,0023002,0023003 时,设置时需判断最小值
+     */
+    @ApiModelProperty(value = "最小值")
+    private String paraValMin2;
+
     /**
      * 参数数据类型是 0023001,0023002,0023003 时,并数据合法时,设置时需添加加减按钮步进
      */

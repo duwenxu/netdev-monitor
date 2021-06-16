@@ -9,6 +9,7 @@ import com.xy.netdev.common.util.ParaHandlerUtil;
 import com.xy.netdev.container.paraext.ParaExtServiceFactory;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameRespData;
+import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.bo.ParaSpinnerInfo;
 import com.xy.netdev.monitor.bo.ParaViewInfo;
 import com.xy.netdev.monitor.entity.ParaInfo;
@@ -34,6 +35,11 @@ public class DevParaInfoContainer {
      * 设备参数MAP K设备编号  V设备参数信息
      */
     private static Map<String, Map<String, ParaViewInfo>> devParaMap = new LinkedHashMap<>();
+    /**
+     * 设备响应次数
+     */
+    public static int respNum = 0;
+
 
 
     /**
@@ -85,10 +91,14 @@ public class DevParaInfoContainer {
         if(devTypeParaList!=null&&!devTypeParaList.isEmpty()){
             devTypeParaList.sort(Comparator.comparing(paraInfo -> Integer.valueOf(paraInfo.getNdpaNo())));
             for(ParaInfo paraInfo:devTypeParaList){
-                if(paraInfo.getNdpaCmplexLevel().equals(SysConfigConstant.PARA_COMPLEX_LEVEL_SUB)){
-                    paraViewMap.get(ParaHandlerUtil.genLinkKey(devNo,paraInfo.getNdpaParentNo())).addSubPara(genParaViewInfo(devNo,paraInfo));
-                }else{
+                //确保复杂参数在子参数之前被添加
+                if (!paraInfo.getNdpaCmplexLevel().equals(SysConfigConstant.PARA_COMPLEX_LEVEL_SUB)){
                     paraViewMap.put(ParaHandlerUtil.genLinkKey(devNo,paraInfo.getNdpaNo()),genParaViewInfo(devNo,paraInfo));
+                }
+            }
+            for (ParaInfo paraInfo : devTypeParaList) {
+                if(paraInfo.getNdpaCmplexLevel().equals(SysConfigConstant.PARA_COMPLEX_LEVEL_SUB)){
+                    paraViewMap.get(ParaHandlerUtil.genLinkKey(devNo, paraInfo.getNdpaParentNo())).addSubPara(genParaViewInfo(devNo,paraInfo));
                 }
             }
         }
@@ -108,8 +118,10 @@ public class DevParaInfoContainer {
         viewInfo.setParaSimpleDatatype(sysParamService.getParaRemark3(paraInfo.getNdpaDatatype()));
         viewInfo.setParaStrLen(paraInfo.getNdpaStrLen());
         viewInfo.setParahowMode(paraInfo.getNdpaShowMode());
-        viewInfo.setParaValMax(paraInfo.getNdpaValMax());
-        viewInfo.setParaValMin(paraInfo.getNdpaValMin());
+        viewInfo.setParaValMax1(paraInfo.getNdpaValMax1());  //最大值1
+        viewInfo.setParaValMin1(paraInfo.getNdpaValMin1());  //最小值1
+        viewInfo.setParaValMax2(paraInfo.getNdpaValMax2());  //最大值2
+        viewInfo.setParaValMin2(paraInfo.getNdpaValMin2());  //最小值2
         viewInfo.setParaValStep(paraInfo.getNdpaValStep());
         viewInfo.setParaSpellFmt(paraInfo.getNdpaSpellFmt());
         viewInfo.setParaViewFmt(paraInfo.getNdpaViewFmt());
@@ -175,10 +187,15 @@ public class DevParaInfoContainer {
      * @param respData        协议解析响应数据
      * @return 数据是否发生变化
      */
-    public synchronized static boolean   handlerRespDevPara(FrameRespData respData){
+    public synchronized static boolean  handlerRespDevPara(FrameRespData respData){
         //ACU参数一直不停变化，需要特殊处理上报
-        if(respData.getDevType().equals(SysConfigConstant.DEVICE_ACU) || respData.getDevType().equals("0020003")){
-            return false;
+        if(respData.getDevType().equals(SysConfigConstant.DEVICE_ACU)){
+            respNum++;
+            if(respNum%5==0){
+                respNum=0;
+            }else{
+                return false;
+            }
         }
         List<FrameParaData> frameParaList = respData.getFrameParaList();
         int num = 0;
@@ -189,17 +206,29 @@ public class DevParaInfoContainer {
                 ParaViewInfo paraViewInfo = devParaMap.get(devNo).get(ParaHandlerUtil.genLinkKey(devNo, paraNo));
                 if (paraViewInfo!=null&&StringUtils.isNotEmpty(frameParaData.getParaVal()) && !frameParaData.getParaVal().equals(paraViewInfo.getParaVal())) {
                     paraViewInfo.setParaVal(frameParaData.getParaVal());
+                    paraViewInfo.setParaOrigByte(frameParaData.getParaOrigByte());
                     //组合参数修改子参数值
                     if(paraViewInfo.getParaCmplexLevel().equals(PARA_COMPLEX_LEVEL_COMPOSE)){
                         for(ParaViewInfo paraViewInfo1 : paraViewInfo.getSubParaList()){
                             paraViewInfo1.setParaVal(frameParaList.stream().filter(frameParaData1 -> frameParaData1.getParaNo().equals(paraViewInfo1.getParaNo())).collect(Collectors.toList()).get(0).getParaVal());
+                            paraViewInfo1.setParaOrigByte(frameParaList.stream().filter(frameParaData1 -> frameParaData1.getParaNo().equals(paraViewInfo1.getParaNo())).collect(Collectors.toList()).get(0).getParaOrigByte());
                         }
                     }
                     num++;
+                }
+                //功放设备的特殊处理
+                if(SysConfigConstant.DEVICE_CAR_GF.equals(frameParaData.getDevType()) && "15".equals(frameParaData.getParaNo())){
+                    DevStatusContainer.setMasterOrSlave(frameParaData.getDevNo());
                 }
             }
         }
         return num>0;
     }
 
+    /**
+     * 清空缓存
+     */
+    public static void cleanCache(){
+        devParaMap.clear();
+    }
 }

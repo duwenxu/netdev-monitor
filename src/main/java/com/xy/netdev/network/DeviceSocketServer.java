@@ -20,9 +20,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 import static com.xy.netdev.common.constant.SysConfigConstant.RPT_IP_ADDR;
 import static com.xy.netdev.container.BaseInfoContainer.getDevInfos;
@@ -32,9 +30,8 @@ import static com.xy.netdev.container.BaseInfoContainer.getDevInfos;
  * @author cc
  */
 @Component
-@Order(2)
 @Slf4j
-public class DeviceSocketServer  implements ApplicationRunner {
+public class DeviceSocketServer {
 
     @Autowired
     private ISysParamService sysParamService;
@@ -43,10 +40,7 @@ public class DeviceSocketServer  implements ApplicationRunner {
 
     private List<BaseInfo> tcpList;
 
-    @Override
-    public void run(ApplicationArguments args) throws Exception {
-        start();
-    }
+    @PostConstruct
     public void start() {
         udpPort = new HashSet<>();
         tcpList = new ArrayList<>();
@@ -106,7 +100,7 @@ public class DeviceSocketServer  implements ApplicationRunner {
             }
             int finalLocalPort = localPort;
             ThreadUtil.execute(() -> new NettyTcpClient(baseInfo.getDevIpAddr(), port, finalLocalPort, new SimpleTcpMessage()).run());
-
         });
     }
+
 }
