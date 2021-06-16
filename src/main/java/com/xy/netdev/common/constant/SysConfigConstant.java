@@ -544,4 +544,25 @@ public interface SysConfigConstant {
      */
     String ACU_AGE_VALUE = "0100013";
 
+    /**
+     * 私有MIB前缀
+     */
+    String PRIVATE_MIB_PREFIX = "0101001";
+    /**
+     * 私有MIB固定1
+     */
+    String FIXED_MIB_1 = "0101002";
+    /**
+     * 私有MIB固定2
+     */
+    String FIXED_MIB_2 = "0101003";
+    /**
+     * 私有MIB区域号
+     */
+    String PRIVATE_MIB_REGION = "0101004";
+    /**
+     * 私有MIB站号
+     */
+    String PRIVATE_MIB_STATION = "0101005";
+
 }
