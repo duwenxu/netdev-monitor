@@ -46,6 +46,9 @@ public class DevParaInfoContainer {
     public static int respNum = 0;
 
 
+    public static Map<String, ParaInfo> getDevParaOidMap() {
+        return devParaOidMap;
+    }
 
     /**
      * @功能：添加设备参数MAP

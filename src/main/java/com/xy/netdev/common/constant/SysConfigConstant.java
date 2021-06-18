@@ -1,7 +1,7 @@
 package com.xy.netdev.common.constant;
 
 
-import org.apache.ibatis.type.NStringTypeHandler;
+
 
 /**
  * 系统配置常量*
@@ -564,5 +564,9 @@ public interface SysConfigConstant {
      * 私有MIB站号
      */
     String PRIVATE_MIB_STATION = "0101005";
+    /**
+     * 代理IP地址
+     */
+    String AGENT_IP_ADDRESS = "0101006";
 
 }

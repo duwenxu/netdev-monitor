@@ -12,6 +12,7 @@ import com.xy.netdev.monitor.service.IBaseInfoService;
 import com.xy.netdev.monitor.service.IInterfaceService;
 import com.xy.netdev.monitor.service.IParaInfoService;
 import com.xy.netdev.monitor.service.IPrtclFormatService;
+import com.xy.netdev.synthetical.agent.XyAgent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;

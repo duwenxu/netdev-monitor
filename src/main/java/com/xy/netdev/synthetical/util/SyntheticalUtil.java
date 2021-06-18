@@ -30,10 +30,10 @@ public class SyntheticalUtil {
                   .append(".").append(paraInfo.getNdpaRptOid())
                   .append(".").append(sysParamService.getParaRemark1(SysConfigConstant.FIXED_MIB_1))
                   .append(".").append(sysParamService.getParaRemark1(SysConfigConstant.FIXED_MIB_2))
-                  .append(".").append(paraInfo.getNdpaNo())
-                  .append(".").append(sysParamService.getParaRemark1(SysConfigConstant.PRIVATE_MIB_REGION))
-                  .append(".").append(sysParamService.getParaRemark1(SysConfigConstant.PRIVATE_MIB_STATION))
-                  .append(".").append(devNo);
+                  .append(".").append(paraInfo.getNdpaNo());
+                  //.append(".").append(sysParamService.getParaRemark1(SysConfigConstant.PRIVATE_MIB_REGION))
+                  //.append(".").append(sysParamService.getParaRemark1(SysConfigConstant.PRIVATE_MIB_STATION))
+                  //.append(".").append(devNo);
         return oidSbuider.toString();
     }
 }

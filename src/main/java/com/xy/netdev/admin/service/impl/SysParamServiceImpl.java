@@ -26,7 +26,7 @@ import java.util.Map;
  * @author luoqilong
  * @since 2019-09-17
  */
-@Service
+@Service("sysParamService")
 public class SysParamServiceImpl extends ServiceImpl<SysParamMapper, SysParam> implements ISysParamService {
 
     @Resource
