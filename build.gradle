@@ -34,7 +34,11 @@ dependencies {
 	implementation 'cn.hutool:hutool-all:5.5.8'
 	implementation 'com.lmax:disruptor:3.4.2'
 	//snmp协议支持
+//	implementation group: 'org.snmp4j', name: 'snmp4j', version: '2.8.4'
 	implementation group: 'org.snmp4j', name: 'snmp4j', version: '2.5.0'
+	//snmp-agent
+//	implementation group: 'org.snmp4j', name: 'snmp4j-agent', version: '2.7.4'
+//	implementation group: 'com.oneandone',name: 'snmpman',version: '2.0.0'
 
 
 //	若无法读取中心jar则放开如下配置，并注释compile 'com.xy:xy-base-core:1.0.3-SNAPSHOT'
