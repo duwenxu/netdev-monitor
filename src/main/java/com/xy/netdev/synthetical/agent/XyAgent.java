@@ -3,7 +3,9 @@ package com.xy.netdev.synthetical.agent;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.DevParaInfoContainer;
+import com.xy.netdev.monitor.entity.ParaInfo;
 import com.xy.netdev.synthetical.bo.OidParaInfo;
+import com.xy.netdev.synthetical.util.SyntheticalUtil;
 import org.snmp4j.MessageDispatcher;
 import org.snmp4j.MessageDispatcherImpl;
 import org.snmp4j.TransportMapping;
@@ -139,7 +141,9 @@ public class XyAgent implements ApplicationRunner {
     protected void registerMIBs() {
         DevParaInfoContainer.getDevParaOidMap().keySet().forEach(paraOid -> {
             try {
-                server.register(new OidParaInfo(paraOid), null);
+                ParaInfo paraInfo = DevParaInfoContainer.getOidParaIno(paraOid);
+                Variable v =SyntheticalUtil.genSnmpVariable(paraInfo.getNdpaDatatype(),"") ;
+                server.register(new OidParaInfo(paraOid,v), null);
             } catch (DuplicateRegistrationException e) {
                 e.printStackTrace();
             }

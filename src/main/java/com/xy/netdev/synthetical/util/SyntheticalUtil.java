@@ -4,6 +4,11 @@ import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.monitor.entity.ParaInfo;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
+import org.snmp4j.smi.Integer32;
+import org.snmp4j.smi.IpAddress;
+import org.snmp4j.smi.OctetString;
+import org.snmp4j.smi.Variable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -36,4 +41,38 @@ public class SyntheticalUtil {
                   //.append(".").append(devNo);
         return oidSbuider.toString();
     }
+
+    /**
+     * 生成OID 数据体
+     * @param ndpaDatatype    数据类型
+     * @param dataV           数据值
+     * @return 设备参数OID
+     */
+    public static Variable genSnmpVariable(String ndpaDatatype,String dataV) {
+        if(ndpaDatatype.equals(SysConfigConstant.PARA_DATA_TYPE_BYTE)){
+            if(StringUtils.isEmpty(dataV)){
+                return  new Integer32(0);
+            }else{
+                return  new Integer32(Integer.parseInt(dataV));
+            }
+        }else if(ndpaDatatype.equals(SysConfigConstant.PARA_DATA_TYPE_INT)){
+            if(StringUtils.isEmpty(dataV)){
+                return  new Integer32(0);
+            }else{
+                return  new Integer32(Integer.parseInt(dataV));
+            }
+        }else if(ndpaDatatype.equals(SysConfigConstant.PARA_DATA_TYPE_UINT)){
+            if(StringUtils.isEmpty(dataV)){
+                return  new Integer32(0);
+            }else{
+                return  new Integer32(Integer.parseInt(dataV));
+            }
+        }else if(ndpaDatatype.equals(SysConfigConstant.PARA_DATA_TYPE_IPADDRESS)){
+            return new IpAddress(dataV);
+        }else {
+            return new OctetString(dataV);
+        }
+    }
+
+
 }
