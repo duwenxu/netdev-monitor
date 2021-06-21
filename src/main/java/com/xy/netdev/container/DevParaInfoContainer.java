@@ -44,6 +44,11 @@ public class DevParaInfoContainer {
      * 综合上报参数MAP K设备状态参数OID  V设备编号
      */
     private static Map<String,String> devStatusOidMapDevNo = new HashMap<>();
+
+    public static Map<String, String> getDevStatusOidMapDevNo() {
+        return devStatusOidMapDevNo;
+    }
+
     /**
      * 设备响应次数
      */
@@ -133,17 +138,19 @@ public class DevParaInfoContainer {
         String devOid2 = oidPrefix+".2";
         String devOid3 = oidPrefix+".3";
         String devOid4 = oidPrefix+".4";
+        ParaInfo paraInfo = new ParaInfo();
+        paraInfo.setNdpaDatatype(SysConfigConstant.PARA_DATA_TYPE_INT);
         if(!devParaOidMap.containsKey(devOid1)){
-            devParaOidMap.put(devOid1,new ParaInfo());
+            devParaOidMap.put(devOid1,paraInfo);
         }
         if(!devParaOidMap.containsKey(devOid2)){
-            devParaOidMap.put(devOid2,new ParaInfo());
+            devParaOidMap.put(devOid2,paraInfo);
         }
         if(!devParaOidMap.containsKey(devOid3)){
-            devParaOidMap.put(devOid3,new ParaInfo());
+            devParaOidMap.put(devOid3,paraInfo);
         }
         if(!devParaOidMap.containsKey(devOid4)){
-            devParaOidMap.put(devOid4,new ParaInfo());
+            devParaOidMap.put(devOid4,paraInfo);
             devStatusOidMapDevNo.put(devOid4,devNo);
         }
     }

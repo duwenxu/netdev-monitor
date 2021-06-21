@@ -6,6 +6,7 @@ import com.xy.netdev.container.DevParaInfoContainer;
 import com.xy.netdev.monitor.entity.ParaInfo;
 import com.xy.netdev.synthetical.bo.OidParaInfo;
 import com.xy.netdev.synthetical.util.SyntheticalUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.snmp4j.MessageDispatcher;
 import org.snmp4j.MessageDispatcherImpl;
 import org.snmp4j.TransportMapping;
@@ -44,57 +45,22 @@ import java.util.Properties;
  * @since 2021-06-17
  */
 @Component
+@Slf4j
 public class XyAgent implements ApplicationRunner {
 
     @Autowired
     private ISysParamService sysParamService;
 
-
-    static {
-        LogFactory.setLogFactory(new ConsoleLogFactory());
-        LogFactory.getLogFactory().getRootLogger().setLogLevel(LogLevel.ALL);
-    }
-
-    private static final LogAdapter logger = LogFactory.getLogger(XyAgent.class);
-
     protected XyAgentConfigManager agent;
     protected MOServer server;
-    private String configFile;
-    private File bootCounterFile;
-
-    // supported MIBs
-    protected Modules modules;
-
-    protected Properties tableSizeLimits;
-
-    @SuppressWarnings("unchecked")
-    public XyAgent() { }
 
     private void init(){
-        configFile = "E://netdev//config.data";
-        bootCounterFile = new File("E://netdev//bootCounter.data");
+        String configFile = "E://netdev//config.data";
+        File bootCounterFile = new File("E://netdev//bootCounter.data");
 
         server = new DefaultMOServer();
         MOServer[] moServers = new MOServer[]{server};
-        InputStream configInputStream =SampleAgent.class.getResourceAsStream("SampleAgentConfig.properties");
-        final Properties props = new Properties();
-        try {
-            props.load(configInputStream);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-        MOInputFactory configurationFactory = new MOInputFactory() {
-            public MOInput createMOInput() {
-                return new PropertyMOInput(props, agent);
-            }
-        };
-        InputStream tableSizeLimitsInputStream =SampleAgent.class.getResourceAsStream("SampleAgentTableSizeLimits.properties");
-        tableSizeLimits = new Properties();
-        try {
-            tableSizeLimits.load(tableSizeLimitsInputStream);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+
         MessageDispatcher messageDispatcher = new MessageDispatcherImpl();
         addListenAddresses(messageDispatcher);
         agent = new XyAgentConfigManager(new OctetString(MPv3.createLocalEngineID()),
@@ -102,7 +68,7 @@ public class XyAgent implements ApplicationRunner {
                 null,
                 moServers,
                 ThreadPool.create("XyAgent", 3),
-                configurationFactory,
+                null,
                 new DefaultMOPersistenceProvider(moServers,configFile),
                 new EngineBootsCounterFile(bootCounterFile));
     }
@@ -111,7 +77,7 @@ public class XyAgent implements ApplicationRunner {
             String   addressString =sysParamService.getParaRemark1(SysConfigConstant.AGENT_IP_ADDRESS);
             Address address = GenericAddress.parse(addressString);
             if (address == null) {
-                logger.fatal("Could not parse address string '" + addressString + "'");
+                log.error("Could not parse address string '" + addressString + "'");
                 return;
             }
             TransportMapping<? extends Address> tm =
@@ -119,8 +85,7 @@ public class XyAgent implements ApplicationRunner {
             if (tm != null) {
                 md.addTransportMapping(tm);
             } else {
-                logger.warn("No transport mapping available for address '" +
-                        address + "'.");
+                log.error("No transport mapping available for address '" +address + "'.");
             }
     }
     /**
@@ -129,9 +94,9 @@ public class XyAgent implements ApplicationRunner {
      * @return a {@link DefaultMOFactory} instance by default.
      * @since 1.3.2
      */
-    protected MOFactory getFactory() {
-        return DefaultMOFactory.getInstance();
-    }
+//    protected MOFactory getFactory() {
+//        return DefaultMOFactory.getInstance();
+//    }
 
     /**
      * Register your own MIB modules in the specified context of the agent.
@@ -139,12 +104,13 @@ public class XyAgent implements ApplicationRunner {
      * is returned by {@link #getFactory()}.
      */
     protected void registerMIBs() {
-        DevParaInfoContainer.getDevParaOidMap().keySet().forEach(paraOid -> {
+        DevParaInfoContainer.getDevStatusOidMapDevNo().keySet().forEach(paraOid -> {
             try {
                 ParaInfo paraInfo = DevParaInfoContainer.getOidParaIno(paraOid);
                 Variable v =SyntheticalUtil.genSnmpVariable(paraInfo.getNdpaDatatype(),"") ;
                 server.register(new OidParaInfo(paraOid,v), null);
             } catch (DuplicateRegistrationException e) {
+                log.error(e.getMessage());
                 e.printStackTrace();
             }
         });
@@ -164,7 +130,7 @@ public class XyAgent implements ApplicationRunner {
         agent.setupProxyForwarder();
         registerMIBs();
         // apply table size limits
-        agent.setTableSizeLimits(tableSizeLimits);
+        //agent.setTableSizeLimits(tableSizeLimits);
         // register shutdown hook to be able to automatically commit configuration to persistent storage
         agent.registerShutdownHook();
         // now continue agent setup and launch it.
