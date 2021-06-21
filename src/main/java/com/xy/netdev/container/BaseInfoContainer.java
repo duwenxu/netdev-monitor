@@ -617,6 +617,8 @@ public class BaseInfoContainer {
             frameParaInfo.setNdpaRemark3Data(paraInfo.getNdpaRemark3Data());//数据3
             frameParaInfo.setCmplexLevel(paraInfo.getNdpaCmplexLevel());//复杂级别
             frameParaInfo.setNdpaIsTopology(paraInfo.getNdpaIsTopology());   //是否在拓扑图显示
+            frameParaInfo.setNdpaOutterStatus(paraInfo.getNdpaOutterStatus());
+            frameParaInfo.setNdpaRptOid(paraInfo.getNdpaRptOid());
             Map map = new HashMap();
             try {
                 if (!StringUtils.isBlank(paraInfo.getNdpaSelectData())) {
