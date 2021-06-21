@@ -90,15 +90,15 @@ public class SyntheticalUtil {
     public static XySnmpTable genXySnmpTable(String devOidStr,String devNo,List<FrameParaInfo> devTypeParaList){
         OID devOid = new OID(devOidStr);
         List<XySnmpColumn> devParaColumnList = new ArrayList<>();
+        devParaColumnList.add(genXySnmpColumn(SysConfigConstant.PARA_DATA_TYPE_INT,"1",devNo));
+        devParaColumnList.add(genXySnmpColumn(SysConfigConstant.PARA_DATA_TYPE_INT,"2",devNo));
+        devParaColumnList.add(genXySnmpColumn(SysConfigConstant.PARA_DATA_TYPE_INT,"3",devNo));
+        devParaColumnList.add(genXySnmpColumn(SysConfigConstant.PARA_DATA_TYPE_INT,"4",devNo));
         for(FrameParaInfo paraInfo:devTypeParaList){
             if(paraInfo.getNdpaOutterStatus().equals(SysConfigConstant.IS_DEFAULT_TRUE)&&!StringUtils.isEmpty(paraInfo.getNdpaRptOid())) {
                 devParaColumnList.add(genXySnmpColumn(paraInfo.getDataType(), paraInfo.getParaNo(), devNo));
             }
         }
-        devParaColumnList.add(genXySnmpColumn(SysConfigConstant.PARA_DATA_TYPE_INT,"1",devNo));
-        devParaColumnList.add(genXySnmpColumn(SysConfigConstant.PARA_DATA_TYPE_INT,"2",devNo));
-        devParaColumnList.add(genXySnmpColumn(SysConfigConstant.PARA_DATA_TYPE_INT,"3",devNo));
-        devParaColumnList.add(genXySnmpColumn(SysConfigConstant.PARA_DATA_TYPE_INT,"4",devNo));
         MOTableSubIndex[] subIndexArray = new MOTableSubIndex[] {
                 new MOTableSubIndex(SMIConstants.SYNTAX_OCTET_STRING) };
         MOTableIndex moTableIndex = new MOTableIndex(subIndexArray);
