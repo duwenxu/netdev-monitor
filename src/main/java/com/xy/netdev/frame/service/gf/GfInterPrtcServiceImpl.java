@@ -10,11 +10,10 @@ import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
-import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
-import com.xy.netdev.transit.IDataReciveService;
+import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import com.xy.netdev.transit.impl.DataReciveServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,9 +65,15 @@ public class GfInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
                     BeanUtil.copyProperties(frameParaInfo, paraInfo, true);
                     BeanUtil.copyProperties(respData, paraInfo, true);
                     paraInfo.setLen(Integer.parseInt(frameParaInfo.getParaByteLen()));
-                    paraInfo.setParaVal(byteToNumber(bytes, frameParaInfo.getParaStartPoint() ,
+                    String s = byteToNumber(bytes, frameParaInfo.getParaStartPoint(),
                             Integer.parseInt(frameParaInfo.getParaByteLen()), isUnsigned(sysParamService,
-                                    frameParaInfo.getAlertPara())).toString());
+                                    frameParaInfo.getAlertPara())).toString();
+
+                    String paraNo = frameParaInfo.getParaNo();
+                    if (paraNo.equals("13")||paraNo.equals("14")||paraNo.equals("26")||paraNo.equals("27")){
+                        s = Integer.parseInt(s) * 0.1+"";
+                    }
+                    paraInfo.setParaVal(s);
                     return paraInfo;
                 }).collect(Collectors.toList());
         respData.setFrameParaList(frameParaDataList);
@@ -83,9 +88,41 @@ public class GfInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
         List<byte[]> bytes = reqInfo.getFrameParaList().stream()
                 .filter(Objects::nonNull)
                 .filter(frameParaData -> StrUtil.isNotBlank(frameParaData.getParaVal()))
-                .map(frameParaData -> ByteUtils.objToBytes(frameParaData.getParaVal(), frameParaData.getLen()))
+                .map(frameParaData -> {
+                    String paraNo = frameParaData.getParaNo();
+                    String paraVal = frameParaData.getParaVal();
+                    if (paraNo.equals("13")||paraNo.equals("14")||paraNo.equals("26")||paraNo.equals("27")){
+                        paraVal = Double.parseDouble(paraVal) * 10+"";
+                    }
+                   return ByteUtils.objToBytes(paraVal , frameParaData.getLen());
+                })
                 .collect(Collectors.toList());
         reqInfo.setParamBytes(ByteUtils.listToBytes(bytes));
     }
 
+//
+//    /**
+//     * 对于步进参数  解析值后乘以步进
+//     * @param devType 設備類型
+//     * @param cmdMark 參數標識
+//     * @param devNo 設備編號
+//     * @param val 值
+//     * @param flag  0: 解碼  1：編碼
+//     * @return
+//     */
+//    public static String stepConvert(String devType, String cmdMark, String devNo, String val, boolean flag){
+//        FrameParaInfo infoByCmd = BaseInfoContainer.getParaInfoByCmd(devType, cmdMark);
+//        ParaViewInfo devParaView = DevParaInfoContainer.getDevParaView(devNo, infoByCmd.getParaNo());
+//        String step = devParaView.getParaValStep();
+//        double convertVal = Integer.parseInt(val);
+//        if (StringUtils.isNotBlank(step)){
+//            double v = Double.parseDouble(step);
+//            if (flag){
+//                convertVal = convertVal * v;
+//            }else {
+//                convertVal = convertVal / v;
+//            }
+//        }
+//        return convertVal+"";
+//    }
 }
