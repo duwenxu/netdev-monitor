@@ -2,7 +2,9 @@ package com.xy.netdev.synthetical.agent;
 
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
+import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.container.DevParaInfoContainer;
+import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.entity.ParaInfo;
 import com.xy.netdev.synthetical.bo.OidParaInfo;
 import com.xy.netdev.synthetical.util.SyntheticalUtil;
@@ -34,6 +36,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 import java.io.*;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -101,19 +104,32 @@ public class XyAgent implements ApplicationRunner {
     /**
      * Register your own MIB modules in the specified context of the agent.
      * The {@link MOFactory} provided to the {@code Modules} constructor
-     * is returned by {@link #getFactory()}.
+     * is returned by .
      */
+//    protected void registerMIBs() {
+//        DevParaInfoContainer.getDevStatusOidMapDevNo().keySet().forEach(paraOid -> {
+//            try {
+//                ParaInfo paraInfo = DevParaInfoContainer.getOidParaIno(paraOid);
+//                Variable v =SyntheticalUtil.genSnmpVariable(paraInfo.getNdpaDatatype(),"") ;
+//                server.register(new OidParaInfo(paraOid,v), null);
+//            } catch (DuplicateRegistrationException e) {
+//                log.error(e.getMessage());
+//                e.printStackTrace();
+//            }
+//        });
+//    }
+
     protected void registerMIBs() {
-        DevParaInfoContainer.getDevStatusOidMapDevNo().keySet().forEach(paraOid -> {
-            try {
-                ParaInfo paraInfo = DevParaInfoContainer.getOidParaIno(paraOid);
-                Variable v =SyntheticalUtil.genSnmpVariable(paraInfo.getNdpaDatatype(),"") ;
-                server.register(new OidParaInfo(paraOid,v), null);
-            } catch (DuplicateRegistrationException e) {
-                log.error(e.getMessage());
-                e.printStackTrace();
-            }
-        });
+        try {
+            String devNo = "20";
+            String devType = BaseInfoContainer.getDevInfoByNo(devNo).getDevType();
+            List<FrameParaInfo> paraInfoList = BaseInfoContainer.getParasByDevType(devType);
+            XySnmpTable xySnmpTable = SyntheticalUtil.genXySnmpTable("1.3.6.1.4.1.63000.2.2.2.16.24.1.1",devNo,paraInfoList);
+            server.register(xySnmpTable,null);
+        } catch (DuplicateRegistrationException e) {
+            log.error(e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     @Override
