@@ -63,7 +63,10 @@ public class CzpPrtcServiceImpl  implements IParaPrtclAnalysisService {
         reqInfo.getFrameParaList().forEach(frameParaData->{
             FrameParaInfo paraInfoByNo = BaseInfoContainer.getParaInfoByNo(frameParaData.getDevType(), frameParaData.getParaNo());
             String newVal = frameParaData.getParaVal();
-            String dataBody = paraInfoByNo.getCmdMark() + newVal;
+            if(frameParaData.getParaNo().equals("24") || frameParaData.getParaNo().equals("25")){
+                newVal = remove0(Integer.toHexString(Integer.parseInt(newVal)));
+            }
+            String dataBody = remove0(paraInfoByNo.getCmdMark()) + newVal;
             //赋值处理后的参数值
             frameParaData.setParaVal(newVal);
             if(PARA_COMPLEX_LEVEL_SUB.equals(paraInfoByNo.getCmplexLevel())){
@@ -107,5 +110,20 @@ public class CzpPrtcServiceImpl  implements IParaPrtclAnalysisService {
         }
         dataReciveService.paraCtrRecive(respData);
         return respData;
+    }
+
+    /**
+     * 移除0（只保留两位）
+     * @param value
+     * @return
+     */
+    private String remove0(String value){
+        int length = value.length();
+        if(length<2){
+            value = StringUtils.leftPad(value,2,"0");
+        }else if(length>2){
+            value = value.substring(length-2,length);
+        }
+        return value;
     }
 }

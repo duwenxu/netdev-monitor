@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 
 /**
- * SNMP接收数据处理实现类
+ * SNMP接收数据处理实现类.
  */
 @Component
 @Slf4j

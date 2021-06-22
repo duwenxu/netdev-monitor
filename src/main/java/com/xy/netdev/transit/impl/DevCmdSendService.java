@@ -12,7 +12,6 @@ import com.xy.netdev.monitor.bo.InterfaceViewInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.transit.IDataSendService;
 import com.xy.netdev.transit.IDevCmdSendService;
-import com.xy.netdev.transit.ISnmpDataReceiveService;
 import com.xy.netdev.transit.schedule.ScheduleQuery;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;

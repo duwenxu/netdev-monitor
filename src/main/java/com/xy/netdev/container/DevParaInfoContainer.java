@@ -41,11 +41,23 @@ public class DevParaInfoContainer {
      */
     private static Map<String, ParaInfo> devParaOidMap = new HashMap<>();
     /**
+     * 综合上报参数MAP K设备状态参数OID  V设备编号
+     */
+    private static Map<String,String> devStatusOidMapDevNo = new HashMap<>();
+
+    public static Map<String, String> getDevStatusOidMapDevNo() {
+        return devStatusOidMapDevNo;
+    }
+
+    /**
      * 设备响应次数
      */
     public static int respNum = 0;
 
 
+    public static Map<String, ParaInfo> getDevParaOidMap() {
+        return devParaOidMap;
+    }
 
     /**
      * @功能：添加设备参数MAP
@@ -114,10 +126,34 @@ public class DevParaInfoContainer {
     private static void genOidMap(String devNo,ParaInfo paraInfo){
         if(paraInfo.getNdpaOutterStatus().equals(SysConfigConstant.IS_DEFAULT_TRUE)&&!StringUtils.isEmpty(paraInfo.getNdpaRptOid())){
             paraInfo.setDevNo(devNo);
-            devParaOidMap.put(SyntheticalUtil.genRptOid(devNo,paraInfo,sysParamService),paraInfo);
+            String oid = SyntheticalUtil.genRptOid(devNo,paraInfo,sysParamService);
+            devParaOidMap.put(oid,paraInfo);
+            genStdOidPara(oid,devNo);
         }
     }
 
+    private static void genStdOidPara(String oid,String devNo){
+        String oidPrefix = oid.substring(0,oid.lastIndexOf("."));
+        String devOid1 = oidPrefix+".1";
+        String devOid2 = oidPrefix+".2";
+        String devOid3 = oidPrefix+".3";
+        String devOid4 = oidPrefix+".4";
+        ParaInfo paraInfo = new ParaInfo();
+        paraInfo.setNdpaDatatype(SysConfigConstant.PARA_DATA_TYPE_INT);
+        if(!devParaOidMap.containsKey(devOid1)){
+            devParaOidMap.put(devOid1,paraInfo);
+        }
+        if(!devParaOidMap.containsKey(devOid2)){
+            devParaOidMap.put(devOid2,paraInfo);
+        }
+        if(!devParaOidMap.containsKey(devOid3)){
+            devParaOidMap.put(devOid3,paraInfo);
+        }
+        if(!devParaOidMap.containsKey(devOid4)){
+            devParaOidMap.put(devOid4,paraInfo);
+            devStatusOidMapDevNo.put(devOid4,devNo);
+        }
+    }
     private static ParaViewInfo  genParaViewInfo(String devNo,ParaInfo paraInfo){
         ParaViewInfo  viewInfo = new ParaViewInfo();
         viewInfo.setParaId(paraInfo.getNdpaId());
@@ -256,10 +292,24 @@ public class DevParaInfoContainer {
         return devParaOidMap.containsKey(oid);
     }
     /**
+     * @功能：根据设备OID 返回参数信息
+     * @param oid       设备参数OID
+     * @return  设备参数信息
+     */
+    public static String    getOidDevNo(String oid){
+        return devStatusOidMapDevNo.get(oid);
+    }
+    /**
      * 清空缓存
      */
     public static void cleanCache(){
         devParaMap.clear();
         devParaOidMap.clear();
+    }
+
+    public static void main(String[] args){
+        String oid ="1.2.3";
+        System.out.println( oid.substring(0,oid.lastIndexOf(".")));
+        System.out.println( oid.substring(oid.lastIndexOf(".")+1));
     }
 }

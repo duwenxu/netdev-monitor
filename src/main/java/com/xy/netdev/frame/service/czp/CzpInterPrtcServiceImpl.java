@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import static com.xy.netdev.common.constant.SysConfigConstant.*;
 
@@ -60,6 +61,8 @@ public class CzpInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
             if(PARA_COMPLEX_LEVEL_COMPOSE.equals(frameParaInfo.getCmplexLevel())){
                 //子参数列表
                 List<FrameParaInfo> subList = frameParaInfo.getSubParaList();
+                //排序
+                subList.sort(Comparator.comparing(frameParaInfo1 -> Integer.valueOf(frameParaInfo1.getParaNo())));
                 for(int i=0;i<subList.size();i++){
                     FrameParaData frameParaData = genFramePara(subList.get(i),ByteUtils.byteArrayCopy(paraValBytes,i,1),respData.getDevNo());
                     frameParaDataList.add(frameParaData);
