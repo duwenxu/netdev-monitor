@@ -7,7 +7,7 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/netdevice-dev?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true
-# url: jdbc:mysql://192.168.8.10:3306/netdevice?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true
+#    url: jdbc:mysql://mariadb.xy.dev2:3306/netdevice-dev?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true
     username: root
     password: root
   websocket:
@@ -19,8 +19,8 @@ mybatis-plus:
   typeAliasesPackage: com.xy.netdev.**.entity
 
 snmp:
-  listenAddress: 192.168.8.160/161
-  targetAddress: 192.168.8.10/57613
+  listenAddress: 192.6.6.160/161
+  targetAddress: 192.6.6.1
 
 swagger:
   enable: true
