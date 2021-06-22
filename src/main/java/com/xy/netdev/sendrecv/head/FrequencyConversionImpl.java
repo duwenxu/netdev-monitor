@@ -82,7 +82,7 @@ public class FrequencyConversionImpl extends AbsDeviceSocketHandler<SocketEntity
     @Override
     public byte[] pack(FrameReqData frameReqData) {
         byte[] paramBytes = frameReqData.getParamBytes();
-        log.info("下变频器发送查询/控制帧：[{}]",StrUtil.str(paramBytes, StandardCharsets.UTF_8));
+        log.debug("下变频器发送查询/控制帧：[{}]",StrUtil.str(paramBytes, StandardCharsets.UTF_8));
         return paramBytes;
     }
 

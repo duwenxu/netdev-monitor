@@ -1,8 +1,6 @@
 package com.xy.netdev.common.constant;
 
 
-import org.apache.ibatis.type.NStringTypeHandler;
-
 /**
  * 系统配置常量*
  *
@@ -537,5 +535,10 @@ public interface SysConfigConstant {
      * 1.5米ACU中agc阈值
      */
     String ACU_AGE_VALUE = "0100013";
+
+    /**
+     * 公共参数--给54所发送数据的端口
+     */
+    String RPT_SEND_PORT = "0100011";
 
 }
