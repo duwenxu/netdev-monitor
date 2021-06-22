@@ -13,6 +13,7 @@ import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.bo.ParaSpinnerInfo;
 import com.xy.netdev.monitor.bo.ParaViewInfo;
 import com.xy.netdev.monitor.entity.ParaInfo;
+import com.xy.netdev.synthetical.util.SyntheticalUtil;
 import org.apache.commons.lang.StringUtils;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -35,6 +36,10 @@ public class DevParaInfoContainer {
      * 设备参数MAP K设备编号  V设备参数信息
      */
     private static Map<String, Map<String, ParaViewInfo>> devParaMap = new LinkedHashMap<>();
+    /**
+     * 综合上报参数MAP K设备参数OID  V设备参数信息
+     */
+    private static Map<String, ParaInfo> devParaOidMap = new HashMap<>();
     /**
      * 设备响应次数
      */
@@ -97,12 +102,20 @@ public class DevParaInfoContainer {
                 }
             }
             for (ParaInfo paraInfo : devTypeParaList) {
+                genOidMap(devNo,paraInfo);
                 if(paraInfo.getNdpaCmplexLevel().equals(SysConfigConstant.PARA_COMPLEX_LEVEL_SUB)){
                     paraViewMap.get(ParaHandlerUtil.genLinkKey(devNo, paraInfo.getNdpaParentNo())).addSubPara(genParaViewInfo(devNo,paraInfo));
                 }
             }
         }
         return paraViewMap;
+    }
+    //生成每个参数对应的OID映射
+    private static void genOidMap(String devNo,ParaInfo paraInfo){
+        if(paraInfo.getNdpaOutterStatus().equals(SysConfigConstant.IS_DEFAULT_TRUE)&&!StringUtils.isEmpty(paraInfo.getNdpaRptOid())){
+            paraInfo.setDevNo(devNo);
+            devParaOidMap.put(SyntheticalUtil.genRptOid(devNo,paraInfo,sysParamService),paraInfo);
+        }
     }
 
     private static ParaViewInfo  genParaViewInfo(String devNo,ParaInfo paraInfo){
@@ -226,9 +239,27 @@ public class DevParaInfoContainer {
     }
 
     /**
+     * @功能：根据设备OID 返回参数信息
+     * @param oid       设备参数OID
+     * @return  设备参数信息
+     */
+    public static ParaInfo   getOidParaIno(String oid){
+        return devParaOidMap.get(oid);
+    }
+
+    /**
+     * @功能：判断是否存在该OID
+     * @param oid       设备参数OID
+     * @return  true 存在 false 不存在
+     */
+    public static boolean   containsOid(String oid){
+        return devParaOidMap.containsKey(oid);
+    }
+    /**
      * 清空缓存
      */
     public static void cleanCache(){
         devParaMap.clear();
+        devParaOidMap.clear();
     }
 }
