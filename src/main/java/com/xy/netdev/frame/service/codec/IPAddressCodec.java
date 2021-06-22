@@ -39,7 +39,7 @@ public class IPAddressCodec implements ParamCodec {
 
     @Override
     public byte[] encode(String value, Object... objects) {
-        String[] ipStrs = value.split("\n");
+        String[] ipStrs = value.split(" ");
         byte[] fullBytes = new byte[]{};
         for (String ipStr : ipStrs) {
             String[] ipStrParts = ipStr.split("\\.");
