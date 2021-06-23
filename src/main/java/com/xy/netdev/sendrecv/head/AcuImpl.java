@@ -1,19 +1,19 @@
 package com.xy.netdev.sendrecv.head;
 
-import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.StrUtil;
 import com.xy.netdev.common.util.ByteUtils;
-import com.xy.netdev.frame.service.ICtrlInterPrtclAnalysisService;
-import com.xy.netdev.sendrecv.base.AbsDeviceSocketHandler;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
-import com.xy.netdev.sendrecv.entity.SocketEntity;
+import com.xy.netdev.frame.service.ICtrlInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
+import com.xy.netdev.sendrecv.base.AbsDeviceSocketHandler;
+import com.xy.netdev.sendrecv.entity.SocketEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 import static com.xy.netdev.common.util.ByteUtils.byteArrayCopy;
@@ -60,7 +60,10 @@ public class AcuImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, 
 
     @Override
     public byte[] pack(FrameReqData frameReqData) {
-        return frameReqData.getParamBytes();
+        byte[] paramBytes = frameReqData.getParamBytes();
+        String comd = StrUtil.str(paramBytes, StandardCharsets.UTF_8);
+        log.debug("2.4mAcu天线发送控制指令：[{}]",comd);
+        return paramBytes;
     }
 
 }
