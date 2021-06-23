@@ -92,9 +92,9 @@ public class GfInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
                     String paraNo = frameParaData.getParaNo();
                     String paraVal = frameParaData.getParaVal();
                     if (paraNo.equals("13")||paraNo.equals("14")||paraNo.equals("26")||paraNo.equals("27")){
-                        paraVal = Double.parseDouble(paraVal) * 10+"";
+                        paraVal = (int)(Double.parseDouble(paraVal) * 10) + "";
                     }
-                   return ByteUtils.objToBytes(paraVal , frameParaData.getLen());
+                   return ByteUtils.objToBytes(paraVal, frameParaData.getLen());
                 })
                 .collect(Collectors.toList());
         reqInfo.setParamBytes(ByteUtils.listToBytes(bytes));
