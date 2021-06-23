@@ -35,6 +35,10 @@ dependencies {
 	implementation 'com.lmax:disruptor:3.4.2'
 	//snmp协议支持
 	implementation group: 'org.snmp4j', name: 'snmp4j', version: '2.5.0'
+	annotationProcessor 'org.projectlombok:lombok:1.18.2'
+	compileOnly 'org.projectlombok:lombok:1.18.2'
+	testAnnotationProcessor 'org.projectlombok:lombok:1.18.2'
+	testCompileOnly 'org.projectlombok:lombok:1.18.2'
 
 
 //	若无法读取中心jar则放开如下配置，并注释compile 'com.xy:xy-base-core:1.0.3-SNAPSHOT'
