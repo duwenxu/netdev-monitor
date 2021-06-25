@@ -7,12 +7,9 @@ import com.xy.netdev.container.DevParaInfoContainer;
 import com.xy.netdev.container.DevStatusContainer;
 import com.xy.netdev.monitor.bo.DevStatusInfo;
 import com.xy.netdev.monitor.bo.ParaViewInfo;
-import com.xy.netdev.monitor.entity.ParaInfo;
-import com.xy.netdev.synthetical.factory.OidHandlerFactory;
 import com.xy.netdev.synthetical.util.SyntheticalUtil;
-import org.snmp4j.agent.MOAccess;
 import org.snmp4j.agent.mo.MOAccessImpl;
-import org.snmp4j.agent.mo.MOColumn;
+import org.snmp4j.agent.mo.MOMutableColumn;
 import org.snmp4j.agent.mo.MOTableRow;
 import org.snmp4j.agent.request.SubRequest;
 import org.snmp4j.smi.Integer32;
@@ -27,7 +24,7 @@ import org.snmp4j.smi.Variable;
  * @author tangxl
  * @since 2021-06-21
  */
-public class XySnmpColumn extends MOColumn {
+public class XySnmpColumn extends MOMutableColumn {
 
     private String paraNo;
 

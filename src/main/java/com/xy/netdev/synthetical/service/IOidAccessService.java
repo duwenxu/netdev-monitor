@@ -29,5 +29,12 @@ public interface IOidAccessService {
      */
     Map<String,String> getValByOidList(List<String> oidList);
 
+    /**
+     * 获取传入oid的next值
+     * @param oidList 传入的oidList
+     * @return oid--value
+     */
+    Map<String,String> getNextByOid(List<String> oidList);
+
 
 }

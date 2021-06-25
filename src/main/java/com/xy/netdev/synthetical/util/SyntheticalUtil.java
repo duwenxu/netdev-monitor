@@ -6,14 +6,10 @@ import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.entity.ParaInfo;
 import com.xy.netdev.synthetical.agent.XySnmpColumn;
 import com.xy.netdev.synthetical.agent.XySnmpTable;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.snmp4j.agent.mo.MOColumn;
 import org.snmp4j.agent.mo.MOTableIndex;
 import org.snmp4j.agent.mo.MOTableSubIndex;
 import org.snmp4j.smi.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;

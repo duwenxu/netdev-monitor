@@ -30,7 +30,7 @@ dependencies {
 	compile 'io.netty:netty-all:4.1.60.Final'
 	compile group: 'at.favre.lib', name: 'bytes', version: '1.3.0'
 	compile 'dom4j:dom4j:1.6.1'
-	compile 'org.projectlombok:lombok:1.18.18'
+	compile 'org.projectlombok:lombok:1.18.2'
 	implementation 'cn.hutool:hutool-all:5.5.8'
 	implementation 'com.lmax:disruptor:3.4.2'
 	annotationProcessor 'org.projectlombok:lombok:1.18.2'

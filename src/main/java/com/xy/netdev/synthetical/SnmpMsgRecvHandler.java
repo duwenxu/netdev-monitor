@@ -95,6 +95,7 @@
 //            PDU responsePdu = new PDU();
 //            ArrayList<VariableBinding> responseVariables = new ArrayList<>();
 //            if (PDU.GET==type||PDU.GETNEXT==type){
+//                //获取到需要查询的所有OID
 //                List<String> oidStrings = oidList.stream().map(OID::toString).collect(Collectors.toList());
 //                Map<String, String> oidValMap = oidAccessService.getValByOidList(oidStrings);
 //                for (Map.Entry<String, String> entry : oidValMap.entrySet()) {
@@ -102,8 +103,6 @@
 //                    variableBinding.setOid(new OID(entry.getKey()));
 //                    variableBinding.setVariable(new Integer32(1));
 //                }
-//            }else if (PDU.SET==type){
-//
 //            }
 //
 //            //TODO 模拟响应结果发送

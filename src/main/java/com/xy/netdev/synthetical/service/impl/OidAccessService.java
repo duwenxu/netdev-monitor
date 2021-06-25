@@ -52,4 +52,8 @@ public class OidAccessService implements IOidAccessService {
         }
     }
 
+    @Override
+    public Map<String, String> getNextByOid(List<String> oidList) {
+        return null;
+    }
 }
