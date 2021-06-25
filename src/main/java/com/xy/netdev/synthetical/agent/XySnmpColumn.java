@@ -13,6 +13,7 @@ import com.xy.netdev.synthetical.util.SyntheticalUtil;
 import org.snmp4j.agent.MOAccess;
 import org.snmp4j.agent.mo.MOAccessImpl;
 import org.snmp4j.agent.mo.MOColumn;
+import org.snmp4j.agent.mo.MOMutableColumn;
 import org.snmp4j.agent.mo.MOTableRow;
 import org.snmp4j.agent.request.SubRequest;
 import org.snmp4j.smi.Integer32;
@@ -53,7 +54,7 @@ public class XySnmpColumn extends MOColumn {
         super(columnID, syntax,MOAccessImpl.ACCESS_READ_ONLY);
     }
 
-    public Variable getValue(MOTableRow row, int column, SubRequest subRequest) {
+    public Variable getValue(MOTableRow row, int column) {
         if(column>4){
             ParaViewInfo paraInfo = DevParaInfoContainer.getDevParaView(devNo,paraNo);
             if(paraInfo==null){
