@@ -7,8 +7,12 @@ import com.xy.netdev.container.DevParaInfoContainer;
 import com.xy.netdev.container.DevStatusContainer;
 import com.xy.netdev.monitor.bo.DevStatusInfo;
 import com.xy.netdev.monitor.bo.ParaViewInfo;
+import com.xy.netdev.monitor.entity.ParaInfo;
+import com.xy.netdev.synthetical.factory.OidHandlerFactory;
 import com.xy.netdev.synthetical.util.SyntheticalUtil;
+import org.snmp4j.agent.MOAccess;
 import org.snmp4j.agent.mo.MOAccessImpl;
+import org.snmp4j.agent.mo.MOColumn;
 import org.snmp4j.agent.mo.MOMutableColumn;
 import org.snmp4j.agent.mo.MOTableRow;
 import org.snmp4j.agent.request.SubRequest;
@@ -24,7 +28,7 @@ import org.snmp4j.smi.Variable;
  * @author tangxl
  * @since 2021-06-21
  */
-public class XySnmpColumn extends MOMutableColumn {
+public class XySnmpColumn extends MOColumn {
 
     private String paraNo;
 
@@ -50,7 +54,7 @@ public class XySnmpColumn extends MOMutableColumn {
         super(columnID, syntax,MOAccessImpl.ACCESS_READ_ONLY);
     }
 
-    public Variable getValue(MOTableRow row, int column, SubRequest subRequest) {
+    public Variable getValue(MOTableRow row, int column) {
         if(column>4){
             ParaViewInfo paraInfo = DevParaInfoContainer.getDevParaView(devNo,paraNo);
             if(paraInfo==null){

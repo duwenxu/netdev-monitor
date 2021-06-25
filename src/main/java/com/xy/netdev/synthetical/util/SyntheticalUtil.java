@@ -6,10 +6,15 @@ import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.entity.ParaInfo;
 import com.xy.netdev.synthetical.agent.XySnmpColumn;
 import com.xy.netdev.synthetical.agent.XySnmpTable;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.snmp4j.agent.mo.DefaultMOTableRow;
+import org.snmp4j.agent.mo.MOColumn;
 import org.snmp4j.agent.mo.MOTableIndex;
 import org.snmp4j.agent.mo.MOTableSubIndex;
 import org.snmp4j.smi.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -99,11 +104,14 @@ public class SyntheticalUtil {
                 new MOTableSubIndex(SMIConstants.SYNTAX_OCTET_STRING) };
         MOTableIndex moTableIndex = new MOTableIndex(subIndexArray);
         XySnmpColumn[] snmpColumnArray = new XySnmpColumn[devParaColumnList.size()];
+        Variable[] values = new Variable[devParaColumnList.size()];
         for(int i=0;i<devParaColumnList.size();i++){
             snmpColumnArray[i] =devParaColumnList.get(i);
+            values[i] = new OctetString("i.0");
         }
         XySnmpTable  snmpTable = new XySnmpTable(devOid,moTableIndex, snmpColumnArray);
         snmpTable.setDevNo(devNo);
+        snmpTable.addRow(new DefaultMOTableRow(new OID("0"),values));
         return snmpTable;
     }
     /**
