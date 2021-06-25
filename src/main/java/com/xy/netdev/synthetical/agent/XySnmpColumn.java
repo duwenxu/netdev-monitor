@@ -55,7 +55,8 @@ public class XySnmpColumn extends MOColumn {
     }
 
     public Variable getValue(MOTableRow row, int column) {
-        if(column>4){
+        int paraNoInt = Integer.parseInt(paraNo);
+        if(paraNoInt>4){
             ParaViewInfo paraInfo = DevParaInfoContainer.getDevParaView(devNo,paraNo);
             if(paraInfo==null){
                 return new Null();
@@ -63,16 +64,16 @@ public class XySnmpColumn extends MOColumn {
             return SyntheticalUtil.genSnmpVariable(paraInfo.getParaDatatype(),paraInfo.getParaVal());
         }
         ISysParamService sysParamService = BaseInfoContainer.getSysParamService();
-        if(column ==1){
+        if(paraNoInt ==1){
             return new Integer32(Integer.parseInt(sysParamService.getParaRemark1(SysConfigConstant.PRIVATE_MIB_REGION)));
         }
-        if(column ==2){
+        if(paraNoInt ==2){
             return new Integer32(Integer.parseInt(sysParamService.getParaRemark1(SysConfigConstant.PRIVATE_MIB_STATION)));
         }
-        if(column ==3){
+        if(paraNoInt ==3){
             return new Integer32(Integer.parseInt(devNo));
         }
-        if(column ==4){
+        if(paraNoInt ==4){
             DevStatusInfo devStatusInfo = DevStatusContainer.getDevStatusInfo(devNo);
             if(devStatusInfo.getIsInterrupt().equals("0")){
                 return new Integer32(1);
