@@ -1,6 +1,5 @@
 package com.xy.netdev.synthetical;
 
-import com.xy.netdev.common.util.SnmpUtil;
 import com.xy.netdev.synthetical.service.impl.OidAccessService;
 import lombok.extern.slf4j.Slf4j;
 import org.snmp4j.*;
@@ -22,7 +21,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Vector;
 import java.util.stream.Collectors;
 
@@ -45,7 +43,6 @@ public class SnmpMsgRecvHandler implements CommandResponder, ApplicationRunner {
     private ThreadPool threadPool;
     private SimpleDateFormat simpleDateFormat;
     private String port;
-
 
     public SnmpMsgRecvHandler() {
         simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -94,6 +91,7 @@ public class SnmpMsgRecvHandler implements CommandResponder, ApplicationRunner {
             Vector<? extends VariableBinding> variables = pdu.getVariableBindings();
             int type = pdu.getType();
             List<OID> oidList = variables.stream().map(VariableBinding::getOid).collect(Collectors.toList());
+            String oid1 = oidList.get(0).toString();
 
             PDU responsePdu = new PDU();
             port = respEvent.getPeerAddress().toString().split("/")[1];
@@ -109,55 +107,57 @@ public class SnmpMsgRecvHandler implements CommandResponder, ApplicationRunner {
 //                }
 //            }
 
-//            //TODO 模拟响应结果发送
+            if (oid1.contains("145.3")){
+                //TODO 模拟响应结果发送
+                ArrayList<VariableBinding> bindings = new ArrayList<>();
+                VariableBinding variableBinding1 = new VariableBinding();
+                variableBinding1.setOid(new OID("1.3.6.1.4.1.63000.2.2.2.145.3.1.1.4"));
+                variableBinding1.setVariable(new Integer32(1));
+
+                VariableBinding variableBinding2 = new VariableBinding();
+                variableBinding2.setOid(new OID("1.3.6.1.4.1.63000.2.2.2.145.3.1.1.11"));
+                variableBinding2.setVariable(new Integer32(128));
+
+                VariableBinding variableBinding3 = new VariableBinding();
+                variableBinding3.setOid(new OID("1.3.6.1.4.1.63000.2.2.2.145.3.1.1.12"));
+                variableBinding3.setVariable(new Integer32(128));
+
+                VariableBinding variableBinding4 = new VariableBinding();
+                variableBinding4.setOid(new OID("1.3.6.1.4.1.63000.2.2.2.145.3.1.1.13"));
+                variableBinding4.setVariable(new Integer32(128));
+
+                bindings.add(variableBinding1);
+                bindings.add(variableBinding2);
+                bindings.add(variableBinding3);
+                bindings.add(variableBinding4);
+
 //            ArrayList<VariableBinding> bindings = new ArrayList<>();
 //            VariableBinding variableBinding1 = new VariableBinding();
-//            variableBinding1.setOid(new OID("1.3.6.1.4.1.63000.2.2.2.145.3.1.1.4"));
+//            variableBinding1.setOid(new OID("1.3.6.1.4.1.63000.2.2.2.119.109.1.1.4.1.1.1"));
 //            variableBinding1.setVariable(new Integer32(1));
 //
-//            VariableBinding variableBinding2 = new VariableBinding();
-//            variableBinding2.setOid(new OID("1.3.6.1.4.1.63000.2.2.2.145.3.1.1.11"));
-//            variableBinding2.setVariable(new Integer32(128));
-//
-//            VariableBinding variableBinding3 = new VariableBinding();
-//            variableBinding3.setOid(new OID("1.3.6.1.4.1.63000.2.2.2.145.3.1.1.12"));
-//            variableBinding3.setVariable(new Integer32(128));
-//
-//            VariableBinding variableBinding4 = new VariableBinding();
-//            variableBinding4.setOid(new OID("1.3.6.1.4.1.63000.2.2.2.145.3.1.1.13"));
-//            variableBinding4.setVariable(new Integer32(128));
-//
 //            bindings.add(variableBinding1);
-//            bindings.add(variableBinding2);
-//            bindings.add(variableBinding3);
-//            bindings.add(variableBinding4);
 
-            ArrayList<VariableBinding> bindings = new ArrayList<>();
-            VariableBinding variableBinding1 = new VariableBinding();
-            variableBinding1.setOid(new OID("1.3.6.1.4.1.63000.2.2.2.119.109.1.1.4.1.1.1"));
-            variableBinding1.setVariable(new Integer32(1));
+                // 设置 target
+                CommunityTarget target = new CommunityTarget();
+                targetAddress = GenericAddress.parse(System.getProperty(
+                        "snmp4j.listenAddress", "udp:" + appConfigRead.getTargetAddress()+"/"+port)); // 本地IP与监听端口
+                target.setAddress(targetAddress);
 
-            bindings.add(variableBinding1);
-
-            // 设置 target
-            CommunityTarget target = new CommunityTarget();
-            targetAddress = GenericAddress.parse(System.getProperty(
-                    "snmp4j.listenAddress", "udp:" + appConfigRead.getTargetAddress()+"/"+port)); // 本地IP与监听端口
-            target.setAddress(targetAddress);
-
-            ResponseEvent send;
-            PDU sendPdu = new PDU();
-            sendPdu.setErrorStatus(0);
-            target.setCommunity(new OctetString("public"));
-            target.setVersion(SnmpConstants.version2c);
-            sendPdu.setRequestID(respEvent.getPDU().getRequestID());
-            sendPdu.setVariableBindings(bindings);
-            sendPdu.setType(PDU.RESPONSE);
-            try {
-                send = snmp.send(sendPdu, target);
-                log.info("SNMP发送接收响应信息,发送地址：[{}],发送内容：[{}]",target.getAddress().toString(), sendPdu);
-            } catch (IOException e) {
-                log.error("SNMP相应信息发送失败！");
+                ResponseEvent send;
+                PDU sendPdu = new PDU();
+                sendPdu.setErrorStatus(0);
+                target.setCommunity(new OctetString("public"));
+                target.setVersion(SnmpConstants.version2c);
+                sendPdu.setRequestID(respEvent.getPDU().getRequestID());
+                sendPdu.setVariableBindings(bindings);
+                sendPdu.setType(PDU.RESPONSE);
+                try {
+                    send = snmp.send(sendPdu, target);
+                    log.info("SNMP发送接收响应信息,发送地址：[{}],发送内容：[{}]",target.getAddress().toString(), sendPdu);
+                } catch (IOException e) {
+                    log.error("SNMP相应信息发送失败！");
+                }
             }
         }
     }
