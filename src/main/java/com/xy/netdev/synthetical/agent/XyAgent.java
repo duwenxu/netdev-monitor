@@ -3,10 +3,7 @@ package com.xy.netdev.synthetical.agent;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
-import com.xy.netdev.container.DevParaInfoContainer;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
-import com.xy.netdev.monitor.entity.ParaInfo;
-import com.xy.netdev.synthetical.bo.OidParaInfo;
 import com.xy.netdev.synthetical.util.SyntheticalUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.snmp4j.MessageDispatcher;
@@ -20,20 +17,25 @@ import org.snmp4j.agent.io.DefaultMOPersistenceProvider;
 import org.snmp4j.agent.io.MOInput;
 import org.snmp4j.agent.io.MOInputFactory;
 import org.snmp4j.agent.io.prop.PropertyMOInput;
-import org.snmp4j.agent.mo.*;
+import org.snmp4j.agent.mo.DefaultMOFactory;
+import org.snmp4j.agent.mo.MOFactory;
 import org.snmp4j.log.ConsoleLogFactory;
 import org.snmp4j.log.LogAdapter;
 import org.snmp4j.log.LogFactory;
 import org.snmp4j.log.LogLevel;
 import org.snmp4j.mp.MPv3;
-import org.snmp4j.smi.*;
+import org.snmp4j.smi.Address;
+import org.snmp4j.smi.GenericAddress;
+import org.snmp4j.smi.OctetString;
 import org.snmp4j.transport.TransportMappings;
 import org.snmp4j.util.ThreadPool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.stereotype.Component;
-import java.io.*;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +49,7 @@ import java.util.Properties;
  * @author tangxl
  * @since 2021-06-17
  */
-@Component
+//@Component
 @Slf4j
 public class XyAgent implements ApplicationRunner {
 

@@ -75,10 +75,41 @@ public class SnmpMsgRecvHandler implements CommandResponder, ApplicationRunner {
         try {
             init();
             snmp.addCommandResponder(this);
-            log.info("开始监听网络规划SNMP请求信息,监听地址：[{}]",listenAddress.toString());
+            log.info("开始监听网络规划SNMP请求信息,监听地址：[{}]", listenAddress.toString());
         } catch (Exception ex) {
             log.error("监听异常");
             ex.printStackTrace();
+        }
+    }
+
+    /**
+     * 发送响应PDU
+     *
+     * @param respEvent SNMP监听事件
+     * @param bindings  SNMP参数值
+     */
+    private void dispatchRespPdu(CommandResponderEvent respEvent, List<VariableBinding> bindings) {
+        port = respEvent.getPeerAddress().toString().split("/")[1];
+        // 设置 target
+        CommunityTarget target = new CommunityTarget();
+        targetAddress = GenericAddress.parse(System.getProperty(
+                "snmp4j.listenAddress", "udp:" + appConfigRead.getTargetAddress() + "/" + port)); // 本地IP与监听端口
+        target.setAddress(targetAddress);
+        target.setCommunity(new OctetString("public"));
+        target.setVersion(SnmpConstants.version2c);
+
+        ResponseEvent send;
+
+        PDU sendPdu = new PDU();
+        sendPdu.setErrorStatus(0);
+        sendPdu.setRequestID(respEvent.getPDU().getRequestID());
+        sendPdu.setVariableBindings(bindings);
+        sendPdu.setType(PDU.RESPONSE);
+        try {
+            send = snmp.send(sendPdu, target);
+            log.info("SNMP发送接收响应信息,发送地址：[{}],发送内容：[{}],发送结果：[{}]", target.getAddress().toString(), sendPdu, send);
+        } catch (IOException e) {
+            log.error("SNMP相应信息发送失败！");
         }
     }
 
@@ -88,48 +119,50 @@ public class SnmpMsgRecvHandler implements CommandResponder, ApplicationRunner {
         if (respEvent != null && respEvent.getPDU() != null) {
             log.info("接收到SNMP消息帧：event信息:[{}]", respEvent);
             PDU pdu = respEvent.getPDU();
-            Vector<? extends VariableBinding> variables = pdu.getVariableBindings();
             int type = pdu.getType();
+            Vector<? extends VariableBinding> variables = pdu.getVariableBindings();
             List<OID> oidList = variables.stream().map(VariableBinding::getOid).collect(Collectors.toList());
-            String oid1 = oidList.get(0).toString();
 
-            PDU responsePdu = new PDU();
-            port = respEvent.getPeerAddress().toString().split("/")[1];
-//            ArrayList<VariableBinding> responseVariables = new ArrayList<>();
-//            if (PDU.GET==type||PDU.GETNEXT==type){
-//                //获取到需要查询的所有OID
-//                List<String> oidStrings = oidList.stream().map(OID::toString).collect(Collectors.toList());
-//                Map<String, String> oidValMap = oidAccessService.getValByOidList(oidStrings);
-//                for (Map.Entry<String, String> entry : oidValMap.entrySet()) {
-//                    VariableBinding variableBinding = new VariableBinding();
-//                    variableBinding.setOid(new OID(entry.getKey()));
-//                    variableBinding.setVariable(new Integer32(1));
-//                }
-//            }
+            List<VariableBinding> targetVariables = new ArrayList<>();
+            if (PDU.GET == type || PDU.GETNEXT == type) {
+                //获取到需要查询的所有OID
+                List<String> oidStrings = oidList.stream().map(OID::toString).collect(Collectors.toList());
+                targetVariables = oidAccessService.getVariablesByOidList(oidStrings);
+            } else if (PDU.SET == type) {
+            }
 
-            if (oid1.contains("145.3")){
-                //TODO 模拟响应结果发送
-                ArrayList<VariableBinding> bindings = new ArrayList<>();
-                VariableBinding variableBinding1 = new VariableBinding();
-                variableBinding1.setOid(new OID("1.3.6.1.4.1.63000.2.2.2.145.3.1.1.4"));
-                variableBinding1.setVariable(new Integer32(1));
+            dispatchRespPdu(respEvent, targetVariables);
 
-                VariableBinding variableBinding2 = new VariableBinding();
-                variableBinding2.setOid(new OID("1.3.6.1.4.1.63000.2.2.2.145.3.1.1.11"));
-                variableBinding2.setVariable(new Integer32(128));
+//            doTest(respEvent, oidList);
+        }
+    }
 
-                VariableBinding variableBinding3 = new VariableBinding();
-                variableBinding3.setOid(new OID("1.3.6.1.4.1.63000.2.2.2.145.3.1.1.12"));
-                variableBinding3.setVariable(new Integer32(128));
+    private void doTest(CommandResponderEvent respEvent, List<OID> oidList) {
+        String oid1 = oidList.get(0).toString();
 
-                VariableBinding variableBinding4 = new VariableBinding();
-                variableBinding4.setOid(new OID("1.3.6.1.4.1.63000.2.2.2.145.3.1.1.13"));
-                variableBinding4.setVariable(new Integer32(128));
+        if (oid1.contains("145.3")) {
+            //TODO 模拟响应结果发送
+            ArrayList<VariableBinding> bindings = new ArrayList<>();
+            VariableBinding variableBinding1 = new VariableBinding();
+            variableBinding1.setOid(new OID("1.3.6.1.4.1.63000.2.2.2.145.3.1.1.4"));
+            variableBinding1.setVariable(new Integer32(1));
 
-                bindings.add(variableBinding1);
-                bindings.add(variableBinding2);
-                bindings.add(variableBinding3);
-                bindings.add(variableBinding4);
+            VariableBinding variableBinding2 = new VariableBinding();
+            variableBinding2.setOid(new OID("1.3.6.1.4.1.63000.2.2.2.145.3.1.1.11"));
+            variableBinding2.setVariable(new Integer32(128));
+
+            VariableBinding variableBinding3 = new VariableBinding();
+            variableBinding3.setOid(new OID("1.3.6.1.4.1.63000.2.2.2.145.3.1.1.12"));
+            variableBinding3.setVariable(new Integer32(128));
+
+            VariableBinding variableBinding4 = new VariableBinding();
+            variableBinding4.setOid(new OID("1.3.6.1.4.1.63000.2.2.2.145.3.1.1.13"));
+            variableBinding4.setVariable(new Integer32(128));
+
+            bindings.add(variableBinding1);
+            bindings.add(variableBinding2);
+            bindings.add(variableBinding3);
+            bindings.add(variableBinding4);
 
 //            ArrayList<VariableBinding> bindings = new ArrayList<>();
 //            VariableBinding variableBinding1 = new VariableBinding();
@@ -138,27 +171,7 @@ public class SnmpMsgRecvHandler implements CommandResponder, ApplicationRunner {
 //
 //            bindings.add(variableBinding1);
 
-                // 设置 target
-                CommunityTarget target = new CommunityTarget();
-                targetAddress = GenericAddress.parse(System.getProperty(
-                        "snmp4j.listenAddress", "udp:" + appConfigRead.getTargetAddress()+"/"+port)); // 本地IP与监听端口
-                target.setAddress(targetAddress);
-
-                ResponseEvent send;
-                PDU sendPdu = new PDU();
-                sendPdu.setErrorStatus(0);
-                target.setCommunity(new OctetString("public"));
-                target.setVersion(SnmpConstants.version2c);
-                sendPdu.setRequestID(respEvent.getPDU().getRequestID());
-                sendPdu.setVariableBindings(bindings);
-                sendPdu.setType(PDU.RESPONSE);
-                try {
-                    send = snmp.send(sendPdu, target);
-                    log.info("SNMP发送接收响应信息,发送地址：[{}],发送内容：[{}]",target.getAddress().toString(), sendPdu);
-                } catch (IOException e) {
-                    log.error("SNMP相应信息发送失败！");
-                }
-            }
+            dispatchRespPdu(respEvent, bindings);
         }
     }
 }

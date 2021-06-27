@@ -3,18 +3,13 @@ package com.xy.netdev.synthetical.util;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
-import com.xy.netdev.monitor.entity.ParaInfo;
 import com.xy.netdev.synthetical.agent.XySnmpColumn;
 import com.xy.netdev.synthetical.agent.XySnmpTable;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.snmp4j.agent.mo.DefaultMOTableRow;
-import org.snmp4j.agent.mo.MOColumn;
 import org.snmp4j.agent.mo.MOTableIndex;
 import org.snmp4j.agent.mo.MOTableSubIndex;
 import org.snmp4j.smi.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,17 +27,18 @@ import java.util.List;
 public class SyntheticalUtil {
     /**
      * 生成上报OID
-     * @param devNo    设备编号
-     * @param paraInfo 设备参数信息
-     * @return 设备参数OID
+     * @param rptOid 上报OID
+     * @param paraCode 参数编码
+     * @param sysParamService 参数服务类
+     * @return OID
      */
-    public static String genRptOid(String devNo, ParaInfo paraInfo,ISysParamService sysParamService) {
+    public static String genRptOid(String rptOid,String paraCode, ISysParamService sysParamService) {
         StringBuilder oidSbuider = new StringBuilder();
         oidSbuider.append(sysParamService.getParaRemark1(SysConfigConstant.PRIVATE_MIB_PREFIX))
-                  .append(".").append(paraInfo.getNdpaRptOid())
+                  .append(".").append(rptOid)
                   .append(".").append(sysParamService.getParaRemark1(SysConfigConstant.FIXED_MIB_1))
                   .append(".").append(sysParamService.getParaRemark1(SysConfigConstant.FIXED_MIB_2))
-                  .append(".").append(paraInfo.getNdpaNo());
+                  .append(".").append(paraCode);
                   //.append(".").append(sysParamService.getParaRemark1(SysConfigConstant.PRIVATE_MIB_REGION))
                   //.append(".").append(sysParamService.getParaRemark1(SysConfigConstant.PRIVATE_MIB_STATION))
                   //.append(".").append(devNo);
