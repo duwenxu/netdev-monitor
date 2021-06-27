@@ -134,13 +134,12 @@ public class DevParaInfoContainer {
     private static void addSnmpParaData(String currentDevNo, ParaViewInfo value) {
         if (!devSnmpParaMap.containsKey(currentDevNo)) {
             devSnmpParaMap.put(currentDevNo, new ConcurrentHashMap<>(10));
-        } else {
-            Map<String, SnmpRptDTO> viewInfoMap = devSnmpParaMap.get(currentDevNo);
-            String rptOid = SyntheticalUtil.genRptOid(value.getRptOidSign(), value.getParaCode(), sysParamService);
-            SnmpRptDTO snmpRptDTO = new SnmpRptDTO();
-            BeanUtils.copyProperties(value, snmpRptDTO);
-            viewInfoMap.put(rptOid, snmpRptDTO);
         }
+        Map<String, SnmpRptDTO> viewInfoMap = devSnmpParaMap.get(currentDevNo);
+        String rptOid = SyntheticalUtil.genRptOid(value.getRptOidSign(), value.getParaCode(), sysParamService);
+        SnmpRptDTO snmpRptDTO = new SnmpRptDTO();
+        BeanUtils.copyProperties(value, snmpRptDTO);
+        viewInfoMap.put(rptOid, snmpRptDTO);
     }
 
     /**
