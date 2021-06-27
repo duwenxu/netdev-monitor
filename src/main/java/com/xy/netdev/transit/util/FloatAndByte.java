@@ -3,7 +3,6 @@ package com.xy.netdev.transit.util;
 public class FloatAndByte {
  
 	/**
-	 * @param args
 	 *            对于IEEE754编码。由float转换为IEEE754编码
 	 * @author Administrator
 	 * @version1.0

@@ -9,6 +9,7 @@ import com.xy.netdev.container.paraext.ParaExtServiceFactory;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.service.snmp.SnmpRptDTO;
+import com.xy.netdev.monitor.bo.DevStatusInfo;
 import com.xy.netdev.monitor.bo.ParaSpinnerInfo;
 import com.xy.netdev.monitor.bo.ParaViewInfo;
 import com.xy.netdev.monitor.entity.ParaInfo;
@@ -22,6 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static com.xy.netdev.common.constant.SysConfigConstant.PARA_COMPLEX_LEVEL_COMPOSE;
+import static com.xy.netdev.monitor.constant.MonitorConstants.INT;
 
 /**
  * <p>
@@ -141,6 +143,33 @@ public class DevParaInfoContainer {
         BeanUtils.copyProperties(value, snmpRptDTO);
         viewInfoMap.put(rptOid, snmpRptDTO);
     }
+
+    /**
+     * 初始化各个设备固定参数值 如：设备连接状态等
+     */
+    public static void initSnmpDevStatusRptData() {
+            for (Map.Entry<String, Map<String, SnmpRptDTO>> snmpMap : devSnmpParaMap.entrySet()) {
+                String currentDevNo = snmpMap.getKey();
+                String oid0 = new ArrayList<>(snmpMap.getValue().entrySet()).get(0).getKey();
+                String oidPrefix = oid0.substring(0, oid0.lastIndexOf("."));
+                String devOid4 = oidPrefix + ".4";
+
+                DevStatusInfo devStatusInfo = DevStatusContainer.getDevStatusInfo(DevParaInfoContainer.getOidDevNo(devOid4));
+                String isInterrupt = devStatusInfo.getIsInterrupt();
+                String val = "0";
+                if ("0".equals(isInterrupt)) {
+                    val = "1";
+                }
+                SnmpRptDTO rptDTO = SnmpRptDTO.builder()
+                        .paraCode("4")
+                        .paraName("设备连接状态")
+                        .paraDatatype(INT)
+                        .paraVal(val)
+                        .build();
+
+                devSnmpParaMap.get(currentDevNo).put(devOid4, rptDTO);
+            }
+        }
 
     /**
      * @功能：根据设备类型对应的参数信息  生成设备显示列表
