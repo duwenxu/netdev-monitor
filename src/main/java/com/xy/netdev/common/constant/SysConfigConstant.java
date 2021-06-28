@@ -1,8 +1,6 @@
 package com.xy.netdev.common.constant;
 
 
-
-
 /**
  * 系统配置常量*
  *
@@ -558,7 +556,7 @@ public interface SysConfigConstant {
     String ACU_AGE_VALUE = "0100013";
 
     /**
-     * 私有MIB前缀
+     * 公共参数--给54所发送数据的端口
      */
     String PRIVATE_MIB_PREFIX = "0101001";
     /**

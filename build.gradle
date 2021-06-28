@@ -42,8 +42,6 @@ dependencies {
 	//snmp-agent
 	implementation group: 'org.snmp4j', name: 'snmp4j-agent', version: '2.5.2'
 
-
-
 //	若无法读取中心jar则放开如下配置，并注释compile 'com.xy:xy-base-core:1.0.3-SNAPSHOT'
 	implementation 'org.springframework.boot:spring-boot-starter-web:2.1.7.RELEASE'
 	implementation 'org.springframework.boot:spring-boot-starter-aop:2.1.7.RELEASE'

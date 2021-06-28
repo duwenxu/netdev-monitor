@@ -42,7 +42,7 @@ public class AcuPrtcServiceImpl implements IParaPrtclAnalysisService {
 
     @Override
     public void ctrlPara(FrameReqData reqInfo) {
-        String paraVal = reqInfo.getFrameParaList().get(0).getParaVal();
+        String paraVal = reqInfo.getFrameParaList().get(0).getParaVal().trim();
         String replace = paraVal.replace("{", "")
                 .replace("}","")
                 .replace("[","")

@@ -9,6 +9,7 @@ import com.xy.netdev.admin.entity.SysDepart;
 import com.xy.netdev.admin.entity.SysUser;
 import com.xy.netdev.admin.service.ISysDepartService;
 import com.xy.netdev.admin.service.ISysLogService;
+import com.xy.netdev.admin.service.ISysRoleService;
 import com.xy.netdev.admin.service.ISysUserService;
 import com.xy.netdev.admin.vo.SysLoginModel;
 import com.xy.netdev.common.constant.SysConfigConstant;
@@ -39,6 +40,8 @@ public class LoginController {
 	private ISysLogService logService;
 	@Autowired
     private ISysDepartService sysDepartService;
+	@Autowired
+	private ISysRoleService sysRoleService;
 
 	private static Map<String,String> tokenCache = new HashMap<>();
 
@@ -63,6 +66,7 @@ public class LoginController {
 			result.error500("用户名或密码错误");
 			return result;
 		}
+		sysUser.setUserRole(sysRoleService.getUserRoles(sysUser.getUserId()));
 		//用户登录信息
 		userInfo(sysUser, result);
 		sysBaseAPI.setLoginUser(sysUser);

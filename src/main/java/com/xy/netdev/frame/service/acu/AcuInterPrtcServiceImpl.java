@@ -104,8 +104,4 @@ public class AcuInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
         dataReciveService.paraQueryRecive(respData);
         return respData;
     }
-
-
-
-
 }

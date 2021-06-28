@@ -63,6 +63,8 @@ public class ScheduleQuery  implements ApplicationRunner{
         log.info("-----设备状态定时查询开始...");
         try {
            doScheduleQuery();
+           List<BaseInfo> pingBaseInfo = ScheduleQueryHelper.getAvailableBases();
+           execBasePing(pingBaseInfo);
         } catch (Exception e) {
             log.error("设备状态定时查询异常...", e);
         }
@@ -237,11 +239,16 @@ public class ScheduleQuery  implements ApplicationRunner{
 
     public SnmpReqDTO frameReq2SnmpReq(FrameReqData frameReqData) {
         List<FrameParaData> frameParaList = frameReqData.getFrameParaList();
+        String paraCmcLv="";
         for (FrameParaData frameParaData : frameParaList) {
-            FrameParaInfo paraInfo = BaseInfoContainer.getParaInfoByNo(frameParaData.getDevType(), frameParaData.getParaNo());
-            String cmdMark = paraInfo.getCmdMark();
+            ParaViewInfo devParaView = DevParaInfoContainer.getDevParaView(frameParaData.getDevNo(), frameParaData.getParaNo());
+            String cmdMark = devParaView.getParaCmdMark();
             frameParaData.setParaCmk(cmdMark);
             frameParaData.setOid(snmpTransceiverService.oidSplic(cmdMark,frameParaData.getDevType()));
+            paraCmcLv = devParaView.getParaCmplexLevel();
+        }
+        if (PARA_COMPLEX_LEVEL_SUB.equals(paraCmcLv)){
+            return null;
         }
         SnmpReqDTO snmpReqDTO = SnmpReqDTO.builder()
                 .accessType(frameReqData.getAccessType())
