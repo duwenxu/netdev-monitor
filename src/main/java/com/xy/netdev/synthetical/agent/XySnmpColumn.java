@@ -7,14 +7,10 @@ import com.xy.netdev.container.DevParaInfoContainer;
 import com.xy.netdev.container.DevStatusContainer;
 import com.xy.netdev.monitor.bo.DevStatusInfo;
 import com.xy.netdev.monitor.bo.ParaViewInfo;
-import com.xy.netdev.monitor.entity.ParaInfo;
-import com.xy.netdev.synthetical.factory.OidHandlerFactory;
 import com.xy.netdev.synthetical.util.SyntheticalUtil;
-import org.snmp4j.agent.MOAccess;
 import org.snmp4j.agent.mo.MOAccessImpl;
 import org.snmp4j.agent.mo.MOColumn;
 import org.snmp4j.agent.mo.MOTableRow;
-import org.snmp4j.agent.request.SubRequest;
 import org.snmp4j.smi.Integer32;
 import org.snmp4j.smi.Null;
 import org.snmp4j.smi.Variable;
@@ -53,8 +49,9 @@ public class XySnmpColumn extends MOColumn {
         super(columnID, syntax,MOAccessImpl.ACCESS_READ_ONLY);
     }
 
-    public Variable getValue(MOTableRow row, int column, SubRequest subRequest) {
-        if(column>4){
+    public Variable getValue(MOTableRow row, int column) {
+        int paraNoInt = Integer.parseInt(paraNo);
+        if(paraNoInt>4){
             ParaViewInfo paraInfo = DevParaInfoContainer.getDevParaView(devNo,paraNo);
             if(paraInfo==null){
                 return new Null();
@@ -62,16 +59,16 @@ public class XySnmpColumn extends MOColumn {
             return SyntheticalUtil.genSnmpVariable(paraInfo.getParaDatatype(),paraInfo.getParaVal());
         }
         ISysParamService sysParamService = BaseInfoContainer.getSysParamService();
-        if(column ==1){
+        if(paraNoInt ==1){
             return new Integer32(Integer.parseInt(sysParamService.getParaRemark1(SysConfigConstant.PRIVATE_MIB_REGION)));
         }
-        if(column ==2){
+        if(paraNoInt ==2){
             return new Integer32(Integer.parseInt(sysParamService.getParaRemark1(SysConfigConstant.PRIVATE_MIB_STATION)));
         }
-        if(column ==3){
+        if(paraNoInt ==3){
             return new Integer32(Integer.parseInt(devNo));
         }
-        if(column ==4){
+        if(paraNoInt ==4){
             DevStatusInfo devStatusInfo = DevStatusContainer.getDevStatusInfo(devNo);
             if(devStatusInfo.getIsInterrupt().equals("0")){
                 return new Integer32(1);

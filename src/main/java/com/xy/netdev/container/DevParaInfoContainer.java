@@ -1,6 +1,5 @@
 package com.xy.netdev.container;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.xy.netdev.admin.service.ISysParamService;
@@ -9,16 +8,22 @@ import com.xy.netdev.common.util.ParaHandlerUtil;
 import com.xy.netdev.container.paraext.ParaExtServiceFactory;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameRespData;
-import com.xy.netdev.monitor.bo.FrameParaInfo;
+import com.xy.netdev.frame.service.snmp.SnmpRptDTO;
+import com.xy.netdev.monitor.bo.DevStatusInfo;
 import com.xy.netdev.monitor.bo.ParaSpinnerInfo;
 import com.xy.netdev.monitor.bo.ParaViewInfo;
 import com.xy.netdev.monitor.entity.ParaInfo;
 import com.xy.netdev.synthetical.util.SyntheticalUtil;
+import lombok.Getter;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.BeanUtils;
+
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static com.xy.netdev.common.constant.SysConfigConstant.PARA_COMPLEX_LEVEL_COMPOSE;
+import static com.xy.netdev.monitor.constant.MonitorConstants.INT;
 
 /**
  * <p>
@@ -35,15 +40,19 @@ public class DevParaInfoContainer {
     /**
      * 设备参数MAP K设备编号  V设备参数信息
      */
-    private static Map<String, Map<String, ParaViewInfo>> devParaMap = new LinkedHashMap<>();
+    private static final Map<String, Map<String, ParaViewInfo>> devParaMap = new LinkedHashMap<>();
+
+    /**SNMP OID-参数值 映射  结构： <DevNo,<OID,SnmpReqDTO></OID,SnmpReqDTO> */
+    @Getter
+    private static final Map<String,Map<String, SnmpRptDTO>> devSnmpParaMap = new ConcurrentHashMap<>(10);
     /**
      * 综合上报参数MAP K设备参数OID  V设备参数信息
      */
-    private static Map<String, ParaInfo> devParaOidMap = new HashMap<>();
+    private static final Map<String, ParaInfo> devParaOidMap = new HashMap<>();
     /**
      * 综合上报参数MAP K设备状态参数OID  V设备编号
      */
-    private static Map<String,String> devStatusOidMapDevNo = new HashMap<>();
+    private static final Map<String,String> devStatusOidMapDevNo = new HashMap<>();
 
     public static Map<String, String> getDevStatusOidMapDevNo() {
         return devStatusOidMapDevNo;
@@ -72,30 +81,96 @@ public class DevParaInfoContainer {
             devParaMap.put(devNo,assembleViewList(devNo,paraMapByDevType.get(devType)));
             ParaExtServiceFactory.genParaExtService(devType).setCacheDevParaViewInfo(devNo);
         });
-        //todo test
-        ParaViewInfo paraViewInfo1 = new ParaViewInfo();
-        paraViewInfo1.setDevType("0020012");
-        paraViewInfo1.setParaNo("1");
-        paraViewInfo1.setParaVal("1450.0000");
-        paraViewInfo1.setDevNo("19");
-        paraViewInfo1.setParaStrLen("8");
-        String linkKey1 = ParaHandlerUtil.genLinkKey(paraViewInfo1.getDevNo(), paraViewInfo1.getParaNo());
-
-        ParaViewInfo viewInfo1 = devParaMap.get(paraViewInfo1.getDevNo()).get(linkKey1);
-        BeanUtil.copyProperties(viewInfo1,paraViewInfo1,true);
-        devParaMap.get(paraViewInfo1.getDevNo()).put(linkKey1,paraViewInfo1);
-
-        ParaViewInfo paraViewInfo2 = new ParaViewInfo();
-        paraViewInfo2.setDevType("0020012");
-        paraViewInfo2.setParaNo("2");
-        paraViewInfo2.setParaVal("2.5");
-        paraViewInfo2.setDevNo("19");
-        paraViewInfo2.setParaStrLen("3");
-        String linkKey2 = ParaHandlerUtil.genLinkKey(paraViewInfo2.getDevNo(), paraViewInfo2.getParaNo());
-        ParaViewInfo viewInfo2 = devParaMap.get(paraViewInfo2.getDevNo()).get(linkKey2);
-        BeanUtil.copyProperties(viewInfo2,paraViewInfo2,true);
-        devParaMap.get(paraViewInfo2.getDevNo()).put(linkKey2,paraViewInfo2);
+        //SNMP 内存参数映射处理
+        initSnmpRptData();
+//        //todo test
+//        ParaViewInfo paraViewInfo1 = new ParaViewInfo();
+//        paraViewInfo1.setDevType("0020012");
+//        paraViewInfo1.setParaNo("1");
+//        paraViewInfo1.setParaVal("1450.0000");
+//        paraViewInfo1.setDevNo("19");
+//        paraViewInfo1.setParaStrLen("8");
+//        String linkKey1 = ParaHandlerUtil.genLinkKey(paraViewInfo1.getDevNo(), paraViewInfo1.getParaNo());
+//
+//        ParaViewInfo viewInfo1 = devParaMap.get(paraViewInfo1.getDevNo()).get(linkKey1);
+//        BeanUtil.copyProperties(viewInfo1,paraViewInfo1,true);
+//        devParaMap.get(paraViewInfo1.getDevNo()).put(linkKey1,paraViewInfo1);
+//
+//        ParaViewInfo paraViewInfo2 = new ParaViewInfo();
+//        paraViewInfo2.setDevType("0020012");
+//        paraViewInfo2.setParaNo("2");
+//        paraViewInfo2.setParaVal("2.5");
+//        paraViewInfo2.setDevNo("19");
+//        paraViewInfo2.setParaStrLen("3");
+//        String linkKey2 = ParaHandlerUtil.genLinkKey(paraViewInfo2.getDevNo(), paraViewInfo2.getParaNo());
+//        ParaViewInfo viewInfo2 = devParaMap.get(paraViewInfo2.getDevNo()).get(linkKey2);
+//        BeanUtil.copyProperties(viewInfo2,paraViewInfo2,true);
+//        devParaMap.get(paraViewInfo2.getDevNo()).put(linkKey2,paraViewInfo2);
     }
+
+    private static void initSnmpRptData() {
+        for (Map.Entry<String, Map<String, ParaViewInfo>> entry : devParaMap.entrySet()) {
+            String currentDevNo = entry.getKey();
+            Collection<ParaViewInfo> values = entry.getValue().values();
+            for (ParaViewInfo paraView : values) {
+                boolean canBeOpt = paraView.getNdpaOutterStatus().equals(SysConfigConstant.IS_DEFAULT_TRUE) && !StringUtils.isEmpty(paraView.getRptOidSign());
+                if (canBeOpt) {
+                    List<ParaViewInfo> subParaList = paraView.getSubParaList();
+                    if (subParaList==null||subParaList.size()==0){
+                        addSnmpParaData(currentDevNo, paraView);
+                    }else {
+                        for (ParaViewInfo subPara : subParaList) {
+                            addSnmpParaData(currentDevNo, subPara);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 添加单个SNMP数据映射到缓存
+     * @param currentDevNo 设备编号
+     * @param value 参数值结构体
+     */
+    private static void addSnmpParaData(String currentDevNo, ParaViewInfo value) {
+        if (!devSnmpParaMap.containsKey(currentDevNo)) {
+            devSnmpParaMap.put(currentDevNo, new ConcurrentHashMap<>(10));
+        }
+        Map<String, SnmpRptDTO> viewInfoMap = devSnmpParaMap.get(currentDevNo);
+        String rptOid = SyntheticalUtil.genRptOid(value.getRptOidSign(), value.getParaCode(), sysParamService);
+        SnmpRptDTO snmpRptDTO = new SnmpRptDTO();
+        BeanUtils.copyProperties(value, snmpRptDTO);
+        viewInfoMap.put(rptOid, snmpRptDTO);
+    }
+
+    /**
+     * 初始化各个设备固定参数值 如：设备连接状态等
+     */
+    public static void initSnmpDevStatusRptData() {
+            for (Map.Entry<String, Map<String, SnmpRptDTO>> snmpMap : devSnmpParaMap.entrySet()) {
+                String currentDevNo = snmpMap.getKey();
+                String oid0 = new ArrayList<>(snmpMap.getValue().entrySet()).get(0).getKey();
+                String oidPrefix = oid0.substring(0, oid0.lastIndexOf("."));
+                String devOid4 = oidPrefix + ".4";
+
+                DevStatusInfo devStatusInfo = DevStatusContainer.getDevStatusInfo(DevParaInfoContainer.getOidDevNo(devOid4));
+                String isInterrupt = devStatusInfo.getIsInterrupt();
+                String val = "0";
+                if ("0".equals(isInterrupt)) {
+                    val = "1";
+                }
+                SnmpRptDTO rptDTO = SnmpRptDTO.builder()
+                        .paraCode("4")
+                        .paraName("设备连接状态")
+                        .paraDatatype(INT)
+                        .paraVal(val)
+                        .build();
+
+                devSnmpParaMap.get(currentDevNo).put(devOid4, rptDTO);
+            }
+        }
+
     /**
      * @功能：根据设备类型对应的参数信息  生成设备显示列表
      * @param devNo            设备编号
@@ -126,7 +201,7 @@ public class DevParaInfoContainer {
     private static void genOidMap(String devNo,ParaInfo paraInfo){
         if(paraInfo.getNdpaOutterStatus().equals(SysConfigConstant.IS_DEFAULT_TRUE)&&!StringUtils.isEmpty(paraInfo.getNdpaRptOid())){
             paraInfo.setDevNo(devNo);
-            String oid = SyntheticalUtil.genRptOid(devNo,paraInfo,sysParamService);
+            String oid = SyntheticalUtil.genRptOid(paraInfo.getNdpaRptOid(),paraInfo.getNdpaCode(),sysParamService);
             devParaOidMap.put(oid,paraInfo);
             genStdOidPara(oid,devNo);
         }
@@ -186,6 +261,7 @@ public class DevParaInfoContainer {
         viewInfo.setParaByteLen(paraInfo.getNdpaByteLen());
         viewInfo.setNdpaOutterStatus(paraInfo.getNdpaOutterStatus());
         viewInfo.setNdpaIsTopology(paraInfo.getNdpaIsTopology());
+        viewInfo.setRptOidSign(paraInfo.getNdpaRptOid());
         return viewInfo;
     }
 

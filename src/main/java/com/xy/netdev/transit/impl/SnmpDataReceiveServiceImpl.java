@@ -28,6 +28,7 @@ public class SnmpDataReceiveServiceImpl implements ISnmpDataReceiveService {
 
         if (DevParaInfoContainer.handlerRespDevPara(respData)) {
             DevIfeMegSend.sendParaToDev(respData.getDevNo());//如果设备参数变化,websocet推前台
+            //TODO 更新SNMP数据
             dataReciveService.sendCtrlInter(respData);
             //站控主动上报
             dataReciveService.rptDevExecutor.submit(() -> dataReciveService.stationRptParamsByDev(respData));
