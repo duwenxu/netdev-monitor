@@ -1,8 +1,6 @@
 package com.xy.netdev.monitor.bo;
 
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.xy.common.annotation.Param;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -33,6 +31,9 @@ public class ParaViewInfo {
 
     @ApiModelProperty(value = "参数编码")
     private String paraCode;
+
+    @ApiModelProperty(value = "上报OID")
+    private String rptOidSign;
 
     @ApiModelProperty(value = "参数名称")
     private String paraName;

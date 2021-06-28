@@ -1,24 +1,23 @@
 package com.xy.netdev.sendrecv.head;
 
 import cn.hutool.core.util.StrUtil;
-import com.xy.common.exception.BaseException;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
-import com.xy.netdev.frame.service.ICtrlInterPrtclAnalysisService;
-import com.xy.netdev.monitor.bo.FrameParaInfo;
-import com.xy.netdev.monitor.constant.MonitorConstants;
-import com.xy.netdev.monitor.entity.Interface;
-import com.xy.netdev.sendrecv.base.AbsDeviceSocketHandler;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
-import com.xy.netdev.sendrecv.entity.SocketEntity;
+import com.xy.netdev.frame.service.ICtrlInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
+import com.xy.netdev.monitor.bo.FrameParaInfo;
+import com.xy.netdev.monitor.entity.Interface;
+import com.xy.netdev.sendrecv.base.AbsDeviceSocketHandler;
+import com.xy.netdev.sendrecv.entity.SocketEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * 1:1下变频器
@@ -82,7 +81,9 @@ public class FrequencyConversionImpl extends AbsDeviceSocketHandler<SocketEntity
 
     @Override
     public byte[] pack(FrameReqData frameReqData) {
-        return frameReqData.getParamBytes();
+        byte[] paramBytes = frameReqData.getParamBytes();
+        log.debug("下变频器发送查询/控制帧：[{}]",StrUtil.str(paramBytes, StandardCharsets.UTF_8));
+        return paramBytes;
     }
 
     @Override

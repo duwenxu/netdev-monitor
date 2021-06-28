@@ -30,7 +30,6 @@ import java.util.Date;
 @EnableScheduling
 @Component
 @Slf4j
-@Async
 public class DelAlterCronTask implements SchedulingConfigurer {
 
     @Autowired
@@ -81,16 +80,17 @@ public class DelAlterCronTask implements SchedulingConfigurer {
         taskRegistrar.addTriggerTask(task,trigger);
     }
 
+    @Async
     @Transactional
     public void deleteLog(){
         try {
             //删除告警日志
             QueryWrapper queryWrapperAlter = new QueryWrapper();
-            String dateTimeAlter = DateUtils.Millisecond2DateStr(System.currentTimeMillis()-alterIntervalTime*24*60*60*1000);
+            String dateTimeAlter = DateUtils.Millisecond2DateStr(System.currentTimeMillis()-10*1000);
             queryWrapperAlter.le("ALERT_TIME",dateTimeAlter);
             alertInfoService.remove(queryWrapperAlter);
             //计算新的cron表达式
-            long time = System.currentTimeMillis()+alterIntervalTime*24*60*60*1000;
+            long time = System.currentTimeMillis()+10*1000;
             cron = CronUtils.getCron(time);
             log.info("删除告警日志定时任务执行完成，下次执行时间："+DateUtils.Millisecond2DateStr(time));
         }catch (Exception e) {

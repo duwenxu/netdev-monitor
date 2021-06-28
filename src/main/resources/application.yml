@@ -6,10 +6,9 @@ spring:
     name: netdev-monitor
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/netdevice-dev?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true
-# url: jdbc:mysql://192.168.8.10:3306/netdevice?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true
+    url: jdbc:mysql://localhost:3306/netdevice?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true
     username: root
-    password: root
+    password: 123456
   websocket:
     #整个项目中此端口不可占用，否导致websocket不可用
     port: 8888
@@ -17,6 +16,10 @@ spring:
 mybatis-plus:
   mapper-locations: classpath*:com/xy/netdev/**/xml/*Mapper.xml
   typeAliasesPackage: com.xy.netdev.**.entity
+
+snmp:
+  listenAddress: 192.168.244.1/161
+  targetAddress: 192.168.244.1
 
 swagger:
   enable: true

@@ -38,7 +38,7 @@ import static com.xy.netdev.rpt.service.StationControlHandler.*;
 public class ParamQueryImpl implements RequestService, ResponseService {
 
     @Autowired
-    private ISysParamService iSysParamService;
+    private ISysParamService sysParamService;
 
     @Override
     public RptHeadDev unpackBody(StationControlHeadEntity stationControlHeadEntity, RptHeadDev headDev) {

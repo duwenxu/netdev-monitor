@@ -1,6 +1,8 @@
 package com.xy.netdev.monitor.bo;
 
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.xy.common.annotation.Param;
 import com.xy.netdev.monitor.entity.PrtclFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -155,6 +157,13 @@ public class FrameParaInfo {
      */
     @ApiModelProperty(value = "是否在拓扑图显示")
     private Boolean ndpaIsTopology ;
+
+
+    @ApiModelProperty(value = "是否该字段提供给54所访问")
+    private String ndpaOutterStatus;
+
+    @ApiModelProperty(value = "上报OID")
+    private String ndpaRptOid;
 
     /**
      * 增加参数的子参数

@@ -42,11 +42,12 @@ public class AcuPrtcServiceImpl implements IParaPrtclAnalysisService {
 
     @Override
     public void ctrlPara(FrameReqData reqInfo) {
-        String command =
-                "<" +
-                reqInfo.getCmdMark() +
-                reqInfo.getFrameParaList().get(0).getParaVal() +
-                ">";
+        String paraVal = reqInfo.getFrameParaList().get(0).getParaVal().trim();
+        String replace = paraVal.replace("{", "")
+                .replace("}","")
+                .replace("[","")
+                .replace("]","");
+        String command = "<" + reqInfo.getCmdMark() + replace + ">";
         reqInfo.setParamBytes(StrUtil.bytes(command));
         socketMutualService.request(reqInfo, ProtocolRequestEnum.CONTROL);
     }

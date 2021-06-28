@@ -81,18 +81,19 @@ public class DelOperCronTask implements SchedulingConfigurer {
         taskRegistrar.addTriggerTask(task,trigger);
     }
 
+    @Async
     @Transactional
     public void deleteLog(){
         try {
             //删除操作日志
             QueryWrapper queryWrapperOper = new QueryWrapper();
-            String dateTimeOper = DateUtils.Millisecond2DateStr(System.currentTimeMillis()-logIntervalTime*24*60*60*1000);
+            String dateTimeOper = DateUtils.Millisecond2DateStr(System.currentTimeMillis()-10*1000);
             queryWrapperOper.le("LOG_TIME",dateTimeOper);
             operLogService.remove(queryWrapperOper);
             //更新主键：防止自增带来的主键不够用问题
             operLogService.updateOperId();
             //计算新的cron表达式
-            long time = System.currentTimeMillis()+logIntervalTime*24*60*60*1000;
+            long time = System.currentTimeMillis()+10*1000;
             cron = CronUtils.getCron(time);
             log.info("删除操作日志定时任务执行完成，下次执行时间："+DateUtils.Millisecond2DateStr(time));
         }catch (Exception e) {
