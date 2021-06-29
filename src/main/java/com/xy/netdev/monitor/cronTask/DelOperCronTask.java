@@ -81,6 +81,7 @@ public class DelOperCronTask implements SchedulingConfigurer {
         taskRegistrar.addTriggerTask(task,trigger);
     }
 
+    @Async
     @Transactional
     public void deleteLog(){
         try {
