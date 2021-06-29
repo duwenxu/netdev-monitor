@@ -2,6 +2,7 @@ package com.xy.netdev.synthetical.util;
 
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
+import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.entity.ParaInfo;
 import com.xy.netdev.synthetical.agent.XySnmpColumn;
@@ -111,7 +112,12 @@ public class SyntheticalUtil {
         }
         XySnmpTable  snmpTable = new XySnmpTable(devOid,moTableIndex, snmpColumnArray);
         snmpTable.setDevNo(devNo);
-        snmpTable.addRow(new DefaultMOTableRow(new OID("0"),values));
+        ISysParamService sysParamService = BaseInfoContainer.getSysParamService();
+        StringBuilder oidStr = new StringBuilder();
+        oidStr.append(sysParamService.getParaRemark1(SysConfigConstant.PRIVATE_MIB_REGION))
+        .append(".").append(sysParamService.getParaRemark1(SysConfigConstant.PRIVATE_MIB_STATION))
+        .append(".").append(devNo);
+        snmpTable.addRow(new DefaultMOTableRow(new OID(oidStr.toString()),values));
         return snmpTable;
     }
     /**
