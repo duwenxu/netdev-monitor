@@ -31,7 +31,7 @@ public class AlertInfoServiceImpl extends ServiceImpl<AlertInfoMapper, AlertInfo
     public IPage<AlertInfo> queryAlterInfoByDevNoTime(String devNo, String startTime, String endTime,Page page) {
         QueryWrapper<AlertInfo> queryWrapper = new QueryWrapper();
         if(StringUtils.isNotEmpty(devNo)){
-            queryWrapper.eq("DEV_NO",devNo);
+            queryWrapper.eq("DEV_TYPE",devNo);
         }
         if(StringUtils.isNotEmpty(startTime)){
             queryWrapper.ge("ALERT_TIME",startTime);
