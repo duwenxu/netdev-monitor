@@ -169,7 +169,6 @@ public class ScheduleQuery  implements ApplicationRunner{
                     if(DevStatusContainer.setInterrupt(devNo,isActive)){
                         devStatusReportService.rptInterrupted(devNo,isActive);
                     }
-
                 });
             }
         });

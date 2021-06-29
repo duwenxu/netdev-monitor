@@ -14,6 +14,8 @@ import org.snmp4j.smi.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.xy.netdev.container.DevParaInfoContainer.SNMP_RPT_SUFFIX;
+
 
 /**
  * <p>
@@ -38,7 +40,8 @@ public class SyntheticalUtil {
                   .append(".").append(rptOid)
                   .append(".").append(sysParamService.getParaRemark1(SysConfigConstant.FIXED_MIB_1))
                   .append(".").append(sysParamService.getParaRemark1(SysConfigConstant.FIXED_MIB_2))
-                  .append(".").append(paraCode);
+                  .append(".").append(paraCode)
+                  .append(SNMP_RPT_SUFFIX);
                   //.append(".").append(sysParamService.getParaRemark1(SysConfigConstant.PRIVATE_MIB_REGION))
                   //.append(".").append(sysParamService.getParaRemark1(SysConfigConstant.PRIVATE_MIB_STATION))
                   //.append(".").append(devNo);
