@@ -15,6 +15,7 @@ import com.xy.netdev.monitor.bo.ParaViewInfo;
 import com.xy.netdev.monitor.entity.ParaInfo;
 import com.xy.netdev.synthetical.util.SyntheticalUtil;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 
@@ -33,6 +34,7 @@ import static com.xy.netdev.monitor.constant.MonitorConstants.INT;
  * @author tangxl
  * @since 2021-03-08
  */
+@Slf4j
 public class DevParaInfoContainer {
 
     private static ISysParamService sysParamService;
@@ -84,7 +86,7 @@ public class DevParaInfoContainer {
             ParaExtServiceFactory.genParaExtService(devType).setCacheDevParaViewInfo(devNo);
         });
         //SNMP 内存参数映射处理
-        initSnmpRptData();
+        updateSnmpRptData();
 //        //todo test
 //        ParaViewInfo paraViewInfo1 = new ParaViewInfo();
 //        paraViewInfo1.setDevType("0020012");
@@ -110,12 +112,13 @@ public class DevParaInfoContainer {
 //        devParaMap.get(paraViewInfo2.getDevNo()).put(linkKey2,paraViewInfo2);
     }
 
-    private static void initSnmpRptData() {
+    private static void updateSnmpRptData() {
+        long t1 = System.currentTimeMillis();
         for (Map.Entry<String, Map<String, ParaViewInfo>> entry : devParaMap.entrySet()) {
             String currentDevNo = entry.getKey();
             Collection<ParaViewInfo> values = entry.getValue().values();
             for (ParaViewInfo paraView : values) {
-                boolean canBeOpt = paraView.getNdpaOutterStatus().equals(SysConfigConstant.IS_DEFAULT_TRUE) && !StringUtils.isEmpty(paraView.getRptOidSign());
+                boolean canBeOpt = SysConfigConstant.IS_DEFAULT_TRUE.equals(paraView.getNdpaOutterStatus()) && !StringUtils.isEmpty(paraView.getRptOidSign());
                 if (canBeOpt) {
                     List<ParaViewInfo> subParaList = paraView.getSubParaList();
                     if (subParaList == null || subParaList.size() == 0) {
@@ -128,6 +131,7 @@ public class DevParaInfoContainer {
                 }
             }
         }
+        log.debug("初始化SNMP数据耗时：[{}]", System.currentTimeMillis() - t1);
     }
 
     /**
@@ -362,6 +366,7 @@ public class DevParaInfoContainer {
                 }
             }
         }
+        updateSnmpRptData();
         return num > 0;
     }
 
