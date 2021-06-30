@@ -80,8 +80,8 @@ public class DevIfeMegSend {
                 changedStatue.clear();
             }
             oldDevStatuses = allDevStatusInfoList;
-            List<DevStatusInfo> collect = allDevStatusInfoList.stream().filter(base -> base.getDevNo().equals("11")||base.getDevNo().equals("12")).collect(Collectors.toList());
-            log.debug("当前设备使用状态：{}:{}---{}:{}",collect.get(0).getDevNo(),collect.get(0).getMasterOrSlave(),collect.get(1).getDevNo(),collect.get(1).getMasterOrSlave());
+//            List<DevStatusInfo> collect = allDevStatusInfoList.stream().filter(base -> base.getDevNo().equals("11")||base.getDevNo().equals("12")).collect(Collectors.toList());
+//            log.debug("当前设备使用状态：{}:{}---{}:{}",collect.get(0).getDevNo(),collect.get(0).getMasterOrSlave(),collect.get(1).getDevNo(),collect.get(1).getMasterOrSlave());
             String msg = JSONObject.toJSONString(allDevStatusInfoList,SerializerFeature.WriteMapNullValue,SerializerFeature.DisableCircularReferenceDetect);
             TextWebSocketFrame textWebSocketFrame = new TextWebSocketFrame(msg);
             channels.writeAndFlush(textWebSocketFrame);

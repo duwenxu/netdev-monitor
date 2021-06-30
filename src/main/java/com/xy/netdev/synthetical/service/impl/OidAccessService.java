@@ -66,7 +66,7 @@ public class OidAccessService implements IOidAccessService {
     @Override
     public List<VariableBinding> getVariablesByOidList(List<String> oidList) {
         Map<String, Map<String, SnmpRptDTO>> devSnmpParaMap = DevParaInfoContainer.getDevSnmpParaMap();
-        ConcurrentHashMap<String, SnmpRptDTO> mergeSnmpDtoMap = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, SnmpRptDTO> mergeSnmpDtoMap = new ConcurrentHashMap<>(10);
         /**合并各个设备的OID参数*/
         for (Map<String, SnmpRptDTO> rptDTOMap : devSnmpParaMap.values()) {
             for (Map.Entry<String, SnmpRptDTO> dtoEntry : rptDTOMap.entrySet()) {
@@ -98,6 +98,7 @@ public class OidAccessService implements IOidAccessService {
                     } else if (IP_ADDRESS.equals(dataType) || IP_MASK.equals(dataType)) {
                         variableBinding.setVariable(new IpAddress(paraVal));
                     } else if (BYTE.equals(dataType)) {
+                        /**byte类型的16进制需要转换为10进制数*/
                         String octVal = Integer.parseInt(paraVal, 16) + "";
                         variableBinding.setVariable(new OctetString(octVal));
                     } else if (STR.equals(dataType)) {

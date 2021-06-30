@@ -36,6 +36,4 @@ public interface IOidAccessService {
      * @return oid--value
      */
     List<VariableBinding> getVariablesByOidList(List<String> oidList);
-
-
 }

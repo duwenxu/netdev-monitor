@@ -56,28 +56,28 @@ public class SyntheticalUtil {
      * @param dataV           数据值
      * @return 设备参数OID
      */
-    public static Variable genSnmpVariable(String ndpaDatatype,String dataV) {
-        if(ndpaDatatype.equals(SysConfigConstant.PARA_DATA_TYPE_BYTE)){
-            if(StringUtils.isEmpty(dataV)){
-                return  new Integer32(0);
-            }else{
-                return  new Integer32(Integer.parseInt(dataV));
+    public static Variable genSnmpVariable(String ndpaDatatype, String dataV) {
+        if (ndpaDatatype.equals(SysConfigConstant.PARA_DATA_TYPE_BYTE)) {
+            if (StringUtils.isEmpty(dataV)) {
+                return new Integer32(0);
+            } else {
+                return new Integer32(Integer.parseInt(dataV));
             }
-        }else if(ndpaDatatype.equals(SysConfigConstant.PARA_DATA_TYPE_INT)){
-            if(StringUtils.isEmpty(dataV)){
-                return  new Integer32(0);
-            }else{
-                return  new Integer32(Integer.parseInt(dataV));
+        } else if (ndpaDatatype.equals(SysConfigConstant.PARA_DATA_TYPE_INT)) {
+            if (StringUtils.isEmpty(dataV)) {
+                return new Integer32(0);
+            } else {
+                return new Integer32(Integer.parseInt(dataV));
             }
-        }else if(ndpaDatatype.equals(SysConfigConstant.PARA_DATA_TYPE_UINT)){
-            if(StringUtils.isEmpty(dataV)){
-                return  new Integer32(0);
-            }else{
-                return  new Integer32(Integer.parseInt(dataV));
+        } else if (ndpaDatatype.equals(SysConfigConstant.PARA_DATA_TYPE_UINT)) {
+            if (StringUtils.isEmpty(dataV)) {
+                return new Integer32(0);
+            } else {
+                return new Integer32(Integer.parseInt(dataV));
             }
-        }else if(ndpaDatatype.equals(SysConfigConstant.PARA_DATA_TYPE_IPADDRESS)){
+        } else if (ndpaDatatype.equals(SysConfigConstant.PARA_DATA_TYPE_IPADDRESS)) {
             return new IpAddress(dataV);
-        }else {
+        } else {
             return new OctetString(dataV);
         }
     }
