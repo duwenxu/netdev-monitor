@@ -63,10 +63,15 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
         StringBuilder sb = new StringBuilder();
         String localAddr = "001";
         BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(reqInfo.getDevNo());
-        List<BaseInfo> subDevs = BaseInfoContainer.getDevInfoByParentNo(baseInfo.getDevParentNo());
-        for (BaseInfo subDev : subDevs) {
-            if(subDev.getDevType().equals(SysConfigConstant.DEVICE_QHDY)){
-                localAddr = subDev.getDevLocalAddr();
+        //Ka/c下变频器没有切换单元
+        if(baseInfo.getDevType().equals(SysConfigConstant.DEVICE_KAC_BPQ)){
+            localAddr = baseInfo.getDevLocalAddr();
+        }else{
+            List<BaseInfo> subDevs = BaseInfoContainer.getDevInfoByParentNo(baseInfo.getDevParentNo());
+            for (BaseInfo subDev : subDevs) {
+                if(subDev.getDevType().equals(SysConfigConstant.DEVICE_QHDY)){
+                    localAddr = subDev.getDevLocalAddr();
+                }
             }
         }
         sb.append(SEND_START_MARK).append(localAddr).append("/")
@@ -237,6 +242,7 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
     private Map<String, BaseInfo> getBPQAddrMap(){
         List<BaseInfo> baseInfos = new ArrayList<>();
         baseInfos.addAll(BaseInfoContainer.getDevInfosByType(SysConfigConstant.DEVICE_BPQ));
+        baseInfos.addAll(BaseInfoContainer.getDevInfosByType(SysConfigConstant.DEVICE_KAC_BPQ));
         baseInfos.addAll(BaseInfoContainer.getDevInfosByType(SysConfigConstant.DEVICE_QHDY));
         Map<String, BaseInfo> addrMap = new HashMap<>();
         for (BaseInfo baseInfo : baseInfos) {
