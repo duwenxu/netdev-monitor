@@ -5,6 +5,7 @@ import com.xy.netdev.frame.service.snmp.SnmpRptDTO;
 import com.xy.netdev.synthetical.factory.OidHandlerFactory;
 import com.xy.netdev.synthetical.service.IOidAccessService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.snmp4j.smi.*;
 import org.springframework.stereotype.Service;
 
@@ -66,6 +67,7 @@ public class OidAccessService implements IOidAccessService {
     public List<VariableBinding> getVariablesByOidList(List<String> oidList) {
         Map<String, Map<String, SnmpRptDTO>> devSnmpParaMap = DevParaInfoContainer.getDevSnmpParaMap();
         ConcurrentHashMap<String, SnmpRptDTO> mergeSnmpDtoMap = new ConcurrentHashMap<>();
+        /**合并各个设备的OID参数*/
         for (Map<String, SnmpRptDTO> rptDTOMap : devSnmpParaMap.values()) {
             for (Map.Entry<String, SnmpRptDTO> dtoEntry : rptDTOMap.entrySet()) {
                 String dtoEntryKey = dtoEntry.getKey();
@@ -79,19 +81,28 @@ public class OidAccessService implements IOidAccessService {
 
         ArrayList<VariableBinding> variableBindings = new ArrayList<>();
         for (String oid : oidList) {
+            /**OID拼接后缀发送*/
+            oid = oid + DevParaInfoContainer.SNMP_RPT_SUFFIX;
             VariableBinding variableBinding = new VariableBinding(new OID(oid));
             if (!mergeSnmpDtoMap.containsKey(oid)) {
                 variableBinding.setVariable(new Null());
             } else {
                 SnmpRptDTO snmpRptDTO = mergeSnmpDtoMap.get(oid);
-                String dataType = snmpRptDTO.getParaDatatype();
                 String paraVal = snmpRptDTO.getParaVal();
-                if (INT.equals(dataType) || UNIT.equals(dataType) || BYTE.equals(dataType)) {
-                    variableBinding.setVariable(new Integer32(Integer.parseInt(paraVal)));
-                } else if (IP_ADDRESS.equals(dataType) || IP_MASK.equals(dataType)) {
-                    variableBinding.setVariable(new IpAddress(paraVal));
-                } else if (STR.equals(dataType)) {
-                    variableBinding.setVariable(new OctetString(paraVal));
+                if (StringUtils.isBlank(paraVal)) {
+                    variableBinding.setVariable(new Null());
+                } else {
+                    String dataType = snmpRptDTO.getParaDatatype();
+                    if (INT.equals(dataType) || UNIT.equals(dataType)) {
+                        variableBinding.setVariable(new Integer32(Integer.parseInt(paraVal)));
+                    } else if (IP_ADDRESS.equals(dataType) || IP_MASK.equals(dataType)) {
+                        variableBinding.setVariable(new IpAddress(paraVal));
+                    } else if (BYTE.equals(dataType)) {
+                        String octVal = Integer.parseInt(paraVal, 16) + "";
+                        variableBinding.setVariable(new OctetString(octVal));
+                    } else if (STR.equals(dataType)) {
+                        variableBinding.setVariable(new OctetString(paraVal));
+                    }
                 }
             }
             variableBindings.add(variableBinding);

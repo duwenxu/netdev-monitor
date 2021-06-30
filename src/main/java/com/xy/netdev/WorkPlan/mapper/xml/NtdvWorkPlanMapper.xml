@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xy.netmgr.WorkPlan.mapper.NtdvWorkPlanMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xy.netdev.WorkPlan.entity.NtdvWorkPlan">
+        <id column="WP_ID" property="wpId" />
+        <result column="WP_NAME" property="wpName" />
+        <result column="WP_START_TIME" property="wpStartTime" />
+        <result column="WP_END_TIME" property="wpEndTime" />
+        <result column="WP_REAL_NAME" property="wpRealName" />
+        <result column="WP_WEATHER" property="wpWeather" />
+        <result column="WP_FLWIN_TIME" property="wpFlwinTime" />
+        <result column="WP_FLWOUT_TIME" property="wpFlwoutTime" />
+        <result column="WP_DESC" property="wpDesc" />
+        <result column="WP_STATUS" property="wpStatus" />
+<!--        <result column="WP_TYPE" property="wpType" />-->
+    </resultMap>
+
+<!--    &lt;!&ndash; 通用查询结果列 &ndash;&gt;-->
+<!--    <sql id="Base_Column_List">-->
+<!--        WP_ID, WP_NAME, WP_START_TIME, WP_END_TIME, WP_REAL_NAME, WP_WEATHER, WP_FLWIN_TIME, WP_FLWOUT_TIME, WP_DESC,WP_STATUS-->
+<!--    </sql>-->
+</mapper>

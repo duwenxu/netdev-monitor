@@ -2,6 +2,7 @@ package com.xy.netdev.synthetical.util;
 
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
+import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.synthetical.agent.XySnmpColumn;
 import com.xy.netdev.synthetical.agent.XySnmpTable;
@@ -13,6 +14,8 @@ import org.snmp4j.smi.*;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.xy.netdev.container.DevParaInfoContainer.SNMP_RPT_SUFFIX;
 
 
 /**
@@ -38,7 +41,8 @@ public class SyntheticalUtil {
                   .append(".").append(rptOid)
                   .append(".").append(sysParamService.getParaRemark1(SysConfigConstant.FIXED_MIB_1))
                   .append(".").append(sysParamService.getParaRemark1(SysConfigConstant.FIXED_MIB_2))
-                  .append(".").append(paraCode);
+                  .append(".").append(paraCode)
+                  .append(SNMP_RPT_SUFFIX);
                   //.append(".").append(sysParamService.getParaRemark1(SysConfigConstant.PRIVATE_MIB_REGION))
                   //.append(".").append(sysParamService.getParaRemark1(SysConfigConstant.PRIVATE_MIB_STATION))
                   //.append(".").append(devNo);
@@ -107,7 +111,12 @@ public class SyntheticalUtil {
         }
         XySnmpTable  snmpTable = new XySnmpTable(devOid,moTableIndex, snmpColumnArray);
         snmpTable.setDevNo(devNo);
-        snmpTable.addRow(new DefaultMOTableRow(new OID("0"),values));
+        ISysParamService sysParamService = BaseInfoContainer.getSysParamService();
+        StringBuilder oidStr = new StringBuilder();
+        oidStr.append(sysParamService.getParaRemark1(SysConfigConstant.PRIVATE_MIB_REGION))
+        .append(".").append(sysParamService.getParaRemark1(SysConfigConstant.PRIVATE_MIB_STATION))
+        .append(".").append(devNo);
+        snmpTable.addRow(new DefaultMOTableRow(new OID(oidStr.toString()),values));
         return snmpTable;
     }
     /**

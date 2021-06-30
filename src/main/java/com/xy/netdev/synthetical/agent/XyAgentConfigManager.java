@@ -11,6 +11,7 @@ import org.snmp4j.agent.request.RequestStatus;
 import org.snmp4j.agent.request.SubRequest;
 import org.snmp4j.agent.request.SubRequestIterator;
 import org.snmp4j.agent.security.VACM;
+import org.snmp4j.mp.MPv3;
 import org.snmp4j.smi.OID;
 import org.snmp4j.smi.OctetString;
 import org.snmp4j.smi.Variable;
@@ -140,5 +141,43 @@ public class XyAgentConfigManager extends AgentConfigManager implements Variable
             return vb.getVariable();
         }
         return null;
+    }
+
+    /**
+     * Fire notifications after agent start, i.e. sending a coldStart trap.
+     */
+    protected void fireLaunchNotifications() {
+
+    }
+
+    protected void registerMIBs(OctetString context) throws
+            DuplicateRegistrationException
+    {
+        MOServer server = agent.getServer(context);
+        targetMIB.registerMOs(server, getContext(targetMIB, context));
+       // notificationMIB.registerMOs(server, getContext(notificationMIB, context));
+        vacmMIB.registerMOs(server, getContext(vacmMIB, context));
+       // usmMIB.registerMOs(server, getContext(usmMIB, context));
+       // snmpv2MIB.registerMOs(server, getContext(snmpv2MIB, context));
+       // frameworkMIB.registerMOs(server, getContext(frameworkMIB, context));
+       communityMIB.registerMOs(server, getContext(communityMIB, context));
+
+    }
+
+    /**
+     * Unregister the initialized MIB modules from the default context of the
+     * agent.
+     * @param context
+     *    the context where the MIB modules have been previously registered.
+     */
+    protected void unregisterMIBs(OctetString context) {
+        MOServer server = agent.getServer(context);
+        targetMIB.unregisterMOs(server, getContext(targetMIB, context));
+       // notificationMIB.unregisterMOs(server, getContext(notificationMIB, context));
+        vacmMIB.unregisterMOs(server, getContext(vacmMIB, context));
+       // usmMIB.unregisterMOs(server, getContext(usmMIB, context));
+       // snmpv2MIB.unregisterMOs(server, getContext(snmpv2MIB, context));
+       //frameworkMIB.unregisterMOs(server, getContext(frameworkMIB, context));
+       communityMIB.unregisterMOs(server, getContext(communityMIB, context));
     }
 }

@@ -106,8 +106,13 @@ public class SnmpMsgRecvHandler implements CommandResponder, ApplicationRunner {
         sendPdu.setVariableBindings(bindings);
         sendPdu.setType(PDU.RESPONSE);
         try {
+//            try {
+//                Thread.sleep(30);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
             send = snmp.send(sendPdu, target);
-            log.info("SNMP发送接收响应信息,发送地址：[{}],发送内容：[{}],发送结果：[{}]", target.getAddress().toString(), sendPdu, send);
+            log.debug("SNMP发送接收响应信息,发送地址：[{}],发送内容：[{}],发送结果：[{}]", target.getAddress().toString(), sendPdu, send);
         } catch (IOException e) {
             log.error("SNMP相应信息发送失败！");
         }
@@ -117,7 +122,7 @@ public class SnmpMsgRecvHandler implements CommandResponder, ApplicationRunner {
     public void processPdu(CommandResponderEvent respEvent) {
         // 解析Response
         if (respEvent != null && respEvent.getPDU() != null) {
-            log.info("接收到SNMP消息帧：event信息:[{}]", respEvent);
+            log.debug("接收到SNMP消息帧：event信息:[{}]", respEvent);
             PDU pdu = respEvent.getPDU();
             int type = pdu.getType();
             Vector<? extends VariableBinding> variables = pdu.getVariableBindings();
