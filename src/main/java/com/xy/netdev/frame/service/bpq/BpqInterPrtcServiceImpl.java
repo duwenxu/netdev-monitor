@@ -53,6 +53,13 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
     public void queryPara(FrameReqData reqInfo) {
         StringBuilder sb = new StringBuilder();
         String localAddr = "001";
+        BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(reqInfo.getDevNo());
+        List<BaseInfo> subDevs = BaseInfoContainer.getDevInfoByParentNo(baseInfo.getDevParentNo());
+        for (BaseInfo subDev : subDevs) {
+            if(subDev.getDevType().equals(SysConfigConstant.DEVICE_QHDY)){
+                localAddr = subDev.getDevLocalAddr();
+            }
+        }
         sb.append(BpqPrtcServiceImpl.SEND_START_MARK).append(localAddr).append("/")
                 .append(reqInfo.getCmdMark());
         String command = sb.toString();
@@ -86,6 +93,10 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
         List<FrameParaData> frameParaList = new ArrayList<>();
         for (String param : params) {
             String cmdMark = convertCmdMark(param.split("_")[0],respData.getCmdMark());
+            //上下变频器信号命令标识有区别，这里做下转换
+            if(cmdMark.equals("TX")){
+                cmdMark = "RX";
+            }
             String value = "";
             String[] values = param.split("_");
             if(values.length>1){
@@ -139,32 +150,32 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
      * @param addr
      * @return
      */
-//    private String getDevNo(String addr){
-//        String devNo = "";
-//        Map<String, BaseInfo> addrMap =  getBPQAddrMap();
-//        if(addrMap.get(addr) != null){
-//            devNo = addrMap.get(addr).getDevNo();
-//        }
-//        return devNo;
-//    }
-
     private String getDevNo(String addr){
         String devNo = "";
-        switch (addr){
-            case "001":
-                devNo = "42";
-                break;
-            case "010":
-                devNo = "40";
-                break;
-            case "011":
-                devNo = "41";
-                break;
-            default:
-                devNo = "42";
-                break;
+        Map<String, BaseInfo> addrMap =  getBPQAddrMap();
+        if(addrMap.get(addr) != null){
+            devNo = addrMap.get(addr).getDevNo();
         }
         return devNo;
     }
+
+//    private String getDevNo(String addr){
+//        String devNo = "";
+//        switch (addr){
+//            case "001":
+//                devNo = "42";
+//                break;
+//            case "010":
+//                devNo = "40";
+//                break;
+//            case "011":
+//                devNo = "41";
+//                break;
+//            default:
+//                devNo = "42";
+//                break;
+//        }
+//        return devNo;
+//    }
 
 }

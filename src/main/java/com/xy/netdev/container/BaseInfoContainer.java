@@ -2,6 +2,7 @@ package com.xy.netdev.container;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.databind.ser.Serializers;
 import com.xy.common.exception.BaseException;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.admin.service.impl.SysParamServiceImpl;
@@ -113,6 +114,11 @@ public class BaseInfoContainer {
      */
     private static Map<String, List<Interface>> devAssConItfMap = new HashMap<>();
 
+    /**
+     * 组合设备集合  K：父设备编号 V：子设备集合
+     */
+    private static Map<String,List<BaseInfo>> combDevMap = new HashMap<>();
+
 
     /**
      * @功能：当系统启动时,进行初始化各设备日志
@@ -163,6 +169,15 @@ public class BaseInfoContainer {
                     List<BaseInfo> baseInfos = new ArrayList<>();
                     baseInfos.add(baseInfo);
                     devTypeMap.put(baseInfo.getDevType(),baseInfos);
+                }
+                if(StringUtils.isNotEmpty(baseInfo.getDevParentNo())){
+                    if(combDevMap.containsKey(baseInfo.getDevParentNo())){
+                        combDevMap.get(baseInfo.getDevParentNo()).add(baseInfo);
+                    }else{
+                        List<BaseInfo> baseInfos = new ArrayList<>();
+                        baseInfos.add(baseInfo);
+                        combDevMap.put(baseInfo.getDevParentNo(),baseInfos);
+                    }
                 }
                 devNoMap.put(baseInfo.getDevNo(), baseInfo);
             } catch (Exception e) {
@@ -344,6 +359,12 @@ public class BaseInfoContainer {
         return devTypeMap.get(devType);
     }
 
+    /**
+     * 根据父级设备编号获取子设备列表
+     */
+    public static List<BaseInfo> getDevInfoByParentNo(String parentNo){
+        return combDevMap.get(parentNo);
+    }
 
     /**
      * @return 网络连通信息
