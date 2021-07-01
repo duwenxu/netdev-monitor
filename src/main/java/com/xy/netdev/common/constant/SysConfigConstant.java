@@ -499,6 +499,8 @@ public interface SysConfigConstant {
      */
     String DEVICE_MSCT = "0020015";
 
+
+
     /**
      * 设备类型--转换开关
      */
@@ -519,6 +521,11 @@ public interface SysConfigConstant {
      * 设备类型--变频器
      */
     String  DEVICE_BPQ = "0020006";
+
+    /**
+     * 设备类型--Ka/C下变频器
+     */
+    String DEVICE_KAC_BPQ = "0020036";
 
     /**
      * 设备类型--君威子功放

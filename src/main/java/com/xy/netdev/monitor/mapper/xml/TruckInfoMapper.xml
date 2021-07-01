@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xy.netdev.monitor.mapper.TruckInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xy.netdev.monitor.entity.TruckInfo">
+        <id column="TRUCK_ID" property="truckId" />
+        <result column="TRUCK_TYPE" property="truckType" />
+        <result column="TRUCK_NAME" property="truckName" />
+        <result column="TRUCK_DEPT" property="truckDept" />
+        <result column="TRUCK_STATUS" property="truckStatus" />
+        <result column="TRUCK_DEVS" property="truckDevs" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        TRUCK_ID, TRUCK_TYPE, TRUCK_NAME, TRUCK_DEPT, TRUCK_STATUS, TRUCK_DEVS
+    </sql>
+
+
+</mapper>
