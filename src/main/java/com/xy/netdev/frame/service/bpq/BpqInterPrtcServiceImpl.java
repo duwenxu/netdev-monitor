@@ -21,10 +21,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 39所Ku&L下变频器接口协议解析
@@ -138,9 +135,9 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
      */
     private Map<String, BaseInfo> getBPQAddrMap(){
         List<BaseInfo> baseInfos = new ArrayList<>();
-        baseInfos.addAll(BaseInfoContainer.getDevInfosByType(SysConfigConstant.DEVICE_BPQ));
-        baseInfos.addAll(BaseInfoContainer.getDevInfosByType(SysConfigConstant.DEVICE_KAC_BPQ));
-        baseInfos.addAll(BaseInfoContainer.getDevInfosByType(SysConfigConstant.DEVICE_QHDY));
+        baseInfos.addAll(Optional.ofNullable(BaseInfoContainer.getDevInfosByType(SysConfigConstant.DEVICE_BPQ)).orElse(new ArrayList<>()));
+        baseInfos.addAll(Optional.ofNullable(BaseInfoContainer.getDevInfosByType(SysConfigConstant.DEVICE_KAC_BPQ)).orElse(new ArrayList<>()));
+        baseInfos.addAll(Optional.ofNullable(BaseInfoContainer.getDevInfosByType(SysConfigConstant.DEVICE_QHDY)).orElse(new ArrayList<>()));
         Map<String, BaseInfo> addrMap = new HashMap<>();
         for (BaseInfo baseInfo : baseInfos) {
             String localAddr = baseInfo.getDevLocalAddr();
