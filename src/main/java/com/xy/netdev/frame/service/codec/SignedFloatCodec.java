@@ -13,7 +13,7 @@ public class SignedFloatCodec implements ParamCodec {
     @Override
     public String decode(byte[] bytes, Object... objects) {
         float v = FloatAndByte.bytesToFloat(bytes);
-        return v+"";
+        return String.format("%.2f",v);
     }
 
     @Override
