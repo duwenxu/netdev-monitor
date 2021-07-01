@@ -63,22 +63,19 @@ public class OidAccessService implements IOidAccessService {
         }
     }
 
+    private final ConcurrentHashMap<String, SnmpRptDTO> mergeSnmpDtoMap= new ConcurrentHashMap<>(10);
+
     @Override
     public List<VariableBinding> getVariablesByOidList(List<String> oidList) {
+        long t1 = System.currentTimeMillis();
         Map<String, Map<String, SnmpRptDTO>> devSnmpParaMap = DevParaInfoContainer.getDevSnmpParaMap();
-        ConcurrentHashMap<String, SnmpRptDTO> mergeSnmpDtoMap = new ConcurrentHashMap<>(10);
         /**合并各个设备的OID参数*/
+        mergeSnmpDtoMap.clear();
         for (Map<String, SnmpRptDTO> rptDTOMap : devSnmpParaMap.values()) {
-            for (Map.Entry<String, SnmpRptDTO> dtoEntry : rptDTOMap.entrySet()) {
-                String dtoEntryKey = dtoEntry.getKey();
-                if (mergeSnmpDtoMap.containsKey(dtoEntryKey)) {
-                    log.error("存在重复的参数上报OID：参数1：[{}]--参数2:[{}]", dtoEntry.getValue(), mergeSnmpDtoMap.get(dtoEntryKey));
-                } else {
-                    mergeSnmpDtoMap.put(dtoEntryKey, dtoEntry.getValue());
-                }
-            }
+                mergeSnmpDtoMap.putAll(rptDTOMap);
         }
 
+        long t2 = System.currentTimeMillis();
         ArrayList<VariableBinding> variableBindings = new ArrayList<>();
         for (String oid : oidList) {
             /**OID拼接后缀发送*/
@@ -100,14 +97,15 @@ public class OidAccessService implements IOidAccessService {
                     } else if (BYTE.equals(dataType)) {
                         /**byte类型的16进制需要转换为10进制数*/
                         String octVal = Integer.parseInt(paraVal, 16) + "";
-                        variableBinding.setVariable(new OctetString(octVal));
-                    } else if (STR.equals(dataType)) {
+                        variableBinding.setVariable(new Integer32(Integer.parseInt(octVal)));
+                    } else {
                         variableBinding.setVariable(new OctetString(paraVal));
                     }
                 }
             }
             variableBindings.add(variableBinding);
         }
+        log.debug("单次获取所有OID的数据耗时: 合并阶段：[{}]---遍历获取阶段：[{}]", t2 - t1, System.currentTimeMillis() - t2);
         return variableBindings;
     }
 }

@@ -18,6 +18,7 @@ import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.entity.PrtclFormat;
 import com.xy.netdev.rpt.service.IDevStatusReportService;
+import com.xy.netdev.synthetical.util.SyntheticalUtil;
 import com.xy.netdev.transit.IDevCmdSendService;
 import com.xy.netdev.transit.ISnmpDataReceiveService;
 import lombok.extern.slf4j.Slf4j;
@@ -66,8 +67,6 @@ public class ScheduleQuery  implements ApplicationRunner{
         log.info("-----设备状态定时查询开始...");
         try {
            doScheduleQuery();
-           List<BaseInfo> pingBaseInfo = ScheduleQueryHelper.getAvailableBases();
-           execBasePing(pingBaseInfo);
         } catch (Exception e) {
             log.error("设备状态定时查询异常...", e);
         }
@@ -169,12 +168,24 @@ public class ScheduleQuery  implements ApplicationRunner{
                     String devNo = baseInfo.getDevNo();
                     log.debug("设备：[{}]Ping地址：[{}]成功：{}", baseInfo.getDevName(),baseInfo.getDevIpAddr(),ping);
                     String isActive = ping ? "0" : "1";
-                    if(DevStatusContainer.setInterrupt(devNo,isActive)){
+                    boolean isChanged = DevStatusContainer.setInterrupt(devNo, isActive);
+                    if(isChanged){
                         devStatusReportService.rptInterrupted(devNo,isActive);
+                        /**同时修改SNMP数据中的设备连接状态*/
+                        updateSnmpRptStatus(ping, devNo);
                     }
                 });
             }
         });
+    }
+
+    private void updateSnmpRptStatus(boolean ping, String devNo) {
+        String oid4 = DevParaInfoContainer.getDevNoStatusOidMap().get(devNo);
+        if (StringUtils.isNotBlank(oid4)){
+            /**上报信息中 0：中断 1：正常  与设备状态中的状态相反*/
+            String rptActive = ping ? "1" : "0";
+            DevParaInfoContainer.getDevSnmpParaMap().get(devNo).get(oid4).setParaVal(rptActive);
+        }
     }
 
     /**
