@@ -24,13 +24,13 @@ public class NettyUdpTest {
 
     private static final Bootstrap bootstrap = new Bootstrap();
     /**目的地address*/
-    private static final InetSocketAddress DEST_ADDRESS = new InetSocketAddress("127.0.0.1", 9000);
+    private static final InetSocketAddress DEST_ADDRESS = new InetSocketAddress("172.21.2.100", 9000);
     private static final InetSocketAddress SOURCE_ADDRESS = new InetSocketAddress("172.21.2.100", 8070);
     /**发送频率*/
     private static final int sendInterval = 1000;
     private static final String[] datas = new String[]{
             //2300调制解调器
-//            "7e1783020013592000fa00000056322e302d3139303932336d7e",
+            "7e1783020013592000fa00000056322e302d3139303932336d7e",
 //            "7e138303001351500056322e302d313930393233987e",
 //            "7e1f830500800000000000000000000000000000000000000000000000000801307e",
 //            "7e0a8306003e80000b02005e7e",

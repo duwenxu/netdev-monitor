@@ -1,7 +1,7 @@
 package com.xy.netdev.frame.service.codec;
 
 import com.xy.netdev.frame.service.ParamCodec;
-import com.xy.netdev.transit.schedule.FloatAndByte;
+import com.xy.netdev.transit.util.FloatAndByte;
 import org.springframework.stereotype.Component;
 
 /**
