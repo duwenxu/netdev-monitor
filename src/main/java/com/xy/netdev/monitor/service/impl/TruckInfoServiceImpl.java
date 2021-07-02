@@ -1,20 +1,13 @@
 package com.xy.netdev.monitor.service.impl;
 
-import cn.hutool.Hutool;
-import cn.hutool.core.bean.BeanUtil;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xy.netdev.admin.entity.SysParam;
 import com.xy.netdev.admin.service.ISysParamService;
-import com.xy.netdev.common.util.BeanCopierUtil;
 import com.xy.netdev.container.BaseContainerLoader;
 import com.xy.netdev.monitor.bo.TransUiData;
-import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.TruckInfo;
-import com.xy.netdev.monitor.entity.ParaInfo;
 import com.xy.netdev.monitor.mapper.TruckInfoMapper;
 import com.xy.netdev.monitor.service.IBaseInfoService;
-import com.xy.netdev.monitor.service.IParaInfoService;
 import com.xy.netdev.monitor.service.ITruckInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -22,11 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.xy.netdev.common.constant.SysConfigConstant.*;
 
 @Slf4j
 @Service
