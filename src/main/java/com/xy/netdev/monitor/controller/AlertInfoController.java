@@ -103,8 +103,8 @@ public class AlertInfoController {
      */
     @ApiOperation(value = "查询指定设备时间范围内的告警信息", notes = "查询指定设备时间范围内的告警信息")
     @PostMapping(value = "queryAlterInfo")
-    public Result<IPage<AlertInfo>> queryAlterInfoByDevNoTime(@RequestParam String devNo, @RequestParam String startTime, @RequestParam String endTime,Page page) {
-        IPage<AlertInfo> alertInfos = targetService.queryAlterInfoByDevNoTime(devNo,startTime,endTime,page);
+    public Result<IPage<AlertInfo>> queryAlterInfoByDevNoTime(@RequestParam String devType, @RequestParam String startTime, @RequestParam String endTime,Page page) {
+        IPage<AlertInfo> alertInfos = targetService.queryAlterInfoByDevNoTime(devType,startTime,endTime,page);
         return ControllerResultWrapper.genPageListResult(alertInfos);
     }
 

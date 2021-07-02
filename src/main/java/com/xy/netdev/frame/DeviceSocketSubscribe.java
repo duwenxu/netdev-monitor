@@ -121,8 +121,11 @@ public class DeviceSocketSubscribe {
         }
         //设备网络协议
         String classByDevType = BaseInfoContainer.getClassByDevType(devInfo.getDevType());
-        AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData> handler = BeanFactoryUtil.getBean(classByDevType);
-        cache.put(ip, handler, DateUnit.MINUTE.getMillis());
+        AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData> handler =null;
+        if (StringUtils.isNotEmpty(classByDevType)) {
+            handler = BeanFactoryUtil.getBean(classByDevType);
+            cache.put(ip, handler, DateUnit.MINUTE.getMillis());
+        }
         return Optional.of(handler);
     }
 

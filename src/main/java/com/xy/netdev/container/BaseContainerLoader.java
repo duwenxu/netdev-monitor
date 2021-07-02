@@ -18,6 +18,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+
 import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -70,6 +71,8 @@ public class BaseContainerLoader implements ApplicationRunner {
         DevCtrlInterInfoContainer.initData();
         //初始化设备状态容器
         DevStatusContainer.init(sysParamService);
+        //初始化SNMP固定设备参数
+        DevParaInfoContainer.initSnmpDevStatusRptData();
     }
 
     /**
@@ -141,6 +144,5 @@ public class BaseContainerLoader implements ApplicationRunner {
         initDevParam();
         DevStatusContainer.init(BeanFactoryUtil.getBean(ISysParamService.class));
         DevCtrlInterInfoContainer.initData();
-
     }
 }

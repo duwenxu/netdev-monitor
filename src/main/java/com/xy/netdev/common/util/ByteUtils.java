@@ -1,20 +1,17 @@
 package com.xy.netdev.common.util;
 
-import cn.hutool.core.codec.BCD;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.HexUtil;
 import com.google.common.primitives.Bytes;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.util.ReferenceCountUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.*;
-import java.math.BigInteger;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -545,12 +542,16 @@ public class ByteUtils {
     }
 
     public static void main(String[] args) {
-        String str = "7e138303000e7d5ef00056322e302d313930393233607e";
+//        String str = "7e138303000e7d5ef00056322e302d313930393233607e";
+////        byte[] bytes = HexUtil.decodeHex(str);
+////        byte[] byteReplace = byteReplace(bytes, 1, bytes.length - 1, Pair.of("7E", "7D5E"), Pair.of("7D", "7D5D"));
+////        System.out.println(HexUtil.encodeHexStr(byteReplace).toUpperCase());
 //        byte[] bytes = HexUtil.decodeHex(str);
-//        byte[] byteReplace = byteReplace(bytes, 1, bytes.length - 1, Pair.of("7E", "7D5E"), Pair.of("7D", "7D5D"));
-//        System.out.println(HexUtil.encodeHexStr(byteReplace).toUpperCase());
-        byte[] bytes = HexUtil.decodeHex(str);
-        byte[] replace = byteReplace(bytes, Pair.of("7D5E", "7E"), Pair.of("7D5D", "7D"));
-        System.out.println(HexUtil.encodeHexStr(replace).toUpperCase());
+//        byte[] replace = byteReplace(bytes, Pair.of("7D5E", "7E"), Pair.of("7D5D", "7D"));
+//        System.out.println(HexUtil.encodeHexStr(replace).toUpperCase());
+
+        byte[] bytes = new byte[]{(byte) 0xC3,(byte) 0xF5,(byte) 0xDA,(byte) 0x42};
+        String s = byteToNumber(bytes, 0, 4, false, true).toString();
+        System.out.println(s);
     }
 }

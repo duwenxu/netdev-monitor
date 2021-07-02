@@ -18,6 +18,7 @@ import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.Interface;
 import com.xy.netdev.monitor.entity.PrtclFormat;
 import com.xy.netdev.rpt.service.IDevStatusReportService;
+import com.xy.netdev.synthetical.util.SyntheticalUtil;
 import com.xy.netdev.transit.IDevCmdSendService;
 import com.xy.netdev.transit.ISnmpDataReceiveService;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +29,10 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
@@ -72,8 +76,8 @@ public class ScheduleQuery  implements ApplicationRunner{
      * 设备参数定时查询
      */
     public void doScheduleQuery() {
-        List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(base -> base.getDevType().equals("0020025")||base.getDevType().equals("0020024")).collect(Collectors.toList());
-        //List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(base -> base.getDevType().equals("0020007")||base.getDevType().equals("0020005")||base.getDevType().equals("0020006")||base.getDevType().equals("0020003")).collect(Collectors.toList());
+        List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(base -> base.getDevType().equals("0020001")||base.getDevType().equals("0020007")||base.getDevType().equals("0020005")||base.getDevType().equals("0020006")||base.getDevType().equals("0020003")||base.getDevType().equals("0020004")||base.getDevType().equals("0020012")||base.getDevType().equals("0020014")||base.getDevType().equals("0020019")||base.getDevType().equals("0020020")||base.getDevType().equals("0020021")||base.getDevType().equals("0020023")||base.getDevType().equals("0020036")).collect(Collectors.toList());
+        //List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(base -> base.getDevType().equals("0020036")).collect(Collectors.toList());
         List<BaseInfo> pingBaseInfo = ScheduleQueryHelper.getAvailableBases();
         //单个设备所有查询对象的封装list映射
         Map<BaseInfo, List<FrameReqData>> scheduleReqBodyMap = new ConcurrentHashMap<>(20);
@@ -164,13 +168,24 @@ public class ScheduleQuery  implements ApplicationRunner{
                     String devNo = baseInfo.getDevNo();
                     log.debug("设备：[{}]Ping地址：[{}]成功：{}", baseInfo.getDevName(),baseInfo.getDevIpAddr(),ping);
                     String isActive = ping ? "0" : "1";
-                    if(DevStatusContainer.setInterrupt(devNo,isActive)){
+                    boolean isChanged = DevStatusContainer.setInterrupt(devNo, isActive);
+                    if(isChanged){
                         devStatusReportService.rptInterrupted(devNo,isActive);
+                        /**同时修改SNMP数据中的设备连接状态*/
+                        updateSnmpRptStatus(ping, devNo);
                     }
-
                 });
             }
         });
+    }
+
+    private void updateSnmpRptStatus(boolean ping, String devNo) {
+        String oid4 = DevParaInfoContainer.getDevNoStatusOidMap().get(devNo);
+        if (StringUtils.isNotBlank(oid4)){
+            /**上报信息中 0：中断 1：正常  与设备状态中的状态相反*/
+            String rptActive = ping ? "1" : "0";
+            DevParaInfoContainer.getDevSnmpParaMap().get(devNo).get(oid4).setParaVal(rptActive);
+        }
     }
 
     /**
@@ -237,11 +252,16 @@ public class ScheduleQuery  implements ApplicationRunner{
 
     public SnmpReqDTO frameReq2SnmpReq(FrameReqData frameReqData) {
         List<FrameParaData> frameParaList = frameReqData.getFrameParaList();
+        String paraCmcLv="";
         for (FrameParaData frameParaData : frameParaList) {
-            FrameParaInfo paraInfo = BaseInfoContainer.getParaInfoByNo(frameParaData.getDevType(), frameParaData.getParaNo());
-            String cmdMark = paraInfo.getCmdMark();
+            ParaViewInfo devParaView = DevParaInfoContainer.getDevParaView(frameParaData.getDevNo(), frameParaData.getParaNo());
+            String cmdMark = devParaView.getParaCmdMark();
             frameParaData.setParaCmk(cmdMark);
             frameParaData.setOid(snmpTransceiverService.oidSplic(cmdMark,frameParaData.getDevType()));
+            paraCmcLv = devParaView.getParaCmplexLevel();
+        }
+        if (PARA_COMPLEX_LEVEL_SUB.equals(paraCmcLv)){
+            return null;
         }
         SnmpReqDTO snmpReqDTO = SnmpReqDTO.builder()
                 .accessType(frameReqData.getAccessType())

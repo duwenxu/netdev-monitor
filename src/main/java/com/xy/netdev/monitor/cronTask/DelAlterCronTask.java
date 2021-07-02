@@ -30,7 +30,6 @@ import java.util.Date;
 @EnableScheduling
 @Component
 @Slf4j
-@Async
 public class DelAlterCronTask implements SchedulingConfigurer {
 
     @Autowired
@@ -81,6 +80,7 @@ public class DelAlterCronTask implements SchedulingConfigurer {
         taskRegistrar.addTriggerTask(task,trigger);
     }
 
+    @Async
     @Transactional
     public void deleteLog(){
         try {

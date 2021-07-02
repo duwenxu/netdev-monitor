@@ -21,10 +21,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 39所Ku&L下变频器接口协议解析
@@ -53,6 +50,18 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
     public void queryPara(FrameReqData reqInfo) {
         StringBuilder sb = new StringBuilder();
         String localAddr = "001";
+        BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(reqInfo.getDevNo());
+        //Ka/c下变频器没有切换单元
+        if(baseInfo.getDevType().equals(SysConfigConstant.DEVICE_KAC_BPQ)){
+            localAddr = baseInfo.getDevLocalAddr();
+        }else {
+            List<BaseInfo> subDevs = BaseInfoContainer.getDevInfoByParentNo(baseInfo.getDevParentNo());
+            for (BaseInfo subDev : subDevs) {
+                if (subDev.getDevType().equals(SysConfigConstant.DEVICE_QHDY)) {
+                    localAddr = subDev.getDevLocalAddr();
+                }
+            }
+        }
         sb.append(BpqPrtcServiceImpl.SEND_START_MARK).append(localAddr).append("/")
                 .append(reqInfo.getCmdMark());
         String command = sb.toString();
@@ -86,6 +95,10 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
         List<FrameParaData> frameParaList = new ArrayList<>();
         for (String param : params) {
             String cmdMark = convertCmdMark(param.split("_")[0],respData.getCmdMark());
+            //上下变频器信号命令标识有区别，这里做下转换
+            if(cmdMark.equals("TX")){
+                cmdMark = "RX";
+            }
             String value = "";
             String[] values = param.split("_");
             if(values.length>1){
@@ -122,8 +135,9 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
      */
     private Map<String, BaseInfo> getBPQAddrMap(){
         List<BaseInfo> baseInfos = new ArrayList<>();
-        baseInfos.addAll(BaseInfoContainer.getDevInfosByType(SysConfigConstant.DEVICE_BPQ));
-        baseInfos.addAll(BaseInfoContainer.getDevInfosByType(SysConfigConstant.DEVICE_QHDY));
+        baseInfos.addAll(Optional.ofNullable(BaseInfoContainer.getDevInfosByType(SysConfigConstant.DEVICE_BPQ)).orElse(new ArrayList<>()));
+        baseInfos.addAll(Optional.ofNullable(BaseInfoContainer.getDevInfosByType(SysConfigConstant.DEVICE_KAC_BPQ)).orElse(new ArrayList<>()));
+        baseInfos.addAll(Optional.ofNullable(BaseInfoContainer.getDevInfosByType(SysConfigConstant.DEVICE_QHDY)).orElse(new ArrayList<>()));
         Map<String, BaseInfo> addrMap = new HashMap<>();
         for (BaseInfo baseInfo : baseInfos) {
             String localAddr = baseInfo.getDevLocalAddr();
@@ -139,32 +153,32 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
      * @param addr
      * @return
      */
-//    private String getDevNo(String addr){
-//        String devNo = "";
-//        Map<String, BaseInfo> addrMap =  getBPQAddrMap();
-//        if(addrMap.get(addr) != null){
-//            devNo = addrMap.get(addr).getDevNo();
-//        }
-//        return devNo;
-//    }
-
     private String getDevNo(String addr){
         String devNo = "";
-        switch (addr){
-            case "001":
-                devNo = "42";
-                break;
-            case "010":
-                devNo = "40";
-                break;
-            case "011":
-                devNo = "41";
-                break;
-            default:
-                devNo = "42";
-                break;
+        Map<String, BaseInfo> addrMap =  getBPQAddrMap();
+        if(addrMap.get(addr) != null){
+            devNo = addrMap.get(addr).getDevNo();
         }
         return devNo;
     }
+
+//    private String getDevNo(String addr){
+//        String devNo = "";
+//        switch (addr){
+//            case "001":
+//                devNo = "42";
+//                break;
+//            case "010":
+//                devNo = "40";
+//                break;
+//            case "011":
+//                devNo = "41";
+//                break;
+//            default:
+//                devNo = "42";
+//                break;
+//        }
+//        return devNo;
+//    }
 
 }

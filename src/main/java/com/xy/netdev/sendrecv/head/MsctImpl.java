@@ -114,7 +114,7 @@ public class MsctImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData,
         if(cmdMark.startsWith("80")){
             cmdMark = cmdMark.substring(2);
         }
-        if(cmdMark.contains("AA")){
+        if(cmdMark.contains("AA") && !cmdMark.equals("05AA")){
             cmdMark = cmdMark.substring(2);
         }
         byte[] keywords = HexUtil.decodeHex(cmdMark);

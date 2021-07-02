@@ -18,8 +18,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 
 /**
@@ -60,6 +59,18 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
     public void queryPara(FrameReqData reqInfo) {
         StringBuilder sb = new StringBuilder();
         String localAddr = "001";
+        BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(reqInfo.getDevNo());
+        //Ka/c下变频器没有切换单元
+        if(baseInfo.getDevType().equals(SysConfigConstant.DEVICE_KAC_BPQ)){
+            localAddr = baseInfo.getDevLocalAddr();
+        }else{
+            List<BaseInfo> subDevs = BaseInfoContainer.getDevInfoByParentNo(baseInfo.getDevParentNo());
+            for (BaseInfo subDev : subDevs) {
+                if(subDev.getDevType().equals(SysConfigConstant.DEVICE_QHDY)){
+                    localAddr = subDev.getDevLocalAddr();
+                }
+            }
+        }
         sb.append(SEND_START_MARK).append(localAddr).append("/")
                 .append(reqInfo.getCmdMark());
         String command = sb.toString();
@@ -115,9 +126,13 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
     public void ctrlPara(FrameReqData reqInfo) {
         StringBuilder sb = new StringBuilder();
         String localAddr = "001";
-//        if(reqInfo.getCmdMark().equals("FRE")){
-//            localAddr = getDevLocalAddr(reqInfo);
-//        }
+        BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(reqInfo.getDevNo());
+        List<BaseInfo> subDevs = BaseInfoContainer.getDevInfoByParentNo(baseInfo.getDevParentNo());
+        for (BaseInfo subDev : subDevs) {
+            if(subDev.getDevType().equals(SysConfigConstant.DEVICE_QHDY)){
+                localAddr = subDev.getDevLocalAddr();
+            }
+        }
         sb.append(SEND_START_MARK).append(localAddr).append("/").append(reqInfo.getCmdMark())
                 .append("_").append(reqInfo.getFrameParaList().get(0).getParaVal());
         String command = sb.toString();
@@ -198,23 +213,58 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
         BaseInfoContainer.updateBaseInfo(devNo);
     }
 
+//    private String getDevNo(String addr){
+//        String devNo = "";
+//        switch (addr){
+//            case "001":
+//                devNo = "42";
+//                break;
+//            case "010":
+//                devNo = "40";
+//                break;
+//            case "011":
+//                devNo = "41";
+//                break;
+//            default:
+//                devNo = "42";
+//                break;
+//        }
+//        return devNo;
+//    }
+
+    /**
+     * 获取变频器内部地址映射关系
+     * @return
+     */
+    private Map<String, BaseInfo> getBPQAddrMap(){
+        List<BaseInfo> baseInfos = new ArrayList<>();
+        baseInfos.addAll(Optional.ofNullable(BaseInfoContainer.getDevInfosByType(SysConfigConstant.DEVICE_BPQ)).orElse(new ArrayList<>()));
+        baseInfos.addAll(Optional.ofNullable(BaseInfoContainer.getDevInfosByType(SysConfigConstant.DEVICE_KAC_BPQ)).orElse(new ArrayList<>()));
+        baseInfos.addAll(Optional.ofNullable(BaseInfoContainer.getDevInfosByType(SysConfigConstant.DEVICE_QHDY)).orElse(new ArrayList<>()));
+        Map<String, BaseInfo> addrMap = new HashMap<>();
+        for (BaseInfo baseInfo : baseInfos) {
+            String localAddr = baseInfo.getDevLocalAddr();
+            if(StringUtils.isNotEmpty(localAddr)){
+                addrMap.put(localAddr,baseInfo);
+            }
+        }
+        return addrMap;
+    }
+
+    /**
+     * 获取设备编号
+     * @param addr
+     * @return
+     */
     private String getDevNo(String addr){
         String devNo = "";
-        switch (addr){
-            case "001":
-                devNo = "42";
-                break;
-            case "010":
-                devNo = "40";
-                break;
-            case "011":
-                devNo = "41";
-                break;
-            default:
-                devNo = "42";
-                break;
+        Map<String, BaseInfo> addrMap =  getBPQAddrMap();
+        if(addrMap.get(addr) != null){
+            devNo = addrMap.get(addr).getDevNo();
         }
         return devNo;
     }
+
+
 
 }

@@ -1,8 +1,6 @@
 package com.xy.netdev.common.constant;
 
 
-import org.apache.ibatis.type.NStringTypeHandler;
-
 /**
  * 系统配置常量*
  *
@@ -457,6 +455,19 @@ public interface SysConfigConstant {
      * 参数数据类型--str
      */
     String  PARA_DATA_TYPE_STR = "0023004";
+    /**
+     * 参数数据类型--buf
+     */
+    String  PARA_DATA_TYPE_BUF = "0023005";
+
+    /**
+     * 参数数据类型--ipAddress
+     */
+    String  PARA_DATA_TYPE_IPADDRESS = "0023006";
+    /**
+     * 参数数据类型--ipMask
+     */
+    String  PARA_DATA_TYPE_IPMASK = "0023007";
 
     /**
      * 参数数据类型 - float
@@ -488,6 +499,8 @@ public interface SysConfigConstant {
      */
     String DEVICE_MSCT = "0020015";
 
+
+
     /**
      * 设备类型--转换开关
      */
@@ -508,6 +521,11 @@ public interface SysConfigConstant {
      * 设备类型--变频器
      */
     String  DEVICE_BPQ = "0020006";
+
+    /**
+     * 设备类型--Ka/C下变频器
+     */
+    String DEVICE_KAC_BPQ = "0020036";
 
     /**
      * 设备类型--君威子功放
@@ -545,7 +563,7 @@ public interface SysConfigConstant {
     String ACU_AGE_VALUE = "0100013";
 
     /**
-     * 私有MIB前缀
+     * 公共参数--给54所发送数据的端口
      */
     String PRIVATE_MIB_PREFIX = "0101001";
     /**
@@ -564,5 +582,9 @@ public interface SysConfigConstant {
      * 私有MIB站号
      */
     String PRIVATE_MIB_STATION = "0101005";
+    /**
+     * 代理IP地址
+     */
+    String AGENT_IP_ADDRESS = "0101006";
 
 }

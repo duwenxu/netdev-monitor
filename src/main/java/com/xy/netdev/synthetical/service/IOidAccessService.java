@@ -1,6 +1,7 @@
 package com.xy.netdev.synthetical.service;
 
 
+import org.snmp4j.smi.VariableBinding;
 
 import java.util.List;
 import java.util.Map;
@@ -29,5 +30,10 @@ public interface IOidAccessService {
      */
     Map<String,String> getValByOidList(List<String> oidList);
 
-
+    /**
+     * 获取传入oidList的对应参数值List
+     * @param oidList 传入的oidList
+     * @return oid--value
+     */
+    List<VariableBinding> getVariablesByOidList(List<String> oidList);
 }
