@@ -50,9 +50,9 @@ public class AcuPrtcServiceImpl implements IParaPrtclAnalysisService {
         String paraVal = frameParaData.getParaVal().replaceAll(" ","");
         //当参数为位置模式时特殊处理
         if(frameParaData.getParaNo().equals("3")){
-            String x = make0Str(paraVal.split("]")[0].substring(4),3);
-            String y = make0Str(paraVal.split("]")[1].substring(4),3);
-            String z = make0Str(paraVal.split("]")[2].substring(4),3);
+            String x = make0Str(paraVal.split("]")[0].substring(4),3,2);
+            String y = make0Str(paraVal.split("]")[1].substring(4),3,2);
+            String z = make0Str(paraVal.split("]")[2].substring(4),3,2);
             paraVal = "{X}["+x+"]{Y}["+y+"]{Z}["+z+"]";
             //如果为位置模式，则判断当前俯仰角大于20度时才执行
             if(Float.valueOf(DevParaInfoContainer.getDevParaView(frameParaData.getDevNo(),"12").getParaVal())<20){
@@ -60,11 +60,11 @@ public class AcuPrtcServiceImpl implements IParaPrtclAnalysisService {
             }
         }else if(frameParaData.getParaNo().equals("6")){
             //当参数为接收机本振频率
-            paraVal = paraVal.split("]")[0]+"]{F}["+make0Str(paraVal.split("]")[1].substring(4),5)+"]";
+            paraVal = paraVal.split("]")[0]+"]{F}["+make0Str(paraVal.split("]")[1].substring(4),5,2)+"]";
         }
         else if(reqInfo.getFrameParaList().get(0).getLen() != null){
             //当长度不为0时补0
-            paraVal = make0Str(paraVal,frameParaData.getLen());
+            paraVal = make0Str(paraVal,frameParaData.getLen(),1);
         }
         String replace = paraVal.replace("{", "")
                 .replace("}","")
@@ -87,15 +87,19 @@ public class AcuPrtcServiceImpl implements IParaPrtclAnalysisService {
      * 数值型字符串补0
      * @return
      */
-    private String make0Str(String value,int len){
+    private String make0Str(String value,int len, int smallLen){
         if(StringUtils.isNotBlank(value)){
             if(value.contains(".")){
                 //小数补0
                 String[] valueList = value.split("\\.");
-                value = StringUtils.leftPad(valueList[0],len,"0")+"."+StringUtils.rightPad(valueList[1],2,"0");;
+                String small = StringUtils.rightPad(valueList[1],2,"0");
+                if(small.length()>smallLen){
+                    small = small.substring(0,smallLen);
+                }
+                value = StringUtils.leftPad(valueList[0],len,"0")+"."+small;
             }else{
                 //整数补小数及0
-                value = StringUtils.leftPad(value,len,"0")+".00";
+                value = StringUtils.leftPad(value,len,"0")+"."+StringUtils.leftPad("",smallLen,"0");
             }
         }
         return value;
