@@ -23,6 +23,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import static com.xy.netdev.common.constant.SysConfigConstant.DEV_STATUS_NEW;
 import static com.xy.netdev.common.constant.SysConfigConstant.PARA_COMPLEX_LEVEL_COMPOSE;
 import static com.xy.netdev.monitor.constant.MonitorConstants.INT;
 
@@ -49,6 +50,9 @@ public class DevParaInfoContainer {
      */
     @Getter
     private static final Map<String, Map<String, SnmpRptDTO>> devSnmpParaMap = new ConcurrentHashMap<>(10);
+
+    @Getter
+    private static final Map<String,String> devNoStatusOidMap = new ConcurrentHashMap<>(10);
     /**
      * 综合上报参数MAP K设备参数OID  V设备参数信息
      */
@@ -86,7 +90,7 @@ public class DevParaInfoContainer {
             ParaExtServiceFactory.genParaExtService(devType).setCacheDevParaViewInfo(devNo);
         });
         //SNMP 内存参数映射处理
-        updateSnmpRptData();
+        initSnmpRptData();
 //        //todo test
 //        ParaViewInfo paraViewInfo1 = new ParaViewInfo();
 //        paraViewInfo1.setDevType("0020012");
@@ -112,10 +116,20 @@ public class DevParaInfoContainer {
 //        devParaMap.get(paraViewInfo2.getDevNo()).put(linkKey2,paraViewInfo2);
     }
 
-    private static void updateSnmpRptData() {
+    private static void initSnmpRptData() {
+        initSnmpRptData(devParaMap);
+    }
+
+    /**
+     * 从指定的参数值缓存更新SNMP的缓存数据
+     * @param devParaMap 设备参数值缓存
+     */
+    private static void initSnmpRptData(Map<String, Map<String, ParaViewInfo>> devParaMap) {
         long t1 = System.currentTimeMillis();
         for (Map.Entry<String, Map<String, ParaViewInfo>> entry : devParaMap.entrySet()) {
             String currentDevNo = entry.getKey();
+            String devStatus = BaseInfoContainer.getDevInfoByNo(currentDevNo).getDevStatus();
+            if (!DEV_STATUS_NEW.equals(devStatus)){ continue;}
             Collection<ParaViewInfo> values = entry.getValue().values();
             for (ParaViewInfo paraView : values) {
                 boolean canBeOpt = SysConfigConstant.IS_DEFAULT_TRUE.equals(paraView.getNdpaOutterStatus()) && !StringUtils.isEmpty(paraView.getRptOidSign());
@@ -131,7 +145,7 @@ public class DevParaInfoContainer {
                 }
             }
         }
-        log.debug("初始化SNMP数据耗时：[{}]", System.currentTimeMillis() - t1);
+        log.info("初始化SNMP数据耗时：[{}]", System.currentTimeMillis() - t1);
     }
 
     /**
@@ -152,7 +166,7 @@ public class DevParaInfoContainer {
     }
 
     /**
-     * SNMP综合网管上报---OID参数后缀
+     * SNMP综合网管上报---OID参数后缀  区号+站号+设备编号
      */
     public static final String SNMP_RPT_SUFFIX = ".1.1.1";
 
@@ -167,7 +181,10 @@ public class DevParaInfoContainer {
             oidPrefix = oidPrefix.substring(0, oidPrefix.lastIndexOf("."));
             /**根据MIB库定义  设备连接状态在各个设备中：均为1.1.4*/
             String devOid4 = oidPrefix + ".4" + SNMP_RPT_SUFFIX;
-
+            String devOid1 = oidPrefix + ".1" + SNMP_RPT_SUFFIX;
+            String devOid2 = oidPrefix + ".2" + SNMP_RPT_SUFFIX;
+            String devOid3 = oidPrefix + ".3" + SNMP_RPT_SUFFIX;
+            /**获取设备状态参数*/
             String oidDevNo = DevParaInfoContainer.getOidDevNo(devOid4);
             DevStatusInfo devStatusInfo = DevStatusContainer.getDevStatusInfo(oidDevNo);
             String isInterrupt = devStatusInfo.getIsInterrupt();
@@ -175,14 +192,15 @@ public class DevParaInfoContainer {
             if ("0".equals(isInterrupt)) {
                 val = "1";
             }
-            SnmpRptDTO rptDTO = SnmpRptDTO.builder()
-                    .paraCode("4")
-                    .paraName("设备连接状态")
-                    .paraDatatype(INT)
-                    .paraVal(val)
-                    .build();
-
-            devSnmpParaMap.get(currentDevNo).put(devOid4, rptDTO);
+            SnmpRptDTO rptDTO4 = SnmpRptDTO.builder().paraCode("4").paraName("设备连接状态").paraDatatype(INT).paraVal(val).build();
+            SnmpRptDTO rptDTO1 = SnmpRptDTO.builder().paraCode("1").paraName("区号").paraDatatype(INT).paraVal("1").build();
+            SnmpRptDTO rptDTO2 = SnmpRptDTO.builder().paraCode("2").paraName("站号").paraDatatype(INT).paraVal("1").build();
+            SnmpRptDTO rptDTO3 = SnmpRptDTO.builder().paraCode("3").paraName("设备编号").paraDatatype(INT).paraVal("1").build();
+            devSnmpParaMap.get(currentDevNo).put(devOid4, rptDTO4);
+            devSnmpParaMap.get(currentDevNo).put(devOid1, rptDTO1);
+            devSnmpParaMap.get(currentDevNo).put(devOid2, rptDTO2);
+            devSnmpParaMap.get(currentDevNo).put(devOid3, rptDTO3);
+            devNoStatusOidMap.put(currentDevNo,devOid4);
         }
     }
 
@@ -326,6 +344,8 @@ public class DevParaInfoContainer {
         }
     }
 
+    private static final Map<String, Map<String, ParaViewInfo>> changedDevParaMap = new LinkedHashMap<>(10);
+
     /**
      * @param respData 协议解析响应数据
      * @return 数据是否发生变化
@@ -347,8 +367,10 @@ public class DevParaInfoContainer {
             for (FrameParaData frameParaData : frameParaList) {
                 String devNo = frameParaData.getDevNo();
                 String paraNo = frameParaData.getParaNo();
-                ParaViewInfo paraViewInfo = devParaMap.get(devNo).get(ParaHandlerUtil.genLinkKey(devNo, paraNo));
+                String linkKey = ParaHandlerUtil.genLinkKey(devNo, paraNo);
+                ParaViewInfo paraViewInfo = devParaMap.get(devNo).get(linkKey);
                 if (paraViewInfo != null && StringUtils.isNotEmpty(frameParaData.getParaVal()) && !frameParaData.getParaVal().equals(paraViewInfo.getParaVal())) {
+                    updateChanged(devNo,linkKey,paraViewInfo,frameParaData.getParaVal());
                     paraViewInfo.setParaVal(frameParaData.getParaVal());
                     paraViewInfo.setParaOrigByte(frameParaData.getParaOrigByte());
                     //组合参数修改子参数值
@@ -368,6 +390,24 @@ public class DevParaInfoContainer {
         }
         updateSnmpRptData();
         return num > 0;
+    }
+
+    /**
+     * 更新改变的SNMP参数值
+     */
+    private static void updateSnmpRptData() {
+        initSnmpRptData(changedDevParaMap);
+    }
+
+    /**
+     * 更新改动的参数值缓存
+     */
+    private static void updateChanged(String devNo, String linkKey, ParaViewInfo paraViewInfo, String val) {
+        if (!changedDevParaMap.containsKey(devNo)){
+            changedDevParaMap.put(devNo, new ConcurrentHashMap<>());
+        }
+        paraViewInfo.setParaVal(val);
+        changedDevParaMap.get(devNo).put(linkKey,paraViewInfo);
     }
 
     /**

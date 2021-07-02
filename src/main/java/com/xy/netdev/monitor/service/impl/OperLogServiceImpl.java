@@ -30,7 +30,7 @@ public class OperLogServiceImpl extends ServiceImpl<OperLogMapper, OperLog> impl
     public IPage<OperLog> queryOperLogByDevNoTime(String devNo, String startTime, String endTime, Page page) {
         QueryWrapper<OperLog> queryWrapper = new QueryWrapper();
         if(StringUtils.isNotEmpty(devNo)){
-            queryWrapper.eq("DEV_NO",devNo);
+            queryWrapper.eq("DEV_TYPE",devNo);
         }
         if(StringUtils.isNotEmpty(startTime)){
             queryWrapper.ge("LOG_TIME",startTime);

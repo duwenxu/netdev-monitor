@@ -1,7 +1,7 @@
 package com.xy.netdev.frame.service.codec;
 
 import com.xy.netdev.frame.service.ParamCodec;
-import com.xy.netdev.transit.schedule.FloatAndByte;
+import com.xy.netdev.transit.util.FloatAndByte;
 import org.springframework.stereotype.Component;
 
 /**
@@ -13,7 +13,7 @@ public class SignedFloatCodec implements ParamCodec {
     @Override
     public String decode(byte[] bytes, Object... objects) {
         float v = FloatAndByte.bytesToFloat(bytes);
-        return v+"";
+        return String.format("%.2f",v);
     }
 
     @Override

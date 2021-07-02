@@ -48,8 +48,8 @@ public class OperLogController {
      */
     @ApiOperation(value = "查询指定设备时间范围内的日志信息", notes = "查询指定设备时间范围内的日志信息")
     @PostMapping(value = "queryOperLog")
-    public Result<IPage<OperLog>> queryOperLogByDevNoTime(@RequestParam String devNo, @RequestParam String startTime, @RequestParam String endTime, Page page) {
-        IPage<OperLog> alertInfos = targetService.queryOperLogByDevNoTime(devNo,startTime,endTime,page);
+    public Result<IPage<OperLog>> queryOperLogByDevNoTime(@RequestParam String devType, @RequestParam String startTime, @RequestParam String endTime, Page page) {
+        IPage<OperLog> alertInfos = targetService.queryOperLogByDevNoTime(devType,startTime,endTime,page);
         return ControllerResultWrapper.genPageListResult(alertInfos);
     }
 

@@ -197,10 +197,10 @@ public class FloatAndByte {
 		}
 		return data2;
 	}
-
-	public static void main(String[] args) {
-		byte[] bytes = new byte[]{(byte) 0xC3,(byte) 0xF5,(byte) 0xDA,(byte) 0x42};
-		float v = bytesToFloat(bytes);
-		System.out.println(v);
-	}
+//
+//	public static void main(String[] args) {
+//		byte[] bytes = new byte[]{(byte) 0xC3,(byte) 0xF5,(byte) 0xDA,(byte) 0x42};
+//		float v = bytesToFloat(bytes);
+//		System.out.println(v);
+//	}
 }
