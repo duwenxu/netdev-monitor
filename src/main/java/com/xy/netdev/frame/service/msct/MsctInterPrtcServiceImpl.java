@@ -7,6 +7,7 @@ import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.BeanFactoryUtil;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
+import com.xy.netdev.container.DevParaInfoContainer;
 import com.xy.netdev.factory.SingletonFactory;
 import com.xy.netdev.frame.bo.ExtParamConf;
 import com.xy.netdev.frame.bo.FrameParaData;
@@ -17,6 +18,7 @@ import com.xy.netdev.frame.service.ParamCodec;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.frame.service.codec.DirectParamCodec;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
+import com.xy.netdev.monitor.bo.ParaViewInfo;
 import com.xy.netdev.monitor.constant.MonitorConstants;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
@@ -112,6 +114,18 @@ public class MsctInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService
                 } else {
                     val = String.valueOf(paraVal.intValue());
                 }
+            }
+            //设置TDMA模式工作模式
+            if(paraInfo.getCmdMark().equals("B0-1")){
+                FrameParaInfo paraDetail = BaseInfoContainer.getParaInfoByCmd(paraInfo.getDevType(),"A1");
+                ParaViewInfo paraViewInfo =  DevParaInfoContainer.getDevParaView(respData.getDevNo(), paraDetail.getParaNo());
+                String  temp = val;
+                if(val.equals("1")){
+                    temp = "2";
+                }else if(val.equals("2")){
+                    temp = "1";
+                }
+                paraViewInfo.setParaVal(temp);
             }
             frameParaData.setParaVal(val);
             startIndex = endIndex;
