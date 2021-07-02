@@ -1,7 +1,12 @@
 package com.xy.netdev.monitor.service.impl;
 
+import cn.hutool.Hutool;
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.xy.netdev.admin.entity.SysParam;
+import com.xy.netdev.admin.service.ISysParamService;
+import com.xy.netdev.common.util.BeanCopierUtil;
 import com.xy.netdev.container.BaseContainerLoader;
 import com.xy.netdev.monitor.bo.TransUiData;
 import com.xy.netdev.monitor.entity.BaseInfo;
@@ -32,7 +37,10 @@ public class TruckInfoServiceImpl extends ServiceImpl<TruckInfoMapper, TruckInfo
     private IBaseInfoService devInfoService;
     @Autowired
     private BaseContainerLoader baseContainerLoader;
-
+    @Autowired
+    private ISysParamService sysParamService;
+    /**设备类型参数组父ID**/
+    private static final String DEV_TYPE_GROUP_ID = "0020";
 
     /**
      * 设备接口已绑定参数列表
@@ -67,28 +75,30 @@ public class TruckInfoServiceImpl extends ServiceImpl<TruckInfoMapper, TruckInfo
         //获取设备接口信息
         TruckInfo anTruckInfo = this.baseMapper.selectById(id);
         //分解设备接口绑定的参数code
-        List<String> devNos = new ArrayList<>();
+        List<String> devTypes = new ArrayList<>();
         if(!StringUtils.isBlank(anTruckInfo.getTruckDevs())){
-            devNos = Arrays.asList(anTruckInfo.getTruckDevs().split(","));
+            devTypes = Arrays.asList(anTruckInfo.getTruckDevs().split(","));
         }
-        List<BaseInfo> baseInfos = devInfoService.list();
-        Map<String, BaseInfo> baseInfoMap = baseInfos.stream().collect(Collectors.toMap(BaseInfo::getDevNo, BaseInfo -> BaseInfo));
-        List<String> finalDevNos = devNos;
+        List<SysParam> devTypeList = new ArrayList<>();
+        List<SysParam> types = sysParamService.queryParamsByParentId(DEV_TYPE_GROUP_ID);
+        devTypeList.addAll(types);
+        Map<String, SysParam> devTypesMap = devTypeList.stream().collect(Collectors.toMap(SysParam::getParaCode, SysParam -> SysParam));
+        List<String> finalDevTypes = devTypes;
         if(isBing){
             //置空重新添加数据
-            baseInfos.clear();
-            for (String devNo : finalDevNos){
-                baseInfos.add(baseInfoMap.get(devNo));
+            devTypeList.clear();
+            for (String devType : finalDevTypes){
+                devTypeList.add(devTypesMap.get(devType));
             }
         }else{
-            baseInfos = baseInfos.stream().filter(baseInfo -> !finalDevNos.contains(baseInfo.getDevNo().toString())).collect(Collectors.toList());
+            devTypeList = devTypeList.stream().filter(sysParam -> !finalDevTypes.contains(sysParam.getParaCode())).collect(Collectors.toList());
         }
         List<TransUiData> dataList = new ArrayList<>();
         //封装前端穿梭框数据
-        baseInfos.stream().filter(Objects::nonNull).forEach(baseInfo ->{
+        devTypeList.stream().filter(Objects::nonNull).forEach(sysParam ->{
             TransUiData data = new TransUiData();
-            data.setId(baseInfo.getDevNo());
-            data.setValue(baseInfo.getDevName());
+            data.setId(sysParam.getParaCode());
+            data.setValue(sysParam.getParaName());
             data.setValue2(id);
             data.setIsSelect(isSelect);
             dataList.add(data);
