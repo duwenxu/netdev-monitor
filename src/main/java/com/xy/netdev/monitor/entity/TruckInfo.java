@@ -24,30 +24,35 @@ import java.io.Serializable;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
-@TableName("NTDV_PRTCL_FORMAT")
-@ApiModel(value="PrtclFormat对象", description="协议格式")
+@TableName("NTDV_TRUCK_INFO")
+@ApiModel(value="TruckInfo对象", description="卫通车信息")
 public class TruckInfo extends Model<PrtclFormat> {
 
     private static final long serialVersionUID=1L;
 
-    @ApiModelProperty(value = "通讯车ID")
+    @ApiModelProperty(value = "卫通车ID")
     @TableId(value = "TRUCK_ID", type = IdType.AUTO)
     private Integer truckId;
 
-    @ApiModelProperty(value = "通讯车类型")
+    @ApiModelProperty(value = "卫通车类型")
     @TableField(value = "TRUCK_TYPE")
     @Param
     private String truckType;
 
-    @ApiModelProperty(value = "通讯车名称")
+    @ApiModelProperty(value = "卫通车名称")
     @TableField(value = "TRUCK_NAME")
     private String truckName;
 
-    @ApiModelProperty(value = "通讯车状态")
+    @ApiModelProperty(value = "卫通车所属机构")
+    @TableField(value = "TRUCK_DEPT")
+    private String truckDept;
+
+    @ApiModelProperty(value = "卫通车状态")
     @TableField(value = "TRUCK_STATUS")
+    @Param
     private String truckStatus;
 
-    @ApiModelProperty(value = "通讯车设备")
+    @ApiModelProperty(value = "卫通车设备")
     @TableField(value = "TRUCK_DEVS")
     private String truckDevs;
 
