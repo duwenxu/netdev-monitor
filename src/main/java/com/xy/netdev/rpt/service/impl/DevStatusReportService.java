@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.xy.netdev.common.constant.SysConfigConstant.IS_DEFAULT_TRUE;
@@ -223,7 +224,11 @@ public class DevStatusReportService implements IDevStatusReportService {
             log.debug("告警信息：{}",alertDesc);
             String alertLevel = SysConfigConstant.ALERT_LEVEL_OK;
             //判断参数是否触发告警，如果没有触发上报恢复（设置恢复告警级别给0）
-            String isAlarm = DevStatusContainer.getDevParamRptMap().get(respData.getDevNo()).get(SysConfigConstant.DEV_STATUS_ALARM).get(paraInfo.getParaNo());
+            Map<String, Map<String, String>> alarmList = DevStatusContainer.getDevParamRptMap().get(respData.getDevNo());
+            if(alarmList.size()<0){
+                return;
+            }
+            String isAlarm = alarmList.get(SysConfigConstant.DEV_STATUS_ALARM).get(paraInfo.getParaNo());
             if(isAlarm.equals("1")){
                 alertLevel = paraInfo.getAlertLevel();
             }

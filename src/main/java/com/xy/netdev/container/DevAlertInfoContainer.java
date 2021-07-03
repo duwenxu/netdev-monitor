@@ -17,6 +17,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.xy.netdev.common.constant.SysConfigConstant.OPER_LOG_SWTICH;
+
 /**
  * <p>
  *设备告警信息容器类
@@ -27,6 +29,8 @@ import java.util.Map;
  */
 @Component
 public class DevAlertInfoContainer {
+
+    private static ISysParamService sysParamService;
 
     private static IAlertInfoService alertInfoService;
 
@@ -45,7 +49,8 @@ public class DevAlertInfoContainer {
     /**
      * @功能：当系统启动时,进行初始化各设备报警信息
      */
-    public static void init(int devAlertInfoSize){
+    public static void init(int devAlertInfoSize, ISysParamService sysParamService){
+        DevAlertInfoContainer.sysParamService = sysParamService;
         DEV_PARA_ALERT_SIZE = devAlertInfoSize;
         BaseInfoContainer.getDevNos().forEach(devNo -> {
             devAlertInfoMap.put(devNo,new HashMap<>());
@@ -66,7 +71,10 @@ public class DevAlertInfoContainer {
             paraAlertMap.put(DateTools.getDateTime(),alertInfo);
             devMap.put(alertInfo.getNdpaNo(),paraAlertMap);
         }
-        alertInfoService.save(alertInfo);
+        //判断日志开关
+        if(sysParamService.getParaRemark1(OPER_LOG_SWTICH).equals("0")){
+            alertInfoService.save(alertInfo);
+        }
     }
 
 
