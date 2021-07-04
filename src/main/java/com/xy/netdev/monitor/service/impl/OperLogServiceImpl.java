@@ -12,6 +12,8 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
  * 操作日志信息 服务实现类
  *
@@ -48,5 +50,25 @@ public class OperLogServiceImpl extends ServiceImpl<OperLogMapper, OperLog> impl
     @Override
     public void updateOperId() {
         this.baseMapper.updateOperId();
+    }
+
+    /**
+     * 查询指定设备时间范围内的所有日志信息
+     * @return
+     */
+    @Override
+    public List<OperLog> queryPageList(String devType, String startTime, String endTime) {
+        QueryWrapper<OperLog> queryWrapper = new QueryWrapper();
+        if(StringUtils.isNotEmpty(devType)){
+            queryWrapper.eq("DEV_TYPE",devType);
+        }
+        if(StringUtils.isNotEmpty(startTime)){
+            queryWrapper.ge("LOG_TIME",startTime);
+        }
+        if(StringUtils.isNotEmpty(endTime)){
+            queryWrapper.and(alertInfoQueryWrapper -> alertInfoQueryWrapper.le("LOG_TIME",endTime));
+        }
+        queryWrapper.orderByDesc("LOG_TIME");
+        return this.baseMapper.selectList(queryWrapper);
     }
 }

@@ -224,11 +224,12 @@ public class DevStatusReportService implements IDevStatusReportService {
             log.debug("告警信息：{}",alertDesc);
             String alertLevel = SysConfigConstant.ALERT_LEVEL_OK;
             //判断参数是否触发告警，如果没有触发上报恢复（设置恢复告警级别给0）
-            Map<String, Map<String, String>> alarmList = DevStatusContainer.getDevParamRptMap().get(respData.getDevNo());
-            if(alarmList.size()<0){
+            String isAlarm = null;
+            try {
+                isAlarm = DevStatusContainer.getDevParamRptMap().get(respData.getDevNo()).get(SysConfigConstant.DEV_STATUS_ALARM).get(paraInfo.getParaNo());
+            } catch (Exception e) {
                 return;
             }
-            String isAlarm = alarmList.get(SysConfigConstant.DEV_STATUS_ALARM).get(paraInfo.getParaNo());
             if(isAlarm.equals("1")){
                 alertLevel = paraInfo.getAlertLevel();
             }
