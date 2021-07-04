@@ -195,7 +195,7 @@ public class SnmpTransceiverServiceImpl implements SnmpTransceiverService {
             return cmdMark;
         }
         if (StringUtils.isBlank(oidPrefixCode)){
-            log.error("参数编号：[{}]---参数标识：[{}]的参数oid前缀编号为空",paraInfo.getParaNo(),cmdMark);
+            log.debug("参数编号：[{}]---参数标识：[{}]的参数oid前缀编号为空",paraInfo.getParaNo(),cmdMark);
         }
         String oidPrefix = sysParamService.getParaRemark1(oidPrefixCode);
         return oidPrefix+ "." + cmdMark;
