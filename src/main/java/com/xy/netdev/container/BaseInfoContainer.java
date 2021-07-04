@@ -710,7 +710,7 @@ public class BaseInfoContainer {
             devInterParam.setDevInterface(anInterface);
             //协议
             List<PrtclFormat> prtclFormats = prtclList.stream()
-                    .filter(prtclFormat -> prtclFormat.getFmtId() == anInterface.getFmtId())
+                    .filter(prtclFormat -> prtclFormat.getFmtId().equals(anInterface.getFmtId()))
                     .collect(Collectors.toList());
             if (prtclFormats.size() > 0) {
                 //设置协议的归属
