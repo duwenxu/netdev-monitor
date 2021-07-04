@@ -553,14 +553,20 @@ public interface SysConfigConstant {
     String CURR_CAR_TYPE = "0100011";
 
     /**
+     * 日志开关
+     */
+    String OPER_LOG_SWTICH = "0100012";
+
+    /**
      * 1.5米ACU方位角调整休眠时间
      */
-    String ACU_SLEEP_TIME = "0100012";
+    String ACU_SLEEP_TIME = "0100013";
 
     /**
      * 1.5米ACU中agc阈值
      */
-    String ACU_AGE_VALUE = "0100013";
+    String ACU_AGE_VALUE = "0100014";
+
 
     /**
      * 公共参数--给54所发送数据的端口

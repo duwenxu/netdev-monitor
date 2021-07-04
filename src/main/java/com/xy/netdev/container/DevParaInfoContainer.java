@@ -376,8 +376,11 @@ public class DevParaInfoContainer {
                     //组合参数修改子参数值
                     if (paraViewInfo.getParaCmplexLevel().equals(PARA_COMPLEX_LEVEL_COMPOSE)) {
                         for (ParaViewInfo paraViewInfo1 : paraViewInfo.getSubParaList()) {
-                            paraViewInfo1.setParaVal(frameParaList.stream().filter(frameParaData1 -> frameParaData1.getParaNo().equals(paraViewInfo1.getParaNo())).collect(Collectors.toList()).get(0).getParaVal());
-                            paraViewInfo1.setParaOrigByte(frameParaList.stream().filter(frameParaData1 -> frameParaData1.getParaNo().equals(paraViewInfo1.getParaNo())).collect(Collectors.toList()).get(0).getParaOrigByte());
+                            List<FrameParaData> lists = frameParaList.stream().filter(frameParaData1 -> frameParaData1.getParaNo().equals(paraViewInfo1.getParaNo())).collect(Collectors.toList());
+                            if(lists != null && lists.size()>0){
+                                paraViewInfo1.setParaVal(lists.get(0).getParaVal());
+                                paraViewInfo1.setParaOrigByte(lists.get(0).getParaOrigByte());
+                            }
                         }
                     }
                     num++;

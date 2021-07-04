@@ -119,7 +119,7 @@ public class BaseContainerLoader implements ApplicationRunner {
     private void initDevLog() {
         int devLogSize = Integer.parseInt(sysParamService.getParaRemark1(SysConfigConstant.DEV_LOG_VIEW_SZIE));
         //初始化各设备日志
-        DevLogInfoContainer.init(devLogSize);
+        DevLogInfoContainer.init(devLogSize,sysParamService);
     }
 
     /**
