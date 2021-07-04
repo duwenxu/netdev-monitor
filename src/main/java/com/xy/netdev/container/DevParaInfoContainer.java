@@ -145,7 +145,7 @@ public class DevParaInfoContainer {
                 }
             }
         }
-        log.info("初始化SNMP数据耗时：[{}]", System.currentTimeMillis() - t1);
+        log.debug("初始化SNMP数据耗时：[{}]", System.currentTimeMillis() - t1);
     }
 
     /**

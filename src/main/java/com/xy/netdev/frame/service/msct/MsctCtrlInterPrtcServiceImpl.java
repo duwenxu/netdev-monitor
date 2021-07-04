@@ -82,8 +82,16 @@ public class MsctCtrlInterPrtcServiceImpl implements ICtrlInterPrtclAnalysisServ
                         String data1 = param.getNdpaRemark1Data();
                         if(StringUtils.isNotEmpty(desc1) && desc1.equals("倍数") && StringUtils.isNotEmpty(data1)){
                             Integer multiple = Integer.parseInt(data1);
-                            float temp = Float.parseFloat(value)*multiple;
-                            value = String.valueOf(temp);
+                            Double temp = Double.parseDouble(value)*multiple;
+                            if(isFloat(sysParamService, param.getDataType())){
+                                value = String.valueOf(temp);
+                            }else{
+                                if(temp>Integer.MAX_VALUE){
+                                    value = String.valueOf(temp.longValue());
+                                }else{
+                                    value = String.valueOf(temp.intValue());
+                                }
+                            }
                         }
                         byteList.add(ByteUtils.objToBytes(value, frameParaData.getLen(), isFloat(sysParamService, param.getDataType())));
                     }

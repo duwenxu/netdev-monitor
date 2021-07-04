@@ -107,7 +107,7 @@ public class MsctInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService
                 String desc = paraInfo.getNdpaRemark1Desc();
                 String data = paraInfo.getNdpaRemark1Data();
                 if (StringUtils.isNotEmpty(desc) && desc.equals("倍数") && StringUtils.isNotEmpty(data)) {
-                    Integer multiple = Integer.parseInt(data);
+                    Float multiple = Float.parseFloat(data);
                     //单个参数值转换
                     DecimalFormat myFormatter = new DecimalFormat(getDecimal(multiple));
                     val = myFormatter.format(paraVal.floatValue() / multiple);
@@ -142,16 +142,17 @@ public class MsctInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService
      * @param multiple
      * @return
      */
-    private String getDecimal(Integer multiple){
+    private String getDecimal(Float multiple){
         String decimal = "";
-        switch (multiple){
-            case 10:
+        String mutiStr = String.valueOf(multiple);
+        switch (mutiStr){
+            case "10":
                 decimal =  "##0.0#";
                 break;
-            case 100:
+            case "100":
                 decimal =  "##0.00#";
                 break;
-            case 1000:
+            case "1000":
                 decimal =  "##0.000#";
                 break;
             default:
