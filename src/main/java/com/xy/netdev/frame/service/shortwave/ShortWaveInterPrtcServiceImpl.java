@@ -1,11 +1,8 @@
 package com.xy.netdev.frame.service.shortwave;
 
-import cn.hutool.core.util.HexUtil;
-import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
-import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.frame.service.modemscmm.ModemScmmPrtcServiceImpl;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
@@ -13,10 +10,6 @@ import com.xy.netdev.transit.impl.DataReciveServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
-
-import static com.xy.netdev.common.util.ByteUtils.bytesMerge;
 
 
 /**
@@ -44,16 +37,7 @@ public class ShortWaveInterPrtcServiceImpl implements IParaPrtclAnalysisService 
 
     @Override
     public void ctrlPara(FrameReqData reqInfo) {
-        List<FrameParaData> paraList = reqInfo.getFrameParaList();
-        if (paraList == null || paraList.isEmpty()) {
-            return;
-        }
-        FrameParaData paraData = paraList.get(0);
-        byte[] frameBytes = modemScmmPrtcService.doGetFrameBytes(paraData);
-        byte[] bytes = HexUtil.decodeHex(reqInfo.getCmdMark());
-        byte[] bytesMerge = bytesMerge(bytes, frameBytes);
-        reqInfo.setParamBytes(bytesMerge);
-        socketMutualService.request(reqInfo, ProtocolRequestEnum.CONTROL);
+        log.info("111");
     }
 
     @Override
