@@ -47,7 +47,7 @@ public class AcuImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, 
         //长度为69则为主动上报. 否则为参数
         if (bytes.length == 69){
             String cmd = new String(Objects.requireNonNull(byteArrayCopy(bytes, 1, 3)));
-            byte[] paramBytes = ByteUtils.byteArrayCopy(bytes, 4, 50);
+            byte[] paramBytes = ByteUtils.byteArrayCopy(bytes, 4, 53);
             frameRespData.setParamBytes(paramBytes);
             frameRespData.setCmdMark(cmd);
             return frameRespData;
