@@ -72,7 +72,7 @@ public class AcuInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
                 byte[] byteList = ByteUtils.byteArrayCopy(bytes,frameParaInfo.getParaStartPoint(),Integer.parseInt(frameParaInfo.getParaByteLen()));
                 FrameParaInfo paraInfoByNo = BaseInfoContainer.getParaInfoByNo(paraInfo.getDevType(), paraInfo.getParaNo());
                 String val1 = modemScmmInterPrtcService.doGetValue(paraInfoByNo,ByteUtils.byteArrayCopy(byteList,0,4));
-                String val2 = StrUtil.str(ByteUtils.byteArrayCopy(byteList,5,1),"utf-8");
+                String val2 = StrUtil.str(ByteUtils.byteArrayCopy(byteList,8,1),"utf-8");
                 paraInfo.setParaVal("Z"+val2 + "F" +val1);
                 frameParaDataList.add(paraInfo);
             }else{
