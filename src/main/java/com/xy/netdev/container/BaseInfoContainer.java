@@ -498,7 +498,9 @@ public class BaseInfoContainer {
         DevInterParam devInterParam = InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType, cmdMark));
         if (devInterParam != null) {
             PrtclFormat prtclFormat= devInterParam.getInterfacePrtcl();
-            prtclFormat.setIsPrtclParam(1);
+            if (prtclFormat!=null){
+                prtclFormat.setIsPrtclParam(1);
+            }
             return prtclFormat;
         }
         return new PrtclFormat();
@@ -710,7 +712,7 @@ public class BaseInfoContainer {
             devInterParam.setDevInterface(anInterface);
             //协议
             List<PrtclFormat> prtclFormats = prtclList.stream()
-                    .filter(prtclFormat -> prtclFormat.getFmtId() == anInterface.getFmtId())
+                    .filter(prtclFormat -> prtclFormat.getFmtId().equals(anInterface.getFmtId()))
                     .collect(Collectors.toList());
             if (prtclFormats.size() > 0) {
                 //设置协议的归属
