@@ -593,4 +593,8 @@ public interface SysConfigConstant {
      */
     String AGENT_IP_ADDRESS = "0101006";
 
+    /**
+     * 设备类型--0.9ACU
+     */
+    String  DEVICE_ACU_SAN = "0020048";
 }

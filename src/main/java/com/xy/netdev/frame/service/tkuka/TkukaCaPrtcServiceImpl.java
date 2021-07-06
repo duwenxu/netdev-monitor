@@ -106,6 +106,10 @@ public class TkukaCaPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
                     }else{
                         genFramePara(param, respData, byte1, frameParaDataList);
                     }
+                }else if(param.getParaNo().equals("14")){
+                    genFramePara(param,respData.getDevNo(),"108.86",frameParaDataList);
+                }else if(param.getParaNo().equals("15")){
+                    genFramePara(param,respData.getDevNo(),"34.18",frameParaDataList);
                 }else{
                     genFramePara(param, respData, byte1, frameParaDataList);
                 }
