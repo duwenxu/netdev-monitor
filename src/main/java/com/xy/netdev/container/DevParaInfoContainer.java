@@ -368,7 +368,13 @@ public class DevParaInfoContainer {
                 String devNo = frameParaData.getDevNo();
                 String paraNo = frameParaData.getParaNo();
                 String linkKey = ParaHandlerUtil.genLinkKey(devNo, paraNo);
-                ParaViewInfo paraViewInfo = devParaMap.get(devNo).get(linkKey);
+                ParaViewInfo paraViewInfo = null;
+                //空指针异常处理
+                try {
+                    paraViewInfo = devParaMap.get(devNo).get(linkKey);
+                } catch (Exception e) {
+                    continue;
+                }
                 if (paraViewInfo != null && StringUtils.isNotEmpty(frameParaData.getParaVal()) && !frameParaData.getParaVal().equals(paraViewInfo.getParaVal())) {
                     updateChanged(devNo,linkKey,paraViewInfo,frameParaData.getParaVal());
                     paraViewInfo.setParaVal(frameParaData.getParaVal());
