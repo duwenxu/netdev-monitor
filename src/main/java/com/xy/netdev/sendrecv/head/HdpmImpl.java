@@ -59,7 +59,7 @@ public class HdpmImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData,
             frameRespData.setParamBytes(socketEntity.getBytes());
             frameRespData.setAccessType(getAccessType(frameRespData.getDevType(),paramMark.substring(1)));
         }else{
-            log.error("变频器返回数据异常：{}",data);
+            log.error("华达电源监控返回数据异常：{}",data);
         }
 
         return frameRespData;
@@ -81,7 +81,7 @@ public class HdpmImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData,
     @Override
     public byte[] pack(FrameReqData frameReqData) {
         byte[] paramBytes = frameReqData.getParamBytes();
-        log.debug("下变频器发送查询/控制帧：[{}]",StrUtil.str(paramBytes, StandardCharsets.UTF_8));
+        log.debug("华达电源监控发送查询/控制帧：[{}]",StrUtil.str(paramBytes, StandardCharsets.UTF_8));
         return paramBytes;
     }
 
