@@ -58,21 +58,10 @@ public class HdpmPrtcServiceImpl implements IParaPrtclAnalysisService {
     @Override
     public void queryPara(FrameReqData reqInfo) {
         StringBuilder sb = new StringBuilder();
-        String localAddr = "001";
-        BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(reqInfo.getDevNo());
-        //Ka/c下变频器没有切换单元
-        if(baseInfo.getDevType().equals(SysConfigConstant.DEVICE_KAC_BPQ)){
-            localAddr = baseInfo.getDevLocalAddr();
-        }else{
-            List<BaseInfo> subDevs = BaseInfoContainer.getDevInfoByParentNo(baseInfo.getDevParentNo());
-            for (BaseInfo subDev : subDevs) {
-                if(subDev.getDevType().equals(SysConfigConstant.DEVICE_QHDY)){
-                    localAddr = subDev.getDevLocalAddr();
-                }
-            }
-        }
-        sb.append(SEND_START_MARK).append(localAddr).append("/")
-                .append(reqInfo.getCmdMark());
+        String localAddr = "255";
+        sb.append(SEND_START_MARK).append(localAddr).append("/");
+        String cmdMk = reqInfo.getCmdMark();
+        sb.append(cmdMk).append("_?").append(StrUtil.CRLF);
         String command = sb.toString();
         reqInfo.setParamBytes(command.getBytes());
         socketMutualService.request(reqInfo, ProtocolRequestEnum.QUERY);
@@ -86,34 +75,31 @@ public class HdpmPrtcServiceImpl implements IParaPrtclAnalysisService {
     @Override
     public FrameRespData queryParaResponse(FrameRespData respData) {
         String respStr = new String(respData.getParamBytes());
-        respStr = respStr.substring(1);
-        String[] respArr = null;
-        if(respStr.contains(RESP_START_MARK)){
-            respArr = respStr.split(RESP_START_MARK);
-        }else{
-            respArr = new String[]{respStr};
-        }
+        respStr =  respStr.split(RESP_START_MARK)[1];
+        int stIndex = respStr.indexOf("_");
+        String cmdMk = respStr.substring(0,stIndex);
+        int edIndex = respStr.indexOf(StrUtil.LF);
+        String val = respStr.substring(stIndex+1,edIndex);
         List<FrameParaData> frameParas = new ArrayList<>();
-        for (int i = 0; i < respArr.length; i++) {
-            String addr = respArr[i].substring(0,3);
-            int beginIdx = respArr[i].indexOf("/");
-            int endIdx = respArr[i].indexOf("_");
-            String value = respStr.substring(endIdx+1,respStr.indexOf(StrUtil.CRLF));
-            FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),respData.getCmdMark());
-            FrameParaData frameParaData = new FrameParaData();
-            String cmdMark = respData.getCmdMark();
-            BeanUtil.copyProperties(frameParaInfo, frameParaData, true);
-            frameParaData.setDevNo(getDevNo(addr));
-            frameParaData.setParaVal(value);
-            frameParas.add(frameParaData);
+        if(cmdMk.equals("LAA") || cmdMk.equals("LAAT")){
+            val.replace("P1","电源1告警");
+            val.replace("P2","电源2告警");
+            val.replace("I1","设备1告警");
+            val.replace("I2","设备2告警");
+            val.replace("LK","内部通信告警");
         }
+        FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),respData.getCmdMark());
+        if(cmdMk.equals("FA")){
+            List<FrameParaInfo> subParaList = frameParaInfo.getSubParaList();
+            for (int i = 0; i <subParaList.size() ; i++) {
+                subParaList.get(i).setParaVal(String.valueOf(val.charAt(1)));
+            }
+        }
+        FrameParaData frameParaData = new FrameParaData();
+        BeanUtil.copyProperties(frameParaInfo, frameParaData, true);
+        frameParaData.setParaVal(val);
+        frameParas.add(frameParaData);
         respData.setFrameParaList(frameParas);
-        //切换单元的参数需要改变设备编号
-        FrameParaData para = frameParas.get(0);
-        if(para.getDevType().equals(SysConfigConstant.DEVICE_QHDY)){
-            respData.setDevNo(frameParas.get(0).getDevNo());
-            respData.setDevType(SysConfigConstant.DEVICE_QHDY);
-        }
         dataReciveService.paraQueryRecive(respData);
         return respData;
     }
@@ -126,15 +112,32 @@ public class HdpmPrtcServiceImpl implements IParaPrtclAnalysisService {
     public void ctrlPara(FrameReqData reqInfo) {
         StringBuilder sb = new StringBuilder();
         String localAddr = "001";
-        BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(reqInfo.getDevNo());
-        List<BaseInfo> subDevs = BaseInfoContainer.getDevInfoByParentNo(baseInfo.getDevParentNo());
-        for (BaseInfo subDev : subDevs) {
-            if(subDev.getDevType().equals(SysConfigConstant.DEVICE_QHDY)){
-                localAddr = subDev.getDevLocalAddr();
-            }
-        }
         sb.append(SEND_START_MARK).append(localAddr).append("/").append(reqInfo.getCmdMark())
                 .append("_").append(reqInfo.getFrameParaList().get(0).getParaVal());
+        String val = reqInfo.getFrameParaList().get(0).getParaVal();
+        String cmdMk = reqInfo.getCmdMark();
+        switch (cmdMk){
+            case "REM_ON":
+                sb.append(cmdMk).append(StrUtil.CRLF);
+                break;
+            case "REM_CUT":
+                sb.append(cmdMk).append(StrUtil.CRLF);
+                break;
+            case "CH1":
+                cmdMk = "CH_01:"+ val;
+                sb.append(cmdMk).append(StrUtil.CRLF);
+                break;
+            case "CH2":
+                cmdMk = "CH_02:"+ val;
+                sb.append(cmdMk).append(StrUtil.CRLF);
+                break;
+            case "ACLR":
+                sb.append(cmdMk).append(StrUtil.CRLF);
+                break;
+            default:
+                sb.append(cmdMk).append("_").append(val)
+                        .append(StrUtil.CRLF);
+        }
         String command = sb.toString();
         reqInfo.setParamBytes(command.getBytes());
         String cmdMark = reqInfo.getCmdMark();
@@ -152,53 +155,31 @@ public class HdpmPrtcServiceImpl implements IParaPrtclAnalysisService {
     @Override
     public FrameRespData ctrlParaResponse(FrameRespData respData) {
         String respStr = new String(respData.getParamBytes());
-        respStr = respStr.substring(1);
-        String[] respArr = null;
-        if(respStr.contains(RESP_START_MARK)){
-            respArr = respStr.split(RESP_START_MARK);
-        }else{
-            respArr = new String[]{respStr};
-        }
+        respStr =  respStr.split(RESP_START_MARK)[1];
+        int stIndex = respStr.indexOf("_");
+        String cmdMk = respStr.substring(0,stIndex);
+        int edIndex = respStr.indexOf(StrUtil.LF);
+        String val = respStr.substring(stIndex+1,edIndex);
         List<FrameParaData> frameParas = new ArrayList<>();
-        for (int i = 0; i < respArr.length; i++) {
-            String addr = respArr[i].substring(0,3);
-            int beginIdx = respArr[i].indexOf("/");
-            int endIdx = respArr[i].indexOf("_");
-            String value = respStr.substring(endIdx+1,respStr.indexOf(StrUtil.CRLF));
-            FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),respData.getCmdMark());
-            FrameParaData frameParaData = new FrameParaData();
-            String cmdMark = respData.getCmdMark();
-            BeanUtil.copyProperties(frameParaInfo, frameParaData, true);
-            frameParaData.setDevNo(getDevNo(addr));
-            frameParaData.setParaVal(value);
-            frameParas.add(frameParaData);
+        if(cmdMk.equals("CH")){
+            String[] rst = val.split(":");
+            if(rst[0].equals("01")){
+                cmdMk = "CH1";
+            }else{
+                cmdMk = "CH2";
+            }
+            val = rst[1];
         }
+        FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),respData.getCmdMark());
+        FrameParaData frameParaData = new FrameParaData();
+        BeanUtil.copyProperties(frameParaInfo, frameParaData, true);
+        frameParaData.setParaVal(val);
+        frameParas.add(frameParaData);
         respData.setFrameParaList(frameParas);
-        //切换单元的参数需要改变设备编号
-        FrameParaData para = frameParas.get(0);
-        if(para.getDevType().equals(SysConfigConstant.DEVICE_QHDY)){
-            respData.setDevNo(frameParas.get(0).getDevNo());
-            respData.setDevType(SysConfigConstant.DEVICE_QHDY);
-        }
         dataReciveService.paraQueryRecive(respData);
         return respData;
     }
 
-    /**
-     * 获取设备物理地址
-     * @param reqInfo
-     * @return
-     */
-    protected String getDevLocalAddr(FrameReqData reqInfo){
-        BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(reqInfo.getDevNo());
-        String localAddr = baseInfo.getDevLocalAddr();
-        if(StringUtils.isEmpty(localAddr)){
-            if(reqInfo.getCmdMark().equals(SET_ADDR_CMD)){
-                localAddr = BROADCAST_ADDR;
-            }
-        }
-        return localAddr;
-    }
 
     /**
      * 设置设备物理地址
@@ -213,57 +194,7 @@ public class HdpmPrtcServiceImpl implements IParaPrtclAnalysisService {
         BaseInfoContainer.updateBaseInfo(devNo);
     }
 
-//    private String getDevNo(String addr){
-//        String devNo = "";
-//        switch (addr){
-//            case "001":
-//                devNo = "42";
-//                break;
-//            case "010":
-//                devNo = "40";
-//                break;
-//            case "011":
-//                devNo = "41";
-//                break;
-//            default:
-//                devNo = "42";
-//                break;
-//        }
-//        return devNo;
-//    }
 
-    /**
-     * 获取变频器内部地址映射关系
-     * @return
-     */
-    private Map<String, BaseInfo> getBPQAddrMap(){
-        List<BaseInfo> baseInfos = new ArrayList<>();
-        baseInfos.addAll(Optional.ofNullable(BaseInfoContainer.getDevInfosByType(SysConfigConstant.DEVICE_BPQ)).orElse(new ArrayList<>()));
-        baseInfos.addAll(Optional.ofNullable(BaseInfoContainer.getDevInfosByType(SysConfigConstant.DEVICE_KAC_BPQ)).orElse(new ArrayList<>()));
-        baseInfos.addAll(Optional.ofNullable(BaseInfoContainer.getDevInfosByType(SysConfigConstant.DEVICE_QHDY)).orElse(new ArrayList<>()));
-        Map<String, BaseInfo> addrMap = new HashMap<>();
-        for (BaseInfo baseInfo : baseInfos) {
-            String localAddr = baseInfo.getDevLocalAddr();
-            if(StringUtils.isNotEmpty(localAddr)){
-                addrMap.put(localAddr,baseInfo);
-            }
-        }
-        return addrMap;
-    }
-
-    /**
-     * 获取设备编号
-     * @param addr
-     * @return
-     */
-    private String getDevNo(String addr){
-        String devNo = "";
-        Map<String, BaseInfo> addrMap =  getBPQAddrMap();
-        if(addrMap.get(addr) != null){
-            devNo = addrMap.get(addr).getDevNo();
-        }
-        return devNo;
-    }
 
 
 
