@@ -125,7 +125,7 @@ public class AcuInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
                 //设置位置模式的值
                 if(paraInfo.getParaNo().equals("11")){
                     if(Float.valueOf(val)>360){
-                        val = String.format((Float.valueOf(val) - 360)+"","%.2f");
+                        val = String.format("%.2f",(Float.valueOf(val) - 360));
                     }
                     //方位角特殊处理
                     value = value + val;
