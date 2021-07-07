@@ -45,6 +45,8 @@ public class AcuInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
     @Autowired
     private ModemScmmInterPrtcServiceImpl modemScmmInterPrtcService;
 
+    private int num = 0;
+
     @Override
     public void queryPara(FrameReqData reqInfo) {
 
@@ -52,6 +54,12 @@ public class AcuInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
 
     @Override
     public FrameRespData queryParaResponse(FrameRespData respData) {
+        if(num==3){
+            num = 0;
+        }else{
+            num ++;
+            return respData;
+        }
         List<FrameParaInfo> frameParaInfos = BaseInfoContainer
                 .getInterLinkParaList(respData.getDevType(), respData.getCmdMark()).stream().filter(Objects::nonNull).collect(Collectors.toList());
         byte[] bytes = respData.getParamBytes();
@@ -102,6 +110,12 @@ public class AcuInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
                     if(paraInfo.getParaNo().equals("8")||paraInfo.getParaNo().equals("11")){
                         if(val.length()>=5){
                             val = val.substring(0,3)+"."+val.substring(3,5);
+                        }
+                        //方位角特殊处理
+                        if(paraInfo.getParaNo().equals("11")){
+                            if(Float.valueOf(val)>360){
+                                val = String.valueOf(Float.valueOf(val) - 360);
+                            }
                         }
                     }
                     if(paraInfo.getParaNo().equals("9")||paraInfo.getParaNo().equals("10")||paraInfo.getParaNo().equals("12")||paraInfo.getParaNo().equals("13")){
