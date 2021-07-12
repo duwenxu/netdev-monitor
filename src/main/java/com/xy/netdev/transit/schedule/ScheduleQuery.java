@@ -29,10 +29,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
@@ -182,11 +179,17 @@ public class ScheduleQuery  implements ApplicationRunner{
     }
 
     private void updateSnmpRptStatus(boolean ping, String devNo) {
-        String oid4 = DevParaInfoContainer.getDevNoStatusOidMap().get(devNo);
-        if (StringUtils.isNotBlank(oid4)){
-            /**上报信息中 0：中断 1：正常  与设备状态中的状态相反*/
-            String rptActive = ping ? "1" : "0";
-            DevParaInfoContainer.getDevSnmpParaMap().get(devNo).get(oid4).setParaVal(rptActive);
+        Map<String, Set<String>> statusOidMap = DevParaInfoContainer.getDevNoStatusOidMap();
+        if (!statusOidMap.containsKey(devNo)){
+            statusOidMap.put(devNo,new HashSet<>(5));
+        }
+        Set<String> oid4= statusOidMap.get(devNo);
+        for (String oid : oid4) {
+            if (StringUtils.isNotBlank(oid)){
+                /**上报信息中 0：中断 1：正常  与设备状态中的状态相反*/
+                String rptActive = ping ? "1" : "0";
+                DevParaInfoContainer.getDevSnmpParaMap().get(devNo).get(oid).setParaVal(rptActive);
+            }
         }
     }
 
