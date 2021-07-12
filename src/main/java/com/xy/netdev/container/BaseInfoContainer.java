@@ -498,7 +498,9 @@ public class BaseInfoContainer {
         DevInterParam devInterParam = InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType, cmdMark));
         if (devInterParam != null) {
             PrtclFormat prtclFormat= devInterParam.getInterfacePrtcl();
-            prtclFormat.setIsPrtclParam(1);
+            if (prtclFormat!=null){
+                prtclFormat.setIsPrtclParam(1);
+            }
             return prtclFormat;
         }
         return new PrtclFormat();

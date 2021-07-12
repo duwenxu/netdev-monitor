@@ -50,6 +50,8 @@ public class TkukaCaPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
     private static final String RPT_IDS = "7b";
     private static String Flag = "T";
 
+    private int num= 0;
+
     @Override
     public void queryPara(FrameReqData reqInfo) {
         socketMutualService.request(reqInfo, ProtocolRequestEnum.QUERY);
@@ -57,7 +59,13 @@ public class TkukaCaPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
 
     @Override
     public FrameRespData queryParaResponse(FrameRespData respData) {
-        byte[] bytes = respData.getParamBytes();
+        if(num==4){
+            num = 0;
+        }else{
+            num ++;
+            return respData;
+        }
+       byte[] bytes = respData.getParamBytes();
         if (ObjectUtil.isNull(bytes)) {
             log.warn("TKuka0.9CA监控设备查询响应异常, 未获取到数据体, 设备编号：[{}], 信息:[{}]", respData.getDevNo(), JSON.toJSONString(respData));
             return respData;
@@ -65,11 +73,11 @@ public class TkukaCaPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
         //响应标识 帧头
         String cmdMark = respData.getCmdMark();
         List<FrameParaData> frameParaDataList = new ArrayList<>();
-        /**查询上报*/
+        //**查询上报*//*
         if (RPT_IDS.equals(cmdMark)) {
             setFrameDataList(respData, bytes, cmdMark, frameParaDataList);
             respData.setRespCode(PARA_REPS_STATUS_SUCCEED);
-            /**错误应答信息*/
+            //**错误应答信息*//
         } else {
             throw new BaseException("TKuka0.9CA监控设备查询响应解析异常：非法的帧头:" + cmdMark);
         }
@@ -81,12 +89,49 @@ public class TkukaCaPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
     private void setFrameDataList(FrameRespData respData, byte[] bytes, String cmdMark, List<FrameParaData> frameParaDataList) {
         //获取接口单元的参数信息
         List<FrameParaInfo> frameParaInfos = BaseInfoContainer.getInterLinkParaList(respData.getDevType(), cmdMark);
+        int startPoint = 0;  //重新计算起始字节：因为上报帧中包含无效字节
         for (FrameParaInfo param : frameParaInfos) {
-            byte[] byte1 = ByteUtils.byteArrayCopy(bytes, param.getParaStartPoint(), Integer.valueOf(param.getParaByteLen()));
-            genFramePara(param, respData, byte1, frameParaDataList);
-            if(StringUtils.isNotBlank(param.getNdpaRemark3Data()) && param.getNdpaRemark3Data().contains("false")){
-                DevParaInfoContainer.setIsShow(respData.getDevNo(),param.getParaNo(),false);
+            byte[] byte1 = ByteUtils.byteArrayCopy(bytes, startPoint, Integer.valueOf(param.getParaByteLen()));
+            if(PARA_COMPLEX_LEVEL_COMPOSE.equals(param.getCmplexLevel())){
+                String strB = ByteUtils.byteToBinary(byte1[0]).substring(4);
+                String value = "";
+                int startNum = 0;
+                int endNum = 0;
+                for(FrameParaInfo frameParaInfo : param.getSubParaList()){
+                    endNum = endNum+Integer.valueOf(frameParaInfo.getParaStrLen());
+                    genFramePara(frameParaInfo,respData.getDevNo(),strB.substring(startNum,endNum),frameParaDataList);
+                    value = value + strB.substring(startNum,endNum)+"_";
+                    startNum = endNum;
+                }
+                genFramePara(param,respData.getDevNo(),value,frameParaDataList);
+            }else{
+                if(param.getParaNo().equals("37") || param.getParaNo().equals("49")){
+                    String str = HexUtil.encodeHexStr(byte1);
+                    if(str.equals("30302E30")){
+                        genFramePara(param,respData.getDevNo(),"0.0",frameParaDataList);
+                    }else if(str.equals("203c3230")){
+                        genFramePara(param,respData.getDevNo(),"<20",frameParaDataList);
+                    }else{
+                        genFramePara(param, respData, byte1, frameParaDataList);
+                    }
+                }else if(param.getParaNo().equals("14")){
+                    genFramePara(param,respData.getDevNo(),"108.86",frameParaDataList);
+                }else if(param.getParaNo().equals("15")){
+                    genFramePara(param,respData.getDevNo(),"34.18",frameParaDataList);
+                }else{
+                    genFramePara(param, respData, byte1, frameParaDataList);
+                }
             }
+            //计算起始字节
+            startPoint = startPoint+Integer.valueOf(param.getParaByteLen());
+            if(StringUtils.isNotBlank(param.getNdpaRemark1Data())){
+                startPoint = startPoint+Integer.valueOf(param.getNdpaRemark1Data());
+            }
+        }
+        //设置部分参数不显示
+        String strs = "60,61,62,63,64";
+        for(String str : strs.split(",")){
+            DevParaInfoContainer.setIsShow(respData.getDevNo(),str,false);
         }
     }
 
@@ -100,11 +145,12 @@ public class TkukaCaPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
         FrameParaData frameParaData = null;
         if (StringUtils.isNotBlank(param.getNdpaRemark2Data())) {
             ParamCodec handler = SpringContextUtils.getBean(param.getNdpaRemark2Data());
-            frameParaData = genFramePara(param, respData.getDevNo(), String.valueOf(handler.decode(byte1, null)));
-        } else {
-            frameParaData = genFramePara(param, respData.getDevNo(), HexUtil.encodeHexStr(byte1));
+            genFramePara(param, respData.getDevNo(), String.valueOf(handler.decode(byte1, null)),frameParaDataList);
+        } else if(param.getParaNo().equals("21")){
+            //genFramePara(param, respData.getDevNo(), ByteUtils.,frameParaDataList);
+        }else{
+            genFramePara(param, respData.getDevNo(), HexUtil.encodeHexStr(byte1),frameParaDataList);
         }
-        frameParaDataList.add(frameParaData);
     }
 
     /**
@@ -115,13 +161,13 @@ public class TkukaCaPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
      * @param paraValueStr
      * @return
      */
-    private FrameParaData genFramePara(FrameParaInfo currentPara, String devNo, String paraValueStr) {
+    private void genFramePara(FrameParaInfo currentPara, String devNo, String paraValueStr,List<FrameParaData> frameParaDataList) {
         FrameParaData frameParaData = FrameParaData.builder()
                 .devType(currentPara.getDevType())
                 .paraNo(currentPara.getParaNo())
                 .devNo(devNo)
                 .build();
         frameParaData.setParaVal(paraValueStr);
-        return frameParaData;
+        frameParaDataList.add(frameParaData);
     }
 }

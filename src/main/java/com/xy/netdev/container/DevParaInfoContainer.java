@@ -353,9 +353,9 @@ public class DevParaInfoContainer {
      */
     public synchronized static boolean handlerRespDevPara(FrameRespData respData) {
         //ACU参数一直不停变化，需要特殊处理上报
-        if (respData.getDevType().equals(SysConfigConstant.DEVICE_ACU)) {
+        if (respData.getDevType().equals(SysConfigConstant.DEVICE_ACU) || respData.getDevType().equals(SysConfigConstant.DEVICE_ACU_SAN)) {
             respNum++;
-            if (respNum % 5 == 0) {
+            if (respNum % 15 == 0) {
                 respNum = 0;
             } else {
                 return false;
@@ -368,7 +368,13 @@ public class DevParaInfoContainer {
                 String devNo = frameParaData.getDevNo();
                 String paraNo = frameParaData.getParaNo();
                 String linkKey = ParaHandlerUtil.genLinkKey(devNo, paraNo);
-                ParaViewInfo paraViewInfo = devParaMap.get(devNo).get(linkKey);
+                ParaViewInfo paraViewInfo = null;
+                //空指针异常处理
+                try {
+                    paraViewInfo = devParaMap.get(devNo).get(linkKey);
+                } catch (Exception e) {
+                    continue;
+                }
                 if (paraViewInfo != null && StringUtils.isNotEmpty(frameParaData.getParaVal()) && !frameParaData.getParaVal().equals(paraViewInfo.getParaVal())) {
                     updateChanged(devNo,linkKey,paraViewInfo,frameParaData.getParaVal());
                     paraViewInfo.setParaVal(frameParaData.getParaVal());

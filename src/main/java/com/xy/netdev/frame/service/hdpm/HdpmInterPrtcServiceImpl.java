@@ -36,10 +36,7 @@ public class HdpmInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService
     SocketMutualService socketMutualService;
     @Autowired
     IDataReciveService dataReciveService;
-    @Autowired
-    HdpmPrtcServiceImpl bpqPrtcService;
 
-    public final static String WORK_STATUS_CMD = "RAS";
 
     /**
      * 查询设备接口
@@ -48,21 +45,11 @@ public class HdpmInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService
     @Override
     public void queryPara(FrameReqData reqInfo) {
         StringBuilder sb = new StringBuilder();
-        String localAddr = "001";
-        BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(reqInfo.getDevNo());
-        //Ka/c下变频器没有切换单元
-        if(baseInfo.getDevType().equals(SysConfigConstant.DEVICE_KAC_BPQ)){
-            localAddr = baseInfo.getDevLocalAddr();
-        }else {
-            List<BaseInfo> subDevs = BaseInfoContainer.getDevInfoByParentNo(baseInfo.getDevParentNo());
-            for (BaseInfo subDev : subDevs) {
-                if (subDev.getDevType().equals(SysConfigConstant.DEVICE_QHDY)) {
-                    localAddr = subDev.getDevLocalAddr();
-                }
-            }
-        }
+        String localAddr = "255";
         sb.append(HdpmPrtcServiceImpl.SEND_START_MARK).append(localAddr).append("/")
-                .append(reqInfo.getCmdMark());
+                .append(reqInfo.getCmdMark())
+                .append("_?")
+                .append(StrUtil.CRLF);
         String command = sb.toString();
         reqInfo.setParamBytes(command.getBytes());
         socketMutualService.request(reqInfo, ProtocolRequestEnum.QUERY);
@@ -77,107 +64,46 @@ public class HdpmInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService
     public FrameRespData queryParaResponse(FrameRespData respData) {
         String respStr = new String(respData.getParamBytes());
         String addr = respStr.substring(1,4);
-        respData.setDevNo(getDevNo(addr));
-        int startIdx = respStr.indexOf("_");
-        int endIdx = respStr.indexOf(StrUtil.LF);
-        if(endIdx==-1){
-            endIdx = respStr.length();
-        }
-        String[] params = null;
-        try{
-            String str = respStr.substring(startIdx+2,endIdx);
-            params = str.split(StrUtil.CR);
-        }catch (Exception e){
-            log.error("接口响应数据异常！源数据：{}",respStr);
-            throw new BaseException("接口响应数据异常！");
-        }
+        int stIdx = respStr.indexOf("/");
+        int edIdx = respStr.indexOf(StrUtil.LF);
+        String dataStr = respStr.substring(stIdx+1,edIdx);
+        String[] datas = dataStr.split(",");
         List<FrameParaData> frameParaList = new ArrayList<>();
-        for (String param : params) {
-            String cmdMark = convertCmdMark(param.split("_")[0],respData.getCmdMark());
-            //上下变频器信号命令标识有区别，这里做下转换
-            if(cmdMark.equals("TX")){
-                cmdMark = "RX";
+        for (int i = 0; i < datas.length; i++) {
+            if(i==0){
+                String cmdMk1 = datas[i].split("_")[0];
+                String val1 = datas[i].split("_")[1];
+                FrameParaData paraInfo = new FrameParaData();
+                FrameParaInfo frameParaDetail = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),cmdMk1);
+                BeanUtil.copyProperties(frameParaDetail, paraInfo, true);
+                paraInfo.setParaVal(val1);
+                frameParaList.add(paraInfo);
+            }else{
+                String[] devData = datas[i].split(":")[1].split("_");
+                for (int j = 0; j < devData.length; j++) {
+                    String cmdMk = "";
+
+                    if(j==0){
+                         cmdMk = "CH"+String.valueOf(i);
+                    }
+                    if(j==1){
+                         cmdMk = "VOL"+String.valueOf(i);
+                    }
+                    if(j==2){
+                        cmdMk = "ECU"+String.valueOf(i);
+                    }
+                    String val = devData[i];
+                    FrameParaData paraInfo = new FrameParaData();
+                    FrameParaInfo frameParaDetail = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),cmdMk);
+                    BeanUtil.copyProperties(frameParaDetail, paraInfo, true);
+                    paraInfo.setParaVal(val);
+                    frameParaList.add(paraInfo);
+                }
             }
-            String value = "";
-            String[] values = param.split("_");
-            if(values.length>1){
-                value = values[1];
-            }
-            FrameParaData paraInfo = new FrameParaData();
-            FrameParaInfo frameParaDetail = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),cmdMark);
-            BeanUtil.copyProperties(frameParaDetail, paraInfo, true);
-            if(cmdMark.equals("POUT") && value.length()>1){
-                value = value.substring(0,value.length()-3);
-            }
-            if(cmdMark.equals("POW") && value.length()>1){
-                value = value.substring(0,value.length()-1);
-            }
-            paraInfo.setParaVal(value);
-            paraInfo.setDevNo(getDevNo(addr));
-            frameParaList.add(paraInfo);
         }
         respData.setFrameParaList(frameParaList);
         dataReciveService.paraQueryRecive(respData);
         return respData;
     }
-
-    private String convertCmdMark(String cmdMark,String intfCmdMark){
-        if(intfCmdMark.toUpperCase().equals(WORK_STATUS_CMD)){
-            cmdMark = cmdMark+="-S";
-        }
-        return cmdMark;
-    }
-
-    /**
-     * 获取变频器内部地址映射关系
-     * @return
-     */
-    private Map<String, BaseInfo> getBPQAddrMap(){
-        List<BaseInfo> baseInfos = new ArrayList<>();
-        baseInfos.addAll(Optional.ofNullable(BaseInfoContainer.getDevInfosByType(SysConfigConstant.DEVICE_BPQ)).orElse(new ArrayList<>()));
-        baseInfos.addAll(Optional.ofNullable(BaseInfoContainer.getDevInfosByType(SysConfigConstant.DEVICE_KAC_BPQ)).orElse(new ArrayList<>()));
-        baseInfos.addAll(Optional.ofNullable(BaseInfoContainer.getDevInfosByType(SysConfigConstant.DEVICE_QHDY)).orElse(new ArrayList<>()));
-        Map<String, BaseInfo> addrMap = new HashMap<>();
-        for (BaseInfo baseInfo : baseInfos) {
-            String localAddr = baseInfo.getDevLocalAddr();
-            if(StringUtils.isNotEmpty(localAddr)){
-               addrMap.put(localAddr,baseInfo);
-            }
-        }
-        return addrMap;
-    }
-
-    /**
-     * 获取设备编号
-     * @param addr
-     * @return
-     */
-    private String getDevNo(String addr){
-        String devNo = "";
-        Map<String, BaseInfo> addrMap =  getBPQAddrMap();
-        if(addrMap.get(addr) != null){
-            devNo = addrMap.get(addr).getDevNo();
-        }
-        return devNo;
-    }
-
-//    private String getDevNo(String addr){
-//        String devNo = "";
-//        switch (addr){
-//            case "001":
-//                devNo = "42";
-//                break;
-//            case "010":
-//                devNo = "40";
-//                break;
-//            case "011":
-//                devNo = "41";
-//                break;
-//            default:
-//                devNo = "42";
-//                break;
-//        }
-//        return devNo;
-//    }
 
 }
