@@ -54,7 +54,7 @@ public class AcuInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
 
     @Override
     public FrameRespData queryParaResponse(FrameRespData respData) {
-        if(num==3){
+        if(num==2){
             num = 0;
         }else{
             num ++;
@@ -111,12 +111,6 @@ public class AcuInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
                         if(val.length()>=5){
                             val = val.substring(0,3)+"."+val.substring(3,5);
                         }
-                        //方位角特殊处理
-                        if(paraInfo.getParaNo().equals("11")){
-                            if(Float.valueOf(val)>360){
-                                val = String.valueOf(Float.valueOf(val) - 360);
-                            }
-                        }
                     }
                     if(paraInfo.getParaNo().equals("9")||paraInfo.getParaNo().equals("10")||paraInfo.getParaNo().equals("12")||paraInfo.getParaNo().equals("13")){
                         Double num = Double.parseDouble(val);
@@ -130,6 +124,10 @@ public class AcuInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
                 }
                 //设置位置模式的值
                 if(paraInfo.getParaNo().equals("11")){
+                    if(Float.valueOf(val)>360){
+                        val = String.format("%.2f",(Float.valueOf(val) - 360));
+                    }
+                    //方位角特殊处理
                     value = value + val;
                 }else if(paraInfo.getParaNo().equals("12")){
                     value = value + "Y"+val;

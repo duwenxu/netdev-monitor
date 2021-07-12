@@ -50,6 +50,8 @@ public class TkukaCaPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
     private static final String RPT_IDS = "7b";
     private static String Flag = "T";
 
+    private int num= 0;
+
     @Override
     public void queryPara(FrameReqData reqInfo) {
         socketMutualService.request(reqInfo, ProtocolRequestEnum.QUERY);
@@ -57,6 +59,12 @@ public class TkukaCaPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
 
     @Override
     public FrameRespData queryParaResponse(FrameRespData respData) {
+        if(num==4){
+            num = 0;
+        }else{
+            num ++;
+            return respData;
+        }
        byte[] bytes = respData.getParamBytes();
         if (ObjectUtil.isNull(bytes)) {
             log.warn("TKuka0.9CA监控设备查询响应异常, 未获取到数据体, 设备编号：[{}], 信息:[{}]", respData.getDevNo(), JSON.toJSONString(respData));
