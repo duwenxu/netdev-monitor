@@ -353,9 +353,9 @@ public class DevParaInfoContainer {
      */
     public synchronized static boolean handlerRespDevPara(FrameRespData respData) {
         //ACU参数一直不停变化，需要特殊处理上报
-        if (respData.getDevType().equals(SysConfigConstant.DEVICE_ACU)) {
+        if (respData.getDevType().equals(SysConfigConstant.DEVICE_ACU) || respData.getDevType().equals(SysConfigConstant.DEVICE_ACU_SAN)) {
             respNum++;
-            if (respNum % 5 == 0) {
+            if (respNum % 15 == 0) {
                 respNum = 0;
             } else {
                 return false;
