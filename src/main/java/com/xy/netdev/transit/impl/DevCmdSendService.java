@@ -123,8 +123,12 @@ public class DevCmdSendService implements IDevCmdSendService {
         List<FrameParaData>  paraDataList = new ArrayList<>();
         interfaceViewInfo.getSubParaList().forEach(paraViewInfo -> {
             if(!paraViewInfo.getAccessRight().equals(SysConfigConstant.CMD_RIGHT)){
-                if(StringUtils.isEmpty(paraViewInfo.getParaVal())){
-                    throw new BaseException("传入的paraVal为空!");
+                if(paraViewInfo.getParaName().equals("预留")){
+                    paraViewInfo.setParaVal("0");
+                }else{
+                    if(StringUtils.isEmpty(paraViewInfo.getParaVal())){
+                        throw new BaseException("传入的paraVal为空!");
+                    }
                 }
             }
             FrameParaData  frameParaData = new FrameParaData();
