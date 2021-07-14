@@ -365,7 +365,7 @@ public class DevParaInfoContainer {
         int num = 0;
         if (frameParaList != null && !frameParaList.isEmpty()) {
             for (FrameParaData frameParaData : frameParaList) {
-                String devNo = frameParaData.getDevNo();
+                String devNo = respData.getDevNo();
                 String paraNo = frameParaData.getParaNo();
                 String linkKey = ParaHandlerUtil.genLinkKey(devNo, paraNo);
                 ParaViewInfo paraViewInfo = null;
