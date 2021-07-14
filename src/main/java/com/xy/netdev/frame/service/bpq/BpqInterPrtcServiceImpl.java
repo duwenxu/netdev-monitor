@@ -120,7 +120,7 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
             paraInfo.setParaVal(value);
             paraInfo.setDevNo(getDevNo(addr));
             //定制报警信息处理
-            handleAlarmInfo(cmdMark,value,paraInfo,frameParaDetail);
+            //handleAlarmInfo(cmdMark,value,paraInfo,frameParaDetail);
             frameParaList.add(paraInfo);
         }
         respData.setFrameParaList(frameParaList);
