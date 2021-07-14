@@ -83,7 +83,7 @@ public class MsctInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService
                     .devNo(respData.getDevNo())
                     .paraNo(paraInfo.getParaNo())
                     .build();
-            boolean isStr = MonitorConstants.STRING_CODE.equals(paraInfo.getDataType());
+            boolean isStr = MonitorConstants.STRING_CODE.equals(paraInfo.getDataType()) || MonitorConstants.IP_ADDRESS.equals(paraInfo.getDataType());
             if (isStr) {
                 //默认直接转换
                 ParamCodec codec = SingletonFactory.getInstance(DirectParamCodec.class);

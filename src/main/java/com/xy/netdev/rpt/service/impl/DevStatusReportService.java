@@ -215,7 +215,7 @@ public class DevStatusReportService implements IDevStatusReportService {
      * @param paraInfo
      * @param status
      */
-    private void reportDevAlertInfo(FrameParaData respData,FrameParaInfo paraInfo, String status){
+    public void reportDevAlertInfo(FrameParaData respData,FrameParaInfo paraInfo, String status){
         //参数返回值是否产生告警
         if (status.equals(SysConfigConstant.RPT_DEV_STATUS_ISALARM_YES)) {
             paraInfo.setParaVal(respData.getParaVal());
