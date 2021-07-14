@@ -5,11 +5,14 @@ import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
+import com.xy.netdev.frame.service.snmp.SnmpReqDTO;
+import com.xy.netdev.frame.service.snmp.SnmpTransceiverServiceImpl;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.bo.InterfaceViewInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.transit.IDataSendService;
 import com.xy.netdev.transit.IDevCmdSendService;
+import com.xy.netdev.transit.schedule.ScheduleQuery;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,6 +33,10 @@ public class DevCmdSendService implements IDevCmdSendService {
 
     @Autowired
     private IDataSendService dataSendService;
+    @Autowired
+    private SnmpTransceiverServiceImpl snmpTransceiverService;
+    @Autowired
+    private ScheduleQuery scheduleQuery;
 
     /**
      * 参数查询发送
@@ -68,8 +75,33 @@ public class DevCmdSendService implements IDevCmdSendService {
         }
         paraDataList.add(frameParaData);
         frameReqData.setFrameParaList(paraDataList);
-        dataSendService.paraCtrSend(frameReqData);
+        //参数控制发送聚合
+        paraCtrl(devNo,frameReqData);
     }
+
+    /**
+     * 参数控制执行
+     * @param devNo 设备编号
+     * @param frameReqData 控制参数体
+     */
+    private void paraCtrl(String devNo, FrameReqData frameReqData) {
+        frameReqData.setAccessType(SysConfigConstant.ACCESS_TYPE_PARAM);
+        frameReqData.setOperType(SysConfigConstant.OPREATE_CONTROL);
+        BaseInfo devInfoByNo = BaseInfoContainer.getDevInfoByNo(devNo);
+        if (devInfoByNo!=null && !StringUtils.isBlank(devInfoByNo.getDevNo())){
+            String devNetPtcl = devInfoByNo.getDevNetPtcl();
+            String devIpAddr = devInfoByNo.getDevIpAddr();
+            if (SysConfigConstant.SNMP.equals(devNetPtcl)){
+                SnmpReqDTO snmpReqDTO = scheduleQuery.frameReq2SnmpReq(frameReqData);
+                snmpTransceiverService.paramCtrl(snmpReqDTO,devIpAddr);
+            }else {
+                dataSendService.paraCtrSend(frameReqData);
+            }
+        }else {
+            throw new BaseException("参数控制设备编号为"+devNo+"的设备不存在");
+        }
+    }
+
     /**
      * 接口查询发送
      * @param  devNo   设备编号
@@ -91,8 +123,12 @@ public class DevCmdSendService implements IDevCmdSendService {
         List<FrameParaData>  paraDataList = new ArrayList<>();
         interfaceViewInfo.getSubParaList().forEach(paraViewInfo -> {
             if(!paraViewInfo.getAccessRight().equals(SysConfigConstant.CMD_RIGHT)){
-                if(StringUtils.isEmpty(paraViewInfo.getParaVal())){
-                    throw new BaseException("传入的paraVal为空!");
+                if(paraViewInfo.getParaName().equals("预留")){
+                    paraViewInfo.setParaVal("0");
+                }else{
+                    if(StringUtils.isEmpty(paraViewInfo.getParaVal())){
+                        throw new BaseException("传入的paraVal为空!");
+                    }
                 }
             }
             FrameParaData  frameParaData = new FrameParaData();

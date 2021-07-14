@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.xy.netdev.monitor.entity.AlertInfo;
 import com.xy.netdev.monitor.entity.OperLog;
 
+import java.util.List;
+
 /**
  * 操作日志信息 服务类
  *
@@ -24,4 +26,10 @@ public interface IOperLogService extends IService<OperLog> {
      * 更新主键
      */
     void updateOperId();
+
+    /**
+     * 查询指定设备时间范围内的所有日志信息
+     * @return
+     */
+    List<OperLog> queryPageList(String devType, String startTime, String endTime);
 }

@@ -1,5 +1,6 @@
 package com.xy.netdev.network.handler;
 
+import cn.hutool.core.util.HexUtil;
 import com.xy.netdev.common.util.BeanFactoryUtil;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.monitor.entity.BaseInfo;

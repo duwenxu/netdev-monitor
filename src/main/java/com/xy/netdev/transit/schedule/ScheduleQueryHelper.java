@@ -24,7 +24,7 @@ import static com.xy.netdev.common.constant.SysConfigConstant.*;
  */
 @Component
 @Order(100)
-public class ScheduleQueryHelper {
+public class ScheduleQueryHelper  {
 
     @Autowired
     private IBaseInfoService baseInfoService;
@@ -33,6 +33,7 @@ public class ScheduleQueryHelper {
     private ISysParamService sysParamService;
 
     private static final List<BaseInfo> availableBases = new ArrayList<>();
+    private static final List<BaseInfo> availableSnmpBases = new ArrayList<>();
     private static Long queryInterval = 1000L;
     private static Long reportInterval = 1000L;
 
@@ -58,10 +59,17 @@ public class ScheduleQueryHelper {
                 .filter(base-> !deployTypes.contains(base.getDevDeployType()))
                 .collect(Collectors.toList());
         availableBases.addAll(baseInfos);
+        //SNMP设备
+        List<BaseInfo> snmpBases = baseInfos.stream().filter(base -> SNMP.equals(base.getDevNetPtcl())).collect(Collectors.toList());
+        availableSnmpBases.addAll(snmpBases);
     }
 
     public static List<BaseInfo> getAvailableBases() {
         return availableBases;
+    }
+
+    public static List<BaseInfo> getAvailableSnmpBases() {
+        return availableSnmpBases;
     }
 
     /**

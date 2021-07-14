@@ -40,8 +40,6 @@ public class DataSendServiceImpl implements IDataSendService {
      * @param  frameReqData   协议解析请求数据
      */
     public void paraCtrSend(FrameReqData frameReqData) {
-        frameReqData.setAccessType(SysConfigConstant.ACCESS_TYPE_PARAM);
-        frameReqData.setOperType(SysConfigConstant.OPREATE_CONTROL);
         DataHandlerHelper.getParaPrtclAnalysisService(frameReqData).ctrlPara(frameReqData);
     }
 
@@ -69,11 +67,11 @@ public class DataSendServiceImpl implements IDataSendService {
      * @param  frameReqData   协议解析请求数据
      */
     public void handlerAlertInfo(FrameReqData frameReqData){
-        String status = frameReqData.getIsOk();
-       //参数返回值是否产生中断
-        if(DevStatusContainer.setInterrupt(frameReqData.getDevNo(),status)){
-            devStatusReportService.rptInterrupted(frameReqData.getDevNo(),status);
-        }
+//        String status = frameReqData.getIsOk();
+//       //参数返回值是否产生中断
+//        if(DevStatusContainer.setInterrupt(frameReqData.getDevNo(),status)){
+//            devStatusReportService.rptInterrupted(frameReqData.getDevNo(),status);
+//        }
     }
 
     /**
@@ -84,6 +82,8 @@ public class DataSendServiceImpl implements IDataSendService {
     public void notifyNetworkResult(FrameReqData frameReqData) {
         DevLogInfoContainer.handlerReqDevPara(frameReqData);//记录日志
         DevIfeMegSend.sendLogToDev(frameReqData.getDevNo());//操作日志websocet推前台
+        //更新设置状态
+        DevLogInfoContainer.setReqParaRepsStatus(frameReqData.getIsOk(),frameReqData);
         handlerAlertInfo(frameReqData);//处理报警信息
     }
 }

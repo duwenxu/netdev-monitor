@@ -27,6 +27,9 @@ public class RptHeadDev {
     @ApiModelProperty(value = "数据体")
     private Object param;
 
+    @ApiModelProperty(value = "设置标号")
+    private String SN;
+
     @ApiModelProperty(value = "实现类")
     @NotNull
     private AchieveClassNameEnum achieveClassNameEnum;

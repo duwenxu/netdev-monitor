@@ -10,8 +10,10 @@ import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.JwtUtil;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.service.IBaseInfoService;
+import com.xy.netdev.sendrecv.head.ComtechImpl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +34,7 @@ import java.util.Map;
 @Api(value = "设备信息", tags = "设备信息")
 @RestController
 @RequestMapping("/monitor/baseInfo")
+@Slf4j
 public class BaseInfoController {
 
     @Autowired
@@ -162,6 +166,16 @@ public class BaseInfoController {
         } catch (IOException e) {
             throw new BaseException("设备模型文件下载发生异常！");
         }
+    }
+
+    @ApiOperation(value = "Comtech功放设备cahnnel切换",notes = "Comtech功放cahnnel切换")
+    @PostMapping("/comtechChange")
+    public void comtechChange(String channel){
+        List<String> channels = Arrays.asList("A", "B");
+        if (!channels.contains(channel)){
+            throw new BaseException("Comtech切换channel错误：不合法的channel字符: "+ channel);
+        }
+        ComtechImpl.CHANNEL_ADDRESS=channel;
     }
 
 }

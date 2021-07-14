@@ -1,19 +1,19 @@
 package com.xy.netdev.sendrecv.head;
 
-import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.StrUtil;
 import com.xy.netdev.common.util.ByteUtils;
-import com.xy.netdev.frame.service.ICtrlInterPrtclAnalysisService;
-import com.xy.netdev.sendrecv.base.AbsDeviceSocketHandler;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
-import com.xy.netdev.sendrecv.entity.SocketEntity;
+import com.xy.netdev.frame.service.ICtrlInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
+import com.xy.netdev.sendrecv.base.AbsDeviceSocketHandler;
+import com.xy.netdev.sendrecv.entity.SocketEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 import static com.xy.netdev.common.util.ByteUtils.byteArrayCopy;
@@ -44,11 +44,10 @@ public class AcuImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, 
     @Override
     public FrameRespData unpack(SocketEntity socketEntity, FrameRespData frameRespData) {
         byte[] bytes = socketEntity.getBytes();
-        log.info(HexUtil.encodeHexStr(bytes));
         //长度为69则为主动上报. 否则为参数
         if (bytes.length == 69){
             String cmd = new String(Objects.requireNonNull(byteArrayCopy(bytes, 1, 3)));
-            byte[] paramBytes = ByteUtils.byteArrayCopy(bytes, 4, 44);
+            byte[] paramBytes = ByteUtils.byteArrayCopy(bytes, 4, 53);
             frameRespData.setParamBytes(paramBytes);
             frameRespData.setCmdMark(cmd);
             return frameRespData;
@@ -61,7 +60,10 @@ public class AcuImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, 
 
     @Override
     public byte[] pack(FrameReqData frameReqData) {
-        return frameReqData.getParamBytes();
+        byte[] paramBytes = frameReqData.getParamBytes();
+        String comd = StrUtil.str(paramBytes, StandardCharsets.UTF_8);
+        log.debug("2.4mAcu天线发送控制指令：[{}]",comd);
+        return paramBytes;
     }
 
 }

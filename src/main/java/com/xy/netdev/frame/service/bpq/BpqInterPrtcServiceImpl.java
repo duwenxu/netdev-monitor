@@ -5,23 +5,25 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.xy.common.exception.BaseException;
 import com.xy.netdev.common.constant.SysConfigConstant;
+import com.xy.netdev.container.BaseContainerLoader;
 import com.xy.netdev.container.BaseInfoContainer;
+import com.xy.netdev.container.DevStatusContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
-import com.xy.netdev.monitor.entity.BaseInfo;
-import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
+import com.xy.netdev.monitor.entity.BaseInfo;
+import com.xy.netdev.rpt.service.impl.DevStatusReportService;
+import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import com.xy.netdev.transit.IDataReciveService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * 39所Ku&L下变频器接口协议解析
@@ -38,6 +40,8 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
     @Autowired
     IDataReciveService dataReciveService;
     @Autowired
+    DevStatusReportService devStatusReportService;
+    @Autowired
     BpqPrtcServiceImpl bpqPrtcService;
 
     public final static String WORK_STATUS_CMD = "RAS";
@@ -49,7 +53,19 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
     @Override
     public void queryPara(FrameReqData reqInfo) {
         StringBuilder sb = new StringBuilder();
-        String localAddr = bpqPrtcService.getDevLocalAddr(reqInfo);
+        String localAddr = "001";
+        BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(reqInfo.getDevNo());
+        //Ka/c下变频器没有切换单元
+        if(baseInfo.getDevType().equals(SysConfigConstant.DEVICE_KAC_BPQ)){
+            localAddr = baseInfo.getDevLocalAddr();
+        }else {
+            List<BaseInfo> subDevs = BaseInfoContainer.getDevInfoByParentNo(baseInfo.getDevParentNo());
+            for (BaseInfo subDev : subDevs) {
+                if (subDev.getDevType().equals(SysConfigConstant.DEVICE_QHDY)) {
+                    localAddr = subDev.getDevLocalAddr();
+                }
+            }
+        }
         sb.append(BpqPrtcServiceImpl.SEND_START_MARK).append(localAddr).append("/")
                 .append(reqInfo.getCmdMark());
         String command = sb.toString();
@@ -65,8 +81,13 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
     @Override
     public FrameRespData queryParaResponse(FrameRespData respData) {
         String respStr = new String(respData.getParamBytes());
+        String addr = respStr.substring(1,4);
+        respData.setDevNo(getDevNo(addr));
         int startIdx = respStr.indexOf("_");
         int endIdx = respStr.indexOf(StrUtil.LF);
+        if(endIdx==-1){
+            endIdx = respStr.length();
+        }
         String[] params = null;
         try{
             String str = respStr.substring(startIdx+2,endIdx);
@@ -78,12 +99,28 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
         List<FrameParaData> frameParaList = new ArrayList<>();
         for (String param : params) {
             String cmdMark = convertCmdMark(param.split("_")[0],respData.getCmdMark());
-            String value = param.split("_")[1];
+            //上下变频器信号命令标识有区别，这里做下转换
+            if(cmdMark.equals("TX")){
+                cmdMark = "RX";
+            }
+            String value = "";
+            String[] values = param.split("_");
+            if(values.length>1){
+                value = values[1];
+            }
             FrameParaData paraInfo = new FrameParaData();
             FrameParaInfo frameParaDetail = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),cmdMark);
             BeanUtil.copyProperties(frameParaDetail, paraInfo, true);
+            if(cmdMark.equals("POUT") && value.length()>1){
+                value = value.substring(0,value.length()-3);
+            }
+            if(cmdMark.equals("POW") && value.length()>1){
+                value = value.substring(0,value.length()-1);
+            }
             paraInfo.setParaVal(value);
-            paraInfo.setDevNo(respData.getDevNo());
+            paraInfo.setDevNo(getDevNo(addr));
+            //定制报警信息处理
+            handleAlarmInfo(cmdMark,value,paraInfo,frameParaDetail);
             frameParaList.add(paraInfo);
         }
         respData.setFrameParaList(frameParaList);
@@ -97,5 +134,73 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
         }
         return cmdMark;
     }
+
+    /**
+     * 获取变频器内部地址映射关系
+     * @return
+     */
+    private Map<String, BaseInfo> getBPQAddrMap(){
+        List<BaseInfo> baseInfos = new ArrayList<>();
+        baseInfos.addAll(Optional.ofNullable(BaseInfoContainer.getDevInfosByType(SysConfigConstant.DEVICE_BPQ)).orElse(new ArrayList<>()));
+        baseInfos.addAll(Optional.ofNullable(BaseInfoContainer.getDevInfosByType(SysConfigConstant.DEVICE_KAC_BPQ)).orElse(new ArrayList<>()));
+        baseInfos.addAll(Optional.ofNullable(BaseInfoContainer.getDevInfosByType(SysConfigConstant.DEVICE_QHDY)).orElse(new ArrayList<>()));
+        Map<String, BaseInfo> addrMap = new HashMap<>();
+        for (BaseInfo baseInfo : baseInfos) {
+            String localAddr = baseInfo.getDevLocalAddr();
+            if(StringUtils.isNotEmpty(localAddr)){
+               addrMap.put(localAddr,baseInfo);
+            }
+        }
+        return addrMap;
+    }
+
+    /**
+     * 获取设备编号
+     * @param addr
+     * @return
+     */
+    private String getDevNo(String addr){
+        String devNo = "";
+        Map<String, BaseInfo> addrMap =  getBPQAddrMap();
+        if(addrMap.get(addr) != null){
+            devNo = addrMap.get(addr).getDevNo();
+        }
+        return devNo;
+    }
+
+
+    private void handleAlarmInfo(String cmdMark,String value,FrameParaData paraInfo,FrameParaInfo frameParaDetail){
+        if(cmdMark.equals("POW")){
+            Integer val = Integer.parseInt(value);
+            if(val>1.9){
+                //上报告警信息
+                devStatusReportService.rptWarning(paraInfo.getDevNo(),"1");
+                devStatusReportService.reportDevAlertInfo(paraInfo,frameParaDetail,"1");
+            }else{
+                //恢复告警信息
+                if(DevStatusContainer.setAlarm(paraInfo.getDevNo(),"0",SysConfigConstant.DEV_STATUS_ALARM)){
+                    String isAlarm = DevStatusContainer.getDevAllPramsStatus(paraInfo.getDevNo(),"0",SysConfigConstant.DEV_STATUS_ALARM);
+                    devStatusReportService.rptWarning(paraInfo.getDevNo(),isAlarm);
+                }
+                devStatusReportService.reportDevAlertInfo(paraInfo,frameParaDetail,"0");
+            }
+        }
+        if(cmdMark.equals("TEM")){
+            Integer val = Integer.parseInt(value);
+            if(val>60){
+                //上报告警信息
+                devStatusReportService.rptWarning(paraInfo.getDevNo(),"1");
+                devStatusReportService.reportDevAlertInfo(paraInfo,frameParaDetail,"1");
+            }else{
+                //恢复告警信息
+                if(DevStatusContainer.setAlarm(paraInfo.getDevNo(),"0",SysConfigConstant.DEV_STATUS_ALARM)){
+                    String isAlarm = DevStatusContainer.getDevAllPramsStatus(paraInfo.getDevNo(),"0",SysConfigConstant.DEV_STATUS_ALARM);
+                    devStatusReportService.rptWarning(paraInfo.getDevNo(),isAlarm);
+                }
+                devStatusReportService.reportDevAlertInfo(paraInfo,frameParaDetail,"0");
+            }
+        }
+    }
+
 
 }

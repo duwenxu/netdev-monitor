@@ -7,6 +7,7 @@ import com.xy.common.helper.ControllerResultWrapper;
 import com.xy.common.model.Result;
 import com.xy.netdev.common.util.JwtUtil;
 import com.xy.netdev.monitor.entity.AlertInfo;
+import com.xy.netdev.monitor.entity.OperLog;
 import com.xy.netdev.monitor.service.IAlertInfoService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -37,8 +38,9 @@ public class AlertInfoController {
     */
     @ApiOperation(value = "获取分页告警信息", notes = "获取分页告警信息")
     @PostMapping(value = "/list")
-    public Result<IPage<AlertInfo>> queryPageList(AlertInfo data,Page page,HttpServletRequest req){
-        return ControllerHelper.queryPageList(data, page, req, targetService);
+    public Result<List<AlertInfo>> queryPageList(@RequestParam String devType, @RequestParam String startTime, @RequestParam String endTime){
+        List<AlertInfo> alertInfos = targetService.queryPageList(devType,startTime,endTime);
+        return ControllerResultWrapper.genListResult(alertInfos);
     }
 
     /**
@@ -103,8 +105,8 @@ public class AlertInfoController {
      */
     @ApiOperation(value = "查询指定设备时间范围内的告警信息", notes = "查询指定设备时间范围内的告警信息")
     @PostMapping(value = "queryAlterInfo")
-    public Result<IPage<AlertInfo>> queryAlterInfoByDevNoTime(@RequestParam String devNo, @RequestParam String startTime, @RequestParam String endTime,Page page) {
-        IPage<AlertInfo> alertInfos = targetService.queryAlterInfoByDevNoTime(devNo,startTime,endTime,page);
+    public Result<IPage<AlertInfo>> queryAlterInfoByDevNoTime(@RequestParam String devType, @RequestParam String startTime, @RequestParam String endTime,Page page) {
+        IPage<AlertInfo> alertInfos = targetService.queryAlterInfoByDevNoTime(devType,startTime,endTime,page);
         return ControllerResultWrapper.genPageListResult(alertInfos);
     }
 

@@ -1,6 +1,7 @@
 package com.xy.netdev.rpt.service;
 
 import com.xy.netdev.rpt.bo.RptHeadDev;
+import com.xy.netdev.rpt.enums.StationCtlRequestEnums;
 
 public interface RequestService{
 
@@ -9,5 +10,5 @@ public interface RequestService{
      * @return 封包
      * @param rptHeadDev
      */
-    byte[] pack(RptHeadDev rptHeadDev);
+    byte[] pack(RptHeadDev rptHeadDev, StationCtlRequestEnums stationCtlRequestEnums);
 }

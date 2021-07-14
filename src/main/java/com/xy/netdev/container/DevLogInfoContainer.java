@@ -4,7 +4,6 @@ import cn.hutool.core.util.ObjectUtil;
 import com.xy.netdev.admin.entity.SysParam;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.collection.FixedSizeMap;
-import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.DateTools;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
@@ -17,9 +16,8 @@ import com.xy.netdev.monitor.service.IOperLogService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
 import java.util.*;
+import static com.xy.netdev.common.constant.SysConfigConstant.*;
 
 /**
  * <p>
@@ -31,6 +29,9 @@ import java.util.*;
  */
 @Component
 public class DevLogInfoContainer {
+
+    private static ISysParamService sysParamService;
+
     /**
      * 设备参数设置响应--成功
      */
@@ -67,7 +68,8 @@ public class DevLogInfoContainer {
     /**
      * @功能：当系统启动时,进行初始化各设备日志
      */
-    public static void init(int devLogSize){
+    public static void init(int devLogSize, ISysParamService sysParamService){
+        DevLogInfoContainer.sysParamService = sysParamService;
         BaseInfoContainer.getDevInfos().forEach(baseInfo -> {
             devLogInfoMap.put(baseInfo.getDevNo(),new FixedSizeMap<>(devLogSize));
             devParaSetRespStatusMap.put(baseInfo.getDevNo(),new Hashtable<>());
@@ -85,7 +87,10 @@ public class DevLogInfoContainer {
         if (devLogInfoMap.containsKey(devNo)){
             devLogInfoMap.get(devNo).put(logTime,devLog);
         }
-        iOperLogService.save(devLog);
+        //判断日志开关
+        if(sysParamService.getParaRemark1(OPER_LOG_SWTICH).equals("0")){
+            iOperLogService.save(devLog);
+        }
     }
 
     public synchronized static void initTestStatus(){
@@ -103,6 +108,10 @@ public class DevLogInfoContainer {
      */
     public synchronized static void addParaRespStatus(String devNo,String paraNo,String paraRespstatus) {
         devParaSetRespStatusMap.get(devNo).put(paraNo,paraRespstatus);
+    }
+
+    public synchronized static String getParaRespStatus(String devNo,String paraNo) {
+        return devParaSetRespStatusMap.get(devNo).get(paraNo);
     }
 
     /**
@@ -195,12 +204,12 @@ public class DevLogInfoContainer {
      */
     private static void setLogOperObj(String cmdMark,OperLog devLog){
         devLog.setLogCmdMark(cmdMark);
-        if(SysConfigConstant.ACCESS_TYPE_PARAM.equals(devLog.getLogAccessType())){
+        if(ACCESS_TYPE_PARAM.equals(devLog.getLogAccessType())){
             FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(devLog.getDevType(),cmdMark);
             devLog.setLogOperObjName(frameParaInfo.getParaName());
             devLog.setLogOperObj(frameParaInfo.getParaId());
         }
-        if(SysConfigConstant.ACCESS_TYPE_INTERF.equals(devLog.getLogAccessType())){
+        if(ACCESS_TYPE_INTERF.equals(devLog.getLogAccessType())){
             Interface devInterface = BaseInfoContainer.getInterLinkInterface(devLog.getDevType(),cmdMark);
             devLog.setLogOperObjName(devInterface.getItfName());
             devLog.setLogOperObj(devInterface.getItfId());
@@ -235,10 +244,10 @@ public class DevLogInfoContainer {
         PrtclFormat prtclFormat=BaseInfoContainer.getPrtclByInterfaceOrPara(respData.getDevType(),respData.getCmdMark());
         ISysParamService sysParamService =BaseInfoContainer.getSysParamService();
         String respCodeParaCd = "";//响应码对应的参数编码
-        if(respData.getOperType().equals(SysConfigConstant.OPREATE_QUERY_RESP)){
+        if(respData.getOperType().equals(OPREATE_QUERY_RESP)){
             respCodeParaCd = prtclFormat.getFmtScType();
         }
-        if(respData.getOperType().equals(SysConfigConstant.OPREATE_CONTROL_RESP)){
+        if(respData.getOperType().equals(OPREATE_CONTROL_RESP)){
             respCodeParaCd = prtclFormat.getFmtCcType();
         }
         SysParam respCodeParam = new SysParam();
@@ -273,7 +282,6 @@ public class DevLogInfoContainer {
         if(reqData.getIsOk().equals("0")){
             return "执行结果:发送成功";
         }
-        setReqParaRepsStatus("1",reqData);
         return "执行结果:发送失败";
     }
     /**
@@ -282,12 +290,12 @@ public class DevLogInfoContainer {
      * @param reqData        协议解析请求数据
      * @return
      */
-    private static void setReqParaRepsStatus(String repsStatus,FrameReqData reqData){
+    public static void setReqParaRepsStatus(String repsStatus,FrameReqData reqData){
         //当参数控制发送时,未发送成功时,设置参数响应状态为失败
-        if(reqData.getOperType().equals(SysConfigConstant.OPREATE_CONTROL)&&!repsStatus.equals("0")){
+        if(reqData.getOperType().equals(OPREATE_CONTROL)&&repsStatus.equals("0")){
             if(reqData.getFrameParaList()!=null&&!reqData.getFrameParaList().isEmpty()){
                 reqData.getFrameParaList().forEach(frameParaData -> {
-                    addParaRespStatus(reqData.getDevNo(),frameParaData.getParaNo(),PARA_REPS_STATUS_FAIL);
+                    addParaRespStatus(reqData.getDevNo(),frameParaData.getParaNo(),PARA_REPS_STATUS_SUCCEED);
                 });
             }
         }
@@ -299,7 +307,7 @@ public class DevLogInfoContainer {
      * @return
      */
     private static void setReqParaRepsStatus(SysParam respCodeParam,FrameRespData respData){
-        if(respData.getOperType().equals(SysConfigConstant.OPREATE_CONTROL_RESP)){
+        if(respData.getOperType().equals(OPREATE_CONTROL_RESP)){
             String paraRepsStatus = PARA_REPS_STATUS_SUCCEED;
             if(!StringUtils.isEmpty(respCodeParam.getRemark2())){//当remark2配置了,按照remark2设置
                 paraRepsStatus = respCodeParam.getRemark2().trim();

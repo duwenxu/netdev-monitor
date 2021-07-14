@@ -52,13 +52,17 @@ public class Hex2DecParamCodec implements ParamCodec {
         if (objects!=null&&objects.length>1){
             format = fmtStart + (int) objects[1] * 2 + "" + fmtEnd;
         }
+        //正负号转换时直接忽略
+        if (value.startsWith("+")||value.startsWith("-")){
+            value = value.substring(1);
+        }
         String hexStr = String.format(format, (long)(Double.parseDouble(value)*rideValue));
         return HexUtil.decodeHex(hexStr);
     }
 
     public static void main(String[] args) {
 //        byte[] bytes = {0x00, 0x13, 0x59, 0x20};
-        byte[] bytes = {0x1e};
+        byte[] bytes = {0x21};
         Hex2DecParamCodec hex2DecParamCodec = new Hex2DecParamCodec();
         String decode = hex2DecParamCodec.decode(bytes);
         System.out.println(decode);

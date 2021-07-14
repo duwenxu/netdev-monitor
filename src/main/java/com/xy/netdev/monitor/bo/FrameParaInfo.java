@@ -1,6 +1,8 @@
 package com.xy.netdev.monitor.bo;
 
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.xy.common.annotation.Param;
 import com.xy.netdev.monitor.entity.PrtclFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -32,6 +34,9 @@ public class FrameParaInfo {
     @ApiModelProperty(value = "参数编号")
     private String paraNo;
 
+    @ApiModelProperty(value = "父参数编号")
+    private String parentParaNo;
+
     @ApiModelProperty(value = "参数编码")
     private String paraCode;
 
@@ -49,6 +54,10 @@ public class FrameParaInfo {
 
     @ApiModelProperty(value = "字节长度")
     private String paraByteLen;
+
+    @ApiModelProperty(value = "字符长度")
+    private String paraStrLen;
+
     /**
      * 按照序号 累加 字节长度
      */
@@ -91,6 +100,11 @@ public class FrameParaInfo {
     @ApiModelProperty(value = "数据内外转换值域")
     private String transRule;
 
+    @ApiModelProperty(value = "上报网管下拉选则映射")
+    private String combRule;
+
+    @ApiModelProperty(value = "显示模式")
+    private String ndpaShowMode;
     /**
      * 数据内->外转换值域map
      * on:1
@@ -137,6 +151,19 @@ public class FrameParaInfo {
 
     @ApiModelProperty(value = "子参数列表")
     private List<FrameParaInfo> subParaList;
+
+    /**
+     * 是否在拓扑图显示
+     */
+    @ApiModelProperty(value = "是否在拓扑图显示")
+    private Boolean ndpaIsTopology ;
+
+
+    @ApiModelProperty(value = "是否该字段提供给54所访问")
+    private String ndpaOutterStatus;
+
+    @ApiModelProperty(value = "上报OID")
+    private String ndpaRptOid;
 
     /**
      * 增加参数的子参数
