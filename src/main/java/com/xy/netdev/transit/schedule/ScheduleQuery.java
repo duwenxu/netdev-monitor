@@ -76,8 +76,8 @@ public class ScheduleQuery  implements ApplicationRunner{
      * 设备参数定时查询
      */
     public void doScheduleQuery() {
-        List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(base -> base.getDevType().equals("0020013")||base.getDevType().equals("0020014")||base.getDevType().equals("0020015")||base.getDevType().equals("0020024")||base.getDevType().equals("0020025")||base.getDevType().equals("0020027")||base.getDevType().equals("0020044")||base.getDevType().equals("0020045")||base.getDevType().equals("0020046")||base.getDevType().equals("0020047")).collect(Collectors.toList());
-//        List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(base -> base.getDevType().equals("0020025")).collect(Collectors.toList());
+//        List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(base -> base.getDevType().equals("0020040")||base.getDevType().equals("0020014")||base.getDevType().equals("0020015")||base.getDevType().equals("0020024")||base.getDevType().equals("0020025")||base.getDevType().equals("0020027")||base.getDevType().equals("0020044")||base.getDevType().equals("0020045")||base.getDevType().equals("0020046")||base.getDevType().equals("0020047")).collect(Collectors.toList());
+        List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(base -> base.getDevType().equals("0020040")).collect(Collectors.toList());
         List<BaseInfo> pingBaseInfo = ScheduleQueryHelper.getAvailableBases();
         //单个设备所有查询对象的封装list映射
         Map<BaseInfo, List<FrameReqData>> scheduleReqBodyMap = new ConcurrentHashMap<>(20);
