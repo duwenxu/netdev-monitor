@@ -523,6 +523,11 @@ public interface SysConfigConstant {
     String  DEVICE_BPQ = "0020006";
 
     /**
+     * 设备类型--Ka100W功放
+     */
+    String  KA100W_BUC = "0020040";
+
+    /**
      * 设备类型--Ka/C下变频器
      */
     String DEVICE_KAC_BPQ = "0020036";
