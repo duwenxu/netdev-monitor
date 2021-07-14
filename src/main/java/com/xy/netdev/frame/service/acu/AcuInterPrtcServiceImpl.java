@@ -54,7 +54,7 @@ public class AcuInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
 
     @Override
     public FrameRespData queryParaResponse(FrameRespData respData) {
-        if(num==2){
+        if(num==1){
             num = 0;
         }else{
             num ++;
