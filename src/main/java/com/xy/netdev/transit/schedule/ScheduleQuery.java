@@ -29,10 +29,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
@@ -77,7 +74,11 @@ public class ScheduleQuery  implements ApplicationRunner{
      */
     public void doScheduleQuery() {
 //        List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(base -> base.getDevType().equals("0020040")||base.getDevType().equals("0020014")||base.getDevType().equals("0020015")||base.getDevType().equals("0020024")||base.getDevType().equals("0020025")||base.getDevType().equals("0020027")||base.getDevType().equals("0020044")||base.getDevType().equals("0020045")||base.getDevType().equals("0020046")||base.getDevType().equals("0020047")).collect(Collectors.toList());
-        List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(base -> base.getDevType().equals("0020040")).collect(Collectors.toList());
+//        List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(base -> base.getDevType().equals("0020040")).collect(Collectors.toList());
+        //一类车
+        List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(base ->base.getDevType().equals("0020003") || base.getDevType().equals("0020004") || base.getDevType().equals("0020005") || base.getDevType().equals("0020006") || base.getDevType().equals("0020007") || base.getDevType().equals("0020008") || base.getDevType().equals("0020021")).collect(Collectors.toList());
+        //三类车
+        //List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(base -> base.getDevType().equals("0020001")).collect(Collectors.toList());
         List<BaseInfo> pingBaseInfo = ScheduleQueryHelper.getAvailableBases();
         //单个设备所有查询对象的封装list映射
         Map<BaseInfo, List<FrameReqData>> scheduleReqBodyMap = new ConcurrentHashMap<>(20);
@@ -180,11 +181,17 @@ public class ScheduleQuery  implements ApplicationRunner{
     }
 
     private void updateSnmpRptStatus(boolean ping, String devNo) {
-        String oid4 = DevParaInfoContainer.getDevNoStatusOidMap().get(devNo);
-        if (StringUtils.isNotBlank(oid4)){
-            /**上报信息中 0：中断 1：正常  与设备状态中的状态相反*/
-            String rptActive = ping ? "1" : "0";
-            DevParaInfoContainer.getDevSnmpParaMap().get(devNo).get(oid4).setParaVal(rptActive);
+        Map<String, Set<String>> statusOidMap = DevParaInfoContainer.getDevNoStatusOidMap();
+        if (!statusOidMap.containsKey(devNo)){
+            statusOidMap.put(devNo,new HashSet<>(5));
+        }
+        Set<String> oid4= statusOidMap.get(devNo);
+        for (String oid : oid4) {
+            if (StringUtils.isNotBlank(oid)){
+                /**上报信息中 0：中断 1：正常  与设备状态中的状态相反*/
+                String rptActive = ping ? "1" : "0";
+                DevParaInfoContainer.getDevSnmpParaMap().get(devNo).get(oid).setParaVal(rptActive);
+            }
         }
     }
 

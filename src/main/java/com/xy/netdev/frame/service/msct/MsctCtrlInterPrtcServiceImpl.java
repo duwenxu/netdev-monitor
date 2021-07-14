@@ -66,7 +66,7 @@ public class MsctCtrlInterPrtcServiceImpl implements ICtrlInterPrtclAnalysisServ
                          isStr = false;
                          currMode = reqData.getFrameParaList().get(0).getParaVal();
                     }else{
-                         isStr = MonitorConstants.STRING_CODE.equals(param.getDataType());
+                         isStr = MonitorConstants.STRING_CODE.equals(param.getDataType()) || MonitorConstants.IP_ADDRESS.equals(param.getDataType());
                     }
                     String value = frameParaData.getParaVal();
                     if (isStr) {
