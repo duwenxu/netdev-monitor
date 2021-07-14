@@ -7,6 +7,7 @@ import com.xy.common.exception.BaseException;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseContainerLoader;
 import com.xy.netdev.container.BaseInfoContainer;
+import com.xy.netdev.container.DevStatusContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
@@ -14,6 +15,7 @@ import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
+import com.xy.netdev.rpt.service.impl.DevStatusReportService;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import com.xy.netdev.transit.IDataReciveService;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +39,8 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
     SocketMutualService socketMutualService;
     @Autowired
     IDataReciveService dataReciveService;
+    @Autowired
+    DevStatusReportService devStatusReportService;
     @Autowired
     BpqPrtcServiceImpl bpqPrtcService;
 
@@ -115,6 +119,8 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
             }
             paraInfo.setParaVal(value);
             paraInfo.setDevNo(getDevNo(addr));
+            //定制报警信息处理
+            handleAlarmInfo(cmdMark,value,paraInfo,frameParaDetail);
             frameParaList.add(paraInfo);
         }
         respData.setFrameParaList(frameParaList);
@@ -162,23 +168,39 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
         return devNo;
     }
 
-//    private String getDevNo(String addr){
-//        String devNo = "";
-//        switch (addr){
-//            case "001":
-//                devNo = "42";
-//                break;
-//            case "010":
-//                devNo = "40";
-//                break;
-//            case "011":
-//                devNo = "41";
-//                break;
-//            default:
-//                devNo = "42";
-//                break;
-//        }
-//        return devNo;
-//    }
+
+    private void handleAlarmInfo(String cmdMark,String value,FrameParaData paraInfo,FrameParaInfo frameParaDetail){
+        if(cmdMark.equals("POW")){
+            Integer val = Integer.parseInt(value);
+            if(val>1.9){
+                //上报告警信息
+                devStatusReportService.rptWarning(paraInfo.getDevNo(),"1");
+                devStatusReportService.reportDevAlertInfo(paraInfo,frameParaDetail,"1");
+            }else{
+                //恢复告警信息
+                if(DevStatusContainer.setAlarm(paraInfo.getDevNo(),"0",SysConfigConstant.DEV_STATUS_ALARM)){
+                    String isAlarm = DevStatusContainer.getDevAllPramsStatus(paraInfo.getDevNo(),"0",SysConfigConstant.DEV_STATUS_ALARM);
+                    devStatusReportService.rptWarning(paraInfo.getDevNo(),isAlarm);
+                }
+                devStatusReportService.reportDevAlertInfo(paraInfo,frameParaDetail,"0");
+            }
+        }
+        if(cmdMark.equals("TEM")){
+            Integer val = Integer.parseInt(value);
+            if(val>60){
+                //上报告警信息
+                devStatusReportService.rptWarning(paraInfo.getDevNo(),"1");
+                devStatusReportService.reportDevAlertInfo(paraInfo,frameParaDetail,"1");
+            }else{
+                //恢复告警信息
+                if(DevStatusContainer.setAlarm(paraInfo.getDevNo(),"0",SysConfigConstant.DEV_STATUS_ALARM)){
+                    String isAlarm = DevStatusContainer.getDevAllPramsStatus(paraInfo.getDevNo(),"0",SysConfigConstant.DEV_STATUS_ALARM);
+                    devStatusReportService.rptWarning(paraInfo.getDevNo(),isAlarm);
+                }
+                devStatusReportService.reportDevAlertInfo(paraInfo,frameParaDetail,"0");
+            }
+        }
+    }
+
 
 }
