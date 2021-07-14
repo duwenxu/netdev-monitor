@@ -114,7 +114,7 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
         queryWrapper.eq("DEV_TYPE",paraInfo.getDevType());
         List<Interface> interfaces = this.list(queryWrapper);
         //需要更新的接口list
-        List list = new ArrayList();
+        List<Interface> list = new ArrayList<>();
         interfaces.forEach(anInterface -> {
             String iftDataFormat = anInterface.getItfDataFormat();
             if(iftDataFormat.contains(paraInfo.getNdpaId().toString())){
@@ -123,7 +123,9 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
                 list.add(anInterface);
             }
         });
-        this.updateBatchById(list);
+        if (list.size()>0){
+            this.updateBatchById(list);
+        }
     }
 
     /**
