@@ -74,7 +74,7 @@ public class ScheduleQuery  implements ApplicationRunner{
      */
     public void doScheduleQuery() {
         //一类车
-        List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(base -> base.getDevType().equals("0020013")||base.getDevType().equals("0020014")||base.getDevType().equals("0020015")||base.getDevType().equals("0020024")||base.getDevType().equals("0020025")||base.getDevType().equals("0020027")||base.getDevType().equals("0020044")||base.getDevType().equals("0020045")||base.getDevType().equals("0020046")||base.getDevType().equals("0020047")).collect(Collectors.toList());
+        List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(base -> base.getDevType().equals("0020014")||base.getDevType().equals("0020015")||base.getDevType().equals("0020024")||base.getDevType().equals("0020025")||base.getDevType().equals("0020027")||base.getDevType().equals("0020044")||base.getDevType().equals("0020045")||base.getDevType().equals("0020046")||base.getDevType().equals("0020047")).collect(Collectors.toList());
         //三类车
         //List<BaseInfo> queryBaseInfo = ScheduleQueryHelper.getAvailableBases().stream().filter(base -> base.getDevType().equals("0020001")).collect(Collectors.toList());
         List<BaseInfo> pingBaseInfo = ScheduleQueryHelper.getAvailableBases();
@@ -165,7 +165,7 @@ public class ScheduleQuery  implements ApplicationRunner{
                     //默认超时时间 200
                     boolean ping = NetUtil.ping(baseInfo.getDevIpAddr());
                     String devNo = baseInfo.getDevNo();
-                    log.debug("设备：[{}]Ping地址：[{}]成功：{}", baseInfo.getDevName(),baseInfo.getDevIpAddr(),ping);
+                    log.info("设备：[{}]Ping地址：[{}]成功：{}", baseInfo.getDevName(),baseInfo.getDevIpAddr(),ping);
                     String isActive = ping ? "0" : "1";
                     boolean isChanged = DevStatusContainer.setInterrupt(devNo, isActive);
                     if(isChanged){
