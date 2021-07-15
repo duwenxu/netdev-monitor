@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.xy.netdev.common.constant.SysConfigConstant.IS_DEFAULT_TRUE;
@@ -214,7 +215,7 @@ public class DevStatusReportService implements IDevStatusReportService {
      * @param paraInfo
      * @param status
      */
-    private void reportDevAlertInfo(FrameParaData respData,FrameParaInfo paraInfo, String status){
+    public void reportDevAlertInfo(FrameParaData respData,FrameParaInfo paraInfo, String status){
         //参数返回值是否产生告警
         if (status.equals(SysConfigConstant.RPT_DEV_STATUS_ISALARM_YES)) {
             paraInfo.setParaVal(respData.getParaVal());
@@ -223,7 +224,12 @@ public class DevStatusReportService implements IDevStatusReportService {
             log.debug("告警信息：{}",alertDesc);
             String alertLevel = SysConfigConstant.ALERT_LEVEL_OK;
             //判断参数是否触发告警，如果没有触发上报恢复（设置恢复告警级别给0）
-            String isAlarm = DevStatusContainer.getDevParamRptMap().get(respData.getDevNo()).get(SysConfigConstant.DEV_STATUS_ALARM).get(paraInfo.getParaNo());
+            String isAlarm = null;
+            try {
+                isAlarm = DevStatusContainer.getDevParamRptMap().get(respData.getDevNo()).get(SysConfigConstant.DEV_STATUS_ALARM).get(paraInfo.getParaNo());
+            } catch (Exception e) {
+                return;
+            }
             if(isAlarm.equals("1")){
                 alertLevel = paraInfo.getAlertLevel();
             }

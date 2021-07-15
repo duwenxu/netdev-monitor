@@ -1,6 +1,7 @@
 package com.xy.netdev.frame.service.tkuka;
 
 import cn.hutool.core.util.HexUtil;
+import cn.hutool.core.util.StrUtil;
 import com.xy.common.exception.BaseException;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.common.util.SpringContextUtils;
@@ -39,19 +40,18 @@ public class TkukaCaInterPrtcServiceImpl implements ICtrlInterPrtclAnalysisServi
     @Override
     public void ctrlPara(FrameReqData reqData) {
         List<FrameParaData> paraList = reqData.getFrameParaList();
-        byte[] bytes = new byte[13];
+        byte[] bytes = new byte[114];
+        //工作模式
+        System.arraycopy(StrUtil.bytes(reqData.getCmdMark()),0,bytes,0,1);
+        int num = 0;
         for (FrameParaData paraData : paraList) {
             FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByNo(paraData.getDevType(),paraData.getParaNo());
-            if(PARA_DATA_TYPE_STR.equals(frameParaInfo.getDataType())){
-                String paraVal = StringUtils.leftPad(paraData.getParaVal(),Integer.valueOf(frameParaInfo.getParaByteLen())*2-paraData.getParaVal().length(),"0");
-                frameParaInfo.setParaVal(paraVal);
-            }else{
-                ParamCodec handler = SpringContextUtils.getBean(frameParaInfo.getNdpaRemark2Data());
-                String paraValStr = HexUtil.encodeHexStr(handler.encode(paraData.getParaVal(), frameParaInfo.getNdpaRemark1Data()));
-                frameParaInfo.setParaVal(paraValStr);
+            //参数值
+            if(StringUtils.isNotBlank(frameParaInfo.getNdpaRemark3Data())){
+                num = Integer.valueOf(frameParaInfo.getNdpaRemark3Data());
             }
-            byte[] frameBytes = HexUtil.decodeHex(frameParaInfo.getParaVal());
-            bytes = ByteUtils.bytesMerge(bytes, frameBytes);
+            System.arraycopy(getBytes(frameParaInfo,paraData.getParaVal()),0,bytes,num,paraData.getLen());
+            num = num + Integer.valueOf(frameParaInfo.getParaByteLen());
         }
         reqData.setParamBytes(bytes);
         log.info("TKuka0.9CA监控设备发送控制帧标识字：[{}]，内容：[{}]",reqData.getCmdMark(), HexUtil.encodeHexStr(bytes));
@@ -62,5 +62,17 @@ public class TkukaCaInterPrtcServiceImpl implements ICtrlInterPrtclAnalysisServi
     @Override
     public FrameRespData ctrlParaResponse(FrameRespData respData) {
         return null;
+    }
+
+
+    private byte[] getBytes(FrameParaInfo param, String value) {
+        byte[] bytes = null;
+        if (StringUtils.isNotBlank(param.getNdpaRemark2Data())) {
+            ParamCodec handler = SpringContextUtils.getBean(param.getNdpaRemark2Data());
+            bytes = handler.encode(value,null);
+        } else {
+            bytes = HexUtil.decodeHex(value);
+        }
+        return bytes;
     }
 }

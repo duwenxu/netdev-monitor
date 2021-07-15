@@ -498,7 +498,9 @@ public class BaseInfoContainer {
         DevInterParam devInterParam = InterLinkParaMap.get(ParaHandlerUtil.genLinkKey(devType, cmdMark));
         if (devInterParam != null) {
             PrtclFormat prtclFormat= devInterParam.getInterfacePrtcl();
-            prtclFormat.setIsPrtclParam(1);
+            if (prtclFormat!=null){
+                prtclFormat.setIsPrtclParam(1);
+            }
             return prtclFormat;
         }
         return new PrtclFormat();
@@ -652,8 +654,9 @@ public class BaseInfoContainer {
             frameParaInfo.setDevType(paraInfo.getDevType());      //设备类型
             frameParaInfo.setDevTypeCode(paraInfo.getDevTypeCode());      //设备类型编码
             frameParaInfo.setNdpaAccessRight(paraInfo.getNdpaAccessRight()); //访问权限
+
             List<PrtclFormat> prtclFormats = prtclList.stream()
-                    .filter(prtclFormat -> prtclFormat.getFmtId() == paraInfo.getFmtId())
+                    .filter(prtclFormat -> prtclFormat.getFmtId().equals(paraInfo.getFmtId()))
                     .collect(Collectors.toList());
             if (prtclFormats.size() > 0) {
                 //设置协议归属
@@ -710,7 +713,7 @@ public class BaseInfoContainer {
             devInterParam.setDevInterface(anInterface);
             //协议
             List<PrtclFormat> prtclFormats = prtclList.stream()
-                    .filter(prtclFormat -> prtclFormat.getFmtId() == anInterface.getFmtId())
+                    .filter(prtclFormat -> prtclFormat.getFmtId().equals(anInterface.getFmtId()))
                     .collect(Collectors.toList());
             if (prtclFormats.size() > 0) {
                 //设置协议的归属

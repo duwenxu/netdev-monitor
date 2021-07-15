@@ -128,7 +128,7 @@ public class BaseContainerLoader implements ApplicationRunner {
     private void initDevAlert() {
         int devAlertInfoSize = Integer.parseInt(sysParamService.getParaRemark1(SysConfigConstant.DEV_ALERT_INFO_SZIE));
         //初始化各设备日志
-        DevAlertInfoContainer.init(devAlertInfoSize);
+        DevAlertInfoContainer.init(devAlertInfoSize,sysParamService);
     }
 
     /**

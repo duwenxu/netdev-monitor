@@ -45,6 +45,8 @@ public class AcuInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
     @Autowired
     private ModemScmmInterPrtcServiceImpl modemScmmInterPrtcService;
 
+    private int num = 0;
+
     @Override
     public void queryPara(FrameReqData reqInfo) {
 
@@ -52,6 +54,12 @@ public class AcuInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
 
     @Override
     public FrameRespData queryParaResponse(FrameRespData respData) {
+        if(num==1){
+            num = 0;
+        }else{
+            num ++;
+            return respData;
+        }
         List<FrameParaInfo> frameParaInfos = BaseInfoContainer
                 .getInterLinkParaList(respData.getDevType(), respData.getCmdMark()).stream().filter(Objects::nonNull).collect(Collectors.toList());
         byte[] bytes = respData.getParamBytes();
@@ -72,7 +80,7 @@ public class AcuInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
                 byte[] byteList = ByteUtils.byteArrayCopy(bytes,frameParaInfo.getParaStartPoint(),Integer.parseInt(frameParaInfo.getParaByteLen()));
                 FrameParaInfo paraInfoByNo = BaseInfoContainer.getParaInfoByNo(paraInfo.getDevType(), paraInfo.getParaNo());
                 String val1 = modemScmmInterPrtcService.doGetValue(paraInfoByNo,ByteUtils.byteArrayCopy(byteList,0,4));
-                String val2 = StrUtil.str(ByteUtils.byteArrayCopy(byteList,5,1),"utf-8");
+                String val2 = StrUtil.str(ByteUtils.byteArrayCopy(byteList,8,1),"utf-8");
                 paraInfo.setParaVal("Z"+val2 + "F" +val1);
                 frameParaDataList.add(paraInfo);
             }else{
@@ -116,6 +124,10 @@ public class AcuInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
                 }
                 //设置位置模式的值
                 if(paraInfo.getParaNo().equals("11")){
+                    if(Float.valueOf(val)>360){
+                        val = String.format("%.2f",(Float.valueOf(val) - 360));
+                    }
+                    //方位角特殊处理
                     value = value + val;
                 }else if(paraInfo.getParaNo().equals("12")){
                     value = value + "Y"+val;

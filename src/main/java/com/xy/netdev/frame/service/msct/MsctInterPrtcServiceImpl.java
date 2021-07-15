@@ -68,6 +68,9 @@ public class MsctInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService
         List<FrameParaInfo> paraInfos = BaseInfoContainer.getInterLinkParaList(devType, cmdMark);
         Integer startIndex = 0;
         for (FrameParaInfo paraInfo : paraInfos) {
+            if(paraInfo.getParaName().equals("预留")){
+                DevParaInfoContainer.setIsShow(respData.getDevNo(), paraInfo.getParaNo(), false);
+            }
             Integer len = Integer.parseInt(paraInfo.getParaByteLen());
             Integer endIndex = startIndex + len;
             if (StringUtils.isEmpty(paraInfo.getParaNo())) {
@@ -80,7 +83,7 @@ public class MsctInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService
                     .devNo(respData.getDevNo())
                     .paraNo(paraInfo.getParaNo())
                     .build();
-            boolean isStr = MonitorConstants.STRING_CODE.equals(paraInfo.getDataType());
+            boolean isStr = MonitorConstants.STRING_CODE.equals(paraInfo.getDataType()) || MonitorConstants.IP_ADDRESS.equals(paraInfo.getDataType());
             if (isStr) {
                 //默认直接转换
                 ParamCodec codec = SingletonFactory.getInstance(DirectParamCodec.class);
@@ -107,7 +110,7 @@ public class MsctInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService
                 String desc = paraInfo.getNdpaRemark1Desc();
                 String data = paraInfo.getNdpaRemark1Data();
                 if (StringUtils.isNotEmpty(desc) && desc.equals("倍数") && StringUtils.isNotEmpty(data)) {
-                    Integer multiple = Integer.parseInt(data);
+                    Float multiple = Float.parseFloat(data);
                     //单个参数值转换
                     DecimalFormat myFormatter = new DecimalFormat(getDecimal(multiple));
                     val = myFormatter.format(paraVal.floatValue() / multiple);
@@ -142,16 +145,17 @@ public class MsctInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService
      * @param multiple
      * @return
      */
-    private String getDecimal(Integer multiple){
+    private String getDecimal(Float multiple){
         String decimal = "";
-        switch (multiple){
-            case 10:
+        String mutiStr = String.valueOf(multiple);
+        switch (mutiStr){
+            case "10":
                 decimal =  "##0.0#";
                 break;
-            case 100:
+            case "100":
                 decimal =  "##0.00#";
                 break;
-            case 1000:
+            case "1000":
                 decimal =  "##0.000#";
                 break;
             default:

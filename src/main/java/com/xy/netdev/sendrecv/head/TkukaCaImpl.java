@@ -59,12 +59,12 @@ public class TkukaCaImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
     @Override
     public FrameRespData unpack(SocketEntity socketEntity, FrameRespData frameRespData) {
         byte[] bytes = socketEntity.getBytes();
-        //截取合适的数据包
+        /*//截取合适的数据包
         String hexStr = HexUtil.encodeHexStr(bytes);
         int num = hexStr.indexOf("7b");
-        bytes = HexUtil.decodeHex(hexStr.substring(num,num+296));
+        bytes = HexUtil.decodeHex(hexStr.substring(num,num+296));*/
         int len = bytes.length;
-        if (len != 148) {
+        if (len != 232) {
             log.warn("TKuka0.9CA监控设备响应数据长度错误, 未能正确解析, 数据体长度:{}, 数据体:{}", bytes.length, HexUtil.encodeHexStr(bytes));
             return frameRespData;
         }
@@ -81,7 +81,7 @@ public class TkukaCaImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
             return frameRespData;
         }
         //数据体
-        byte[] paramBytes = byteArrayCopy(bytes, 1, bytes.length - 2);
+        byte[] paramBytes = byteArrayCopy(bytes, 4, bytes.length - 7);
         frameRespData.setParamBytes(paramBytes);
         return frameRespData;
     }
@@ -94,7 +94,7 @@ public class TkukaCaImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
     @Override
     public byte[] pack(FrameReqData frameReqData) {
         byte[] bytes = frameReqData.getParamBytes();
-        if(bytes.length != 13){
+        if(bytes.length != 114){
             log.warn("TKuka0.9CA监控设备数据帧长度错误, 数据体长度:{}, 数据体:{}，请检查!!", bytes.length, HexUtil.encodeHexStr(bytes));
             return new byte[]{};
         }
@@ -102,7 +102,9 @@ public class TkukaCaImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
         //数据帧总长= 参数正文长度
         //帧头:1
         lists.add(new byte[]{0x7b});
-        //参数体(包含工作模式)：13
+        //工作模式：1
+        //标志位
+        System.arraycopy(new byte[]{0x05},0,bytes,1,1);
         lists.add(bytes);
         //帧尾
         lists.add(new byte[]{0x7d});

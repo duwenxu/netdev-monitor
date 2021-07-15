@@ -30,7 +30,6 @@ import java.util.Date;
 @EnableScheduling
 @Component
 @Slf4j
-@Async
 public class DelOperCronTask implements SchedulingConfigurer {
 
     @Autowired

@@ -38,8 +38,9 @@ public class OperLogController {
     */
     @ApiOperation(value = "获取分页操作日志信息", notes = "获取分页操作日志信息")
     @PostMapping(value = "/list")
-    public Result<IPage<OperLog>> queryPageList(OperLog data,Page page,HttpServletRequest req){
-        return ControllerHelper.queryPageList(data, page, req, targetService);
+    public Result<List<OperLog>> queryPageList(@RequestParam String devType, @RequestParam String startTime, @RequestParam String endTime){
+        List<OperLog> alertInfos = targetService.queryPageList(devType,startTime,endTime);
+        return ControllerResultWrapper.genListResult(alertInfos);
     }
 
     /**

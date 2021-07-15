@@ -79,8 +79,11 @@ public class DeviceSocketSubscribe {
         }else {
             devInfo = devInfos.get(0);
         }
+        if(devInfo == null){
+            return;
+        }
         //站控响应
-        if (devInfo.getIsRptIp()!= null && Integer.parseInt(devInfo.getIsRptIp()) == 0){
+        if (devInfo.getIsRptIp()!= null  && Integer.parseInt(devInfo.getIsRptIp()) == 0){
             log.warn("收到站控数据, 远端地址:{}:{},数据体:{}"
                     , socketEntity.getRemoteAddress()
                     , socketEntity.getRemotePort()
