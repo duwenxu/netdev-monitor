@@ -10,11 +10,11 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.xy.netdev.common.constant.SysConfigConstant.DEV_QUERY_INTERVAL;
-import static com.xy.netdev.common.constant.SysConfigConstant.DEV_REPORT_INTERVAL;
+import static com.xy.netdev.common.constant.SysConfigConstant.*;
 
 /**
  * 状态上报查询辅助类
@@ -24,7 +24,7 @@ import static com.xy.netdev.common.constant.SysConfigConstant.DEV_REPORT_INTERVA
  */
 @Component
 @Order(100)
-public class ScheduleQueryHelper {
+public class ScheduleQueryHelper  {
 
     @Autowired
     private IBaseInfoService baseInfoService;
@@ -33,6 +33,7 @@ public class ScheduleQueryHelper {
     private ISysParamService sysParamService;
 
     private static final List<BaseInfo> availableBases = new ArrayList<>();
+    private static final List<BaseInfo> availableSnmpBases = new ArrayList<>();
     private static Long queryInterval = 1000L;
     private static Long reportInterval = 1000L;
 
@@ -48,17 +49,27 @@ public class ScheduleQueryHelper {
      */
     private void addAvailableBases() {
         List<BaseInfo> allBases = baseInfoService.list();
+        List<String> deployTypes = Arrays.asList(DEV_DEPLOY_GROUP,DEV_NETWORK_GROUP);
         //所有父设备
         List<String> parentBases = allBases.stream().map(BaseInfo::getDevParentNo).distinct().collect(Collectors.toList());
         List<BaseInfo> baseInfos = allBases.stream()
                 .filter(base -> base.getDevStatus().equals(SysConfigConstant.DEV_STATUS_NEW))
                 .filter(base-> !parentBases.contains(base.getDevNo()))
+                //增加设备查询 部署类型 条件
+                .filter(base-> !deployTypes.contains(base.getDevDeployType()))
                 .collect(Collectors.toList());
         availableBases.addAll(baseInfos);
+        //SNMP设备
+        List<BaseInfo> snmpBases = baseInfos.stream().filter(base -> SNMP.equals(base.getDevNetPtcl())).collect(Collectors.toList());
+        availableSnmpBases.addAll(snmpBases);
     }
 
     public static List<BaseInfo> getAvailableBases() {
         return availableBases;
+    }
+
+    public static List<BaseInfo> getAvailableSnmpBases() {
+        return availableSnmpBases;
     }
 
     /**

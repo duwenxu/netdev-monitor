@@ -11,6 +11,8 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
  * 告警信息 服务实现类
  *
@@ -31,7 +33,7 @@ public class AlertInfoServiceImpl extends ServiceImpl<AlertInfoMapper, AlertInfo
     public IPage<AlertInfo> queryAlterInfoByDevNoTime(String devNo, String startTime, String endTime,Page page) {
         QueryWrapper<AlertInfo> queryWrapper = new QueryWrapper();
         if(StringUtils.isNotEmpty(devNo)){
-            queryWrapper.eq("DEV_NO",devNo);
+            queryWrapper.eq("DEV_TYPE",devNo);
         }
         if(StringUtils.isNotEmpty(startTime)){
             queryWrapper.ge("ALERT_TIME",startTime);
@@ -41,5 +43,27 @@ public class AlertInfoServiceImpl extends ServiceImpl<AlertInfoMapper, AlertInfo
         }
         queryWrapper.orderByDesc("ALERT_TIME");
         return this.baseMapper.selectPage(page,queryWrapper);
+    }
+
+    /**
+     * 查询指定设备时间范围内的告警信息
+     * @param devType
+     * @param startTime
+     * @param endTime
+     */
+    @Override
+    public List<AlertInfo> queryPageList(String devType, String startTime, String endTime) {
+        QueryWrapper<AlertInfo> queryWrapper = new QueryWrapper();
+        if(StringUtils.isNotEmpty(devType)){
+            queryWrapper.eq("DEV_TYPE",devType);
+        }
+        if(StringUtils.isNotEmpty(startTime)){
+            queryWrapper.ge("ALERT_TIME",startTime);
+        }
+        if(StringUtils.isNotEmpty(endTime)){
+            queryWrapper.and(alertInfoQueryWrapper -> alertInfoQueryWrapper.le("ALERT_TIME",endTime));
+        }
+        queryWrapper.orderByDesc("ALERT_TIME");
+        return this.baseMapper.selectList(queryWrapper);
     }
 }

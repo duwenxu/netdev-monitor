@@ -29,8 +29,7 @@ import java.util.Map;
 @Service
 public class SysParamServiceImpl extends ServiceImpl<SysParamMapper, SysParam> implements ISysParamService {
 
-    @Resource
-    private SysParamMapper paramMapper;
+
     private static Map<String, ParaCombox> paraMap = new HashMap<String, ParaCombox>();
     private static final int DEFAULT = 0;
 
@@ -161,7 +160,7 @@ public class SysParamServiceImpl extends ServiceImpl<SysParamMapper, SysParam> i
         ParaCombox combox = paraMap.get(parentId);
         if (combox == null) {
             combox = new ParaCombox();
-            List<SysParam> params = paramMapper.queryParamsByParentId(parentId);
+            List<SysParam> params = baseMapper.queryParamsByParentId(parentId);
             combox.setComboxList(params);
             Map<String, SysParam> subParaMap = new HashMap<String, SysParam>();
             for (int i = 0; i < params.size(); i++) {
@@ -195,7 +194,7 @@ public class SysParamServiceImpl extends ServiceImpl<SysParamMapper, SysParam> i
             para.put("paraName", paraName);
             List<SysParam> result = new ArrayList<SysParam>();
             try {
-                result = this.paramMapper.queryParamByName(paraName);
+                result = baseMapper.queryParamByName(paraName);
             } catch (Exception e) {
                 e.printStackTrace();
             }

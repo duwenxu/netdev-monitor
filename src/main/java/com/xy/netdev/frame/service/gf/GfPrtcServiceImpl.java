@@ -14,6 +14,7 @@ import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
+import com.xy.netdev.transit.impl.DataReciveServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.util.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,9 @@ public class GfPrtcServiceImpl implements IParaPrtclAnalysisService {
     @Autowired
     private ISysParamService sysParamService;
 
+    @Autowired
+    private DataReciveServiceImpl dataReciveService;
+
     @Override
     public void queryPara(FrameReqData reqInfo) {
         setParamBytes(reqInfo);
@@ -45,7 +49,9 @@ public class GfPrtcServiceImpl implements IParaPrtclAnalysisService {
     @Override
     public FrameRespData queryParaResponse(FrameRespData respData) {
         FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(), respData.getCmdMark());
-        return setRespData(respData, frameParaInfo,frameParaInfo.getParaStartPoint() - 1);
+        FrameRespData frameRespData = setRespData(respData, frameParaInfo, frameParaInfo.getParaStartPoint() - 1);
+        dataReciveService.paraQueryRecive(frameRespData);
+        return frameRespData;
     }
 
     @Override
@@ -67,7 +73,9 @@ public class GfPrtcServiceImpl implements IParaPrtclAnalysisService {
         if (fail.equals(data)){
             respData.setRespCode(fail);
         }
-        return setRespData(respData, frameParaInfo,0);
+        FrameRespData frameRespData = setRespData(respData, frameParaInfo, 0);
+        dataReciveService.paraQueryRecive(frameRespData);
+        return frameRespData;
     }
 
     private FrameRespData setRespData(FrameRespData respData, FrameParaInfo frameParaInfo, int offset) {

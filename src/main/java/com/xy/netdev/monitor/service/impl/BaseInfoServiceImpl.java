@@ -1,5 +1,6 @@
 package com.xy.netdev.monitor.service.impl;
 
+import cn.hutool.core.util.HexUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -24,8 +25,8 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.PostConstruct;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -55,7 +56,9 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
         wrapper.eq("DEV_STATUS", DEV_STATUS_NEW);
         List<BaseInfo> baseInfos = this.baseMapper.selectList(wrapper);
         //顶级菜单设备信息
-        List<BaseInfo> topMenu = baseInfos.stream().filter(base -> StringUtils.isEmpty(base.getDevParentNo())&& DEV_STATUS_NEW.equals(base.getDevStatus())).collect(Collectors.toList());
+        List<BaseInfo> topMenu = baseInfos.stream().filter(base ->
+                StringUtils.isEmpty(base.getDevParentNo()) && DEV_STATUS_NEW.equals(base.getDevStatus()) && !DEV_NETWORK_GROUP.equals(base.getDevDeployType())
+        ).collect(Collectors.toList());
         LinkedHashMap<String, Object> topMap = new LinkedHashMap<>();
         //递归拼接
         assembleOneMenu(baseInfos, topMenu, topMap);
@@ -79,6 +82,7 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
             List<BaseInfo> subList = baseInfos.stream().filter(base -> menu.getDevNo().equals(base.getDevParentNo()) && DEV_STATUS_NEW.equals(base.getDevStatus())).collect(Collectors.toList());
             LinkedHashMap<String, Object> subMap = new LinkedHashMap<>();
             //将子设备列表转换为Map
+//            subList.sort(Comparator.comparing(BaseInfo::getDevMenuSeq));
             subList.forEach(targetInfo -> {
                 LinkedHashMap map = JSONObject.parseObject(JSONObject.toJSONString(targetInfo), LinkedHashMap.class);
                 subMap.put(targetInfo.getDevName(), map);
@@ -102,33 +106,40 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
 
     /**
      * 下载设备模型文件
+     *
      * @return
      */
     @Override
     public Map<String, Object> downDevFile(String devNo) {
-        BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(devNo);
-        Map<String,Object> maps = new HashMap<>();
-        String subType = ByteUtils.make0HexStr(Optional.ofNullable(ParaHandlerUtil.generateEmptyStr(sysParamService.getParaRemark1(baseInfo.getDevSubType()))).orElse("01"));
-        maps.put("fileName","P["+ ByteUtils.make0HexStr(sysParamService.getParaRemark1(baseInfo.getDevType()))+subType+"]_"+DateUtils.getDateYMDHMS());
-        maps.put("fileContext",generateDevModelFileMap(baseInfo).getBytes());
+        Map<String, Object> maps = new HashMap<>();
+        try {
+            BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(devNo);
+            String subType = ByteUtils.make0HexStr(Optional.ofNullable(ParaHandlerUtil.generateEmptyStr(sysParamService.getParaRemark1(baseInfo.getDevSubType()))).orElse("01"));
+            //maps.put("fileName", "P[" + ByteUtils.make0HexStr(sysParamService.getParaRemark1(baseInfo.getDevType())) + subType + "]_" + ByteUtils.make0HexStr(sysParamService.getParaRemark1(baseInfo.getDevType())));
+            maps.put("fileName", "P[" + ByteUtils.make0HexStr("39") + ByteUtils.make0HexStr(sysParamService.getParaRemark1(baseInfo.getDevType())) + "]_" + DateUtils.getDateYMDHMS());
+            maps.put("fileContext", generateDevModelFileMap(baseInfo).getBytes("gb2312"));
+        } catch (UnsupportedEncodingException e) {
+            log.error("生成设备文件发生异常！");
+        }
         return maps;
     }
 
     /**
      * 生成设备模型定义文件
      * map中key值增加-号，表示添加节点属性，key值为""字符串，则是直接赋值给当前节点
+     *
      * @return
      */
-    private String generateDevModelFileMap(BaseInfo baseInfo){
-        Map<String,Object> map = new HashMap<>();
+    private String generateDevModelFileMap(BaseInfo baseInfo) {
+        Map<String, Object> map = new HashMap<>();
         //获取有效且对外开放的参数列表
         List<ParaInfo> paraInfos = paraInfoService.list().stream().filter(paraInfo -> STATUS_OK.equals(paraInfo.getNdpaStatus()) && IS_DEFAULT_TRUE.equals(paraInfo.getNdpaOutterStatus())).collect(Collectors.toList());
         /***********************增加dev节点********************************/
         Map<String, Object> devMap = new LinkedHashMap<>();
         //给dev节点增加属性值
-        devMap.put("-Types", ByteUtils.make0HexStr(sysParamService.getParaRemark1(baseInfo.getDevType())));
+        devMap.put("-Types", ByteUtils.make0HexStr("39"));
         devMap.put("-ver", ParaHandlerUtil.generateEmptyStr(baseInfo.getDevVer()));
-        String subType = ByteUtils.make0HexStr(Optional.ofNullable(ParaHandlerUtil.generateEmptyStr(sysParamService.getParaRemark1(baseInfo.getDevSubType()))).orElse("01"));
+        String subType = ByteUtils.make0HexStr(sysParamService.getParaRemark1(baseInfo.getDevType()));
         devMap.put("-subtype", subType);
         devMap.put("name", ParaHandlerUtil.generateEmptyStr(baseInfo.getDevName()));
         devMap.put("cnName", ParaHandlerUtil.generateEmptyStr(baseInfo.getDevName()));
@@ -136,50 +147,80 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
         List paraList = new ArrayList();
         //获取指定设备的参数并过滤生成可提供给54所的参数用来生成文件
         String devType = BaseInfoContainer.getDevInfoByNo(baseInfo.getDevNo()).getDevType();
-        paraInfos.stream().filter(paraInfo -> devType.equals(paraInfo.getDevType()) && paraInfo.getNdpaOutterStatus().equals(IS_DEFAULT_TRUE)).forEach(parainfo -> {
+        List<ParaInfo> parasTemp = paraInfos.stream().filter(paraInfo -> devType.equals(paraInfo.getDevType()) && paraInfo.getNdpaOutterStatus().equals(IS_DEFAULT_TRUE)).collect(Collectors.toList());
+        for (ParaInfo parainfo : parasTemp) {
+            String paraType = parainfo.getNdpaCmplexLevel();
+            if(paraType.equals(PARA_COMPLEX_LEVEL_COMPOSE) || paraType.equals(PARA_COMPLEX_LEVEL_COMPLEX)){
+                continue;
+            }
             Map<String, Object> paraMap = new LinkedHashMap<>();
             //给param节点增加属性值
             paraMap.put("-no", ParaHandlerUtil.generateEmptyStr(parainfo.getNdpaNo()));
             paraMap.put("-name", ParaHandlerUtil.generateEmptyStr(ParaHandlerUtil.generateEmptyStr(parainfo.getNdpaName())));
             //特殊处理：当权限为null(0022004)时全设置为可读
             String access = sysParamService.getParaRemark1(parainfo.getNdpaAccessRight());
-            paraMap.put("-access", StringUtils.isNotBlank(access) && !access.equals("null")?access:"read");
+            if(!paraType.equals(PARA_COMPLEX_LEVEL_SIMPLE)){
+                access = "read";
+                paraMap.put("-access", "read");
+            }else{
+                if(access.equals("write")){
+                    access = "full";
+                }
+                paraMap.put("-access", StringUtils.isNotBlank(access) && !access.equals("null") && !access.equals("cmd") ? access : "read");
+            }
             paraMap.put("-unit", ParaHandlerUtil.generateEmptyStr(parainfo.getNdpaUnit()));
             /***********************增加showModel节点****************************/
             Map<String, Object> showMap = new LinkedHashMap<>();
-            showMap.put("-name", ParaHandlerUtil.generateEmptyStr(sysParamService.getParaRemark1(parainfo.getNdpaShowMode())));
+            String modeType =  ParaHandlerUtil.generateEmptyStr(sysParamService.getParaRemark1(parainfo.getNdpaShowMode()));
+            showMap.put("-name",modeType);
             /***********************增加type节点********************************/
             //给type节点增加属性值:当类型为float、double、str时全部转为str
-            String typeCode = parainfo.getNdpaDatatype().equals(PARA_DATA_TYPE_FLOAT) || parainfo.getNdpaDatatype().equals(PARA_DATA_TYPE_DOUBLE) || parainfo.getNdpaDatatype().equals(PARA_DATA_TYPE_STR) ? PARA_DATA_TYPE_STR : parainfo.getNdpaDatatype();
+            String typeCode = parainfo.getNdpaDatatype().equals(PARA_DATA_TYPE_INT) || parainfo.getNdpaDatatype().equals(PARA_DATA_TYPE_UINT) || parainfo.getNdpaDatatype().equals(PARA_DATA_TYPE_FLOAT) || parainfo.getNdpaDatatype().equals(PARA_DATA_TYPE_DOUBLE) || parainfo.getNdpaDatatype().equals(PARA_DATA_TYPE_STR) ? PARA_DATA_TYPE_STR : parainfo.getNdpaDatatype();
             Map<String, Object> typeMap = new LinkedHashMap<>();
-            typeMap.put("-name", ParaHandlerUtil.generateEmptyStr(sysParamService.getParaName(typeCode)));
-            //当数据类型为字符串指定字符串的len
-            if (PARA_DATA_TYPE_STR.equals(parainfo.getNdpaDatatype())) {
-                typeMap.put("-len", Optional.ofNullable(ParaHandlerUtil.generateEmptyStr(parainfo.getNdpaStrLen())).orElse(sysParamService.getParaRemark1(DATA_TYPE_LEN)));
+            typeMap.put("-name",  modeType.equalsIgnoreCase("comb") ? "byte" : ParaHandlerUtil.generateEmptyStr(sysParamService.getParaName(typeCode)));
+            if(!modeType.equals("comb") && typeCode.equals(PARA_DATA_TYPE_STR)){
+                if(access.equals("full") && paraType.equals(PARA_COMPLEX_LEVEL_SIMPLE)){
+                    String len = parainfo.getNdpaStrLen();
+                    if(sysParamService.getParaName(typeCode).equals("str") && StringUtils.isEmpty(len)){
+                        throw new BaseException("参数编号为"+parainfo.getNdpaNo()+"的参数可写，长度不能为空！");
+                    }else{
+                        typeMap.put("-len", len);
+                    }
+                }else{
+                    //当数据类型为字符串指定字符串的len
+                    if ( PARA_DATA_TYPE_STR.equals(typeCode)) {
+                        typeMap.put("-len", Optional.ofNullable(ParaHandlerUtil.generateEmptyStr(parainfo.getNdpaStrLen())).orElse(sysParamService.getParaRemark1(DATA_TYPE_LEN)));
+                    }
+                }
             }
             paraMap.put("type", typeMap);
             if (PARA_SHOW_MODEL.equals(parainfo.getNdpaShowMode())) {
                 List modelList = new ArrayList();
-                if(DEV_STATUS_DEFAULT.equals(parainfo.getNdpaAlertPara()) && StringUtils.isNotEmpty(parainfo.getNdpaTransRule())){
+                if (StringUtils.isNotEmpty(parainfo.getNdpaCombRule())) {
                     /***********************增加type节点********************************/
-                    typeMap.put("-name", ParaHandlerUtil.generateEmptyStr(sysParamService.getParaName(PARA_DATA_TYPE_INT)));
+                    typeMap.put("-name", ParaHandlerUtil.generateEmptyStr(sysParamService.getParaName(PARA_DATA_TYPE_BYTE)));
                     //当数据类型为字符串指定字符串的len
                     paraMap.put("type", typeMap);
                     //当字段类型为无且对外转换字段不为空时
-                    Map<String, String> mapIn = Optional.ofNullable(JSONObject.parseObject(parainfo.getNdpaTransRule(), Map.class)).orElse(new HashMap());
-                    mapIn.forEach((key,value)->{
+                    Map<String, String> mapIn = Optional.ofNullable(JSONObject.parseObject(parainfo.getNdpaCombRule(), Map.class)).orElse(new HashMap());
+                    mapIn.forEach((key, value) -> {
                         Map<String, Object> modelMap = new LinkedHashMap<>();
                         //给type节点增加属性值
-                        modelMap.put("-index", ByteUtils.make0HexStr(ParaHandlerUtil.generateEmptyStr(value)));
+                        //modelMap.put("-index", ByteUtils.make0HexStr(ParaHandlerUtil.generateEmptyStr(value)));
+                        modelMap.put("-index", HexUtil.encodeHexStr(ParaHandlerUtil.generateEmptyStr(value).getBytes(Charset.forName("GB2312")))+ "H");
                         //给标签设置值
                         modelMap.put("", key);
                         modelList.add(modelMap);
                     });
-                }else{
+                } else {
                     JSONArray.parseArray(parainfo.getNdpaSelectData(), ParaSpinnerInfo.class).forEach(paraSpinnerInfo -> {
                         Map<String, Object> modelMap = new LinkedHashMap<>();
                         //给type节点增加属性值
-                        modelMap.put("-index", ParaHandlerUtil.generateEmptyStr(paraSpinnerInfo.getCode())+"H");
+                        if(parainfo.getNdpaDatatype().equals(PARA_DATA_TYPE_BYTE)){
+                            modelMap.put("-index", ParaHandlerUtil.generateEmptyStr(paraSpinnerInfo.getCode()) + "H");
+                        }else{
+                            modelMap.put("-index", HexUtil.encodeHexStr(ParaHandlerUtil.generateEmptyStr(paraSpinnerInfo.getCode()).getBytes(Charset.forName("GB2312")))+ "H");
+                        }
                         //给标签设置值
                         modelMap.put("", paraSpinnerInfo.getName());
                         modelList.add(modelMap);
@@ -187,35 +228,61 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
                 }
                 showMap.put("option", modelList);
                 paraMap.put("showMode", showMap);
-            }else{
+            } else {
                 paraMap.put("showMode", showMap);
                 /***********************增加range节点********************************/
-                if (!StringUtils.isBlank(parainfo.getNdpaValMax())) {
+                if (!StringUtils.isBlank(parainfo.getNdpaValMax1()) && !StringUtils.isBlank(parainfo.getNdpaValMin1())) {
                     Map<String, Object> rangeMap = new LinkedHashMap<>();
                     String name = sysParamService.getParaRemark2(parainfo.getNdpaDatatype());
-                    if(StringUtils.isBlank(name)){
-                        throw new BaseException("参数[]数据类型配置有误!");
-                    }else{
+                    if (StringUtils.isBlank(name)) {
+                        throw new BaseException("参数["+parainfo.getNdpaName()+"]数据类型配置有误!");
+                    } else {
                         rangeMap.put("-name", name);
-                        rangeMap.put("-down", ParaHandlerUtil.generateEmptyStr(parainfo.getNdpaValMin()));
-                        rangeMap.put("-up", ParaHandlerUtil.generateEmptyStr(parainfo.getNdpaValMax()));
+                        rangeMap.put("-down", ParaHandlerUtil.generateEmptyStr(parainfo.getNdpaValMin1()));
+                        rangeMap.put("-up", ParaHandlerUtil.generateEmptyStr(parainfo.getNdpaValMax1()));
                         rangeMap.put("-step", ParaHandlerUtil.generateEmptyStr(parainfo.getNdpaValStep()));
-                        paraMap.put("range", new LinkedHashMap() {{
-                            put("IRange", rangeMap);
-                        }});
+                        rangeMap.put("-format", ParaHandlerUtil.generateEmptyStr(parainfo.getNdpaValFormat()));
+                        List<Map<String, Object>> ranges = new ArrayList<>();
+                        ranges.add(rangeMap);
+                        paraMap.put("range", new LinkedHashMap() {{put("IRange", ranges);}});
+                    }
+                }
+                /***********************增加range节点********************************/
+                if (!StringUtils.isBlank(parainfo.getNdpaValMax2()) && !StringUtils.isBlank(parainfo.getNdpaValMin2())) {
+                    Map<String, Object> rangeMap = new LinkedHashMap<>();
+                    String name = sysParamService.getParaRemark2(parainfo.getNdpaDatatype());
+                    if (StringUtils.isBlank(name)) {
+                        throw new BaseException("参数["+parainfo.getNdpaName()+"]数据类型配置有误!");
+                    } else {
+                        rangeMap.put("-name", name);
+                        rangeMap.put("-down", ParaHandlerUtil.generateEmptyStr(parainfo.getNdpaValMin2()));
+                        rangeMap.put("-up", ParaHandlerUtil.generateEmptyStr(parainfo.getNdpaValMax2()));
+                        rangeMap.put("-step", ParaHandlerUtil.generateEmptyStr(parainfo.getNdpaValStep()));
+                        rangeMap.put("-format", ParaHandlerUtil.generateEmptyStr(parainfo.getNdpaValFormat()));
+                        if(paraMap.containsKey("range")){
+                            Map<String,Object> rangeM = (Map<String,Object>)paraMap.get("range");
+                            List<Map<String, Object>> ranges = (List<Map<String, Object>>)rangeM.get("IRange");
+                            ranges.add(rangeMap);
+                        }else{
+                            List<Map<String, Object>> ranges = new ArrayList<>();
+                            ranges.add(rangeMap);
+                            paraMap.put("range", new LinkedHashMap() {{put("IRange", ranges);}});
+                        }
                     }
                 }
             }
             paraList.add(paraMap);
-        });
-        devMap.put("ps", new LinkedHashMap(){{put("param",paraList);}});
-        map.put("dev",devMap);
-        return XmlUtil.convertToXml(map,"gb2312");
+        }
+        devMap.put("ps", new LinkedHashMap() {{
+            put("param", paraList);
+        }});
+        map.put("dev", devMap);
+        return XmlUtil.convertToXml(map, "gb2312");
     }
 
     @Override
     public boolean changeUseStatus(String devNo) {
-        boolean isOk=false;
+        boolean isOk = false;
         String masterOrSlaveStatus;
         //修改使用状态
         if (StringUtils.isNotBlank(devNo)) {
@@ -231,9 +298,9 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
                 }
             }
             //上报当前设备 主备状态
-            if (DEV_DEPLOY_MASTER.equals(targetDev.getDevDeployType())){
+            if (DEV_DEPLOY_MASTER.equals(targetDev.getDevDeployType())) {
                 masterOrSlaveStatus = RPT_DEV_STATUS_MASTERORSLAVE_MASTER;
-            }else {
+            } else {
                 masterOrSlaveStatus = RPT_DEV_STATUS_MASTERORSLAVE_SLAVE;
             }
             targetDev.setDevUseStatus(DEV_USE_STATUS_INUSE);
@@ -245,6 +312,7 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
 
     /**
      * 设备信息修改时发送 是否启用主备
+     *
      * @param devNo 设备编号
      */
     @Override
@@ -260,16 +328,17 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
         List<BaseInfo> subMasterSlaveList = subListByDevNo(parentNo);
         if (subMasterSlaveList.size() > 1) {
             devStatusReportService.rptUseStandby(devNo, RPT_DEV_STATUS_USESTANDBY_YES);
-        }else {
+        } else {
             devStatusReportService.rptUseStandby(devNo, RPT_DEV_STATUS_USESTANDBY_NO);
         }
     }
 
     /**
      * 通过设备编号查询同属一个父设备的子设备列表(从数据库获取而非缓存)
+     *
      * @return 子设备列表
      */
-    private List<BaseInfo> subListByDevNo(String parentNo){
+    private List<BaseInfo> subListByDevNo(String parentNo) {
         LambdaQueryWrapper<BaseInfo> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(BaseInfo::getDevParentNo, parentNo);
         return this.list(wrapper).stream()

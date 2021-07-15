@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.Trigger;
 import org.springframework.scheduling.TriggerContext;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
@@ -79,6 +80,7 @@ public class DelOperCronTask implements SchedulingConfigurer {
         taskRegistrar.addTriggerTask(task,trigger);
     }
 
+    @Async
     @Transactional
     public void deleteLog(){
         try {

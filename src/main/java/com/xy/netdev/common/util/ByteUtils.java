@@ -1,20 +1,17 @@
 package com.xy.netdev.common.util;
 
-import cn.hutool.core.codec.BCD;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.HexUtil;
 import com.google.common.primitives.Bytes;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.util.ReferenceCountUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.*;
-import java.math.BigInteger;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -115,7 +112,7 @@ public class ByteUtils {
                 break;
             case 4:
                 if (!isFloat){
-                    data = objToBytes(Integer.parseInt(obj.toString()), byteOrder, Unpooled::copyInt);
+                    data = objToBytes((int)Long.parseLong(obj.toString()), byteOrder, Unpooled::copyInt);
                     break;
                 }
                 data = objToBytes(Float.parseFloat(obj.toString()), byteOrder, Unpooled::copyFloat);
@@ -129,6 +126,16 @@ public class ByteUtils {
                 break;
             default:
                 data = obj.toString().getBytes(Charset.forName("GB2312"));
+//                int dataLen = data.length;
+//                List<byte[]> dataList = new ArrayList<>();
+//                if(dataLen<len){
+//                    for (int i = 0; i < len-dataLen ; i++) {
+//                        byte[] val = {(byte)0x00};
+//                        dataList.add(val);
+//                    }
+//                }
+//                dataList.add(data);
+//                data = listToBytes(dataList);
                 break;
         }
         return data;
@@ -512,13 +519,39 @@ public class ByteUtils {
         return rv;
     }
 
+    /**
+     * 转换byte数组为int（大端）
+     * @return
+     * @note 数组长度至少为4，按小端方式转换，即传入的bytes是大端的，按这个规律组织成int
+     */
+    public static int Bytes2Int_BE(byte[] bytes){
+        if(bytes.length == 4 || bytes.length ==2){
+            int iRst = (bytes[0] << 24) & 0xFF;
+            iRst |= (bytes[1] << 16) & 0xFF;
+            if(bytes.length == 4){
+                iRst |= (bytes[2] << 8) & 0xFF;
+                iRst |= bytes[3] & 0xFF;
+            }
+            return iRst;
+        }
+        return -1;
+    }
+
+    public static int getInt(byte[] bytes){
+        return (0xff & bytes[0]) | (0xff00 & (bytes[1]<<8)) | (0xff0000 & (bytes[2]<<16)) | (0xff000000 & (bytes[3]<<24));
+    }
+
     public static void main(String[] args) {
-        String str = "7e138303000e7d5ef00056322e302d313930393233607e";
+//        String str = "7e138303000e7d5ef00056322e302d313930393233607e";
+////        byte[] bytes = HexUtil.decodeHex(str);
+////        byte[] byteReplace = byteReplace(bytes, 1, bytes.length - 1, Pair.of("7E", "7D5E"), Pair.of("7D", "7D5D"));
+////        System.out.println(HexUtil.encodeHexStr(byteReplace).toUpperCase());
 //        byte[] bytes = HexUtil.decodeHex(str);
-//        byte[] byteReplace = byteReplace(bytes, 1, bytes.length - 1, Pair.of("7E", "7D5E"), Pair.of("7D", "7D5D"));
-//        System.out.println(HexUtil.encodeHexStr(byteReplace).toUpperCase());
-        byte[] bytes = HexUtil.decodeHex(str);
-        byte[] replace = byteReplace(bytes, Pair.of("7D5E", "7E"), Pair.of("7D5D", "7D"));
-        System.out.println(HexUtil.encodeHexStr(replace).toUpperCase());
+//        byte[] replace = byteReplace(bytes, Pair.of("7D5E", "7E"), Pair.of("7D5D", "7D"));
+//        System.out.println(HexUtil.encodeHexStr(replace).toUpperCase());
+
+        byte[] bytes = new byte[]{(byte) 0xC3,(byte) 0xF5,(byte) 0xDA,(byte) 0x42};
+        String s = byteToNumber(bytes, 0, 4, false, true).toString();
+        System.out.println(s);
     }
 }

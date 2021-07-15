@@ -68,7 +68,9 @@ public class BaseInfo extends Model<BaseInfo> {
     @TableField(value = "DEV_PORT")
     private String devPort;
 
-    private String localPort;
+    @ApiModelProperty(value = "本机端口")
+    @TableField(value = "DEV_LOCAL_PORT")
+    private String devLocalPort;
 
     @ApiModelProperty(value = "上级设备编号")
     @TableField(value = "DEV_PARENT_NO")
@@ -88,6 +90,10 @@ public class BaseInfo extends Model<BaseInfo> {
     @Param
     private String devDeployType;
 
+    @ApiModelProperty(value = "菜单显示顺序")
+    @TableField(value = "DEV_MENU_SEQ")
+    private Integer devMenuSeq;
+
     /**
      * 0032001 设备使用状态-在用  0032002 设备使用状态-不在用
      */
@@ -103,6 +109,15 @@ public class BaseInfo extends Model<BaseInfo> {
     @TableField(value = "DEV_SUB_TYPE")
     @Param
     private String devSubType;
+
+    /**
+     * 设备是否连接远程服务
+     * 0003001 是  0003002 否
+     */
+    @ApiModelProperty(value = "是否连接远程服务")
+    @TableField(value = "DEV_IS_LINK")
+    @Param
+    private String devIsLink;
 
     @ApiModelProperty(value = "备注一描述")
     @TableField(value = "DEV_REMARK1_DESC")

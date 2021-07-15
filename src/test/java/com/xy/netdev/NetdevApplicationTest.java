@@ -213,12 +213,12 @@ public class NetdevApplicationTest {
     public static void main(String[] args) throws InterruptedException {
         ExecutorService executorService = ThreadUtil.newExecutor(10);
         executorService.execute(() ->
-                new NettyTcpClient("192.168.137.1", 10086, 0, new TestHandler()).run());
+                new NettyTcpClient("192.168.137.1", 8888, 0, new TestHandler()).run());
         executorService.execute(() ->
-                new NettyTcpClient("192.168.137.1", 10087, 0, new TestHandler()).run());
+                new NettyTcpClient("172.21.2.100", 8888, 0, new TestHandler()).run());
         executorService.execute(() ->
-                new NettyTcpClient("192.168.137.1", 10088, 0, new TestHandler()).run());
-        executorService.execute(() ->
-                new NettyTcpClient("192.168.137.1", 10089, 0, new TestHandler()).run());
+                new NettyTcpClient("172.21.7.4", 8888, 0, new TestHandler()).run());
+//        executorService.execute(() ->
+//                new NettyTcpClient("192.168.137.1", 10089, 0, new TestHandler()).run());
     }
 }

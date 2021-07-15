@@ -1,15 +1,14 @@
 package com.xy.netdev.sendrecv.base;
 
 import cn.hutool.core.util.HexUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
-import com.xy.netdev.common.util.BeanFactoryUtil;
 import com.xy.netdev.common.util.SpringContextUtils;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.factory.CtrlInterPrtcllFactory;
 import com.xy.netdev.factory.ParaPrtclFactory;
-import com.xy.netdev.factory.QueryInterPrtcllFactory;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.service.ICtrlInterPrtclAnalysisService;
@@ -24,15 +23,15 @@ import com.xy.netdev.sendrecv.enums.CallbackTypeEnum;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import com.xy.netdev.transit.IDataSendService;
 import io.netty.channel.ChannelFuture;
-import jdk.nashorn.internal.codegen.CompilerConstants;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
-import static com.xy.netdev.common.constant.SysConfigConstant.ACCESS_TYPE_INTERF;
 import static com.xy.netdev.common.constant.SysConfigConstant.ACCESS_TYPE_PARAM;
 import static com.xy.netdev.container.BaseInfoContainer.getDevInfo;
 
@@ -110,67 +109,64 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
 
     @Override
     @SuppressWarnings("unchecked")
-    public void socketResponse(SocketEntity socketEntity) {
-        //获取设备参数信息
-        BaseInfo devInfo = getDevInfo(socketEntity.getRemoteAddress());
-        R r = (R)new FrameRespData();
-        r.setDevType(devInfo.getDevType());
-        r.setDevNo(devInfo.getDevNo());
-
-        //数据拆包
-        R unpackBytes = unpack((Q) socketEntity, r);
-        //转16进制，用来获取协议解析类
-        String cmdHexStr = cmdMarkConvert(r);
-        r.setCmdMark(cmdHexStr);
-        //根据cmd和设备类型获取具体的数据处理类
-        PrtclFormat prtclFormat = null;
-        if (ACCESS_TYPE_PARAM.equals(unpackBytes.getAccessType())){
-            prtclFormat = BaseInfoContainer.getPrtclByPara(r.getDevType(), cmdHexStr);
-        }else{
-            prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(r.getDevType(), cmdHexStr);
-        }
-        if (prtclFormat == null){
-            log.warn("设备:{}, 未找到数据体处理类", r.getDevNo());
-            return;
-        }
-        if (prtclFormat.getIsPrtclParam() == null){
-            log.warn("数据解析失败, 未获取到处理类,  发数据地址:{}:{}, cmd:{}, 数据体:{}", socketEntity.getRemoteAddress(),
-                    socketEntity.getRemotePort(), cmdHexStr, HexUtil.encodeHexStr(socketEntity.getBytes()));
-            return;
-        }
-
-        //初始化协议和接口
-        IParaPrtclAnalysisService iParaPrtclAnalysisService = null;
-        IQueryInterPrtclAnalysisService queryInterPrtclAnalysisService = null;
-        ICtrlInterPrtclAnalysisService iCtrlInterPrtclAnalysisService = null;
-        if (prtclFormat.getIsPrtclParam() == 0){
-            r.setAccessType(ACCESS_TYPE_PARAM);
-            iParaPrtclAnalysisService = ParaPrtclFactory.genHandler(prtclFormat.getFmtHandlerClass());
-        }else {
-            switch (getCallbackType(unpackBytes)){
-                case ICTRLINTER_PRTCL:
-                    iCtrlInterPrtclAnalysisService = CtrlInterPrtcllFactory.genHandler(prtclFormat.getFmtHandlerClass());
-                    break;
-                default:
-                    Object handler = SpringContextUtils.getBean(prtclFormat.getFmtHandlerClass());
-                    if (handler instanceof IQueryInterPrtclAnalysisService){
-                        r.setOperType(SysConfigConstant.OPREATE_QUERY_RESP);
-                        queryInterPrtclAnalysisService = (IQueryInterPrtclAnalysisService)handler;
-                    }else if (handler instanceof ICtrlInterPrtclAnalysisService){
-                        r.setOperType(SysConfigConstant.OPREATE_CONTROL_RESP);
-                        iCtrlInterPrtclAnalysisService = (ICtrlInterPrtclAnalysisService)handler;
-                    }else if (handler instanceof IParaPrtclAnalysisService){
-                        iParaPrtclAnalysisService = (IParaPrtclAnalysisService)handler;
-                    }
-                    r.setAccessType(SysConfigConstant.ACCESS_TYPE_INTERF);
-                    break;
+    public void socketResponse(SocketEntity socketEntity,BaseInfo devInfo) {
+            R r = (R)new FrameRespData();
+            r.setDevType(devInfo.getDevType());
+            r.setDevNo(devInfo.getDevNo());
+            //数据拆包
+            R unpackBytes = unpack((Q) socketEntity, r);
+            //转16进制，用来获取协议解析类
+            String cmdHexStr = cmdMarkConvert(r);
+            r.setCmdMark(cmdHexStr);
+            //根据cmd和设备类型获取具体的数据处理类
+            PrtclFormat prtclFormat = null;
+            if (ACCESS_TYPE_PARAM.equals(unpackBytes.getAccessType())){
+                prtclFormat = BaseInfoContainer.getPrtclByPara(r.getDevType(), cmdHexStr);
+            }else{
+                prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(r.getDevType(), cmdHexStr);
             }
+            if (prtclFormat.getFmtId() == null){
+                //log.warn("设备:{}, 未找到数据体处理类", r.getDevNo());
+                return;
+            }
+            if (prtclFormat.getIsPrtclParam() == null){
+                log.warn("数据解析失败, 未获取到处理类,  发数据地址:{}:{}, cmd:{}, 数据体:{}", socketEntity.getRemoteAddress(),
+                        socketEntity.getRemotePort(), cmdHexStr, HexUtil.encodeHexStr(socketEntity.getBytes()));
+                return;
+            }
+
+            //初始化协议和接口
+            IParaPrtclAnalysisService iParaPrtclAnalysisService = null;
+            IQueryInterPrtclAnalysisService queryInterPrtclAnalysisService = null;
+            ICtrlInterPrtclAnalysisService iCtrlInterPrtclAnalysisService = null;
+            if (prtclFormat.getIsPrtclParam() == 0){
+                r.setAccessType(ACCESS_TYPE_PARAM);
+                iParaPrtclAnalysisService = ParaPrtclFactory.genHandler(prtclFormat.getFmtHandlerClass());
+            }else {
+                switch (getCallbackType(unpackBytes)){
+                    case ICTRLINTER_PRTCL:
+                        iCtrlInterPrtclAnalysisService = CtrlInterPrtcllFactory.genHandler(prtclFormat.getFmtHandlerClass());
+                        break;
+                    default:
+                        Object handler = SpringContextUtils.getBean(prtclFormat.getFmtHandlerClass());
+                        if (handler instanceof IQueryInterPrtclAnalysisService){
+                            r.setOperType(SysConfigConstant.OPREATE_QUERY_RESP);
+                            queryInterPrtclAnalysisService = (IQueryInterPrtclAnalysisService)handler;
+                        }else if (handler instanceof ICtrlInterPrtclAnalysisService){
+                            r.setOperType(SysConfigConstant.OPREATE_CONTROL_RESP);
+                            iCtrlInterPrtclAnalysisService = (ICtrlInterPrtclAnalysisService)handler;
+                        }else if (handler instanceof IParaPrtclAnalysisService){
+                            iParaPrtclAnalysisService = (IParaPrtclAnalysisService)handler;
+                        }
+                        r.setAccessType(SysConfigConstant.ACCESS_TYPE_INTERF);
+                        break;
+                }
+            }
+            setReceiveOriginalData(r, socketEntity.getBytes());
+            //执行回调方法
+            this.callback(unpackBytes, iParaPrtclAnalysisService, queryInterPrtclAnalysisService, iCtrlInterPrtclAnalysisService);
+            log.debug("设备数据已发送至对应模块, 数据体:{}", JSON.toJSONString(unpackBytes));
         }
-        setReceiveOriginalData(r, socketEntity.getBytes());
-        //执行回调方法
-        this.callback(unpackBytes, iParaPrtclAnalysisService, queryInterPrtclAnalysisService, iCtrlInterPrtclAnalysisService);
-        log.debug("设备数据已发送至对应模块, 数据体:{}", JSON.toJSONString(unpackBytes));
-    }
 
     /**
      * 不同协议 cmd 关键字转换处理 默认不做转换
@@ -219,7 +215,16 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
     protected Optional<ChannelFuture> sendData(T t, byte[] bytes) {
         BaseInfo devInfo = BaseInfoContainer.getDevInfoByNo(t.getDevNo());
         int port = Integer.parseInt(devInfo.getDevPort());
-        return NettyUtil.sendMsg(bytes, port, devInfo.getDevIpAddr(), port, Integer.parseInt(sysParamService.getParaRemark1(devInfo.getDevNetPtcl())));
+        int localPort = port;
+        if (StrUtil.isNotBlank(devInfo.getDevLocalPort())){
+            localPort = Integer.parseInt(devInfo.getDevLocalPort());
+        }
+        if(t.getDevNo().equals("30") || t.getDevNo().equals("31")){
+            if(t.getOperType().equals(SysConfigConstant.OPREATE_CONTROL)){
+                log.warn("转换开关控制帧："+HexUtil.encodeHexStr(bytes));
+            }
+        }
+        return NettyUtil.sendMsg(bytes, localPort, devInfo.getDevIpAddr(), port, Integer.parseInt(sysParamService.getParaRemark1(devInfo.getDevNetPtcl())));
     }
 
     /**

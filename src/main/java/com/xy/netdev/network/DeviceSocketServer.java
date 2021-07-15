@@ -11,15 +11,18 @@ import com.xy.netdev.network.server.NettyTcpClient;
 import com.xy.netdev.network.server.NettyUdp;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
+import static com.xy.netdev.common.constant.SysConfigConstant.RPT_IP_ADDR;
 import static com.xy.netdev.container.BaseInfoContainer.getDevInfos;
 
 /**
@@ -44,7 +47,6 @@ public class DeviceSocketServer {
         Collection<BaseInfo> devInfos = getDevInfos();
         ThreadUtil.execute(() -> run(devInfos));
     }
-
     @SneakyThrows
     private void run(Collection<BaseInfo> devInfos)  {
         Optional<String> optional = devInfos.stream()
@@ -70,6 +72,8 @@ public class DeviceSocketServer {
                 tcpList.add(baseInfo);
             }
         });
+        Integer port_54 = Integer.parseInt(sysParamService.getParaRemark2(RPT_IP_ADDR));
+        udpPort.add(port_54);
         udpStart(udpPort);
         tcpStart(tcpList);
     }
@@ -89,13 +93,14 @@ public class DeviceSocketServer {
         ExecutorService executorService = ThreadUtil.newExecutor(list.size());
         list.forEach(baseInfo -> {
             int port = Integer.parseInt(baseInfo.getDevPort());
-            int localPort = Integer.parseInt(baseInfo.getLocalPort());
-            if (localPort == 0){
-                localPort = port;
+            String localportStr = baseInfo.getDevLocalPort();
+            int localPort = port;
+            if(StringUtils.isNotEmpty(localportStr)){
+                localPort = Integer.parseInt(localportStr);
             }
             int finalLocalPort = localPort;
-            executorService.execute(() ->
-                    new NettyTcpClient(baseInfo.getDevIpAddr(), port, finalLocalPort, new SimpleTcpMessage()).doConnect());
+            ThreadUtil.execute(() -> new NettyTcpClient(baseInfo.getDevIpAddr(), port, finalLocalPort, new SimpleTcpMessage()).run());
         });
     }
+
 }

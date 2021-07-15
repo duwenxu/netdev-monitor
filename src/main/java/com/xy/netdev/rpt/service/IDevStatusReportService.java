@@ -18,10 +18,10 @@ public interface IDevStatusReportService {
      */
     void rptWarning(String devNo, String status);
 
-    /**
-     * 上报设备未中断，恢复连接
-     */
-    void rptUnInterrupted(String devNo, String status);
+//    /**
+//     * 上报设备未中断，恢复连接
+//     */
+//    void rptUnInterrupted(String devNo, String status);
 
     /**
      * 上报设备中断

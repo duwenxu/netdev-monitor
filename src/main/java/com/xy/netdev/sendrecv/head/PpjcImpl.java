@@ -27,8 +27,8 @@ public class PpjcImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData,
     @Autowired
     private PpjcInterPrtcServiceImpl ppjcInterPrtcService;
     /**查询/控制响应命令标识*/
-    private static final String QUERY_RES = "83";
-    private static final String QUERY_CMD ="82";
+    private static final String QUERY_RES = "83";//查询应答
+    private static final String QUERY_CMD ="82";//查询字节
 
     /**
      * 回滚
@@ -39,7 +39,9 @@ public class PpjcImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData,
      * @param ctrlInterPrtclAnalysisService
      */
     @Override
-    public void callback(FrameRespData frameRespData, IParaPrtclAnalysisService iParaPrtclAnalysisService, IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService, ICtrlInterPrtclAnalysisService ctrlInterPrtclAnalysisService) {
+    public void callback(FrameRespData frameRespData, IParaPrtclAnalysisService iParaPrtclAnalysisService,
+                         IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService,
+                         ICtrlInterPrtclAnalysisService ctrlInterPrtclAnalysisService) {
         switch (frameRespData.getOperType()) {
             case OPREATE_QUERY_RESP:  //查询响应
                 ppjcInterPrtcService.queryParaResponse(frameRespData);

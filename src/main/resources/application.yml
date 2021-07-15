@@ -1,12 +1,11 @@
 
 server:
-  port: 8080
+  port: 8090
 spring:
   application:
     name: netdev-monitor
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    #allowMultiQueries=true   可同时执行多条sql语句
     url: jdbc:mysql://mariadb.xy.dev2:3306/netdevice-dev?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true
     username: root
     password: 123456
@@ -17,6 +16,10 @@ spring:
 mybatis-plus:
   mapper-locations: classpath*:com/xy/netdev/**/xml/*Mapper.xml
   typeAliasesPackage: com.xy.netdev.**.entity
+
+snmp:
+  listenAddress: 192.6.6.1/161
+  targetAddress: 192.6.6.1
 
 swagger:
   enable: true

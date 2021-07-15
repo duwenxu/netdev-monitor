@@ -124,7 +124,7 @@ public class InterfaceController {
     @RequestMapping(value = "/updateCache", method = RequestMethod.GET)
     public Result<List<TransUiData>> updateCache()  {
         //目前暂时这样，后续有优化方案再继续
-        BaseInfo.load();
+        BaseInfo.cleanCache();
         return ControllerResultWrapper.genOkResult();
     }
 
@@ -144,6 +144,13 @@ public class InterfaceController {
     @ApiOperation(value = "查询设备的页面查询接口", notes = "查询设备的页面查询接口")
     @PostMapping(value = "/getPageItfInfo")
     public Result<List> getPageItfInfo(BaseInfo baseInfo) {
+
+
+
+
+
+
+
         List list = targetService.getPageItfInfo(baseInfo);
         return ControllerResultWrapper.genGetOneResult(list);
     }
