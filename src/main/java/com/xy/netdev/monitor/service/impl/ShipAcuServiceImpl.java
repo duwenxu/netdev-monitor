@@ -116,8 +116,8 @@ public class ShipAcuServiceImpl implements IShipAcuService {
      */
     @Override
     public Angel getLocalDeg(Angel angel) {
-        String devJd = DevParaInfoContainer.getDevParaView(angel.getDevNo(),"30").getParaVal();
-        String devWd = DevParaInfoContainer.getDevParaView(angel.getDevNo(),"31").getParaVal();
+        String devJd = DevParaInfoContainer.getDevParaView(angel.getDevNo(),"23").getParaVal();
+        String devWd = DevParaInfoContainer.getDevParaView(angel.getDevNo(),"24").getParaVal();
         angel.setDevJd(devJd);
         angel.setDevWd(devWd);
         return angel;
@@ -130,7 +130,7 @@ public class ShipAcuServiceImpl implements IShipAcuService {
      */
     @Override
     public Angel getCurrentStage(Angel angel) {
-        String paraVal = DevParaInfoContainer.getDevParaView(angel.getDevNo(),"1").getSubParaList().stream().filter(paraViewInfo -> paraViewInfo.getParaNo().equals("20")).collect(Collectors.toList()).get(0).getParaVal();
+        String paraVal = DevParaInfoContainer.getDevParaView(angel.getDevNo(),"1").getParaVal();
         angel.setFunc(paraVal);
         return angel;
     }

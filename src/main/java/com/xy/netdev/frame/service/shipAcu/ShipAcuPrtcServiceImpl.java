@@ -163,9 +163,6 @@ public class ShipAcuPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
         if (param.getParaNo().equals("15")) {
             Flag = frameParaData.getParaVal();
         }
-        if(param.getNdpaRemark3Data().contains("false")){
-            DevParaInfoContainer.setIsShow(respData.getDevNo(), param.getParaNo(), false);
-        }
         frameParaDataList.add(frameParaData);
     }
 
