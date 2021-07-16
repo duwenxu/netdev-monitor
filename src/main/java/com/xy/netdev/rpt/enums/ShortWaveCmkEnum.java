@@ -17,7 +17,8 @@ public enum ShortWaveCmkEnum {
     QUERY_CHANNEL("10","11","12","查询信道状态"),
     START_CHANNEL("20","21","22","建链"),
     END_CHANNEL("30","31","32","拆链"),
-    SEND_DATA("40","41","42","发送数据");
+    SEND_DATA("40","41","42","发送数据"),
+    RPT_STATUS("50",null,"50","上报数据响应");
 
     private final String reqCmk;
     private final String tempResCmk;

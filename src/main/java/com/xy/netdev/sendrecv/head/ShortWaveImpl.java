@@ -18,6 +18,7 @@ import com.xy.netdev.sendrecv.base.AbsDeviceSocketHandler;
 import com.xy.netdev.sendrecv.entity.SocketEntity;
 import com.xy.netdev.sendrecv.entity.device.ShortWaveEntity;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -80,7 +81,6 @@ public class ShortWaveImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReq
         //参数数据
         byte[] paramBytes = frameReqData.getParamBytes();
         String cmdMark = frameReqData.getCmdMark();
-        int length = paramBytes.length;
 
         String operType = frameReqData.getOperType();
         String keyWord;
@@ -92,6 +92,9 @@ public class ShortWaveImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReq
             keyWord = prtclFormat.getFmtSkey();
         }else {
             keyWord = prtclFormat.getFmtCkey();
+        }
+        if (StringUtils.isBlank(keyWord)){
+            keyWord = cmdMark;
         }
 
         byte[] serialNumBytes = new byte[]{};
