@@ -89,6 +89,7 @@ public class Ka100BucInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
             if(values.length>1){
                 value = values[1];
             }
+//            功放电源协议中没有命令标识   手动赋值
             if (cmdMark.equals("MUTE") || cmdMark.equals("UNMUTE")){
                 value = cmdMark;
                 cmdMark = "MU";

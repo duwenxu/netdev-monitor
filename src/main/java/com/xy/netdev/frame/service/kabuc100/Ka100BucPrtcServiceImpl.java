@@ -154,21 +154,40 @@ public class Ka100BucPrtcServiceImpl implements IParaPrtclAnalysisService {
         StringBuilder sb = new StringBuilder();
         String localAddr = "001";
         String cmdMK = reqInfo.getCmdMark();
-        if (cmdMK.equals("FREQ")){
-            String str = reqInfo.getFrameParaList().get(0).getParaVal();
-            String[] freq = str.split("\\.");
-            if (freq.length == 1){
-                str = "0" + str + ".0000";
-            }else {
-                str = "0" + str;
-            }
-            sb.append(SEND_START_MARK).append(localAddr).append("/").append(reqInfo.getCmdMark())
-                    .append("_").append(str);
+        switch (cmdMK){
+            case "FREQ" :
+                StringBuilder freqStr = new StringBuilder(reqInfo.getFrameParaList().get(0).getParaVal());
+                String[] freq = freqStr.toString().split("\\.");
+                if (freq.length == 1){
+                    freqStr = new StringBuilder("0" + freqStr + ".0000");
+                }else {
+                    freqStr = new StringBuilder("0" + freqStr);
+                    for (int i = 0; i < 4 - freq[1].length(); i++) {
+                        freqStr.append("0");
+                    }
+                }
+                sb.append(SEND_START_MARK).append(localAddr).append("/").append(reqInfo.getCmdMark())
+                        .append("_").append(freqStr);
+                break;
+            case "ECLR":
+                sb.append(SEND_START_MARK).append(localAddr).append("/").append(reqInfo.getCmdMark());
+                break;
+            case  "AT" :
+                String atStr = reqInfo.getFrameParaList().get(0).getParaVal();
+                String[] at = atStr.split("\\.");
+                if (at.length == 1){
+                    atStr = atStr + ".0";
+                }
+                if (at[0].length() == 1) {
+                    atStr = "0" + atStr;
+                }
+                sb.append(SEND_START_MARK).append(localAddr).append("/").append(reqInfo.getCmdMark())
+                        .append("_").append(atStr);
+                break;
+            default:
+                sb.append(SEND_START_MARK).append(localAddr).append("/").append(reqInfo.getCmdMark())
+                        .append("_").append(reqInfo.getFrameParaList().get(0).getParaVal());
         }
-        sb.append(SEND_START_MARK).append(localAddr).append("/").append(reqInfo.getCmdMark())
-                .append("_").append(reqInfo.getFrameParaList().get(0).getParaVal());
-
-
         String command = sb.toString();
         reqInfo.setParamBytes(command.getBytes());
         String cmdMark = reqInfo.getCmdMark();
