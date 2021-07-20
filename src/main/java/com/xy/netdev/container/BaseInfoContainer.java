@@ -639,7 +639,7 @@ public class BaseInfoContainer {
             frameParaInfo.setNdpaRemark3Desc(paraInfo.getNdpaRemark3Desc());//备注3
             frameParaInfo.setNdpaRemark3Data(paraInfo.getNdpaRemark3Data());//数据3
             frameParaInfo.setCmplexLevel(paraInfo.getNdpaCmplexLevel());//复杂级别
-            frameParaInfo.setNdpaIsTopology(paraInfo.getNdpaIsTopology());   //是否在拓扑图显示
+            frameParaInfo.setNdpaIsTopology(paraInfo.getNdpaIsImportant());   //是否重要
             frameParaInfo.setNdpaOutterStatus(paraInfo.getNdpaOutterStatus());
             frameParaInfo.setNdpaRptOid(paraInfo.getNdpaRptOid());
             Map map = new HashMap();
