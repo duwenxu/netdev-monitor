@@ -35,8 +35,6 @@ public class HdpmPrtcServiceImpl implements IParaPrtclAnalysisService {
     public final static String SEND_START_MARK = "<";
     /**设备响应开始标记*/
     public final static String RESP_START_MARK = ">";
-    /**设备物理地址设置*/
-    public final static String SET_ADDR_CMD = "SPA";
     /**设备物理广播地址*/
     public final static String BROADCAST_ADDR = "255";
 
@@ -76,8 +74,9 @@ public class HdpmPrtcServiceImpl implements IParaPrtclAnalysisService {
     public FrameRespData queryParaResponse(FrameRespData respData) {
         String respStr = new String(respData.getParamBytes());
         respStr =  respStr.split(RESP_START_MARK)[1];
+        int index = respStr.indexOf("/");
         int stIndex = respStr.indexOf("_");
-        String cmdMk = respStr.substring(0,stIndex);
+        String cmdMk = respStr.substring(index+1,stIndex);
         int edIndex = respStr.indexOf(StrUtil.LF);
         String val = respStr.substring(stIndex+1,edIndex);
         List<FrameParaData> frameParas = new ArrayList<>();
@@ -88,11 +87,18 @@ public class HdpmPrtcServiceImpl implements IParaPrtclAnalysisService {
             val.replace("I2","设备2告警");
             val.replace("LK","内部通信告警");
         }
+        if(cmdMk.equals("CH")){
+            cmdMk = respData.getCmdMark();
+            val = val.split(":")[1];
+        }
         FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),respData.getCmdMark());
         if(cmdMk.equals("FA")){
             List<FrameParaInfo> subParaList = frameParaInfo.getSubParaList();
             for (int i = 0; i <subParaList.size() ; i++) {
-                subParaList.get(i).setParaVal(String.valueOf(val.charAt(1)));
+                FrameParaData frameParaData = new FrameParaData();
+                BeanUtil.copyProperties(subParaList.get(i), frameParaData, true);
+                frameParaData.setParaVal(String.valueOf(val.charAt(i)));
+                frameParas.add(frameParaData);
             }
         }
         FrameParaData frameParaData = new FrameParaData();
@@ -111,9 +117,8 @@ public class HdpmPrtcServiceImpl implements IParaPrtclAnalysisService {
     @Override
     public void ctrlPara(FrameReqData reqInfo) {
         StringBuilder sb = new StringBuilder();
-        String localAddr = "001";
-        sb.append(SEND_START_MARK).append(localAddr).append("/").append(reqInfo.getCmdMark())
-                .append("_").append(reqInfo.getFrameParaList().get(0).getParaVal());
+        String localAddr = "255";
+        sb.append(SEND_START_MARK).append(localAddr).append("/");
         String val = reqInfo.getFrameParaList().get(0).getParaVal();
         String cmdMk = reqInfo.getCmdMark();
         switch (cmdMk){
@@ -140,10 +145,6 @@ public class HdpmPrtcServiceImpl implements IParaPrtclAnalysisService {
         }
         String command = sb.toString();
         reqInfo.setParamBytes(command.getBytes());
-        String cmdMark = reqInfo.getCmdMark();
-        if(cmdMark.equals(SET_ADDR_CMD)) {
-            setDevLocalAddr(reqInfo);
-        }
         socketMutualService.request(reqInfo, ProtocolRequestEnum.CONTROL);
     }
 

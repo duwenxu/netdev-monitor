@@ -72,10 +72,18 @@ public class LmatrixImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
         }
         //数据体
         byte[] paramBytes = byteArrayCopy(bytes, 8, len-1);
-        PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameRespData.getDevType(), hexPrtcCmd);
-        String operateType = BaseInfoContainer.getOptByPrtcl(prtclFormat, hexPrtcCmd);
+        String operateType = "";
+        if(hexPrtcCmd.equals("81")){
+            frameRespData.setAccessType(SysConfigConstant.ACCESS_TYPE_PARAM);
+            operateType = SysConfigConstant.OPREATE_CONTROL_RESP;
+            String paraCmdMk = bytesToNum(bytes, 8, 1, ByteBuf::readByte).toString();
+            frameRespData.setCmdMark(paraCmdMk);
+        }else{
+            PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(frameRespData.getDevType(), hexPrtcCmd);
+            operateType = BaseInfoContainer.getOptByPrtcl(prtclFormat, hexPrtcCmd);
+            frameRespData.setCmdMark(hexPrtcCmd);
+        }
         frameRespData.setOperType(operateType);
-        frameRespData.setCmdMark(hexPrtcCmd);
         frameRespData.setParamBytes(paramBytes);
         return frameRespData;
     }
@@ -84,7 +92,13 @@ public class LmatrixImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
     @Override
     public byte[] pack(FrameReqData frameReqData) {
         byte[] paramBytes = frameReqData.getParamBytes();
-        PrtclFormat prtclFormat = BaseInfoContainer.getPrtclByInterface(frameReqData.getDevType(), frameReqData.getCmdMark());
+        String cmdMark = frameReqData.getCmdMark();
+        PrtclFormat prtclFormat = null;
+        if(cmdMark.equals("82")||cmdMark.equals("83")){
+            prtclFormat = BaseInfoContainer.getPrtclByInterface(frameReqData.getDevType(), cmdMark);
+        }else {
+            prtclFormat = BaseInfoContainer.getPrtclByPara(frameReqData.getDevType(),cmdMark);
+        }
         String keyword;
         if (StrUtil.isNotBlank(prtclFormat.getFmtSkey())){
             keyword = prtclFormat.getFmtSkey();
@@ -97,9 +111,9 @@ public class LmatrixImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
         }
         CarAntennaEntity carAntennaEntity = CarAntennaEntity.builder()
                 .beginOffset((byte) 0x7E)
-                .deviceType((byte) 0x13)
+                .deviceType((byte) 0x77)
                 .devSubType(Byte.valueOf(getDevModel(frameReqData),16))
-                .deviceAddress(new byte[]{(byte) 0x00,(byte) 0x01})
+                .deviceAddress(new byte[]{(byte) 0x00,(byte) 0xFF})
                 .length(objToBytes(length+1, 2))
                 .cmd((byte) Integer.parseInt(keyword, 16))
                 .params(paramBytes)
@@ -177,7 +191,7 @@ public class LmatrixImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
         if (devSubType!=null){
             return sysParamService.getParaRemark1(devSubType);
         }
-        return null;
+        return devSubType;
     }
 
 
