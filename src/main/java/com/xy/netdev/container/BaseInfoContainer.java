@@ -654,8 +654,9 @@ public class BaseInfoContainer {
             frameParaInfo.setDevType(paraInfo.getDevType());      //设备类型
             frameParaInfo.setDevTypeCode(paraInfo.getDevTypeCode());      //设备类型编码
             frameParaInfo.setNdpaAccessRight(paraInfo.getNdpaAccessRight()); //访问权限
+
             List<PrtclFormat> prtclFormats = prtclList.stream()
-                    .filter(prtclFormat -> prtclFormat.getFmtId() == paraInfo.getFmtId())
+                    .filter(prtclFormat -> prtclFormat.getFmtId().equals(paraInfo.getFmtId()))
                     .collect(Collectors.toList());
             if (prtclFormats.size() > 0) {
                 //设置协议归属

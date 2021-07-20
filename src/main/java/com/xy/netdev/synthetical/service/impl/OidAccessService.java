@@ -64,6 +64,7 @@ public class OidAccessService implements IOidAccessService {
     }
 
     private final ConcurrentHashMap<String, SnmpRptDTO> mergeSnmpDtoMap= new ConcurrentHashMap<>(10);
+    private static final String STOP_SIGN_OID = "1.3.6.1.4.1.63000.2.2.2.00.00.1.1.4";
 
     @Override
     public List<VariableBinding> getVariablesByOidList(List<String> oidList) {
@@ -78,32 +79,37 @@ public class OidAccessService implements IOidAccessService {
         long t2 = System.currentTimeMillis();
         ArrayList<VariableBinding> variableBindings = new ArrayList<>();
         for (String oid : oidList) {
-            /**OID拼接后缀发送*/
-            oid = oid + DevParaInfoContainer.SNMP_RPT_SUFFIX;
-            VariableBinding variableBinding = new VariableBinding(new OID(oid));
-            if (!mergeSnmpDtoMap.containsKey(oid)) {
-                variableBinding.setVariable(new Null());
-            } else {
-                SnmpRptDTO snmpRptDTO = mergeSnmpDtoMap.get(oid);
-                String paraVal = snmpRptDTO.getParaVal();
-                if (StringUtils.isBlank(paraVal)) {
+            if (oid.endsWith(".1.1.1")){
+                VariableBinding binding = new VariableBinding(new OID(STOP_SIGN_OID), new Integer32(1));
+                variableBindings.add(binding);
+            }else {
+                /**OID拼接后缀发送*/
+                oid = oid + DevParaInfoContainer.SNMP_RPT_SUFFIX;
+                VariableBinding variableBinding = new VariableBinding(new OID(oid));
+                if (!mergeSnmpDtoMap.containsKey(oid)) {
                     variableBinding.setVariable(new Null());
                 } else {
-                    String dataType = snmpRptDTO.getParaDatatype();
-                    if (INT.equals(dataType) || UNIT.equals(dataType)) {
-                        variableBinding.setVariable(new Integer32(Integer.parseInt(paraVal)));
-                    } else if (IP_ADDRESS.equals(dataType) || IP_MASK.equals(dataType)) {
-                        variableBinding.setVariable(new IpAddress(paraVal));
-                    } else if (BYTE.equals(dataType)) {
-                        /**byte类型的16进制需要转换为10进制数*/
-                        String octVal = Integer.parseInt(paraVal, 16) + "";
-                        variableBinding.setVariable(new Integer32(Integer.parseInt(octVal)));
+                    SnmpRptDTO snmpRptDTO = mergeSnmpDtoMap.get(oid);
+                    String paraVal = snmpRptDTO.getParaVal();
+                    if (StringUtils.isBlank(paraVal)) {
+                        variableBinding.setVariable(new Null());
                     } else {
-                        variableBinding.setVariable(new OctetString(paraVal));
+                        String dataType = snmpRptDTO.getParaDatatype();
+                        if (INT.equals(dataType) || UNIT.equals(dataType)) {
+                            variableBinding.setVariable(new Integer32(Integer.parseInt(paraVal)));
+                        } else if (IP_ADDRESS.equals(dataType) || IP_MASK.equals(dataType)) {
+                            variableBinding.setVariable(new IpAddress(paraVal));
+                        } else if (BYTE.equals(dataType)) {
+                            /**byte类型的16进制需要转换为10进制数*/
+                            String octVal = Integer.parseInt(paraVal, 16) + "";
+                            variableBinding.setVariable(new Integer32(Integer.parseInt(octVal)));
+                        } else {
+                            variableBinding.setVariable(new OctetString(paraVal));
+                        }
                     }
                 }
+                variableBindings.add(variableBinding);
             }
-            variableBindings.add(variableBinding);
         }
         log.debug("单次获取所有OID的数据耗时: 合并阶段：[{}]---遍历获取阶段：[{}]", t2 - t1, System.currentTimeMillis() - t2);
         return variableBindings;

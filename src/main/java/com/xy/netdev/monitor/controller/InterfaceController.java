@@ -144,6 +144,13 @@ public class InterfaceController {
     @ApiOperation(value = "查询设备的页面查询接口", notes = "查询设备的页面查询接口")
     @PostMapping(value = "/getPageItfInfo")
     public Result<List> getPageItfInfo(BaseInfo baseInfo) {
+
+
+
+
+
+
+
         List list = targetService.getPageItfInfo(baseInfo);
         return ControllerResultWrapper.genGetOneResult(list);
     }
