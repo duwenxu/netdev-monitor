@@ -187,16 +187,10 @@ public class ParaViewInfo {
     private List<ParaViewInfo> subParaList = new ArrayList<>();
 
     /**
-     * 是否在拓扑图显示
+     * 是否重要
      */
-    @ApiModelProperty(value = "是否在拓扑图显示")
-    private Boolean ndpaIsTopology ;
-
-    /**
-     * 是否返回前端显示
-     */
-    @ApiModelProperty(value = "是否返回前端显示")
-    private Boolean isShow = true;
+    @ApiModelProperty(value = "是否重要")
+    private Boolean ndpaIsImportant ;
 
     /**
      * 添加子参数

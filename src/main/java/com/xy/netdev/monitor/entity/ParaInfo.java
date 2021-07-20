@@ -177,8 +177,8 @@ public class ParaInfo extends Model<ParaInfo> {
     private String ndpaLinkVal;
 
     @ApiModelProperty(value = "是否在拓扑图显示")
-    @TableField(value = "NDPA_IS_TOPOLOGY")
-    private Boolean ndpaIsTopology;
+    @TableField(value = "NDPA_IS_IMPORTANT")
+    private Boolean ndpaIsImportant;
 
     @ApiModelProperty(value = "备注一描述")
     @TableField(value = "NDPA_REMARK1_DESC")

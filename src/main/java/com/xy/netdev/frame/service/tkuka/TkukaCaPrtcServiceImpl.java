@@ -128,11 +128,6 @@ public class TkukaCaPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
                 startPoint = startPoint+Integer.valueOf(param.getNdpaRemark1Data());
             }
         }
-        //设置部分参数不显示
-        String strs = "60,61,62,63,64";
-        for(String str : strs.split(",")){
-            DevParaInfoContainer.setIsShow(respData.getDevNo(),str,false);
-        }
     }
 
     /**

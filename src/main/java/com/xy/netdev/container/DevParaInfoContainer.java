@@ -305,7 +305,7 @@ public class DevParaInfoContainer {
         viewInfo.setSpinnerInfoList(JSONArray.parseArray(paraInfo.getNdpaSelectData(), ParaSpinnerInfo.class));
         viewInfo.setParaByteLen(paraInfo.getNdpaByteLen());
         viewInfo.setNdpaOutterStatus(paraInfo.getNdpaOutterStatus());
-        viewInfo.setNdpaIsTopology(paraInfo.getNdpaIsTopology());
+        viewInfo.setNdpaIsImportant(paraInfo.getNdpaIsImportant());
         viewInfo.setRptOidSign(paraInfo.getNdpaRptOid());
         return viewInfo;
     }
@@ -327,7 +327,7 @@ public class DevParaInfoContainer {
      * @功能：根据设备显示参数列表
      */
     public static List<ParaViewInfo> getDevParaExtViewList(String devNo) {
-        return devParaMap.get(devNo).values().stream().filter(paraViewInfo -> paraViewInfo.getIsShow() == true).collect(Collectors.toList());
+        return new ArrayList(devParaMap.get(devNo).values());
     }
 
     /**
@@ -338,19 +338,6 @@ public class DevParaInfoContainer {
      */
     public static ParaViewInfo getDevParaView(String devNo, String paraNo) {
         return devParaMap.get(devNo).get(ParaHandlerUtil.genLinkKey(devNo, paraNo));
-    }
-
-    /**
-     * @param devNo  设备编号
-     * @param paraNo 参数编号
-     * @return 设备参数显示信息
-     * @功能：修改指定参数是否显示
-     */
-    public static void setIsShow(String devNo, String paraNo, boolean result) {
-        ParaViewInfo paraViewInfo = devParaMap.get(devNo).get(ParaHandlerUtil.genLinkKey(devNo, paraNo));
-        if (ObjectUtil.isNotEmpty(paraViewInfo)) {
-            paraViewInfo.setIsShow(result);
-        }
     }
 
     private static final Map<String, Map<String, ParaViewInfo>> changedDevParaMap = new LinkedHashMap<>(10);

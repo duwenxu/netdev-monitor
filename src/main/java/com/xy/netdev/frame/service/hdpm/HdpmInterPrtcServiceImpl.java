@@ -74,6 +74,9 @@ public class HdpmInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService
                 String cmdMk1 = datas[i].split("_")[0];
                 String val1 = datas[i].split("_")[1];
                 FrameParaData paraInfo = new FrameParaData();
+                if(cmdMk1.equals("STATUS")){
+                    cmdMk1 = "REM";
+                }
                 FrameParaInfo frameParaDetail = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),cmdMk1);
                 BeanUtil.copyProperties(frameParaDetail, paraInfo, true);
                 paraInfo.setParaVal(val1);
@@ -92,7 +95,7 @@ public class HdpmInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService
                     if(j==2){
                         cmdMk = "ECU"+String.valueOf(i);
                     }
-                    String val = devData[i];
+                    String val = devData[j];
                     FrameParaData paraInfo = new FrameParaData();
                     FrameParaInfo frameParaDetail = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),cmdMk);
                     BeanUtil.copyProperties(frameParaDetail, paraInfo, true);
