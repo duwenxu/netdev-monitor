@@ -189,8 +189,8 @@ public class ParaViewInfo {
     /**
      * 是否重要
      */
-    @ApiModelProperty(value = "是否重要")
-    private Boolean ndpaIsImportant ;
+    @ApiModelProperty(value = "是否重要：0 不重要 1 重要  2隐藏")
+    private Integer ndpaIsImportant ;
 
     /**
      * 添加子参数

@@ -155,8 +155,8 @@ public class FrameParaInfo {
     /**
      * 是否在拓扑图显示
      */
-    @ApiModelProperty(value = "是否在拓扑图显示")
-    private Boolean ndpaIsTopology ;
+    @ApiModelProperty(value = "是否重要：0 不重要 1 重要  2隐藏")
+    private Integer ndpaIsImportant ;
 
 
     @ApiModelProperty(value = "是否该字段提供给54所访问")
