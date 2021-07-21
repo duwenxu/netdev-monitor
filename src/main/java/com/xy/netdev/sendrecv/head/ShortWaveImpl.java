@@ -106,7 +106,7 @@ public class ShortWaveImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReq
                 serialNumBytes = ShortWaveInterCtrlServiceImpl.START_CHANNEL;
                 break;
             case "30":
-                serialNumBytes = ShortWaveInterCtrlServiceImpl.SEND_DATA;
+                serialNumBytes = ShortWaveInterPrtcServiceImpl.END_CHANNEL;
                 break;
             case "40":
                 serialNumBytes = ShortWaveInterCtrlServiceImpl.SEND_DATA;
@@ -153,7 +153,7 @@ public class ShortWaveImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReq
      */
     private byte[] crc16Check(ShortWaveEntity waveEntity) {
         byte[] bytes = packForCrc(waveEntity);
-        CrcCalculator crcCalculator = new CrcCalculator(Crc16.Crc16AugCcitt);
+        CrcCalculator crcCalculator = new CrcCalculator(Crc16.Crc16Xmodem);
         long crc16 = crcCalculator.Calc(bytes, 0, bytes.length);
         byte[] crcBytes = Longs.toByteArray(crc16);
         return byteArrayCopy(crcBytes, crcBytes.length - 2, 2);

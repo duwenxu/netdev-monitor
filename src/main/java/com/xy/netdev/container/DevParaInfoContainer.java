@@ -133,15 +133,12 @@ public class DevParaInfoContainer {
             if (!DEV_STATUS_NEW.equals(devStatus)){ continue;}
             Collection<ParaViewInfo> values = entry.getValue().values();
             for (ParaViewInfo paraView : values) {
-                boolean canBeOpt = SysConfigConstant.IS_DEFAULT_TRUE.equals(paraView.getNdpaOutterStatus()) && !StringUtils.isEmpty(paraView.getRptOidSign());
-                if (canBeOpt) {
-                    List<ParaViewInfo> subParaList = paraView.getSubParaList();
-                    if (subParaList == null || subParaList.size() == 0) {
-                        addSnmpParaData(currentDevNo, paraView);
-                    } else {
-                        for (ParaViewInfo subPara : subParaList) {
-                            addSnmpParaData(currentDevNo, subPara);
-                        }
+                List<ParaViewInfo> subParaList = paraView.getSubParaList();
+                if (subParaList == null || subParaList.size() == 0) {
+                    addSnmpParaData(currentDevNo, paraView);
+                } else {
+                    for (ParaViewInfo subPara : subParaList) {
+                        addSnmpParaData(currentDevNo, subPara);
                     }
                 }
             }
@@ -156,14 +153,17 @@ public class DevParaInfoContainer {
      * @param value        参数值结构体
      */
     private static void addSnmpParaData(String currentDevNo, ParaViewInfo value) {
-        if (!devSnmpParaMap.containsKey(currentDevNo)) {
-            devSnmpParaMap.put(currentDevNo, new ConcurrentHashMap<>(10));
+        boolean canBeOpt = SysConfigConstant.IS_DEFAULT_TRUE.equals(value.getNdpaOutterStatus()) && !StringUtils.isEmpty(value.getRptOidSign());
+        if (canBeOpt) {
+            if (!devSnmpParaMap.containsKey(currentDevNo)) {
+                devSnmpParaMap.put(currentDevNo, new ConcurrentHashMap<>(10));
+            }
+            Map<String, SnmpRptDTO> viewInfoMap = devSnmpParaMap.get(currentDevNo);
+            String rptOid = SyntheticalUtil.genRptOid(value.getRptOidSign(), value.getParaCode(), sysParamService);
+            SnmpRptDTO snmpRptDTO = new SnmpRptDTO();
+            BeanUtils.copyProperties(value, snmpRptDTO);
+            viewInfoMap.put(rptOid, snmpRptDTO);
         }
-        Map<String, SnmpRptDTO> viewInfoMap = devSnmpParaMap.get(currentDevNo);
-        String rptOid = SyntheticalUtil.genRptOid(value.getRptOidSign(), value.getParaCode(), sysParamService);
-        SnmpRptDTO snmpRptDTO = new SnmpRptDTO();
-        BeanUtils.copyProperties(value, snmpRptDTO);
-        viewInfoMap.put(rptOid, snmpRptDTO);
     }
 
     /**

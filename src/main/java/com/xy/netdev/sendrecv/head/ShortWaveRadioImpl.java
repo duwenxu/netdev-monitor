@@ -107,7 +107,7 @@ public class ShortWaveRadioImpl extends AbsDeviceSocketHandler<SocketEntity, Fra
      */
     private byte[] crc16Check(ShortWaveRadioEntity waveEntity) {
         byte[] bytes = packForCrc(waveEntity);
-        CrcCalculator crcCalculator = new CrcCalculator(Crc16.Crc16Modbus);
+        CrcCalculator crcCalculator = new CrcCalculator(Crc16.Crc16Xmodem);
         long crc16 = crcCalculator.Calc(bytes, 0, bytes.length);
         String crcHexStr = HexUtil.toHex(crc16);
         return objToBytes(crcHexStr,2);
@@ -124,12 +124,11 @@ public class ShortWaveRadioImpl extends AbsDeviceSocketHandler<SocketEntity, Fra
     }
 
     public static void main(String[] args) {
-        byte[] bytes = {0x00, 0x01, 0x00, 0x04, 0x01, 0x23,0x45,0x67};
-        CrcCalculator crcCalculator = new CrcCalculator(Crc16.Crc16Modbus);
+        byte[] bytes = {0x55, (byte) 0xAA, 0x10, 0x00, 0x00, 0x00,0x00};
+        CrcCalculator crcCalculator = new CrcCalculator(Crc16.Crc16CcittFalse);
         long crc16 = crcCalculator.Calc(bytes, 0, bytes.length);
         System.out.println(crc16);
         String s = HexUtil.toHex(crc16);
         System.out.println(s);
-        byte[] crcBytes = HexUtil.decodeHex(s);
     }
 }
