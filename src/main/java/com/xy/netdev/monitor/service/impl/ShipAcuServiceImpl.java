@@ -190,7 +190,7 @@ public class ShipAcuServiceImpl implements IShipAcuService {
      */
     private boolean isNext(String devNo){
         String agc = DevParaInfoContainer.getDevParaView(devNo,"9").getParaVal(); //agc
-        String recvStatus = DevParaInfoContainer.getDevParaView(devNo,"48").getSubParaList().stream().filter(paraViewInfo -> paraViewInfo.getParaNo().equals("76")).collect(Collectors.toList()).get(0).getParaVal();  //接收机状态
+        String recvStatus = DevParaInfoContainer.getDevParaView(devNo,"65").getSubParaList().stream().filter(paraViewInfo -> paraViewInfo.getParaNo().equals("66")).collect(Collectors.toList()).get(0).getParaVal();  //接收机状态
         if(Double.parseDouble(agc)> Double.parseDouble(sysParamService.getParaRemark1(ACU_AGE_VALUE)) && recvStatus.equals("1")){
             return true;
         }
