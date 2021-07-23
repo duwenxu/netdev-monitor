@@ -67,14 +67,14 @@ public class Ka100BucInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
         String respStr = new String(respData.getParamBytes());
         String addr = respStr.substring(1,4);
 //        respData.setDevNo(getDevNo(addr));
-        int startIdx = respStr.indexOf("_");
+        int startIdx = respStr.indexOf("/");
         int endIdx = respStr.indexOf(StrUtil.LF);
         if(endIdx==-1){
             endIdx = respStr.length();
         }
         String[] params = null;
         try{
-            String str = respStr.substring(startIdx+4,endIdx);
+            String str = respStr.substring(startIdx + 1,endIdx);
             params = str.split(",");
         }catch (Exception e){
             log.error("接口响应数据异常！源数据：{}",respStr);
@@ -99,7 +99,7 @@ public class Ka100BucInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
             BeanUtil.copyProperties(frameParaDetail, paraData, true);
 
             if(cmdMark.equals("FA") && value.length()>1){
-                value = value.substring(0,value.length()-2);
+//                value = value.substring(0,value.length());
                 if(PARA_COMPLEX_LEVEL_COMPOSE.equals(frameParaDetail.getCmplexLevel())){
                     List<FrameParaInfo> subList  = frameParaDetail.getSubParaList();
                     subList.sort(Comparator.comparing(frameParaInfo1 -> Integer.valueOf(frameParaInfo1.getParaNo())));

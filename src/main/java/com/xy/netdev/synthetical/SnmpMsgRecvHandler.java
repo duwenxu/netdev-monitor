@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 /**
  * SNMP消息接收和处理
  */
-@Component
+//@Component
 @Slf4j
 public class SnmpMsgRecvHandler implements CommandResponder, ApplicationRunner {
 

@@ -91,7 +91,7 @@ public class DevParaInfoContainer {
             ParaExtServiceFactory.genParaExtService(devType).setCacheDevParaViewInfo(devNo);
         });
         //SNMP 内存参数映射处理
-        initSnmpRptData();
+        //initSnmpRptData();
 //        //todo test
 //        ParaViewInfo paraViewInfo1 = new ParaViewInfo();
 //        paraViewInfo1.setDevType("0020012");
@@ -406,7 +406,7 @@ public class DevParaInfoContainer {
                 }
             }
         }
-        updateSnmpRptData();
+        //updateSnmpRptData();
         return num > 0;
     }
 
