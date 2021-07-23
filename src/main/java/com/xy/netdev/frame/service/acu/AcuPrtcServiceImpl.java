@@ -3,6 +3,7 @@ package com.xy.netdev.frame.service.acu;
 
 import cn.hutool.core.util.StrUtil;
 import com.xy.common.exception.BaseException;
+import com.xy.netdev.common.util.ParaHandlerUtil;
 import com.xy.netdev.container.DevParaInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
@@ -62,14 +63,21 @@ public class AcuPrtcServiceImpl implements IParaPrtclAnalysisService {
             //当参数为接收机本振频率
             paraVal = paraVal.split("]")[0]+"]{F}["+make0Str(paraVal.split("]")[1].substring(4),5,2)+"]";
         }
-        else if(reqInfo.getFrameParaList().get(0).getLen() != null){
-            //当长度不为0时补0
-            paraVal = make0Str(paraVal,frameParaData.getLen(),1);
+        else if(frameParaData.getParaNo().equals("4")){
+            /*//当长度不为0时补0
+            paraVal = make0Str(paraVal,frameParaData.getLen(),1);*/
+            //卫星经度补0
+            String satLon = make0Str(paraVal.split("]")[0].substring(1),frameParaData.getLen(),1);
+            paraVal = "["+satLon+"]"+paraVal.split("]")[1]+"]";
         }
         String replace = paraVal.replace("{", "")
                 .replace("}","")
                 .replace("[","")
                 .replace("]","");
+        if(frameParaData.getParaNo().equals("4")){
+            //修改缓存中卫星经度和极化方式数值
+            DevParaInfoContainer.updateParaValue(reqInfo.getDevNo(), ParaHandlerUtil.genLinkKey(reqInfo.getDevNo(), frameParaData.getParaNo()),replace);
+        }
         String command = "<" + reqInfo.getCmdMark() + replace + ">";
         reqInfo.setParamBytes(StrUtil.bytes(command));
         socketMutualService.request(reqInfo, ProtocolRequestEnum.CONTROL);

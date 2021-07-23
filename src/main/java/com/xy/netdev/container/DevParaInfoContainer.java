@@ -416,6 +416,20 @@ public class DevParaInfoContainer {
     }
 
     /**
+     * 更新缓存devParaMap参数值
+     */
+    public static void updateParaValue(String devNo, String linkKey, String val) {
+        if (devParaMap.containsKey(devNo)){
+            if(devParaMap.get(devNo).containsKey(linkKey)){
+                ParaViewInfo paraViewInfo = devParaMap.get(devNo).get(linkKey);
+                paraViewInfo.setParaVal(val);
+                devParaMap.get(devNo).put(linkKey,paraViewInfo);
+            }
+        }
+
+    }
+
+    /**
      * @param oid 设备参数OID
      * @return 设备参数信息
      * @功能：根据设备OID 返回参数信息
