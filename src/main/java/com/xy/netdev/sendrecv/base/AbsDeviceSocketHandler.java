@@ -122,6 +122,9 @@ public abstract class AbsDeviceSocketHandler<Q extends SocketEntity, T extends F
             PrtclFormat prtclFormat = null;
             if (ACCESS_TYPE_PARAM.equals(unpackBytes.getAccessType())){
                 prtclFormat = BaseInfoContainer.getPrtclByPara(r.getDevType(), cmdHexStr);
+                if(r.getDevType().equals(SysConfigConstant.DEVICE_QHDY) && prtclFormat.getFmtId()==null){
+                    prtclFormat = BaseInfoContainer.getPrtclByPara(SysConfigConstant.DEVICE_BPQ, cmdHexStr);
+                }
             }else{
                 prtclFormat = BaseInfoContainer.getPrtclByInterfaceOrPara(r.getDevType(), cmdHexStr);
             }
