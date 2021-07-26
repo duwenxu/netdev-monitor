@@ -58,7 +58,7 @@ public class ShortWaveImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReq
     @Override
     public FrameRespData unpack(SocketEntity socketEntity, FrameRespData frameRespData) {
         byte[] bytes = socketEntity.getBytes();
-        log.info("接收到750-400W短波设备响应帧：设备类型：[{}]，响应帧内容：[{}]",frameRespData.getDevType(), HexUtil.encodeHexStr(bytes));
+        log.info("接收到750-400W短波设备响应帧：设备类型：[{}]，响应帧内容：[{}]",frameRespData.getDevType(), HexUtil.encodeHexStr(bytes).toUpperCase());
         //响应固定字节 报头2+命令字1+序号4+CRC校验2
         if (bytes.length < 9) {
             log.warn("750-400W短波设备响应数据帧异常, 响应数据长度错误, 数据体长度:[{}], 数据体:[{}]", bytes.length, HexUtil.encodeHexStr(bytes));
