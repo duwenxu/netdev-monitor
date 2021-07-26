@@ -18,8 +18,8 @@ mybatis-plus:
   typeAliasesPackage: com.xy.netdev.**.entity
 
 snmp:
-  listenAddress: 192.6.6.167/161
-  targetAddress: 192.6.6.167
+  listenAddress: 192.6.6.1/161
+  targetAddress: 192.6.6.1
 
 swagger:
   enable: true
