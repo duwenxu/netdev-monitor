@@ -130,8 +130,11 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
         StringBuilder sb = new StringBuilder();
         String localAddr = "001";
         BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(reqInfo.getDevNo());
-        List<BaseInfo> subDevs = BaseInfoContainer.getDevInfoByParentNo(baseInfo.getDevParentNo());
-        if(subDevs!=null && subDevs.size()>0){
+        //Ka/c下变频器没有切换单元
+        if(baseInfo.getDevType().equals(SysConfigConstant.DEVICE_KAC_BPQ)){
+            localAddr = baseInfo.getDevLocalAddr();
+        }else{
+            List<BaseInfo> subDevs = BaseInfoContainer.getDevInfoByParentNo(baseInfo.getDevParentNo());
             for (BaseInfo subDev : subDevs) {
                 if(subDev.getDevType().equals(SysConfigConstant.DEVICE_QHDY)){
                     localAddr = subDev.getDevLocalAddr();

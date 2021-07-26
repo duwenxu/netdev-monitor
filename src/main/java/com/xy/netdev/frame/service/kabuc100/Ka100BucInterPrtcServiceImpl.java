@@ -100,7 +100,6 @@ public class Ka100BucInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
             BeanUtil.copyProperties(frameParaDetail, paraData, true);
 
             if(cmdMark.equals("FA") && value.length()>1){
-                value = value.substring(0,value.length()-2);
                 if(PARA_COMPLEX_LEVEL_COMPOSE.equals(frameParaDetail.getCmplexLevel())){
                     List<FrameParaInfo> subList  = frameParaDetail.getSubParaList();
                     subList.sort(Comparator.comparing(frameParaInfo1 -> Integer.valueOf(frameParaInfo1.getParaNo())));

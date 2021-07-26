@@ -120,7 +120,7 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
             paraInfo.setParaVal(value);
             paraInfo.setDevNo(getDevNo(addr));
             //定制报警信息处理
-            //handleAlarmInfo(cmdMark,value,paraInfo,frameParaDetail);
+            handleAlarmInfo(cmdMark,value,paraInfo,frameParaDetail);
             frameParaList.add(paraInfo);
         }
         respData.setFrameParaList(frameParaList);
@@ -171,7 +171,7 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
 
     private void handleAlarmInfo(String cmdMark,String value,FrameParaData paraInfo,FrameParaInfo frameParaDetail){
         if(cmdMark.equals("POW")){
-            Integer val = Integer.parseInt(value);
+            Double val = Double.parseDouble(value);
             if(val>1.9){
                 //上报告警信息
                 devStatusReportService.rptWarning(paraInfo.getDevNo(),"1");
@@ -186,7 +186,7 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
             }
         }
         if(cmdMark.equals("TEM")){
-            Integer val = Integer.parseInt(value);
+            Double val = Double.parseDouble(value);
             if(val>60){
                 //上报告警信息
                 devStatusReportService.rptWarning(paraInfo.getDevNo(),"1");
