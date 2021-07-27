@@ -95,7 +95,7 @@ public class ModemScmmInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSe
                 paraInfo.setParaVal(value);
                 paraInfo.setParaOrigByte(targetBytes);
                 //特殊处理 发载波电平
-                if (paraInfo.getParaCmk().equals("02")){
+                if (paraInfo.getParaNo().equals("2")){
                     paraInfo.setParaVal("-"+ paraInfo.getParaVal());
                 }
                 frameParaDataList.add(paraInfo);
