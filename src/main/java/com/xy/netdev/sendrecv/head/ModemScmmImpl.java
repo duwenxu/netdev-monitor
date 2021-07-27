@@ -66,7 +66,7 @@ public class ModemScmmImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReq
     @Override
     public FrameRespData unpack(SocketEntity socketEntity, FrameRespData frameRespData) {
         byte[] bytes = socketEntity.getBytes();
-        log.info("SCMM-2300调制解调器收到响应帧：[{}]", HexUtil.encodeHexStr(bytes));
+        log.debug("SCMM-2300调制解调器收到响应帧：[{}]", HexUtil.encodeHexStr(bytes));
         //外部头信息 6字节
         if (bytes.length <= 6) {
             log.warn("SCMM-2300调制解调器数据帧异常, 响应数据长度错误, 数据体长度:{}, 数据体:{}", bytes.length, HexUtil.encodeHexStr(bytes));
@@ -215,7 +215,7 @@ public class ModemScmmImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReq
         boolean flag = false;
         byte[] bytes = socketEntity.getBytes();
         byte[] realBytes = byteReplace(bytes, 2, bytes.length - 1, Pair.of("7D5E", "7E"), Pair.of("7D5D", "7D"));
-        log.info("转义后的字节：[{}]",HexUtil.encodeHexStr(realBytes));
+        log.debug("转义后的字节：[{}]",HexUtil.encodeHexStr(realBytes));
         byte receiveCheckByte = Objects.requireNonNull(byteArrayCopy(realBytes, realBytes.length - 2, 1))[0];
         byte checkByte = ByteUtils.addGetBottom(realBytes, 1, bytes.length - 3);
         if (checkByte==receiveCheckByte){
