@@ -6,6 +6,7 @@ import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.monitor.bo.DevStatusInfo;
 import com.xy.netdev.monitor.bo.ParaViewInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -55,9 +56,9 @@ public class DevStatusContainer {
             devStatusInfo.setDevDeployType(devInfo.getDevDeployType());
             //君威功放特殊处理  sunchao
             if(SysConfigConstant.DEVICE_CAR_GF.equals(devInfo.getDevType())){
-                //通过主BUC射频开关来判断主备
+                //通过主BUC射频开关来判断主备:默认主
                 ParaViewInfo paraInfo = DevParaInfoContainer.getDevParaView(devInfo.getDevNo(),"15");
-                if("1".equals(paraInfo.getParaVal())){
+                if("1".equals(paraInfo.getParaVal()) || StringUtils.isBlank(paraInfo.getParaVal())){
                     //主
                     devStatusInfo.setDevDeployType(SysConfigConstant.DEV_DEPLOY_MASTER);
                     devStatusInfo.setMasterOrSlave(SysConfigConstant.RPT_DEV_STATUS_MASTERORSLAVE_MASTER);
