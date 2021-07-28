@@ -54,7 +54,7 @@ public class ModemScmmInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSe
     @Override
     public FrameRespData queryParaResponse(FrameRespData respData) {
         byte[] bytes = respData.getParamBytes();
-        log.info("接收到查询响应帧内容:[{}]", HexUtil.encodeHexStr(bytes));
+        log.debug("接收到查询响应帧内容:[{}]", HexUtil.encodeHexStr(bytes));
         if (ObjectUtil.isNull(bytes)) {
             log.warn("2300调制解调器查询响应异常, 未获取到数据体, 信息:{}", JSON.toJSONString(respData));
             return respData;
@@ -95,7 +95,7 @@ public class ModemScmmInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSe
                 paraInfo.setParaVal(value);
                 paraInfo.setParaOrigByte(targetBytes);
                 //特殊处理 发载波电平
-                if (paraInfo.getParaCmk().equals("02")){
+                if (paraInfo.getParaNo().equals("2")){
                     paraInfo.setParaVal("-"+ paraInfo.getParaVal());
                 }
                 frameParaDataList.add(paraInfo);
