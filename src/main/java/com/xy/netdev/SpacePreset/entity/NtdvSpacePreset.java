@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.xy.common.annotation.Param;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -47,6 +48,7 @@ public class NtdvSpacePreset extends Model<NtdvSpacePreset> {
     private String spLongitude;
 
     @ApiModelProperty(value = "本振")
+    @Param
     @TableField("SP_LOCAL_OSCILLATOR")
     private String spLocalOscillator;
 
@@ -55,6 +57,7 @@ public class NtdvSpacePreset extends Model<NtdvSpacePreset> {
     private String spBeaconFrequency;
 
     @ApiModelProperty(value = "极化方向")
+    @Param
     @TableField("SP_POLARIZATION")
     private String spPolarization;
 
@@ -73,6 +76,18 @@ public class NtdvSpacePreset extends Model<NtdvSpacePreset> {
     @ApiModelProperty(value = "备注四")
     @TableField("SP_REMARK4")
     private String spRemark4;
+
+    @ApiModelProperty(value = "设备编号")
+    @TableField(exist = false)
+    private String devNo;
+
+    @ApiModelProperty(value = "参数编号")
+    @TableField(exist = false)
+    private String paraNo;
+
+    @ApiModelProperty(value = "命令标识")
+    @TableField(exist = false)
+    private String paraCmdMark;
 
     @Override
     protected Serializable pkVal() {

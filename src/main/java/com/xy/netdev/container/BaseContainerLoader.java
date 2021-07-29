@@ -1,6 +1,7 @@
 package com.xy.netdev.container;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.xy.netdev.SpacePreset.service.INtdvSpacePresetService;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.BeanFactoryUtil;
@@ -46,6 +47,9 @@ public class BaseContainerLoader implements ApplicationRunner {
     private IPrtclFormatService prtclFormatService;
     @Autowired
     private ISysParamService sysParamService;
+    @Autowired
+    private INtdvSpacePresetService spacePresetService;
+
     //第三类设备-动中通
     private static String DEV_TYPE_DZT = "3";
     /**
@@ -98,7 +102,7 @@ public class BaseContainerLoader implements ApplicationRunner {
         //查询协议列表
         List<PrtclFormat> prtclList = prtclFormatService.list();
         //初始化基础容器的数据
-        BaseInfoContainer.init(devs, paraInfos, interfaces, prtclList);
+        BaseInfoContainer.init(devs, paraInfos, interfaces, prtclList,spacePresetService.list());
     }
 
     /**
@@ -110,7 +114,7 @@ public class BaseContainerLoader implements ApplicationRunner {
         queryWrapper.eq("NDPA_STATUS", SysConfigConstant.STATUS_OK);
         queryWrapper.orderByAsc("NDPA_CMPLEX_LEVEL");
         List<ParaInfo> paraInfos = paraInfoService.list(queryWrapper);
-        DevParaInfoContainer.initData(paraInfos, sysParamService);
+        DevParaInfoContainer.initData(paraInfos, spacePresetService.list(), sysParamService);
     }
 
     /**

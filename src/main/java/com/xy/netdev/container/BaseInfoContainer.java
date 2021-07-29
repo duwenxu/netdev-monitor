@@ -2,8 +2,8 @@ package com.xy.netdev.container;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.fasterxml.jackson.databind.ser.Serializers;
 import com.xy.common.exception.BaseException;
+import com.xy.netdev.SpacePreset.entity.NtdvSpacePreset;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.admin.service.impl.SysParamServiceImpl;
 import com.xy.netdev.common.util.ParaHandlerUtil;
@@ -25,7 +25,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.xy.netdev.common.constant.SysConfigConstant.*;
-import static com.xy.netdev.common.constant.SysConfigConstant.DEVICE_QHDY;
 import static com.xy.netdev.monitor.constant.MonitorConstants.SUB_KU_GF;
 import static com.xy.netdev.monitor.constant.MonitorConstants.SUB_MODEM;
 
@@ -119,11 +118,17 @@ public class BaseInfoContainer {
      */
     private static Map<String,List<BaseInfo>> combDevMap = new HashMap<>();
 
+    /**
+     * 预置卫星集合
+     */
+    private static List<NtdvSpacePreset> spacePresets = new ArrayList<>();
+
 
     /**
      * @功能：当系统启动时,进行初始化各设备日志
      */
-    public static void init(List<BaseInfo> devs, List<ParaInfo> paraInfos, List<Interface> interfaces, List<PrtclFormat> prtclList) {
+    public static void init(List<BaseInfo> devs, List<ParaInfo> paraInfos, List<Interface> interfaces, List<PrtclFormat> prtclList,List<NtdvSpacePreset> spacePresets) {
+        BaseInfoContainer.spacePresets = spacePresets;
         //将设备参数转化为帧参数
         List<FrameParaInfo> frameParaInfos = changeDevParaToFrame(paraInfos, prtclList);
         //加载设备信息
@@ -645,7 +650,17 @@ public class BaseInfoContainer {
             Map map = new HashMap();
             try {
                 if (!StringUtils.isBlank(paraInfo.getNdpaSelectData())) {
-                    JSONArray.parseArray(paraInfo.getNdpaSelectData(), ParaSpinnerInfo.class).forEach(paraSpinnerInfo -> map.put(paraSpinnerInfo.getCode(), paraSpinnerInfo.getName()));
+                    List<ParaSpinnerInfo> spinnerInfos = JSONArray.parseArray(paraInfo.getNdpaSelectData(), ParaSpinnerInfo.class);
+                    if("0020001".equals(paraInfo.getDevType()) && "optSate".equals(paraInfo.getNdpaCmdMark()) && spacePresets.size()>0){
+                        spinnerInfos.clear();
+                        spacePresets.forEach(ntdvSpacePreset -> {
+                            ParaSpinnerInfo paraSpinnerInfo = new ParaSpinnerInfo();
+                            paraSpinnerInfo.setCode(ntdvSpacePreset.getSpId().toString());
+                            paraSpinnerInfo.setName(ntdvSpacePreset.getSpName()+"["+ntdvSpacePreset.getSpCode()+"]");
+                            spinnerInfos.add(paraSpinnerInfo);
+                        });
+                    }
+                    spinnerInfos.forEach(paraSpinnerInfo -> map.put(paraSpinnerInfo.getCode(), paraSpinnerInfo.getName()));
                 }
             } catch (Exception e) {
                 log.error("参数下拉值域解析错误：设备类型：{}，参数编号：{}",paraInfo.getDevType(),paraInfo.getNdpaNo());

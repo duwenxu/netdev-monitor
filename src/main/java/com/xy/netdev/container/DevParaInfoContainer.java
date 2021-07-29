@@ -2,6 +2,7 @@ package com.xy.netdev.container;
 
 import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson.JSONArray;
+import com.xy.netdev.SpacePreset.entity.NtdvSpacePreset;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.ParaHandlerUtil;
@@ -78,12 +79,19 @@ public class DevParaInfoContainer {
     }
 
     /**
+     * 预置卫星集合
+     */
+    private static List<NtdvSpacePreset> spacePresets = new ArrayList<>();
+
+    /**
      * @param paraList 参数列表
      * @return
      * @功能：添加设备参数MAP
      */
-    public static void initData(List<ParaInfo> paraList, ISysParamService sysParamService) {
+    public static void initData(List<ParaInfo> paraList, List<NtdvSpacePreset> spacePresets, ISysParamService sysParamService) {
         DevParaInfoContainer.sysParamService = sysParamService;
+        //存放预置卫星
+        DevParaInfoContainer.spacePresets = spacePresets;
         Map<String, List<ParaInfo>> paraMapByDevType = paraList.stream().collect(Collectors.groupingBy(ParaInfo::getDevType));
         BaseInfoContainer.getDevNos().forEach(devNo -> {
             String devType = BaseInfoContainer.getDevInfoByNo(devNo).getDevType();
@@ -303,6 +311,19 @@ public class DevParaInfoContainer {
         viewInfo.setDevType(paraInfo.getDevType());
         viewInfo.setParaCmdMark(paraInfo.getNdpaCmdMark());
         viewInfo.setSpinnerInfoList(JSONArray.parseArray(paraInfo.getNdpaSelectData(), ParaSpinnerInfo.class));
+        //acu选择预置卫星特殊处理  sunchao
+        if("0020001".equals(paraInfo.getDevType()) && "optSate".equals(paraInfo.getNdpaCmdMark()) && spacePresets.size()>0){
+            List<ParaSpinnerInfo> spinnerInfos = new ArrayList<>();
+            spacePresets.forEach(ntdvSpacePreset -> {
+                ParaSpinnerInfo paraSpinnerInfo = new ParaSpinnerInfo();
+                paraSpinnerInfo.setCode(ntdvSpacePreset.getSpId().toString());
+                paraSpinnerInfo.setName(ntdvSpacePreset.getSpName()+"["+sysParamService.getParaName(ntdvSpacePreset.getSpPolarization())+"]");
+                spinnerInfos.add(paraSpinnerInfo);
+            });
+            viewInfo.setSpinnerInfoList(spinnerInfos);
+            //设置缺省值：默认第一个卫星
+            viewInfo.setParaVal(spinnerInfos.get(0).getCode());
+        }
         viewInfo.setParaByteLen(paraInfo.getNdpaByteLen());
         viewInfo.setNdpaOutterStatus(paraInfo.getNdpaOutterStatus());
         viewInfo.setNdpaIsImportant(paraInfo.getNdpaIsImportant());
