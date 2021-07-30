@@ -128,6 +128,7 @@ public class BaseInfoContainer {
      * @功能：当系统启动时,进行初始化各设备日志
      */
     public static void init(List<BaseInfo> devs, List<ParaInfo> paraInfos, List<Interface> interfaces, List<PrtclFormat> prtclList,List<NtdvSpacePreset> spacePresets) {
+        //赋予预置卫星
         BaseInfoContainer.spacePresets = spacePresets;
         //将设备参数转化为帧参数
         List<FrameParaInfo> frameParaInfos = changeDevParaToFrame(paraInfos, prtclList);
@@ -651,6 +652,7 @@ public class BaseInfoContainer {
             try {
                 if (!StringUtils.isBlank(paraInfo.getNdpaSelectData())) {
                     List<ParaSpinnerInfo> spinnerInfos = JSONArray.parseArray(paraInfo.getNdpaSelectData(), ParaSpinnerInfo.class);
+                    //如果参数为acu的一键对星参数  则下拉框数据填充预置卫星数据
                     if("0020001".equals(paraInfo.getDevType()) && "optSate".equals(paraInfo.getNdpaCmdMark()) && spacePresets.size()>0){
                         spinnerInfos.clear();
                         spacePresets.forEach(ntdvSpacePreset -> {
@@ -674,7 +676,7 @@ public class BaseInfoContainer {
                     .filter(prtclFormat -> prtclFormat.getFmtId().equals(paraInfo.getFmtId()))
                     .collect(Collectors.toList());
             if (prtclFormats.size() > 0) {
-                //设置协议归属
+                //设置协议归属：参数协议
                 prtclFormats.get(0).setIsPrtclParam(0);
                 frameParaInfo.setInterfacePrtcl(prtclFormats.get(0));      //解析协议
             }
@@ -689,10 +691,11 @@ public class BaseInfoContainer {
                 mapIn.forEach((key, value) -> {
                     mapOut.put(value, key);
                 });
-                frameParaInfo.setTransOuttoInMap(mapOut);    //数据内->外转换值域map
+                frameParaInfo.setTransOuttoInMap(mapOut);    //数据外->内转换值域map
             }
             frameParaInfo.setAlertPara(paraInfo.getNdpaAlertPara()); //状态上报类型
             frameParaInfo.setAlertLevel(paraInfo.getNdpaAlertLevel());
+            //设置子参数
             frameParaInfo.setSubParaList(new ArrayList<>());
             if (paraInfo.getNdpaCmplexLevel().equals(PARA_COMPLEX_LEVEL_SUB)) {
                 //若为子参数不仅添加到父参数下且增加到参数列表
@@ -731,7 +734,7 @@ public class BaseInfoContainer {
                     .filter(prtclFormat -> prtclFormat.getFmtId().equals(anInterface.getFmtId()))
                     .collect(Collectors.toList());
             if (prtclFormats.size() > 0) {
-                //设置协议的归属
+                //设置协议的归属:接口
                 prtclFormats.get(0).setIsPrtclParam(1);
                 devInterParam.setInterfacePrtcl(prtclFormats.get(0));
             }
@@ -740,7 +743,7 @@ public class BaseInfoContainer {
             List<String> paraIds = StringUtils.isBlank(anInterface.getItfDataFormat()) ? new ArrayList<>() : Arrays.asList(anInterface.getItfDataFormat().split(","));
             Map<Integer, FrameParaInfo> frameParaInfoMap = frameParaInfos.stream().collect(Collectors.toMap(FrameParaInfo::getParaId,FrameParaInfo -> FrameParaInfo));
             paraIds.forEach(paraId->{
-                //解决是一个实体类导致的数据属性同步变化
+                //解决因为同一个实体类导致的数据属性同步变化
                 try {
                     FrameParaInfo frameParaInfo = new FrameParaInfo();
                     BeanUtils.copyProperties(frameParaInfoMap.get(Integer.valueOf(paraId)),frameParaInfo);
