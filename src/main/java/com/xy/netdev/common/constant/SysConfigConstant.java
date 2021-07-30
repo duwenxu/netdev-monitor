@@ -606,20 +606,20 @@ public interface SysConfigConstant {
     /**
      * 本振--A
      */
-    String  LOCAL_VIBRATE_A = "0020048";
+    String  LOCAL_VIBRATE_A = "0102001";
 
     /**
      * 本振--B
      */
-    String  LOCAL_VIBRATE_B = "0020048";
+    String  LOCAL_VIBRATE_B = "0102002";
 
     /**
      * 本振--C
      */
-    String  LOCAL_VIBRATE_C = "0020048";
+    String  LOCAL_VIBRATE_C = "0102003";
 
     /**
      * 本振--D
      */
-    String  LOCAL_VIBRATE_D = "0020048";
+    String  LOCAL_VIBRATE_D = "0102004";
 }
