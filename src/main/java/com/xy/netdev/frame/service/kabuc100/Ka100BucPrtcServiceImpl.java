@@ -2,7 +2,6 @@ package com.xy.netdev.frame.service.kabuc100;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
-import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
@@ -10,15 +9,15 @@ import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
-import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.service.IBaseInfoService;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import com.xy.netdev.transit.IDataReciveService;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 import static com.xy.netdev.common.constant.SysConfigConstant.PARA_COMPLEX_LEVEL_COMPOSE;
 
@@ -44,8 +43,6 @@ public class Ka100BucPrtcServiceImpl implements IParaPrtclAnalysisService {
     /**
      * 设备物理地址设置
      */
-    public final static String SET_ADDR_CMD = "ADDR";
-
 
     @Autowired
     SocketMutualService socketMutualService;
@@ -53,7 +50,6 @@ public class Ka100BucPrtcServiceImpl implements IParaPrtclAnalysisService {
     IDataReciveService dataReciveService;
     @Autowired
     IBaseInfoService baseInfoService;
-
 
     /**
      * 查询设备参数
@@ -63,13 +59,17 @@ public class Ka100BucPrtcServiceImpl implements IParaPrtclAnalysisService {
     @Override
     public void queryPara(FrameReqData reqInfo) {
         StringBuilder sb = new StringBuilder();
+        // 物理地址固定前缀
         String localAddr = "001";
+        // 拼接参数查询命令
         sb.append(SEND_START_MARK).append(localAddr).append("/")
-                .append(reqInfo.getCmdMark()).append("_?").append(StrUtil.CRLF);
+                .append(reqInfo.getCmdMark())
+                .append("_?")
+                .append(StrUtil.CRLF);
         String command = sb.toString();
+        // 设置协议解析与收发层交互的数据体
         reqInfo.setParamBytes(command.getBytes());
         socketMutualService.request(reqInfo, ProtocolRequestEnum.QUERY);
-
     }
 
     /**
@@ -80,56 +80,70 @@ public class Ka100BucPrtcServiceImpl implements IParaPrtclAnalysisService {
      */
     @Override
     public FrameRespData queryParaResponse(FrameRespData respData) {
+        // 获取协议解析与收发层交互的数据体
         String respStr = new String(respData.getParamBytes());
         respStr = respStr.split(RESP_START_MARK)[1];
-        int stIndex = respStr.indexOf("_");
-
-        String cmdMk = respStr.substring(respStr.indexOf("/") + 1, stIndex);
-        int edIndex = respStr.indexOf(StrUtil.LF);
-//        String val = respStr.substring(stIndex+1,respStr.length() - 2);
-        String val = respStr.substring(stIndex + 1, edIndex);
+        // 按照协议固定字符获取命令内容开始下标
+        int startIdx = respStr.indexOf("_");
+        // 去除响应格式中的固定前缀  获取命令标识
+        String cmdMk = respStr.substring(respStr.indexOf("/") + 1, startIdx);
+        // 按照协议固格式定结束标识获取内容结束下标
+        int endIdx = respStr.indexOf(StrUtil.LF);
+        // 截取有效数据内容
+        String val = respStr.substring(startIdx + 1, endIdx);
         List<FrameParaData> frameParas = new ArrayList<>();
         FrameParaData paraInfo = new FrameParaData();
+        // 获取设备类型及命令标识
         FrameParaInfo frameParaDetail = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(), cmdMk);
+        // 复制对象属性
         BeanUtil.copyProperties(frameParaDetail, paraInfo, true);
-
+        // 命令"VOLT(电压)"、"CURR(电流)"、"WHAT(设备信息)"为组合参数  需特殊处理
         if (cmdMk.equals("VOLT")) {
             String[] volt = val.split(",");
-
+            // 判断是否为组合参数参数
             if (PARA_COMPLEX_LEVEL_COMPOSE.equals(frameParaDetail.getCmplexLevel())) {
+                // 获取子参数列表
                 List<FrameParaInfo> subList = frameParaDetail.getSubParaList();
+                // 为子参数排序
                 subList.sort(Comparator.comparing(frameParaInfo1 -> Integer.valueOf(frameParaInfo1.getParaNo())));
+                // 为子参数赋值
                 for (int i = 0; i < subList.size(); i++) {
                     FrameParaData frameParaData = genFramepara(subList.get(i), volt[i], respData);
                     frameParas.add(frameParaData);
                 }
-
             }
         }
         if (cmdMk.equals("CURR")) {
             String[] curr = val.split(",");
+            // 判断是否为组合参数参数
             if (PARA_COMPLEX_LEVEL_COMPOSE.equals(frameParaDetail.getCmplexLevel())) {
+                // 获取子参数列表
                 List<FrameParaInfo> subList = frameParaDetail.getSubParaList();
+                // 为子参数排序
                 subList.sort(Comparator.comparing(frameParaInfo1 -> Integer.valueOf(frameParaInfo1.getParaNo())));
+                // 为子参数赋值
                 for (int i = 0; i < subList.size(); i++) {
                     FrameParaData frameParaData = genFramepara(subList.get(i), curr[i], respData);
                     frameParas.add(frameParaData);
                 }
-
             }
         }
         if (cmdMk.equals("WHAT")) {
             String[] what = val.split("_");
+            // 判断是否为组合参数参数
             if (PARA_COMPLEX_LEVEL_COMPOSE.equals(frameParaDetail.getCmplexLevel())) {
+                // 获取子参数列表
                 List<FrameParaInfo> subList = frameParaDetail.getSubParaList();
+                // 为子参数排序
                 subList.sort(Comparator.comparing(frameParaInfo1 -> Integer.valueOf(frameParaInfo1.getParaNo())));
+                // 为子参数赋值
                 for (int i = 0; i < subList.size(); i++) {
                     FrameParaData frameParaData = genFramepara(subList.get(i), what[i], respData);
                     frameParas.add(frameParaData);
                 }
-
             }
         }
+        // 输入频率查询结果前后的补0
         if (cmdMk.equals("FREQ")) {
             String[] freq = val.split("\\.");
             if (freq.length == 1) {
@@ -147,26 +161,13 @@ public class Ka100BucPrtcServiceImpl implements IParaPrtclAnalysisService {
                 }
             }
         }
-
-
+        // 获取设备类型及命令标识
         FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(), respData.getCmdMark());
         FrameParaData frameParaData = genFramepara(frameParaInfo, val, respData);
-        //BeanUtil.copyProperties(frameParaInfo, frameParaData, true);
-        //frameParaData.setParaVal(val);
         frameParas.add(frameParaData);
         respData.setFrameParaList(frameParas);
         dataReciveService.paraQueryRecive(respData);
         return respData;
-    }
-
-    private FrameParaData genFramepara(FrameParaInfo currentpara, String paraValueStr, FrameRespData respData) {
-        FrameParaData frameParaData = FrameParaData.builder()
-                .devType(currentpara.getDevType())
-                .paraNo(currentpara.getParaNo())
-                .devNo(respData.getDevNo())
-                .build();
-        frameParaData.setParaVal(paraValueStr);
-        return frameParaData;
     }
 
     /**
@@ -177,12 +178,16 @@ public class Ka100BucPrtcServiceImpl implements IParaPrtclAnalysisService {
     @Override
     public void ctrlPara(FrameReqData reqInfo) {
         StringBuilder sb = new StringBuilder();
+        // 物理地址固定前缀
         String localAddr = "001";
+        // 获取命令标识
         String cmdMK = reqInfo.getCmdMark();
         switch (cmdMK) {
+            // 输入频率设置 按照协议需求，在参数前后补0
             case "FREQ":
                 StringBuilder freqStr = new StringBuilder(reqInfo.getFrameParaList().get(0).getParaVal());
                 String[] freq = freqStr.toString().split("\\.");
+                // 判断是否为小数
                 if (freq.length == 1) {
                     freqStr = new StringBuilder("0" + freqStr + ".0000");
                 } else {
@@ -191,79 +196,61 @@ public class Ka100BucPrtcServiceImpl implements IParaPrtclAnalysisService {
                         freqStr.append("0");
                     }
                 }
+                // 拼接设置命令
                 sb.append(SEND_START_MARK).append(localAddr).append("/").append(reqInfo.getCmdMark())
                         .append("_").append(freqStr).append(StrUtil.CRLF);
                 break;
+            // 报警标志清除命令中不需要传参数值 需特殊处理
             case "ECLR":
                 sb.append(SEND_START_MARK).append(localAddr).append("/").append(reqInfo.getCmdMark()).append(StrUtil.CRLF);
                 break;
+            // 衰减设置 小于10位和整数时需要补0
             case "AT":
                 String atStr = reqInfo.getFrameParaList().get(0).getParaVal();
                 String[] at = atStr.split("\\.");
+                // 判断是否为小数
                 if (at.length == 1) {
                     atStr = atStr + ".0";
                 }
                 if (at[0].length() == 1) {
                     atStr = "0" + atStr;
                 }
+                // 拼接设置命令
                 sb.append(SEND_START_MARK).append(localAddr).append("/").append(reqInfo.getCmdMark())
                         .append("_").append(atStr).append(StrUtil.CRLF);
                 break;
             default:
+                // 常规命令拼接
                 sb.append(SEND_START_MARK).append(localAddr).append("/").append(reqInfo.getCmdMark())
                         .append("_").append(reqInfo.getFrameParaList().get(0).getParaVal()).append(StrUtil.CRLF);
         }
         String command = sb.toString();
         reqInfo.setParamBytes(command.getBytes());
-        String cmdMark = reqInfo.getCmdMark();
-        if (cmdMark.equals(SET_ADDR_CMD)) {
-            setDevLocalAddr(reqInfo);
-        }
         socketMutualService.request(reqInfo, ProtocolRequestEnum.CONTROL);
     }
 
     /**
-     * 设置设备参数响应
-     *
+     * 设置设备参数响应  设置与查询无区别标识 设置响应与查询响应共用一个方法
      * @param respData 数据传输对象
      * @return
      */
     @Override
     public FrameRespData ctrlParaResponse(FrameRespData respData) {
-        String respStr = new String(respData.getParamBytes());
-        respStr = respStr.split(RESP_START_MARK)[1];
-        int stIndex = respStr.indexOf("_");
-//        String cmdMk = respStr.substring(0,stIndex);
-        int edIndex = respStr.indexOf(StrUtil.LF);
-        String val = respStr.substring(stIndex + 1, edIndex);
-//        String val = respStr.substring(stIndex+1,respStr.length() - 2);
-
-
-        List<FrameParaData> frameParas = new ArrayList<>();
-        FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(), respData.getCmdMark());
-        FrameParaData frameParaData = new FrameParaData();
-        BeanUtil.copyProperties(frameParaInfo, frameParaData, true);
-        frameParaData.setParaVal(val);
-        frameParas.add(frameParaData);
-        respData.setFrameParaList(frameParas);
-        dataReciveService.paraQueryRecive(respData);
-        return respData;
+        return null;
     }
-
-
     /**
-     * 设置设备物理地址
+     * 构建FrameParaData
      *
-     * @param reqInfo
+     * @return
      */
-    private void setDevLocalAddr(FrameReqData reqInfo) {
-        String devNo = reqInfo.getDevNo();
-        BaseInfo baseInfo = new BaseInfo();
-        baseInfo.setDevNo(devNo);
-        baseInfo.setDevLocalAddr(reqInfo.getFrameParaList().get(0).getParaVal());
-        baseInfoService.updateById(baseInfo);
-        BaseInfoContainer.updateBaseInfo(devNo);
+    private FrameParaData genFramepara(FrameParaInfo currentpara, String paraValueStr, FrameRespData respData) {
+        FrameParaData frameParaData = FrameParaData.builder()
+                .devType(currentpara.getDevType())
+                .paraNo(currentpara.getParaNo())
+                .devNo(respData.getDevNo())
+                .build();
+        frameParaData.setParaVal(paraValueStr);
+        return frameParaData;
     }
-
 
 }
