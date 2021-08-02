@@ -19,6 +19,9 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.xy.netdev.common.util.ByteUtils.byteToInt;
+import static com.xy.netdev.common.util.ByteUtils.byteToNumber;
+
 /**
  * L频段4x4开关矩阵
  *
@@ -57,9 +60,7 @@ public class LmatrixInterPrtcServiceImpl implements IQueryInterPrtclAnalysisServ
         List<FrameParaData> frameParaDataList = new ArrayList<>();
         for (FrameParaInfo frameParaInfo : frameParaInfos){
             byte[] paraValBytes = ByteUtils.byteArrayCopy(bytes,frameParaInfo.getParaStartPoint(),Integer.valueOf(frameParaInfo.getParaByteLen()));
-            String data = HexUtil.encodeHexStr(paraValBytes);
-            //转换成内部格式
-            data = frameParaInfo.getTransOuttoInMap().get(data);
+            String data = String.valueOf(byteToInt(paraValBytes));
             FrameParaInfo currentPara = BaseInfoContainer.getParaInfoByCmd(devType, frameParaInfo.getCmdMark());
             if (StringUtils.isEmpty(currentPara.getParaNo())){ continue;}
             FrameParaData frameParaData = FrameParaData.builder()

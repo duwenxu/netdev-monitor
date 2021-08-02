@@ -100,6 +100,9 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
             int endIdx = respArr[i].indexOf("_");
             String value = respStr.substring(endIdx+1,respStr.indexOf(StrUtil.CRLF));
             FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),respData.getCmdMark());
+            if(frameParaInfo.getParaId()==null){
+                frameParaInfo = BaseInfoContainer.getParaInfoByCmd(SysConfigConstant.DEVICE_BPQ,respData.getCmdMark());
+            }
             FrameParaData frameParaData = new FrameParaData();
             String cmdMark = respData.getCmdMark();
             BeanUtil.copyProperties(frameParaInfo, frameParaData, true);
@@ -127,10 +130,15 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
         StringBuilder sb = new StringBuilder();
         String localAddr = "001";
         BaseInfo baseInfo = BaseInfoContainer.getDevInfoByNo(reqInfo.getDevNo());
-        List<BaseInfo> subDevs = BaseInfoContainer.getDevInfoByParentNo(baseInfo.getDevParentNo());
-        for (BaseInfo subDev : subDevs) {
-            if(subDev.getDevType().equals(SysConfigConstant.DEVICE_QHDY)){
-                localAddr = subDev.getDevLocalAddr();
+        //Ka/c下变频器没有切换单元
+        if(baseInfo.getDevType().equals(SysConfigConstant.DEVICE_KAC_BPQ)){
+            localAddr = baseInfo.getDevLocalAddr();
+        }else{
+            List<BaseInfo> subDevs = BaseInfoContainer.getDevInfoByParentNo(baseInfo.getDevParentNo());
+            for (BaseInfo subDev : subDevs) {
+                if(subDev.getDevType().equals(SysConfigConstant.DEVICE_QHDY)){
+                    localAddr = subDev.getDevLocalAddr();
+                }
             }
         }
         sb.append(SEND_START_MARK).append(localAddr).append("/").append(reqInfo.getCmdMark())

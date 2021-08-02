@@ -77,7 +77,9 @@ public class DeviceSocketSubscribe {
                 }
             }
         }else {
-            devInfo = devInfos.get(0);
+            if (devInfos.size()> 0){
+                devInfo = devInfos.get(0);
+            }
         }
         if(devInfo == null){
             return;

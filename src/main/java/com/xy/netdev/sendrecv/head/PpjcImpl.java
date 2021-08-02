@@ -89,6 +89,8 @@ public class PpjcImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData,
     @Override
     public byte[] pack(FrameReqData frameReqData) {
         byte[] frameByte = new byte[]{0x02,0x02, (byte) 0x82,0x00,0x0a};
+        String hexStr = HexUtil.encodeHexStr(frameByte);
+        log.debug("频谱监测设备发送查询帧:[{}]",hexStr);
         return frameByte;
     }
 }

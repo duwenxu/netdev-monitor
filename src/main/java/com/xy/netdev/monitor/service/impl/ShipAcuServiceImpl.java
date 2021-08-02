@@ -116,8 +116,8 @@ public class ShipAcuServiceImpl implements IShipAcuService {
      */
     @Override
     public Angel getLocalDeg(Angel angel) {
-        String devJd = DevParaInfoContainer.getDevParaView(angel.getDevNo(),"30").getParaVal();
-        String devWd = DevParaInfoContainer.getDevParaView(angel.getDevNo(),"31").getParaVal();
+        String devJd = DevParaInfoContainer.getDevParaView(angel.getDevNo(),"23").getParaVal();
+        String devWd = DevParaInfoContainer.getDevParaView(angel.getDevNo(),"24").getParaVal();
         angel.setDevJd(devJd);
         angel.setDevWd(devWd);
         return angel;
@@ -130,7 +130,7 @@ public class ShipAcuServiceImpl implements IShipAcuService {
      */
     @Override
     public Angel getCurrentStage(Angel angel) {
-        String paraVal = DevParaInfoContainer.getDevParaView(angel.getDevNo(),"1").getSubParaList().stream().filter(paraViewInfo -> paraViewInfo.getParaNo().equals("20")).collect(Collectors.toList()).get(0).getParaVal();
+        String paraVal = DevParaInfoContainer.getDevParaView(angel.getDevNo(),"1").getParaVal();
         angel.setFunc(paraVal);
         return angel;
     }
@@ -190,7 +190,7 @@ public class ShipAcuServiceImpl implements IShipAcuService {
      */
     private boolean isNext(String devNo){
         String agc = DevParaInfoContainer.getDevParaView(devNo,"9").getParaVal(); //agc
-        String recvStatus = DevParaInfoContainer.getDevParaView(devNo,"48").getSubParaList().stream().filter(paraViewInfo -> paraViewInfo.getParaNo().equals("76")).collect(Collectors.toList()).get(0).getParaVal();  //接收机状态
+        String recvStatus = DevParaInfoContainer.getDevParaView(devNo,"65").getSubParaList().stream().filter(paraViewInfo -> paraViewInfo.getParaNo().equals("66")).collect(Collectors.toList()).get(0).getParaVal();  //接收机状态
         if(Double.parseDouble(agc)> Double.parseDouble(sysParamService.getParaRemark1(ACU_AGE_VALUE)) && recvStatus.equals("1")){
             return true;
         }

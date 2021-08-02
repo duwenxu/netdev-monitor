@@ -54,7 +54,11 @@ public class HdpmImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData,
         int endOffset = StrUtil.indexOf(data, '_');
         String paramMark = "";
         if(endOffset>beginOffset){
-            paramMark= StrUtil.sub(data, beginOffset, endOffset);
+            if(data.contains("/CH")){
+                paramMark = StrUtil.sub(data, beginOffset, data.indexOf(":")).replace("_0","");
+            }else{
+                paramMark= StrUtil.sub(data, beginOffset, endOffset);
+            }
             frameRespData.setCmdMark(paramMark);
             frameRespData.setParamBytes(socketEntity.getBytes());
             frameRespData.setAccessType(getAccessType(frameRespData.getDevType(),paramMark.substring(1)));
@@ -72,7 +76,7 @@ public class HdpmImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData,
             accessType =  SysConfigConstant.ACCESS_TYPE_PARAM;
         }
         Interface interf =  BaseInfoContainer.getInterLinkInterface(devType,cmdMark);
-        if(interf != null){
+        if(interf.getItfId() != null){
             accessType =  SysConfigConstant.ACCESS_TYPE_INTERF;
         }
         return accessType;

@@ -33,16 +33,18 @@ import static com.xy.netdev.common.constant.SysConfigConstant.PARA_COMPLEX_LEVEL
 public class Ka100BucPrtcServiceImpl implements IParaPrtclAnalysisService {
 
 
-    /**用户命令起始标记*/
+    /**
+     * 用户命令起始标记
+     */
     public final static String SEND_START_MARK = "<";
-    /**设备响应开始标记*/
+    /**
+     * 设备响应开始标记
+     */
     public final static String RESP_START_MARK = ">";
-    /**设备物理地址设置*/
-    public final static String SET_ADDR_CMD = "SPA";
-    /**设备物理广播地址*/
-    public final static String BROADCAST_ADDR = "255";
-
-    public final static String FORMAT = "#";
+    /**
+     * 设备物理地址设置
+     */
+    public final static String SET_ADDR_CMD = "ADDR";
 
 
     @Autowired
@@ -55,78 +57,100 @@ public class Ka100BucPrtcServiceImpl implements IParaPrtclAnalysisService {
 
     /**
      * 查询设备参数
-     * @param  reqInfo   请求参数信息
+     *
+     * @param reqInfo 请求参数信息
      */
     @Override
     public void queryPara(FrameReqData reqInfo) {
         StringBuilder sb = new StringBuilder();
-        String localAddr = "255";
-        sb.append(SEND_START_MARK).append(localAddr).append("/").append(reqInfo.getCmdMark()).append("_?").append(StrUtil.CRLF);
+        String localAddr = "001";
+        sb.append(SEND_START_MARK).append(localAddr).append("/")
+                .append(reqInfo.getCmdMark()).append("_?").append(StrUtil.CRLF);
         String command = sb.toString();
         reqInfo.setParamBytes(command.getBytes());
         socketMutualService.request(reqInfo, ProtocolRequestEnum.QUERY);
+
     }
 
     /**
      * 查询设备参数响应
-     * @param  respData   数据传输对象
+     *
+     * @param respData 数据传输对象
      * @return
      */
     @Override
     public FrameRespData queryParaResponse(FrameRespData respData) {
         String respStr = new String(respData.getParamBytes());
-        respStr =  respStr.split(RESP_START_MARK)[1];
+        respStr = respStr.split(RESP_START_MARK)[1];
         int stIndex = respStr.indexOf("_");
 
-        String cmdMk = respStr.substring(respStr.indexOf("/")+1,stIndex);
-//        int edIndex = respStr.indexOf(StrUtil.LF);
-        String val = respStr.substring(stIndex+1,respStr.length() - 2);
+        String cmdMk = respStr.substring(respStr.indexOf("/") + 1, stIndex);
+        int edIndex = respStr.indexOf(StrUtil.LF);
+//        String val = respStr.substring(stIndex+1,respStr.length() - 2);
+        String val = respStr.substring(stIndex + 1, edIndex);
         List<FrameParaData> frameParas = new ArrayList<>();
         FrameParaData paraInfo = new FrameParaData();
-        FrameParaInfo frameParaDetail = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),cmdMk);
+        FrameParaInfo frameParaDetail = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(), cmdMk);
         BeanUtil.copyProperties(frameParaDetail, paraInfo, true);
 
-        if(cmdMk.equals("VOLT")){
+        if (cmdMk.equals("VOLT")) {
             String[] volt = val.split(",");
 
-            if(PARA_COMPLEX_LEVEL_COMPOSE.equals(frameParaDetail.getCmplexLevel())){
-                List<FrameParaInfo> subList  = frameParaDetail.getSubParaList();
+            if (PARA_COMPLEX_LEVEL_COMPOSE.equals(frameParaDetail.getCmplexLevel())) {
+                List<FrameParaInfo> subList = frameParaDetail.getSubParaList();
                 subList.sort(Comparator.comparing(frameParaInfo1 -> Integer.valueOf(frameParaInfo1.getParaNo())));
                 for (int i = 0; i < subList.size(); i++) {
-                    FrameParaData frameParaData = genFramepara(subList.get(i),volt[i],respData);
+                    FrameParaData frameParaData = genFramepara(subList.get(i), volt[i], respData);
                     frameParas.add(frameParaData);
                 }
 
             }
         }
-        if (cmdMk.equals("CURR")){
+        if (cmdMk.equals("CURR")) {
             String[] curr = val.split(",");
-            if(PARA_COMPLEX_LEVEL_COMPOSE.equals(frameParaDetail.getCmplexLevel())){
-                List<FrameParaInfo> subList  = frameParaDetail.getSubParaList();
+            if (PARA_COMPLEX_LEVEL_COMPOSE.equals(frameParaDetail.getCmplexLevel())) {
+                List<FrameParaInfo> subList = frameParaDetail.getSubParaList();
                 subList.sort(Comparator.comparing(frameParaInfo1 -> Integer.valueOf(frameParaInfo1.getParaNo())));
                 for (int i = 0; i < subList.size(); i++) {
-                    FrameParaData frameParaData = genFramepara(subList.get(i),curr[i],respData);
+                    FrameParaData frameParaData = genFramepara(subList.get(i), curr[i], respData);
                     frameParas.add(frameParaData);
                 }
 
             }
         }
-        if (cmdMk.equals("WHAT")){
+        if (cmdMk.equals("WHAT")) {
             String[] what = val.split("_");
-            if(PARA_COMPLEX_LEVEL_COMPOSE.equals(frameParaDetail.getCmplexLevel())){
-                List<FrameParaInfo> subList  = frameParaDetail.getSubParaList();
+            if (PARA_COMPLEX_LEVEL_COMPOSE.equals(frameParaDetail.getCmplexLevel())) {
+                List<FrameParaInfo> subList = frameParaDetail.getSubParaList();
                 subList.sort(Comparator.comparing(frameParaInfo1 -> Integer.valueOf(frameParaInfo1.getParaNo())));
                 for (int i = 0; i < subList.size(); i++) {
-                    FrameParaData frameParaData = genFramepara(subList.get(i),what[i],respData);
+                    FrameParaData frameParaData = genFramepara(subList.get(i), what[i], respData);
                     frameParas.add(frameParaData);
                 }
 
             }
         }
+        if (cmdMk.equals("FREQ")) {
+            String[] freq = val.split("\\.");
+            if (freq.length == 1) {
+                val = freq[0].substring(1);
+            } else {
+                for (int i = freq[1].length() - 1; i >= 0; i--) {
+                    if (freq[1].charAt(i) == '0') {
+                        freq[1] = freq[1].substring(0, freq[1].length() - 1);
+                    }
+                }
+                if (freq[1].length() == 0) {
+                    val = freq[0].substring(1);
+                } else {
+                    val = freq[0].substring(1) + "." + freq[1];
+                }
+            }
+        }
 
 
-        FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),respData.getCmdMark());
-        FrameParaData frameParaData = genFramepara(frameParaInfo,val,respData);
+        FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(), respData.getCmdMark());
+        FrameParaData frameParaData = genFramepara(frameParaInfo, val, respData);
         //BeanUtil.copyProperties(frameParaInfo, frameParaData, true);
         //frameParaData.setParaVal(val);
         frameParas.add(frameParaData);
@@ -135,44 +159,64 @@ public class Ka100BucPrtcServiceImpl implements IParaPrtclAnalysisService {
         return respData;
     }
 
-    private  FrameParaData genFramepara(FrameParaInfo currentpara,String paraValueStr,FrameRespData respData){
+    private FrameParaData genFramepara(FrameParaInfo currentpara, String paraValueStr, FrameRespData respData) {
         FrameParaData frameParaData = FrameParaData.builder()
                 .devType(currentpara.getDevType())
                 .paraNo(currentpara.getParaNo())
                 .devNo(respData.getDevNo())
                 .build();
         frameParaData.setParaVal(paraValueStr);
-        return  frameParaData;
+        return frameParaData;
     }
 
     /**
      * 设置设备参数
-     * @param  reqInfo   请求参数信息
+     *
+     * @param reqInfo 请求参数信息
      */
     @Override
     public void ctrlPara(FrameReqData reqInfo) {
         StringBuilder sb = new StringBuilder();
         String localAddr = "001";
         String cmdMK = reqInfo.getCmdMark();
-        if (cmdMK.equals("FREQ")){
-            String str = reqInfo.getFrameParaList().get(0).getParaVal();
-            String[] freq = str.split("\\.");
-            if (freq.length == 1){
-                str = "0" + str + ".0000";
-            }else {
-                str = "0" + str;
-            }
-            sb.append(SEND_START_MARK).append(localAddr).append("/").append(reqInfo.getCmdMark())
-                    .append("_").append(str);
+        switch (cmdMK) {
+            case "FREQ":
+                StringBuilder freqStr = new StringBuilder(reqInfo.getFrameParaList().get(0).getParaVal());
+                String[] freq = freqStr.toString().split("\\.");
+                if (freq.length == 1) {
+                    freqStr = new StringBuilder("0" + freqStr + ".0000");
+                } else {
+                    freqStr = new StringBuilder("0" + freqStr);
+                    for (int i = 0; i < 4 - freq[1].length(); i++) {
+                        freqStr.append("0");
+                    }
+                }
+                sb.append(SEND_START_MARK).append(localAddr).append("/").append(reqInfo.getCmdMark())
+                        .append("_").append(freqStr).append(StrUtil.CRLF);
+                break;
+            case "ECLR":
+                sb.append(SEND_START_MARK).append(localAddr).append("/").append(reqInfo.getCmdMark()).append(StrUtil.CRLF);
+                break;
+            case "AT":
+                String atStr = reqInfo.getFrameParaList().get(0).getParaVal();
+                String[] at = atStr.split("\\.");
+                if (at.length == 1) {
+                    atStr = atStr + ".0";
+                }
+                if (at[0].length() == 1) {
+                    atStr = "0" + atStr;
+                }
+                sb.append(SEND_START_MARK).append(localAddr).append("/").append(reqInfo.getCmdMark())
+                        .append("_").append(atStr).append(StrUtil.CRLF);
+                break;
+            default:
+                sb.append(SEND_START_MARK).append(localAddr).append("/").append(reqInfo.getCmdMark())
+                        .append("_").append(reqInfo.getFrameParaList().get(0).getParaVal()).append(StrUtil.CRLF);
         }
-        sb.append(SEND_START_MARK).append(localAddr).append("/").append(reqInfo.getCmdMark())
-                .append("_").append(reqInfo.getFrameParaList().get(0).getParaVal());
-
-
         String command = sb.toString();
         reqInfo.setParamBytes(command.getBytes());
         String cmdMark = reqInfo.getCmdMark();
-        if(cmdMark.equals(SET_ADDR_CMD)) {
+        if (cmdMark.equals(SET_ADDR_CMD)) {
             setDevLocalAddr(reqInfo);
         }
         socketMutualService.request(reqInfo, ProtocolRequestEnum.CONTROL);
@@ -180,21 +224,23 @@ public class Ka100BucPrtcServiceImpl implements IParaPrtclAnalysisService {
 
     /**
      * 设置设备参数响应
-     * @param  respData   数据传输对象
+     *
+     * @param respData 数据传输对象
      * @return
      */
     @Override
     public FrameRespData ctrlParaResponse(FrameRespData respData) {
         String respStr = new String(respData.getParamBytes());
-        respStr =  respStr.split(RESP_START_MARK)[1];
+        respStr = respStr.split(RESP_START_MARK)[1];
         int stIndex = respStr.indexOf("_");
-        String cmdMk = respStr.substring(0,stIndex);
-//        int edIndex = respStr.indexOf(StrUtil.LF);
-        String val = respStr.substring(stIndex+1,respStr.length() - 2);
+//        String cmdMk = respStr.substring(0,stIndex);
+        int edIndex = respStr.indexOf(StrUtil.LF);
+        String val = respStr.substring(stIndex + 1, edIndex);
+//        String val = respStr.substring(stIndex+1,respStr.length() - 2);
 
 
         List<FrameParaData> frameParas = new ArrayList<>();
-        FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),respData.getCmdMark());
+        FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(), respData.getCmdMark());
         FrameParaData frameParaData = new FrameParaData();
         BeanUtil.copyProperties(frameParaInfo, frameParaData, true);
         frameParaData.setParaVal(val);
@@ -205,12 +251,12 @@ public class Ka100BucPrtcServiceImpl implements IParaPrtclAnalysisService {
     }
 
 
-
     /**
      * 设置设备物理地址
+     *
      * @param reqInfo
      */
-    private void setDevLocalAddr(FrameReqData reqInfo){
+    private void setDevLocalAddr(FrameReqData reqInfo) {
         String devNo = reqInfo.getDevNo();
         BaseInfo baseInfo = new BaseInfo();
         baseInfo.setDevNo(devNo);
@@ -218,7 +264,6 @@ public class Ka100BucPrtcServiceImpl implements IParaPrtclAnalysisService {
         baseInfoService.updateById(baseInfo);
         BaseInfoContainer.updateBaseInfo(devNo);
     }
-
 
 
 }

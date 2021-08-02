@@ -73,7 +73,7 @@ public class FrequencyConversionImpl extends AbsDeviceSocketHandler<SocketEntity
             accessType =  SysConfigConstant.ACCESS_TYPE_PARAM;
         }
         Interface interf =  BaseInfoContainer.getInterLinkInterface(devType,cmdMark);
-        if(interf != null){
+        if(interf.getItfId() != null){
             accessType =  SysConfigConstant.ACCESS_TYPE_INTERF;
         }
         return accessType;

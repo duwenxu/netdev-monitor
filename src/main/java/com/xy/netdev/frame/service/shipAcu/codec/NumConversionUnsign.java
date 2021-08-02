@@ -28,7 +28,20 @@ public class NumConversionUnsign implements ParamCodec {
 
     @Override
     public byte[] encode(String value, Object... objects) {
-        return new byte[0];
+        //默认不做小数点保留
+        int resultInt = 1;
+        byte[] bytes = null;
+        if (objects != null&&objects.length!=0) {
+            if (!ObjectUtil.isEmpty(objects[0])){
+                if(value.contains(".")){
+                    resultInt = new Double(Double.valueOf(value) * Double.valueOf(objects[0].toString())).intValue();
+                }else{
+                    resultInt = Integer.valueOf(value) * Integer.valueOf(objects[0].toString());
+                }
+                bytes = ByteUtils.objToBytes(resultInt, Unpooled.LITTLE_ENDIAN,Unpooled::copyInt);
+            }
+        }
+        return bytes;
     }
 
     /**

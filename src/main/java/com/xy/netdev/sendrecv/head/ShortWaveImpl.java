@@ -18,6 +18,7 @@ import com.xy.netdev.sendrecv.base.AbsDeviceSocketHandler;
 import com.xy.netdev.sendrecv.entity.SocketEntity;
 import com.xy.netdev.sendrecv.entity.device.ShortWaveEntity;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -57,7 +58,7 @@ public class ShortWaveImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReq
     @Override
     public FrameRespData unpack(SocketEntity socketEntity, FrameRespData frameRespData) {
         byte[] bytes = socketEntity.getBytes();
-        log.info("接收到750-400W短波设备响应帧：设备类型：[{}]，响应帧内容：[{}]",frameRespData.getDevType(), HexUtil.encodeHexStr(bytes));
+        log.info("接收到750-400W短波设备响应帧：设备类型：[{}]，响应帧内容：[{}]",frameRespData.getDevType(), HexUtil.encodeHexStr(bytes).toUpperCase());
         //响应固定字节 报头2+命令字1+序号4+CRC校验2
         if (bytes.length < 9) {
             log.warn("750-400W短波设备响应数据帧异常, 响应数据长度错误, 数据体长度:[{}], 数据体:[{}]", bytes.length, HexUtil.encodeHexStr(bytes));
@@ -80,7 +81,6 @@ public class ShortWaveImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReq
         //参数数据
         byte[] paramBytes = frameReqData.getParamBytes();
         String cmdMark = frameReqData.getCmdMark();
-        int length = paramBytes.length;
 
         String operType = frameReqData.getOperType();
         String keyWord;
@@ -93,6 +93,9 @@ public class ShortWaveImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReq
         }else {
             keyWord = prtclFormat.getFmtCkey();
         }
+        if (StringUtils.isBlank(keyWord)){
+            keyWord = cmdMark;
+        }
 
         byte[] serialNumBytes = new byte[]{};
         switch (cmdMark){
@@ -103,7 +106,7 @@ public class ShortWaveImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReq
                 serialNumBytes = ShortWaveInterCtrlServiceImpl.START_CHANNEL;
                 break;
             case "30":
-                serialNumBytes = ShortWaveInterCtrlServiceImpl.SEND_DATA;
+                serialNumBytes = ShortWaveInterPrtcServiceImpl.END_CHANNEL;
                 break;
             case "40":
                 serialNumBytes = ShortWaveInterCtrlServiceImpl.SEND_DATA;
@@ -150,7 +153,7 @@ public class ShortWaveImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReq
      */
     private byte[] crc16Check(ShortWaveEntity waveEntity) {
         byte[] bytes = packForCrc(waveEntity);
-        CrcCalculator crcCalculator = new CrcCalculator(Crc16.Crc16AugCcitt);
+        CrcCalculator crcCalculator = new CrcCalculator(Crc16.Crc16Xmodem);
         long crc16 = crcCalculator.Calc(bytes, 0, bytes.length);
         byte[] crcBytes = Longs.toByteArray(crc16);
         return byteArrayCopy(crcBytes, crcBytes.length - 2, 2);

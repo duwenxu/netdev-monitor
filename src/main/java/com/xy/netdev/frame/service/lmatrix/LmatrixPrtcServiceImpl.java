@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,8 +30,8 @@ import java.util.List;
  * @create 2021-04-28 15:30
  */
 @Slf4j
-@Component
-public class LmatrixSwitchPrtcServiceImpl implements IParaPrtclAnalysisService {
+@Service
+public class LmatrixPrtcServiceImpl implements IParaPrtclAnalysisService {
 
     @Autowired
     private SocketMutualService socketMutualService;
@@ -38,6 +39,9 @@ public class LmatrixSwitchPrtcServiceImpl implements IParaPrtclAnalysisService {
     private IDataReciveService dataReciveService;
     @Autowired
     private ISysParamService sysParamService;
+
+    private static final String CTRL_SUCCESS_CODE = "20";
+    private static final String CTRL_ERROR_CODE = "21";
 
     @Override
     public void queryPara(FrameReqData reqInfo) {}
@@ -60,14 +64,13 @@ public class LmatrixSwitchPrtcServiceImpl implements IParaPrtclAnalysisService {
         List<byte[]> list = new ArrayList<>();
         reqInfo.getFrameParaList().forEach(frameParaData->{
             FrameParaInfo paraInfoByNo = BaseInfoContainer.getParaInfoByNo(frameParaData.getDevType(), frameParaData.getParaNo());
-            //将参数值进行映射转换
-            String paraValStr = paraInfoByNo.getTransIntoOutMap().get(frameParaData.getParaVal());
-            //将参数标识进行转换
-            String cmdMarkStr = paraInfoByNo.getTransIntoOutMap().get(paraInfoByNo.getCmdMark());
-            //设置转换后的值(此处用于页面显示)
-            /*frameParaData.setParaVal(paraValStr);*/
-            String dataBody = cmdMarkStr + paraValStr;
-            list.add(HexUtil.decodeHex(dataBody));
+            //参数标识
+            String cmdMarkStr = paraInfoByNo.getCmdMark();
+            list.add(ByteUtils.objToBytes(Integer.parseInt(cmdMarkStr), 1));
+            list.add(ByteUtils.objToBytes(1, 1));
+            //参数值
+            String paraValStr = frameParaData.getParaVal();
+            list.add(ByteUtils.objToBytes(Integer.parseInt(paraValStr), 1));
         });
         reqInfo.setParamBytes(ByteUtils.listToBytes(list));
         socketMutualService.request(reqInfo, ProtocolRequestEnum.CONTROL);
@@ -82,12 +85,10 @@ public class LmatrixSwitchPrtcServiceImpl implements IParaPrtclAnalysisService {
     public FrameRespData ctrlParaResponse(FrameRespData respData) {
         String data = HexUtil.encodeHexStr(respData.getParamBytes());
         String controCode = data.substring(data.length()-2);
-        String controlSuccessCode = sysParamService.getParaRemark1(SysConfigConstant.LPD_CTRL_SUCCESS);
-        if (controCode.equals(controlSuccessCode)) {
-            respData.setRespCode(controlSuccessCode);
-        } else if (data.contains("6")) {
-            //不包含成功但包含6则失败
-            respData.setRespCode(controCode);
+        if (controCode.equals(CTRL_SUCCESS_CODE)) {
+            respData.setRespCode(CTRL_SUCCESS_CODE);
+        } else if (controCode.contains(CTRL_ERROR_CODE)) {
+            respData.setRespCode(CTRL_ERROR_CODE);
         } else {
             throw new IllegalStateException("L频段4x4开关矩阵控制响应异常，数据字节：" + data);
         }

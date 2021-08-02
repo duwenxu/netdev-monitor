@@ -68,7 +68,7 @@ public class MsctCtrlInterPrtcServiceImpl implements ICtrlInterPrtclAnalysisServ
                     }else{
                          isStr = MonitorConstants.STRING_CODE.equals(param.getDataType()) || MonitorConstants.IP_ADDRESS.equals(param.getDataType());
                     }
-                    String value = frameParaData.getParaVal();
+                    String value = handleParaVal(cmdMark,frameParaData.getParaVal());
                     if (isStr) {
                         String configClass = param.getNdpaRemark2Data();
                         if(StringUtils.isNotBlank(configClass)) {
@@ -123,7 +123,31 @@ public class MsctCtrlInterPrtcServiceImpl implements ICtrlInterPrtclAnalysisServ
         return respData;
     }
 
-
+    /***
+     * @Description 处理TDMA模式“参考编码方式”
+     * @Date 10:44 2021/7/27
+     * @Param [cmdMark, val]
+     * @return java.lang.String
+     * @author luo
+     **/
+    private String handleParaVal(String cmdMark,String val){
+        if(cmdMark.equals("D4-9")){
+            switch (val){
+                case "66":
+                    val = "2";
+                    break;
+                case "146":
+                    val = "3";
+                    break;
+                case "226":
+                    val = "4";
+                    break;
+                default:
+                    break;
+            }
+        }
+        return val;
+    }
 
 
 }

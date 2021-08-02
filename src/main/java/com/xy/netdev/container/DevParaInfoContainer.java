@@ -2,6 +2,7 @@ package com.xy.netdev.container;
 
 import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson.JSONArray;
+import com.xy.netdev.SpacePreset.entity.NtdvSpacePreset;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.ParaHandlerUtil;
@@ -78,12 +79,19 @@ public class DevParaInfoContainer {
     }
 
     /**
+     * 预置卫星集合
+     */
+    private static List<NtdvSpacePreset> spacePresets = new ArrayList<>();
+
+    /**
      * @param paraList 参数列表
      * @return
      * @功能：添加设备参数MAP
      */
-    public static void initData(List<ParaInfo> paraList, ISysParamService sysParamService) {
+    public static void initData(List<ParaInfo> paraList, List<NtdvSpacePreset> spacePresets, ISysParamService sysParamService) {
         DevParaInfoContainer.sysParamService = sysParamService;
+        //存放预置卫星
+        DevParaInfoContainer.spacePresets = spacePresets;
         Map<String, List<ParaInfo>> paraMapByDevType = paraList.stream().collect(Collectors.groupingBy(ParaInfo::getDevType));
         BaseInfoContainer.getDevNos().forEach(devNo -> {
             String devType = BaseInfoContainer.getDevInfoByNo(devNo).getDevType();
@@ -133,15 +141,12 @@ public class DevParaInfoContainer {
             if (!DEV_STATUS_NEW.equals(devStatus)){ continue;}
             Collection<ParaViewInfo> values = entry.getValue().values();
             for (ParaViewInfo paraView : values) {
-                boolean canBeOpt = SysConfigConstant.IS_DEFAULT_TRUE.equals(paraView.getNdpaOutterStatus()) && !StringUtils.isEmpty(paraView.getRptOidSign());
-                if (canBeOpt) {
-                    List<ParaViewInfo> subParaList = paraView.getSubParaList();
-                    if (subParaList == null || subParaList.size() == 0) {
-                        addSnmpParaData(currentDevNo, paraView);
-                    } else {
-                        for (ParaViewInfo subPara : subParaList) {
-                            addSnmpParaData(currentDevNo, subPara);
-                        }
+                List<ParaViewInfo> subParaList = paraView.getSubParaList();
+                if (subParaList == null || subParaList.size() == 0) {
+                    addSnmpParaData(currentDevNo, paraView);
+                } else {
+                    for (ParaViewInfo subPara : subParaList) {
+                        addSnmpParaData(currentDevNo, subPara);
                     }
                 }
             }
@@ -156,14 +161,17 @@ public class DevParaInfoContainer {
      * @param value        参数值结构体
      */
     private static void addSnmpParaData(String currentDevNo, ParaViewInfo value) {
-        if (!devSnmpParaMap.containsKey(currentDevNo)) {
-            devSnmpParaMap.put(currentDevNo, new ConcurrentHashMap<>(10));
+        boolean canBeOpt = SysConfigConstant.IS_DEFAULT_TRUE.equals(value.getNdpaOutterStatus()) && !StringUtils.isEmpty(value.getRptOidSign());
+        if (canBeOpt) {
+            if (!devSnmpParaMap.containsKey(currentDevNo)) {
+                devSnmpParaMap.put(currentDevNo, new ConcurrentHashMap<>(10));
+            }
+            Map<String, SnmpRptDTO> viewInfoMap = devSnmpParaMap.get(currentDevNo);
+            String rptOid = SyntheticalUtil.genRptOid(value.getRptOidSign(), value.getParaCode(), sysParamService);
+            SnmpRptDTO snmpRptDTO = new SnmpRptDTO();
+            BeanUtils.copyProperties(value, snmpRptDTO);
+            viewInfoMap.put(rptOid, snmpRptDTO);
         }
-        Map<String, SnmpRptDTO> viewInfoMap = devSnmpParaMap.get(currentDevNo);
-        String rptOid = SyntheticalUtil.genRptOid(value.getRptOidSign(), value.getParaCode(), sysParamService);
-        SnmpRptDTO snmpRptDTO = new SnmpRptDTO();
-        BeanUtils.copyProperties(value, snmpRptDTO);
-        viewInfoMap.put(rptOid, snmpRptDTO);
     }
 
     /**
@@ -303,9 +311,22 @@ public class DevParaInfoContainer {
         viewInfo.setDevType(paraInfo.getDevType());
         viewInfo.setParaCmdMark(paraInfo.getNdpaCmdMark());
         viewInfo.setSpinnerInfoList(JSONArray.parseArray(paraInfo.getNdpaSelectData(), ParaSpinnerInfo.class));
+        //acu选择预置卫星特殊处理  sunchao
+        if("0020001".equals(paraInfo.getDevType()) && "optSate".equals(paraInfo.getNdpaCmdMark()) && spacePresets.size()>0){
+            List<ParaSpinnerInfo> spinnerInfos = new ArrayList<>();
+            spacePresets.forEach(ntdvSpacePreset -> {
+                ParaSpinnerInfo paraSpinnerInfo = new ParaSpinnerInfo();
+                paraSpinnerInfo.setCode(ntdvSpacePreset.getSpId().toString());
+                paraSpinnerInfo.setName(ntdvSpacePreset.getSpName()+"["+sysParamService.getParaName(ntdvSpacePreset.getSpPolarization())+"]");
+                spinnerInfos.add(paraSpinnerInfo);
+            });
+            viewInfo.setSpinnerInfoList(spinnerInfos);
+            //设置缺省值：默认第一个卫星
+            viewInfo.setParaVal(spinnerInfos.get(0).getCode());
+        }
         viewInfo.setParaByteLen(paraInfo.getNdpaByteLen());
         viewInfo.setNdpaOutterStatus(paraInfo.getNdpaOutterStatus());
-        viewInfo.setNdpaIsTopology(paraInfo.getNdpaIsTopology());
+        viewInfo.setNdpaIsImportant(paraInfo.getNdpaIsImportant());
         viewInfo.setRptOidSign(paraInfo.getNdpaRptOid());
         return viewInfo;
     }
@@ -327,7 +348,7 @@ public class DevParaInfoContainer {
      * @功能：根据设备显示参数列表
      */
     public static List<ParaViewInfo> getDevParaExtViewList(String devNo) {
-        return devParaMap.get(devNo).values().stream().filter(paraViewInfo -> paraViewInfo.getIsShow() == true).collect(Collectors.toList());
+        return new ArrayList(devParaMap.get(devNo).values());
     }
 
     /**
@@ -338,19 +359,6 @@ public class DevParaInfoContainer {
      */
     public static ParaViewInfo getDevParaView(String devNo, String paraNo) {
         return devParaMap.get(devNo).get(ParaHandlerUtil.genLinkKey(devNo, paraNo));
-    }
-
-    /**
-     * @param devNo  设备编号
-     * @param paraNo 参数编号
-     * @return 设备参数显示信息
-     * @功能：修改指定参数是否显示
-     */
-    public static void setIsShow(String devNo, String paraNo, boolean result) {
-        ParaViewInfo paraViewInfo = devParaMap.get(devNo).get(ParaHandlerUtil.genLinkKey(devNo, paraNo));
-        if (ObjectUtil.isNotEmpty(paraViewInfo)) {
-            paraViewInfo.setIsShow(result);
-        }
     }
 
     private static final Map<String, Map<String, ParaViewInfo>> changedDevParaMap = new LinkedHashMap<>(10);
@@ -426,6 +434,20 @@ public class DevParaInfoContainer {
         }
         paraViewInfo.setParaVal(val);
         changedDevParaMap.get(devNo).put(linkKey,paraViewInfo);
+    }
+
+    /**
+     * 更新缓存devParaMap参数值
+     */
+    public static void updateParaValue(String devNo, String linkKey, String val) {
+        if (devParaMap.containsKey(devNo)){
+            if(devParaMap.get(devNo).containsKey(linkKey)){
+                ParaViewInfo paraViewInfo = devParaMap.get(devNo).get(linkKey);
+                paraViewInfo.setParaVal(val);
+                devParaMap.get(devNo).put(linkKey,paraViewInfo);
+            }
+        }
+
     }
 
     /**

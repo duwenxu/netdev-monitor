@@ -9,6 +9,7 @@ import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.shipAcu.ShipAcuInterPrtcServiceImpl;
 import com.xy.netdev.frame.service.shipAcu.ShipAcuPrtcServiceImpl;
+import com.xy.netdev.frame.service.shipAcu.util.ShipAcuPrtcAnalysisServiceImpl;
 import com.xy.netdev.sendrecv.base.AbsDeviceSocketHandler;
 import com.xy.netdev.sendrecv.entity.SocketEntity;
 import com.xy.netdev.sendrecv.entity.device.ModemScmmEntity;
@@ -32,6 +33,9 @@ public class ShipAcuImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
     @Autowired
     private ShipAcuPrtcServiceImpl shipAcuPrtcService;
 
+    @Autowired
+    private ShipAcuPrtcAnalysisServiceImpl shipAcuPrtcAnalysisService;
+
     /**帧头**/
     private static final String FRAME_HEAD = "7b";
     private static final String FRAME_END = "7d";
@@ -45,7 +49,7 @@ public class ShipAcuImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
     public void callback(FrameRespData frameRespData, IParaPrtclAnalysisService iParaPrtclAnalysisService, IQueryInterPrtclAnalysisService iQueryInterPrtclAnalysisService, ICtrlInterPrtclAnalysisService ctrlInterPrtclAnalysisService) {
         switch (frameRespData.getOperType()) {
             case OPREATE_QUERY_RESP:  //查询响应
-                shipAcuPrtcService.queryParaResponse(frameRespData);
+                shipAcuPrtcAnalysisService.queryParaResponse(frameRespData);
                 break;
             case OPREATE_CONTROL_RESP:  //控制响应
                 shipAcuPrtcService.queryParaResponse(frameRespData);

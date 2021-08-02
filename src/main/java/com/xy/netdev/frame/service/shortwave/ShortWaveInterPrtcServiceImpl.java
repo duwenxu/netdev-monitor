@@ -103,6 +103,12 @@ public class ShortWaveInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSe
                     addParams(devNo, paramsBytes, frameParaList, paraInfo,respData);
                 }
             }
+        /**上报数据*/
+        } else if (ShortWaveCmkEnum.RPT_STATUS.getRespCmk().equals(cmdMark)) {
+            List<FrameParaInfo> paraList = BaseInfoContainer.getInterLinkParaList(devType, ShortWaveCmkEnum.RPT_STATUS.getRespCmk());
+            for (FrameParaInfo paraInfo : paraList) {
+                addParams(devNo, paramsBytes, frameParaList, paraInfo, respData);
+            }
         }
         respData.setFrameParaList(frameParaList);
         dataReciveService.interfaceQueryRecive(respData);

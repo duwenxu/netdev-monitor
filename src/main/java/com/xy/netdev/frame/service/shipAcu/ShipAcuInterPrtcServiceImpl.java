@@ -56,10 +56,10 @@ public class ShipAcuInterPrtcServiceImpl implements ICtrlInterPrtclAnalysisServi
             String paraValStr = "";
             if(paraData.getLen()==1){
                 paraValStr = BitToHexStr(paraData.getParaVal().replaceAll("[^0-9]",""));
-            }else if (StringUtils.isNotBlank(frameParaInfo.getNdpaRemark1Data())){
-                ParamCodec handler = SpringContextUtils.getBean(frameParaInfo.getNdpaRemark1Data());
+            }else if (StringUtils.isNotBlank(frameParaInfo.getNdpaRemark2Data())){
+                ParamCodec handler = SpringContextUtils.getBean(frameParaInfo.getNdpaRemark2Data());
                 if (PARA_DATA_TYPE_INT.equals(frameParaInfo.getDataType())) {
-                    paraValStr = HexUtil.encodeHexStr(handler.encode(paraData.getParaVal(), frameParaInfo.getNdpaRemark2Data(),frameParaInfo.getParaByteLen()));
+                    paraValStr = HexUtil.encodeHexStr(handler.encode(paraData.getParaVal(), frameParaInfo.getNdpaRemark1Data(),frameParaInfo.getParaByteLen()));
                 }
             } else{
                 paraValStr = HexUtil.encodeHexStr(ByteUtils.objToBytes(paraData.getParaVal(),paraData.getLen(),true));
