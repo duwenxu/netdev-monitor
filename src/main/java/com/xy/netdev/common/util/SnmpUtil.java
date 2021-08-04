@@ -72,7 +72,7 @@ public class SnmpUtil {
             log.debug("SNMP发送PDU类型：[{}]到地址：[{}]---", pdu.getType(), respEvent.getPeerAddress());
             PDU response = respEvent.getResponse();
             if (response == null) {
-                log.warn("SNMP response is null, request time out");
+                log.debug("SNMP response is null, request time out");
             } else {
                 log.debug("SNMP response pdu size is " + response.size());
                 for (int i = 0; i < response.size(); i++) {
