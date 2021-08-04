@@ -25,8 +25,8 @@ import static com.xy.netdev.common.constant.SysConfigConstant.PARA_COMPLEX_LEVEL
 /**
  * Ka100WBUC功放
  *
- * @author luo
- * @date 2021-03-05
+ * @author zb
+ * @date 2021-06-20
  */
 @Component
 public class Ka100BucPrtcServiceImpl implements IParaPrtclAnalysisService {
@@ -98,68 +98,42 @@ public class Ka100BucPrtcServiceImpl implements IParaPrtclAnalysisService {
         // 复制对象属性
         BeanUtil.copyProperties(frameParaDetail, paraInfo, true);
         // 命令"VOLT(电压)"、"CURR(电流)"、"WHAT(设备信息)"为组合参数  需特殊处理
-        if (cmdMk.equals("VOLT")) {
-            String[] volt = val.split(",");
-            // 判断是否为组合参数参数
-            if (PARA_COMPLEX_LEVEL_COMPOSE.equals(frameParaDetail.getCmplexLevel())) {
-                // 获取子参数列表
-                List<FrameParaInfo> subList = frameParaDetail.getSubParaList();
-                // 为子参数排序
-                subList.sort(Comparator.comparing(frameParaInfo1 -> Integer.valueOf(frameParaInfo1.getParaNo())));
-                // 为子参数赋值
-                for (int i = 0; i < subList.size(); i++) {
-                    FrameParaData frameParaData = genFramepara(subList.get(i), volt[i], respData);
-                    frameParas.add(frameParaData);
+        switch (cmdMk){
+            case "CURR":
+            case "VOLT":
+                String[] cvpara = val.split(",");
+                // 判断是否为组合参数参数
+                if (PARA_COMPLEX_LEVEL_COMPOSE.equals(frameParaDetail.getCmplexLevel())) {
+                    // 调用子参数赋值方法为子参数赋值
+                    assignment(frameParaDetail,cvpara,respData,frameParas);
                 }
-            }
-        }
-        if (cmdMk.equals("CURR")) {
-            String[] curr = val.split(",");
-            // 判断是否为组合参数参数
-            if (PARA_COMPLEX_LEVEL_COMPOSE.equals(frameParaDetail.getCmplexLevel())) {
-                // 获取子参数列表
-                List<FrameParaInfo> subList = frameParaDetail.getSubParaList();
-                // 为子参数排序
-                subList.sort(Comparator.comparing(frameParaInfo1 -> Integer.valueOf(frameParaInfo1.getParaNo())));
-                // 为子参数赋值
-                for (int i = 0; i < subList.size(); i++) {
-                    FrameParaData frameParaData = genFramepara(subList.get(i), curr[i], respData);
-                    frameParas.add(frameParaData);
+                break;
+            case "WHAT":
+                String[] what = val.split("_");
+                if (PARA_COMPLEX_LEVEL_COMPOSE.equals(frameParaDetail.getCmplexLevel())) {
+                    // 调用子参数赋值方法为子参数赋值
+                    assignment(frameParaDetail,what,respData,frameParas);
                 }
-            }
-        }
-        if (cmdMk.equals("WHAT")) {
-            String[] what = val.split("_");
-            // 判断是否为组合参数参数
-            if (PARA_COMPLEX_LEVEL_COMPOSE.equals(frameParaDetail.getCmplexLevel())) {
-                // 获取子参数列表
-                List<FrameParaInfo> subList = frameParaDetail.getSubParaList();
-                // 为子参数排序
-                subList.sort(Comparator.comparing(frameParaInfo1 -> Integer.valueOf(frameParaInfo1.getParaNo())));
-                // 为子参数赋值
-                for (int i = 0; i < subList.size(); i++) {
-                    FrameParaData frameParaData = genFramepara(subList.get(i), what[i], respData);
-                    frameParas.add(frameParaData);
-                }
-            }
-        }
-        // 输入频率查询结果前后的补0
-        if (cmdMk.equals("FREQ")) {
-            String[] freq = val.split("\\.");
-            if (freq.length == 1) {
-                val = freq[0].substring(1);
-            } else {
-                for (int i = freq[1].length() - 1; i >= 0; i--) {
-                    if (freq[1].charAt(i) == '0') {
-                        freq[1] = freq[1].substring(0, freq[1].length() - 1);
-                    }
-                }
-                if (freq[1].length() == 0) {
+                break;
+            case "FREQ":
+                // 去除输入频率查询结果前后的补0
+                String[] freq = val.split("\\.");
+                if (freq.length == 1) {
                     val = freq[0].substring(1);
                 } else {
-                    val = freq[0].substring(1) + "." + freq[1];
+                    for (int i = freq[1].length() - 1; i >= 0; i--) {
+                        if (freq[1].charAt(i) == '0') {
+                            freq[1] = freq[1].substring(0, freq[1].length() - 1);
+                        }
+                    }
+                    if (freq[1].length() == 0) {
+                        val = freq[0].substring(1);
+                    } else {
+                        val = freq[0].substring(1) + "." + freq[1];
+                    }
                 }
-            }
+                break;
+            default:
         }
         // 获取设备类型及命令标识
         FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(), respData.getCmdMark());
@@ -251,6 +225,23 @@ public class Ka100BucPrtcServiceImpl implements IParaPrtclAnalysisService {
                 .build();
         frameParaData.setParaVal(paraValueStr);
         return frameParaData;
+    }
+
+    /**
+     * 子参数赋值方法
+     *
+     * @return
+     */
+    private void assignment(FrameParaInfo frameParaDetail,String[] paras,FrameRespData frameRespData,List<FrameParaData> list){
+        // 获取子参数列表
+        List<FrameParaInfo> subList = frameParaDetail.getSubParaList();
+        // 为子参数排序
+        subList.sort(Comparator.comparing(frameParaInfo1 -> Integer.valueOf(frameParaInfo1.getParaNo())));
+        // 为子参数赋值
+        for (int i = 0; i < subList.size(); i++) {
+            FrameParaData frameParaData = genFramepara(subList.get(i), paras[i],frameRespData);
+            list.add(frameParaData);
+        }
     }
 
 }
