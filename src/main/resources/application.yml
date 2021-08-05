@@ -6,11 +6,7 @@ spring:
     name: netdev-monitor
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-<<<<<<< HEAD
-    url: jdbc:mysql://mariadb.xy.dev2:3306/netdevice-dev?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true
-=======
     url: jdbc:mysql://mariadb.xy.dev2:3306/netdevice-two?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true
->>>>>>> 4f4bfcea964468d475aa2cbe1b68fb1f916a4c72
     username: xy
     password: xy@root
   websocket:

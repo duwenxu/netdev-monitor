@@ -212,9 +212,12 @@ public class Ka100BucPrtcServiceImpl implements IParaPrtclAnalysisService {
     public FrameRespData ctrlParaResponse(FrameRespData respData) {
         return null;
     }
+
     /**
      * 构建FrameParaData
-     *
+     * @param currentpara 帧参数对象
+     * @param paraValueStr 响应数据参数部分
+     * @param respData 响应数据对象
      * @return
      */
     private FrameParaData genFramepara(FrameParaInfo currentpara, String paraValueStr, FrameRespData respData) {
@@ -229,7 +232,10 @@ public class Ka100BucPrtcServiceImpl implements IParaPrtclAnalysisService {
 
     /**
      * 子参数赋值方法
-     *
+     * @param frameParaDetail 帧参数对象
+     * @param paras 处理后的参数数组
+     * @param frameRespData 响应数据对象
+     * @param list 数据帧参数对象列表
      * @return
      */
     private void assignment(FrameParaInfo frameParaDetail,String[] paras,FrameRespData frameRespData,List<FrameParaData> list){
