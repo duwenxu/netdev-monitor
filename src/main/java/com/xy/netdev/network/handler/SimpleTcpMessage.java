@@ -1,6 +1,5 @@
 package com.xy.netdev.network.handler;
 
-import cn.hutool.core.net.NetUtil;
 import cn.hutool.core.thread.ThreadUtil;
 import com.xy.netdev.common.util.BeanFactoryUtil;
 import com.xy.netdev.frame.DeviceSocketSubscribe;
@@ -14,9 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
-
-import static com.xy.netdev.network.NettyUtil.SOCKET_QUEUE;
 
 
 /**
