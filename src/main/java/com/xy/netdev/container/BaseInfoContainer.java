@@ -161,6 +161,7 @@ public class BaseInfoContainer {
      */
     public static void addDevMap(List<BaseInfo> devList) {
         devList.forEach(baseInfo -> {
+            //存放缓存
             try {
                 if(devMap.containsKey(baseInfo.getDevIpAddr())){
                     devMap.get(baseInfo.getDevIpAddr()).add(baseInfo);
@@ -201,14 +202,14 @@ public class BaseInfoContainer {
     public static void addParaMap(List<FrameParaInfo> paraList) {
         paraList.forEach(paraInfo -> {
             try {
+                //切换单元特殊处理
                 if(paraInfo.getDevType().equals(DEVICE_QHDY)){
                     paramCmdMap.put(ParaHandlerUtil.genLinkKey(DEVICE_BPQ, paraInfo.getCmdMark()), paraInfo);
                     paramNoMap.put(ParaHandlerUtil.genLinkKey(DEVICE_BPQ, paraInfo.getParaNo()), paraInfo);
                 }
+                //缓存存放数据
                 paramCmdMap.put(ParaHandlerUtil.genLinkKey(paraInfo.getDevType(), paraInfo.getCmdMark()), paraInfo);
                 paramNoMap.put(ParaHandlerUtil.genLinkKey(paraInfo.getDevType(), paraInfo.getParaNo()), paraInfo);
-
-
             } catch (Exception e) {
                 log.error("参数[" + paraInfo.getParaName() + "]的设备类型或命令标识或参数编号存在异常，请检查:" + e.getMessage());
             }
@@ -221,6 +222,7 @@ public class BaseInfoContainer {
      * @功能：添加设备类型对应的接口MAP
      */
     public static void addDevTypeInterMap(List<Interface> interfaces) {
+        //利用接口列表生成设备类型列表
         List<String> devTypes = interfaces.stream().map(Interface::getDevType).collect(Collectors.toList());
         //循环设备类型
         devTypes.forEach(devType -> {
@@ -271,11 +273,13 @@ public class BaseInfoContainer {
     public static void addDevNoItfMap(List<BaseInfo> devList, List<Interface> interfaces) {
         devList.forEach(baseInfo -> {
             try {
+                //存放页面接口缓存
                 List<Interface> pageInterfaces = interfaces.stream()
                         .filter(anInterface -> baseInfo.getDevType().equals(anInterface.getDevType())
                                 && INTERFACE_TYPE_PAGE_QUERY.equals(anInterface.getItfType()))
                         .collect(Collectors.toList());
                 devPageItfMap.put(baseInfo.getDevNo(), pageInterfaces);
+                //存放组装控制接口缓存
                 List<Interface> ctrlInterfaces = interfaces.stream()
                         .filter(anInterface -> baseInfo.getDevType().equals(anInterface.getDevType())
                                 && INTERFACE_TYPE_PACK_CTRL.equals(anInterface.getItfType()))
@@ -295,13 +299,15 @@ public class BaseInfoContainer {
     public static void addInterLinkParaMap(List<DevInterParam> devInterParamList) {
         //修改各参数序号和下标
         devInterParamList.forEach(devInterParam -> {
-            int seq = 0;
-            int point = 0;
+            int seq = 0;   //序号
+            int point = 0;  //下标
             for (FrameParaInfo paraInfo : devInterParam.getDevParamList()) {
                 try {
+                    //计算新的参数序号
                     seq++;
                     paraInfo.setParaSeq(seq);  //参数序号
-                    //对于存在分隔符的参数下标做特殊处理
+                    /**--------------计算参数下标 start---------------**/
+                    //子调制解调器与功放特殊处理
                     String devType = paraInfo.getDevType();
                     if (SUB_MODEM.equals(devType)) {
                         if (seq == 1) {
@@ -316,6 +322,7 @@ public class BaseInfoContainer {
                     log.debug("cmd:{}----point:{}", paraInfo.getCmdMark(), point);
                     String byteLen = StringUtils.isBlank(paraInfo.getParaByteLen()) ? "0" : paraInfo.getParaByteLen();
                     point = point + Integer.parseInt(byteLen);
+                    /**--------------计算参数下标 end---------------**/
                 } catch (NumberFormatException e) {
                     log.error("参数[" + paraInfo.getParaName() + "]的字节长度存在异常，请检查：" + e.getMessage());
                 }
@@ -505,6 +512,7 @@ public class BaseInfoContainer {
         if (devInterParam != null) {
             PrtclFormat prtclFormat= devInterParam.getInterfacePrtcl();
             if (prtclFormat!=null){
+                //设置协议归属
                 prtclFormat.setIsPrtclParam(1);
             }
             return prtclFormat;
@@ -563,7 +571,7 @@ public class BaseInfoContainer {
     }
 
     /**
-     * @param devType 设备类型(参数表中的编码
+     * @param devType 设备类型(参数表中的编码)
      * @return 处理类名
      * @功能：根据设备类型 获取处理类名
      */

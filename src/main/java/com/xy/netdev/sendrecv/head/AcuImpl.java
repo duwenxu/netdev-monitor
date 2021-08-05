@@ -19,7 +19,7 @@ import java.util.Objects;
 import static com.xy.netdev.common.util.ByteUtils.byteArrayCopy;
 
 /**
- * 1.2米ACU天线
+ * 2.4米ACU天线
  */
 @Service
 @Slf4j

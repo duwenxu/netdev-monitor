@@ -37,8 +37,6 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
 
     @Autowired
     private IParaInfoService paraInfoService;
-    @Autowired
-    private BaseContainerLoader baseContainerLoader;
 
     /**
      * 获取所有 非子接口的 接口分页

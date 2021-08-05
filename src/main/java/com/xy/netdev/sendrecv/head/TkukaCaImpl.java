@@ -59,10 +59,6 @@ public class TkukaCaImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
     @Override
     public FrameRespData unpack(SocketEntity socketEntity, FrameRespData frameRespData) {
         byte[] bytes = socketEntity.getBytes();
-        /*//截取合适的数据包
-        String hexStr = HexUtil.encodeHexStr(bytes);
-        int num = hexStr.indexOf("7b");
-        bytes = HexUtil.decodeHex(hexStr.substring(num,num+296));*/
         int len = bytes.length;
         if (len != 232) {
             log.warn("TKuka0.9CA监控设备响应数据长度错误, 未能正确解析, 数据体长度:{}, 数据体:{}", bytes.length, HexUtil.encodeHexStr(bytes));
@@ -102,7 +98,6 @@ public class TkukaCaImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
         //数据帧总长= 参数正文长度
         //帧头:1
         lists.add(new byte[]{0x7b});
-        //工作模式：1
         //标志位
         System.arraycopy(new byte[]{0x05},0,bytes,1,1);
         lists.add(bytes);
