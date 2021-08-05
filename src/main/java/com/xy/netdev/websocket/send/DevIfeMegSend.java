@@ -67,8 +67,6 @@ public class DevIfeMegSend {
         List<DevStatusInfo> changedStatue = new CopyOnWriteArrayList<>();
         if( channels != null){
             List<DevStatusInfo> allDevStatusInfoList = DevStatusContainer.getAllDevStatusInfoList();
-            //此处加SerializerFeature.WriteMapNullValue是为了让数据中属性值为null的属性不被忽略
-            //此处加SerializerFeature.DisableCircularReferenceDetect解决相同的对象序列化出错问题
             for (DevStatusInfo devStatus : oldDevStatuses) {
                 DevStatusInfo devStatusInfo = allDevStatusInfoList.stream().filter(status -> status.getDevNo().equals(devStatus.getDevNo())).collect(Collectors.toList()).get(0);
                 if (!devStatusInfo.equals(devStatus)){
@@ -82,6 +80,8 @@ public class DevIfeMegSend {
             oldDevStatuses = allDevStatusInfoList;
 //            List<DevStatusInfo> collect = allDevStatusInfoList.stream().filter(base -> base.getDevNo().equals("11")||base.getDevNo().equals("12")).collect(Collectors.toList());
 //            log.debug("当前设备使用状态：{}:{}---{}:{}",collect.get(0).getDevNo(),collect.get(0).getMasterOrSlave(),collect.get(1).getDevNo(),collect.get(1).getMasterOrSlave());
+            //此处加SerializerFeature.WriteMapNullValue是为了让数据中属性值为null的属性不被忽略
+            //此处加SerializerFeature.DisableCircularReferenceDetect解决相同的对象序列化出错问题
             String msg = JSONObject.toJSONString(allDevStatusInfoList,SerializerFeature.WriteMapNullValue,SerializerFeature.DisableCircularReferenceDetect);
             TextWebSocketFrame textWebSocketFrame = new TextWebSocketFrame(msg);
             channels.writeAndFlush(textWebSocketFrame);
@@ -138,8 +138,8 @@ public class DevIfeMegSend {
                 msg = JSONObject.toJSONString(DevAlertInfoContainer.getAllDevAlertInfoList(), SerializerFeature.WriteMapNullValue,SerializerFeature.DisableCircularReferenceDetect);
             }
         }
-        TextWebSocketFrame textWebSocketFrame = new TextWebSocketFrame(msg);
         if (channels!=null){
+            TextWebSocketFrame textWebSocketFrame = new TextWebSocketFrame(msg);
             channels.writeAndFlush(textWebSocketFrame);
         }
     }
