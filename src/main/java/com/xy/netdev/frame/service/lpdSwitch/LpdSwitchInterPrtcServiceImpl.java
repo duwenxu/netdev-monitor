@@ -50,15 +50,17 @@ public class LpdSwitchInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSe
     @Override
     public FrameRespData queryParaResponse(FrameRespData respData) {
         byte[] bytes = respData.getParamBytes();
-        //全查询：按容器中的参数顺序解析
         String devType = respData.getDevType();
+        //全查询：按容器中接口的参数顺序解析
         List<FrameParaInfo> frameParaInfos = BaseInfoContainer.getInterLinkParaList(devType,respData.getCmdMark());
         List<FrameParaData> frameParaDataList = new ArrayList<>();
         for (FrameParaInfo frameParaInfo : frameParaInfos){
+            //按照参数下标与长度获取参数的字节
             byte[] paraValBytes = ByteUtils.byteArrayCopy(bytes,frameParaInfo.getParaStartPoint(),Integer.valueOf(frameParaInfo.getParaByteLen()));
             String data = HexUtil.encodeHexStr(paraValBytes);
             //转换成内部格式
             data = frameParaInfo.getTransOuttoInMap().get(data);
+            //生成参数帧
             FrameParaInfo currentPara = BaseInfoContainer.getParaInfoByCmd(devType, frameParaInfo.getCmdMark());
             if (StringUtils.isEmpty(currentPara.getParaNo())){ continue;}
             FrameParaData frameParaData = FrameParaData.builder()

@@ -56,11 +56,12 @@ public class CzpPrtcServiceImpl  implements IParaPrtclAnalysisService {
     @Override
     public void ctrlPara(FrameReqData reqInfo) {
         if(reqInfo.getFrameParaList() == null && reqInfo.getFrameParaList().isEmpty()){
-            log.info("C中频切换矩阵无参数，设置设备参数取消！");
+            log.info("C中频切换矩阵无参数，控制设备参数取消！");
             return ;
         }
         List<byte[]> list = new ArrayList<>();
         reqInfo.getFrameParaList().forEach(frameParaData->{
+            //缓存获取参数详情
             FrameParaInfo paraInfoByNo = BaseInfoContainer.getParaInfoByNo(frameParaData.getDevType(), frameParaData.getParaNo());
             String newVal = frameParaData.getParaVal();
             if(frameParaData.getParaNo().equals("24") || frameParaData.getParaNo().equals("25")){
@@ -70,10 +71,10 @@ public class CzpPrtcServiceImpl  implements IParaPrtclAnalysisService {
             //赋值处理后的参数值
             frameParaData.setParaVal(newVal);
             if(PARA_COMPLEX_LEVEL_SUB.equals(paraInfoByNo.getCmplexLevel())){
+                //如当前参数是子参数，则设置其父参数的值
                 FrameParaInfo paraInfoByNoParent = BaseInfoContainer.getParaInfoByNo(frameParaData.getDevType(), paraInfoByNo.getParentParaNo());
                 dataBody = paraInfoByNoParent.getCmdMark()+dataBody;
             }
-            //处理复杂参数:利用正则表达式过滤数字
             list.add(HexUtil.decodeHex(dataBody));
         });
         reqInfo.setParamBytes(ByteUtils.listToBytes(list));
@@ -98,7 +99,7 @@ public class CzpPrtcServiceImpl  implements IParaPrtclAnalysisService {
         } else {
             throw new IllegalStateException("C中频切换矩阵控制响应异常，数据字节：" + data);
         }
-        //参数列表
+        //生成参数帧
         FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),respData.getCmdMark());
         if (StringUtils.isNotEmpty(frameParaInfo.getParaNo())){
             FrameParaData frameParaData = FrameParaData.builder()
@@ -108,6 +109,7 @@ public class CzpPrtcServiceImpl  implements IParaPrtclAnalysisService {
                     .build();
             respData.setFrameParaList(Arrays.asList(frameParaData));
         }
+        //调用参数控制接收后续处理办法
         dataReciveService.paraCtrRecive(respData);
         return respData;
     }

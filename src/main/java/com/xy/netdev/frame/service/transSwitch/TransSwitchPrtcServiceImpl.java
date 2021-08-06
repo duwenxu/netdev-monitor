@@ -62,14 +62,16 @@ public class TransSwitchPrtcServiceImpl implements IParaPrtclAnalysisService {
     @Override
     public void ctrlPara(FrameReqData reqInfo) {
         if(reqInfo.getFrameParaList() == null && reqInfo.getFrameParaList().isEmpty()){
-            log.info("1:1 转换开关无参数，设置设备参数取消！");
+            log.info("1:1 转换开关无参数，控制设备参数取消！");
             return ;
         }
         List<byte[]> list = new ArrayList<>();
         reqInfo.getFrameParaList().forEach(frameParaData->{
+            //缓存获取参数详情
             FrameParaInfo paraInfoByNo = BaseInfoContainer.getParaInfoByNo(frameParaData.getDevType(), frameParaData.getParaNo());
             String paraValStr = frameParaData.getParaVal();
             if(paraInfoByNo.getCmplexLevel().equals(PARA_COMPLEX_LEVEL_COMPOSE)){
+                //当参数为自核参数时利用正则表达式获取数字
                 paraValStr = BIT_STR + frameParaData.getParaVal().replaceAll("[^0-9]","");
                 paraValStr = BitToHexStr(paraValStr);
             }
@@ -99,7 +101,7 @@ public class TransSwitchPrtcServiceImpl implements IParaPrtclAnalysisService {
         } else {
             throw new IllegalStateException("1:1 转换开关控制响应异常，数据字节：" + data);
         }
-        //参数列表
+        //生成参数帧
         FrameParaInfo frameParaInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(),respData.getCmdMark());
         if (StringUtils.isNotEmpty(frameParaInfo.getParaNo())){
             FrameParaData frameParaData = FrameParaData.builder()

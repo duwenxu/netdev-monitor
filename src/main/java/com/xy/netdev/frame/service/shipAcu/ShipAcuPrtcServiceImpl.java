@@ -100,14 +100,7 @@ public class ShipAcuPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
                     byte[] byteNext = ByteUtils.byteArrayCopy(byteEnd, paraStartPoint, Integer.valueOf(frameParaData1.getParaByteLen()));
                     genFramePara(frameParaData1, respData, byteNext, frameParaDataList);
                     paraStartPoint = paraStartPoint + Integer.valueOf(frameParaData1.getParaByteLen());
-                    //DevParaInfoContainer.setIsShow(respData.getDevNo(), frameParaData1.getParaNo(), true);
                 }
-                /*List<FrameParaInfo> listNoShow = BaseInfoContainer.getParasByDevType(respData.getDevType())
-                        .stream().filter(frameParaInfo -> StringUtils.isNotBlank(frameParaInfo.getNdpaRemark3Data())
-                                && !Flag.equals(frameParaInfo.getNdpaRemark3Data())).collect(Collectors.toList());
-                listNoShow.forEach(frameParaInfo -> {
-                    DevParaInfoContainer.setIsShow(respData.getDevNo(), frameParaInfo.getParaNo(), false);
-                });*/
             }
         }
     }
