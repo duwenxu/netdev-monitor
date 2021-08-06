@@ -114,7 +114,7 @@ public class BaseContainerLoader implements ApplicationRunner {
         queryWrapper.eq("NDPA_STATUS", SysConfigConstant.STATUS_OK);
         queryWrapper.orderByAsc("NDPA_CMPLEX_LEVEL");
         List<ParaInfo> paraInfos = paraInfoService.list(queryWrapper);
-        DevParaInfoContainer.initData(paraInfos, spacePresetService.list(), sysParamService);
+        DevParaInfoContainer.initData(paraInfos, sysParamService);
     }
 
     /**

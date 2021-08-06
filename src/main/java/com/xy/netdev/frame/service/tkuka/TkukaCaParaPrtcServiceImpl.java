@@ -59,7 +59,6 @@ public class TkukaCaParaPrtcServiceImpl implements IParaPrtclAnalysisService {
     @Override
     public void ctrlPara(FrameReqData reqInfo) {
         byte[] bytes = new byte[114];
-        FrameParaData frameParaData = reqInfo.getFrameParaList().get(0);
         //工作模式
         System.arraycopy(StrUtil.bytes(reqInfo.getCmdMark()),0,bytes,0,1);
         reqInfo.setParamBytes(bytes);

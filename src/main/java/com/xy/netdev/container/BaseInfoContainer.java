@@ -123,6 +123,11 @@ public class BaseInfoContainer {
      */
     private static List<NtdvSpacePreset> spacePresets = new ArrayList<>();
 
+    /**
+     * 需要预置卫星的设备类型
+     */
+    private static List<String> devTypeSpacePresetList = new ArrayList(){{add("0020001");add("0020048");}};
+
 
     /**
      * @功能：当系统启动时,进行初始化各设备日志
@@ -410,6 +415,23 @@ public class BaseInfoContainer {
         return devPageItfMap.get(devNo) != null ? devPageItfMap.get(devNo) : new ArrayList();
     }
 
+
+    /**
+     * @return 接口列表
+     * @功能：根据设备序号 获取预置卫星列表
+     */
+    public static List<NtdvSpacePreset> getSpacePresets() {
+        return spacePresets;
+    }
+
+    /**
+     * @return 接口列表
+     * @功能：根据设备序号 获取需要设置一键对星的设备类型列表
+     */
+    public static List<String> getDevTypeOptSat() {
+        return devTypeSpacePresetList;
+    }
+
     /**
      * @param devNo 设备序号
      * @return 接口列表
@@ -661,7 +683,7 @@ public class BaseInfoContainer {
                 if (!StringUtils.isBlank(paraInfo.getNdpaSelectData())) {
                     List<ParaSpinnerInfo> spinnerInfos = JSONArray.parseArray(paraInfo.getNdpaSelectData(), ParaSpinnerInfo.class);
                     //如果参数为acu的一键对星参数  则下拉框数据填充预置卫星数据
-                    if("0020001".equals(paraInfo.getDevType()) && "optSate".equals(paraInfo.getNdpaCmdMark()) && spacePresets.size()>0){
+                    if(devTypeSpacePresetList.contains(paraInfo.getDevType()) && "optSate".equals(paraInfo.getNdpaCmdMark()) && spacePresets.size()>0){
                         spinnerInfos.clear();
                         spacePresets.forEach(ntdvSpacePreset -> {
                             ParaSpinnerInfo paraSpinnerInfo = new ParaSpinnerInfo();
