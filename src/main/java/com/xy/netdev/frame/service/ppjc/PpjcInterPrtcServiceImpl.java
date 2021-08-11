@@ -9,9 +9,8 @@ import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
-import com.xy.netdev.monitor.constant.MonitorConstants;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
-import com.xy.netdev.transit.IDataReciveService;
+import com.xy.netdev.transit.IDataReceiveService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.xy.netdev.common.util.ByteUtils.byteToNumber;
-import static com.xy.netdev.frame.service.gf.GfPrtcServiceImpl.isFloat;
-import static com.xy.netdev.frame.service.gf.GfPrtcServiceImpl.isUnsigned;
 
 /**
  * 频谱监测设备
@@ -39,7 +36,7 @@ public class PpjcInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService
     @Autowired
     private ISysParamService sysParamService;
     @Autowired
-    private IDataReciveService dataReciveService;
+    private IDataReceiveService dataReciveService;
     //频谱监测设备协议分隔符
     private static final String separator = "2c";
 

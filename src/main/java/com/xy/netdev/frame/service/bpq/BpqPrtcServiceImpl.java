@@ -13,7 +13,7 @@ import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.service.IBaseInfoService;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
-import com.xy.netdev.transit.IDataReciveService;
+import com.xy.netdev.transit.IDataReceiveService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -46,7 +46,7 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
     @Autowired
     SocketMutualService socketMutualService;
     @Autowired
-    IDataReciveService dataReciveService;
+    IDataReceiveService dataReciveService;
     @Autowired
     IBaseInfoService baseInfoService;
 

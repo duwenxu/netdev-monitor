@@ -3,7 +3,6 @@ package com.xy.netdev.frame.service.pam;
 import cn.hutool.core.codec.BCD;
 import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.StrUtil;
-import com.google.common.base.Charsets;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
@@ -12,7 +11,7 @@ import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
-import com.xy.netdev.transit.IDataReciveService;
+import com.xy.netdev.transit.IDataReceiveService;
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +36,7 @@ public class PowerAmpPrtcServiceImpl implements IParaPrtclAnalysisService {
     @Autowired
     private SocketMutualService socketMutualService;
     @Autowired
-    private IDataReciveService dataReciveService;
+    private IDataReceiveService dataReciveService;
     /**
      * 分隔符 ASCII码为 0x2C
      */

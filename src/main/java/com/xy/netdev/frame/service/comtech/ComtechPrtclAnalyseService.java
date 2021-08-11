@@ -17,7 +17,7 @@ import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.frame.service.modemscmm.ModemScmmInterPrtcServiceImpl;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
-import com.xy.netdev.transit.IDataReciveService;
+import com.xy.netdev.transit.IDataReceiveService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +44,7 @@ public class ComtechPrtclAnalyseService implements IParaPrtclAnalysisService {
     @Autowired
     private SocketMutualService socketMutualService;
     @Autowired
-    private IDataReciveService dataReciveService;
+    private IDataReceiveService dataReciveService;
     @Autowired
     private ModemScmmInterPrtcServiceImpl modemScmmInterPrtcService;
     @Autowired

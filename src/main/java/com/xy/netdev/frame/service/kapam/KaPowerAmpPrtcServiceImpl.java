@@ -14,19 +14,14 @@ import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.frame.service.modemscmm.ModemScmmPrtcServiceImpl;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import com.xy.netdev.sendrecv.head.KaPowerAmpImpl;
-import com.xy.netdev.transit.IDataReciveService;
+import com.xy.netdev.transit.IDataReceiveService;
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
-
-import static com.xy.netdev.common.util.ByteUtils.byteArrayCopy;
-import static com.xy.netdev.common.util.ByteUtils.bytesMerge;
 
 /**
  * Ka频段100W发射机 参数协议
@@ -40,7 +35,7 @@ public class KaPowerAmpPrtcServiceImpl implements IParaPrtclAnalysisService {
     @Autowired
     private ModemScmmPrtcServiceImpl modemScmmPrtcService;
     @Autowired
-    private IDataReciveService dataReciveService;
+    private IDataReceiveService dataReciveService;
     @Autowired
     private SocketMutualService socketMutualService;
     @Autowired

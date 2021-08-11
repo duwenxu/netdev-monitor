@@ -2,7 +2,6 @@ package com.xy.netdev.frame.service.hdpm;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
-import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
@@ -13,8 +12,7 @@ import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.service.IBaseInfoService;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
-import com.xy.netdev.transit.IDataReciveService;
-import org.apache.commons.lang.StringUtils;
+import com.xy.netdev.transit.IDataReceiveService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -44,7 +42,7 @@ public class HdpmPrtcServiceImpl implements IParaPrtclAnalysisService {
     @Autowired
     SocketMutualService socketMutualService;
     @Autowired
-    IDataReciveService dataReciveService;
+    IDataReceiveService dataReciveService;
     @Autowired
     IBaseInfoService baseInfoService;
 

@@ -1,6 +1,5 @@
 package com.xy.netdev.frame.service.shortwr;
 
-import cn.hutool.core.util.StrUtil;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
@@ -11,7 +10,7 @@ import com.xy.netdev.frame.service.modem.ModemInterPrtcServiceImpl;
 import com.xy.netdev.frame.service.modemscmm.ModemScmmPrtcServiceImpl;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
-import com.xy.netdev.transit.IDataReciveService;
+import com.xy.netdev.transit.IDataReceiveService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +31,7 @@ public class ShortWaveRadioPrtcServiceImpl implements IParaPrtclAnalysisService 
     @Autowired
     private SocketMutualService socketMutualService;
     @Autowired
-    private IDataReciveService dataReciveService;
+    private IDataReceiveService dataReciveService;
     @Autowired
     private ModemInterPrtcServiceImpl modemInterPrtcService;
     @Autowired

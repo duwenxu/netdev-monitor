@@ -11,7 +11,7 @@ import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
-import com.xy.netdev.transit.IDataReciveService;
+import com.xy.netdev.transit.IDataReceiveService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -32,7 +32,7 @@ public class AcuPrtcServiceImpl implements IParaPrtclAnalysisService {
     SocketMutualService socketMutualService;
 
     @Autowired
-    IDataReciveService dataReciveService;
+    IDataReceiveService dataReciveService;
 
 
     @Override

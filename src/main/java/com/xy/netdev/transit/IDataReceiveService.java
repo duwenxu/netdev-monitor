@@ -11,7 +11,7 @@ import com.xy.netdev.frame.bo.FrameRespData;
  * @author tangxl
  * @since 2021-03-11
  */
-public interface IDataReciveService {
+public interface IDataReceiveService {
     /**
      * 参数查询接收
      * @param  respData   协议解析响应数据

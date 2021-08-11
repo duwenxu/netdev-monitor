@@ -12,7 +12,7 @@ import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.frame.service.modem.ModemInterPrtcServiceImpl;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
-import com.xy.netdev.transit.IDataReciveService;
+import com.xy.netdev.transit.IDataReceiveService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,7 +39,7 @@ public class KaPowerAmpInterPrtcServiceImpl implements IQueryInterPrtclAnalysisS
     @Autowired
     private ModemInterPrtcServiceImpl modemInterPrtcService;
     @Autowired
-    private IDataReciveService dataReciveService;
+    private IDataReceiveService dataReciveService;
 
     @Override
     public void queryPara(FrameReqData reqInfo) {

@@ -11,7 +11,6 @@ import com.xy.netdev.monitor.bo.DevStatusInfo;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.monitor.bo.ParaViewInfo;
 import com.xy.netdev.monitor.bo.TransRule;
-import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.rpt.bo.RptBodyDev;
 import com.xy.netdev.rpt.bo.RptHeadDev;
 import com.xy.netdev.rpt.enums.StationCtlRequestEnums;
@@ -19,18 +18,15 @@ import com.xy.netdev.rpt.service.IDevStatusReportService;
 import com.xy.netdev.rpt.service.StationControlHandler;
 import com.xy.netdev.rpt.service.impl.DevStatusReportService;
 import com.xy.netdev.rpt.service.impl.IDownRptPrtclAnalysisServiceImpl;
-import com.xy.netdev.transit.IDataReciveService;
+import com.xy.netdev.transit.IDataReceiveService;
 import com.xy.netdev.websocket.send.DevIfeMegSend;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static com.xy.netdev.common.constant.SysConfigConstant.IS_DEFAULT_TRUE;
@@ -46,7 +42,7 @@ import static com.xy.netdev.common.constant.SysConfigConstant.IS_DEFAULT_TRUE;
  */
 @Component
 @Slf4j
-public class DataReciveServiceImpl implements IDataReciveService {
+public class DataReciveServiceImpl implements IDataReceiveService {
 
     @Autowired
     IDevStatusReportService devStatusReportService;

@@ -6,22 +6,18 @@ import com.xy.netdev.admin.entity.SysParam;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.ByteUtils;
-import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.service.ICtrlInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
-import com.xy.netdev.frame.service.modem.ModemInterPrtcServiceImpl;
 import com.xy.netdev.frame.service.modemscmm.ModemScmmPrtcServiceImpl;
-import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
-import com.xy.netdev.transit.IDataReciveService;
+import com.xy.netdev.transit.IDataReceiveService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -42,7 +38,7 @@ public class FreqConvertInterCtrlServiceImpl implements ICtrlInterPrtclAnalysisS
     @Autowired
     private SocketMutualService socketMutualService;
     @Autowired
-    private IDataReciveService dataReciveService;
+    private IDataReceiveService dataReciveService;
     @Autowired
     private ISysParamService sysParamService;
 

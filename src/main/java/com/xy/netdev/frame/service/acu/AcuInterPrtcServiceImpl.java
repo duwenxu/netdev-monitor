@@ -12,7 +12,7 @@ import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.modemscmm.ModemScmmInterPrtcServiceImpl;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
-import com.xy.netdev.transit.IDataReciveService;
+import com.xy.netdev.transit.IDataReceiveService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -41,7 +41,7 @@ public class AcuInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
     ISysParamService sysParamService;
 
     @Autowired
-    IDataReciveService dataReciveService;
+    IDataReceiveService dataReciveService;
     @Autowired
     private ModemScmmInterPrtcServiceImpl modemScmmInterPrtcService;
 

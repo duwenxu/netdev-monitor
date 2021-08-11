@@ -17,7 +17,6 @@ import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.frame.service.codec.DirectParamCodec;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
-import com.xy.netdev.transit.IDataReciveService;
 import com.xy.netdev.transit.impl.DataReciveServiceImpl;
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;

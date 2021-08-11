@@ -12,7 +12,7 @@ import com.xy.netdev.sendrecv.entity.SocketEntity;
 import com.xy.netdev.sendrecv.entity.device.AntennaControlEntity;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
-import com.xy.netdev.transit.IDataReciveService;
+import com.xy.netdev.transit.IDataReceiveService;
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +33,7 @@ import static com.xy.netdev.common.util.ByteUtils.listToBytes;
 public class AntennaControlImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData> {
 
     @Autowired
-    IDataReciveService dataReciveService;
+    IDataReceiveService dataReciveService;
 
     @Override
     public void callback(FrameRespData frameRespData, IParaPrtclAnalysisService iParaPrtclAnalysisService,

@@ -1,7 +1,6 @@
 package com.xy.netdev.frame.service.msct;
 
 import cn.hutool.core.util.HexUtil;
-import com.alibaba.fastjson.JSON;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.BeanFactoryUtil;
@@ -9,7 +8,6 @@ import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.container.DevParaInfoContainer;
 import com.xy.netdev.factory.SingletonFactory;
-import com.xy.netdev.frame.bo.ExtParamConf;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
@@ -22,7 +20,7 @@ import com.xy.netdev.monitor.bo.ParaViewInfo;
 import com.xy.netdev.monitor.constant.MonitorConstants;
 import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
-import com.xy.netdev.transit.IDataReciveService;
+import com.xy.netdev.transit.IDataReceiveService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +49,7 @@ public class MsctInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService
     @Autowired
     ISysParamService sysParamService;
     @Autowired
-    private IDataReciveService dataReciveService;
+    private IDataReceiveService dataReciveService;
 
     @Override
     public void queryPara(FrameReqData reqInfo) {

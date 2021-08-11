@@ -19,7 +19,7 @@ import com.xy.netdev.frame.service.codec.DirectParamCodec;
 import com.xy.netdev.frame.service.modemscmm.ModemScmmPrtcServiceImpl;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
-import com.xy.netdev.transit.IDataReciveService;
+import com.xy.netdev.transit.IDataReceiveService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +45,7 @@ public class ModemPrtcServiceImpl implements IParaPrtclAnalysisService {
     @Autowired
     ISysParamService sysParamService;
     @Autowired
-    private IDataReciveService dataReciveService;
+    private IDataReceiveService dataReciveService;
     @Autowired
     private ModemScmmPrtcServiceImpl modemScmmPrtcService;
     //TODO 暂时不进行单参数查询

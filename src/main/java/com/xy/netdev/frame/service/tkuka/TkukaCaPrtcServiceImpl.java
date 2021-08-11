@@ -7,7 +7,6 @@ import com.xy.common.exception.BaseException;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.common.util.SpringContextUtils;
 import com.xy.netdev.container.BaseInfoContainer;
-import com.xy.netdev.container.DevParaInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
@@ -16,19 +15,16 @@ import com.xy.netdev.frame.service.ParamCodec;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
-import com.xy.netdev.transit.IDataReciveService;
+import com.xy.netdev.transit.IDataReceiveService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.xy.netdev.common.constant.SysConfigConstant.PARA_COMPLEX_LEVEL_COMPOSE;
-import static com.xy.netdev.common.constant.SysConfigConstant.PARA_DATA_TYPE_INT;
 import static com.xy.netdev.container.DevLogInfoContainer.PARA_REPS_STATUS_SUCCEED;
 
 /**
@@ -42,7 +38,7 @@ public class TkukaCaPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
     @Autowired
     private SocketMutualService socketMutualService;
     @Autowired
-    private IDataReciveService dataReciveService;
+    private IDataReceiveService dataReciveService;
 
     /**
      * 状态上报包帧头标识

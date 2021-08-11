@@ -2,7 +2,6 @@ package com.xy.netdev.frame.service.modemscmm;
 
 import cn.hutool.core.util.HexUtil;
 import com.alibaba.fastjson.JSON;
-import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.util.BeanFactoryUtil;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.factory.SingletonFactory;
@@ -16,9 +15,7 @@ import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.frame.service.codec.DirectParamCodec;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
-import com.xy.netdev.sendrecv.head.ModemImpl;
-import com.xy.netdev.sendrecv.head.ModemScmmImpl;
-import com.xy.netdev.transit.IDataReciveService;
+import com.xy.netdev.transit.IDataReceiveService;
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -38,7 +35,7 @@ import static com.xy.netdev.common.util.ByteUtils.*;
 @Slf4j
 public class ModemScmmPrtcServiceImpl implements IParaPrtclAnalysisService {
     @Autowired
-    private IDataReciveService dataReciveService;
+    private IDataReceiveService dataReciveService;
     @Autowired
     private SocketMutualService socketMutualService;
 

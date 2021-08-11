@@ -1,35 +1,17 @@
 package com.xy.netdev.frame.service.tkuka;
 
-import cn.hutool.core.util.HexUtil;
-import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSON;
-import com.xy.common.exception.BaseException;
-import com.xy.netdev.common.util.ByteUtils;
-import com.xy.netdev.common.util.SpringContextUtils;
-import com.xy.netdev.container.BaseInfoContainer;
-import com.xy.netdev.container.DevParaInfoContainer;
-import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
-import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
-import com.xy.netdev.frame.service.ParamCodec;
 import com.xy.netdev.frame.service.SocketMutualService;
-import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
-import com.xy.netdev.transit.IDataReciveService;
+import com.xy.netdev.transit.IDataReceiveService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.xy.netdev.common.constant.SysConfigConstant.PARA_COMPLEX_LEVEL_COMPOSE;
-import static com.xy.netdev.container.DevLogInfoContainer.PARA_REPS_STATUS_SUCCEED;
 
 /**
  * TKuka0.9CA监控设备
@@ -44,7 +26,7 @@ public class TkukaCaParaPrtcServiceImpl implements IParaPrtclAnalysisService {
     SocketMutualService socketMutualService;
 
     @Autowired
-    IDataReciveService dataReciveService;
+    IDataReceiveService dataReciveService;
 
     @Override
     public void queryPara(FrameReqData reqInfo) {}
