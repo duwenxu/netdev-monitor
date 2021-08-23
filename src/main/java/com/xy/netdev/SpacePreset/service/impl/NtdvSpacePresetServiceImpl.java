@@ -6,6 +6,8 @@ import com.xy.netdev.SpacePreset.mapper.NtdvSpacePresetMapper;
 import com.xy.netdev.SpacePreset.service.INtdvSpacePresetService;
 import com.xy.netdev.admin.entity.SysParam;
 import com.xy.netdev.admin.service.ISysParamService;
+import com.xy.netdev.common.util.ParaHandlerUtil;
+import com.xy.netdev.container.DevParaInfoContainer;
 import com.xy.netdev.transit.IDevCmdSendService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,5 +66,7 @@ public class NtdvSpacePresetServiceImpl extends ServiceImpl<NtdvSpacePresetMappe
         //2.执行一键对星
         value = "["+spacePreset.getSpLongitude()+"]{M}["+sysParamService.getParaRemark1(spacePreset.getSpPolarization())+"]";
         devCmdSendService.paraCtrSend(spacePreset.getDevNo(),"cmdso", value);
+        //3.设置参数的值
+        DevParaInfoContainer.updateParaValue(spacePreset.getDevNo(), ParaHandlerUtil.genLinkKey(spacePreset.getDevNo(), spacePreset.getParaNo()),String.valueOf(spacePreset.getSpId()));
     }
 }

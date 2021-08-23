@@ -15,6 +15,7 @@ import com.xy.netdev.monitor.bo.ParaSpinnerInfo;
 import com.xy.netdev.monitor.bo.ParaViewInfo;
 import com.xy.netdev.monitor.entity.ParaInfo;
 import com.xy.netdev.synthetical.util.SyntheticalUtil;
+import com.xy.netdev.websocket.send.DevIfeMegSend;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -93,7 +94,7 @@ public class DevParaInfoContainer {
             ParaExtServiceFactory.genParaExtService(devType).setCacheDevParaViewInfo(devNo);
         });
         //SNMP 内存参数映射处理
-        initSnmpRptData();
+        //initSnmpRptData();
 //        //todo test
 //        ParaViewInfo paraViewInfo1 = new ParaViewInfo();
 //        paraViewInfo1.setDevType("0020012");
@@ -364,14 +365,14 @@ public class DevParaInfoContainer {
      */
     public synchronized static boolean handlerRespDevPara(FrameRespData respData) {
         //ACU参数一直不停变化，需要特殊处理上报
-        if (respData.getDevType().equals(SysConfigConstant.DEVICE_ACU) || respData.getDevType().equals(SysConfigConstant.DEVICE_ACU_SAN)) {
+        /*if (respData.getDevType().equals(SysConfigConstant.DEVICE_ACU) || respData.getDevType().equals(SysConfigConstant.DEVICE_ACU_SAN)) {
             respNum++;
             if (respNum % 15 == 0) {
                 respNum = 0;
             } else {
                 return false;
             }
-        }
+        }*/
         List<FrameParaData> frameParaList = respData.getFrameParaList();
         int num = 0;
         if (frameParaList != null && !frameParaList.isEmpty()) {
@@ -408,7 +409,7 @@ public class DevParaInfoContainer {
                 }
             }
         }
-        updateSnmpRptData();
+        //updateSnmpRptData();
         return num > 0;
     }
 
@@ -439,9 +440,10 @@ public class DevParaInfoContainer {
                 ParaViewInfo paraViewInfo = devParaMap.get(devNo).get(linkKey);
                 paraViewInfo.setParaVal(val);
                 devParaMap.get(devNo).put(linkKey,paraViewInfo);
+                //刷新缓存
+                DevIfeMegSend.sendParaToDev(devNo);
             }
         }
-
     }
 
     /**

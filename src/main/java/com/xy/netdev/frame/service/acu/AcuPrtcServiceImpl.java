@@ -63,7 +63,7 @@ public class AcuPrtcServiceImpl implements IParaPrtclAnalysisService {
             //当参数为接收机本振频率
             paraVal = paraVal.split("]")[0]+"]{F}["+make0Str(paraVal.split("]")[1].substring(4),5,2)+"]";
         }
-        else if(frameParaData.getParaNo().equals("4")){
+        else if(frameParaData.getParaNo().equals("29")){
             /*//当长度不为0时补0
             paraVal = make0Str(paraVal,frameParaData.getLen(),1);*/
             //卫星经度补0
@@ -74,9 +74,10 @@ public class AcuPrtcServiceImpl implements IParaPrtclAnalysisService {
                 .replace("}","")
                 .replace("[","")
                 .replace("]","");
-        if(frameParaData.getParaNo().equals("4")){
+        if(frameParaData.getParaNo().equals("29")){
             //修改缓存中卫星经度和极化方式数值
             DevParaInfoContainer.updateParaValue(reqInfo.getDevNo(), ParaHandlerUtil.genLinkKey(reqInfo.getDevNo(), frameParaData.getParaNo()),replace);
+
         }
         String command = "<" + reqInfo.getCmdMark() + replace + ">";
         reqInfo.setParamBytes(StrUtil.bytes(command));
