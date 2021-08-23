@@ -43,16 +43,16 @@ public class NtdvSpacePresetServiceImpl extends ServiceImpl<NtdvSpacePresetMappe
         SysParam  sysParamC= sysParamService.getById(LOCAL_VIBRATE_C);
         SysParam  sysParamD= sysParamService.getById(LOCAL_VIBRATE_D);
         String localVibr = sysParamService.getParaName(spacePreset.getSpLocalOscillator());
-        if(Integer.valueOf(sysParamA.getRemark2()) < Integer.valueOf(value) && Integer.valueOf(value)< Integer.valueOf(sysParamA.getRemark3())){
+        if(Double.valueOf(sysParamA.getRemark2()) < Double.valueOf(value) && Double.valueOf(value)< Double.valueOf(sysParamA.getRemark3())){
             //如在A本振范围内则设置本振为A
             localVibr = sysParamService.getParaName(LOCAL_VIBRATE_A);
-        }else if(Integer.valueOf(sysParamB.getRemark2()) < Integer.valueOf(value) && Integer.valueOf(value)< Integer.valueOf(sysParamB.getRemark3())){
+        }else if(Double.valueOf(sysParamB.getRemark2()) < Double.valueOf(value) && Double.valueOf(value)< Double.valueOf(sysParamB.getRemark3())){
             //如在A本振范围内则设置本振为B
             localVibr = sysParamService.getParaName(LOCAL_VIBRATE_B);
-        }else if(Integer.valueOf(sysParamC.getRemark2()) < Integer.valueOf(value) && Integer.valueOf(value)< Integer.valueOf(sysParamC.getRemark3())){
+        }else if(Double.valueOf(sysParamC.getRemark2()) < Double.valueOf(value) && Double.valueOf(value)< Double.valueOf(sysParamC.getRemark3())){
             //如在A本振范围内则设置本振为C
             localVibr = sysParamService.getParaName(LOCAL_VIBRATE_C);
-        }else if(Integer.valueOf(sysParamD.getRemark2()) < Integer.valueOf(value) && Integer.valueOf(value)< Integer.valueOf(sysParamD.getRemark3())){
+        }else if(Double.valueOf(sysParamD.getRemark2()) < Double.valueOf(value) && Double.valueOf(value)< Double.valueOf(sysParamD.getRemark3())){
             //如在A本振范围内则设置本振为D
             localVibr = sysParamService.getParaName(LOCAL_VIBRATE_D);
         }
