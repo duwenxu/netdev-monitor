@@ -6,6 +6,7 @@ import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.monitor.bo.DevStatusInfo;
 import com.xy.netdev.monitor.bo.ParaViewInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
+import com.xy.netdev.websocket.send.DevIfeMegSend;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.*;
@@ -121,6 +122,7 @@ public class DevStatusContainer {
         if(!devStatusInfo.getIsInterrupt().equals(isInterrupt)){
             devStatusInfo.setIsInterrupt(isInterrupt);
             devStatusMap.put(devNo,devStatusInfo);
+            DevIfeMegSend.sendDevStatusToDev();
             return true;
         }
         return false;
@@ -392,7 +394,7 @@ public class DevStatusContainer {
      */
     public static String getDevAllPramsStatus(String devNo,String status,String rptType){
         Map<String,Map<String,String>> devRptMap = devParamRptMap.get(devNo);
-        if(devRptMap.size()>0){
+        if(devRptMap != null && devRptMap.size()>0){
             Map<String,String> paraStatusMap =  devRptMap.get(rptType);
             for (String value : paraStatusMap.values()) {
                 if(value.equals(EXCEPTION_STATUS)){
