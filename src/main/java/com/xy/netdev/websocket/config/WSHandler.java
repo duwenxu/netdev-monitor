@@ -79,6 +79,7 @@ public class WSHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
 
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
+        log.error("handlerRemoved方法channel关闭了");
         //移除通道
         cache.removeChannel(ctx.channel());
     }
