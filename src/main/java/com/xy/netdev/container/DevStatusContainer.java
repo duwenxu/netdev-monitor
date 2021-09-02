@@ -140,7 +140,7 @@ public class DevStatusContainer {
     public synchronized static boolean setAlarm(String devNo,String isAlarm,String rptType) {
         isAlarm = getDevAllPramsStatus(devNo,isAlarm,rptType);
         DevStatusInfo devStatusInfo = devStatusMap.get(devNo);
-        if(!devStatusInfo.getIsAlarm().equals(isAlarm)){
+        if(devStatusInfo != null && !devStatusInfo.getIsAlarm().equals(isAlarm)){
             devStatusInfo.setIsAlarm(isAlarm);
             return true;
         }

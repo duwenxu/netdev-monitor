@@ -50,6 +50,23 @@ public class AcuPrtcServiceImpl implements IParaPrtclAnalysisService {
         FrameParaData frameParaData = reqInfo.getFrameParaList().get(0);
         String paraVal = frameParaData.getParaVal().replaceAll(" ","");
         //当参数为位置模式时特殊处理
+        if(reqInfo.getCmdMark().equals("step")){
+            //修改缓存中卫星经度和极化方式数值
+            String replace = paraVal.replace("{", "")
+                    .replace("}","")
+                    .replace("[","")
+                    .replace("]","");
+            DevParaInfoContainer.updateParaValue(reqInfo.getDevNo(), ParaHandlerUtil.genLinkKey(reqInfo.getDevNo(), frameParaData.getParaNo()),replace);
+            String xStep = paraVal.split("]")[0].substring(1);
+            String yStep = paraVal.split("]")[1].substring(4);
+            String zStep = paraVal.split("]")[2].substring(4);
+            double x = Double.valueOf(DevParaInfoContainer.getDevParaView(reqInfo.getDevNo(),"11").getParaVal()) + Double.valueOf(xStep);
+            double y = Double.valueOf(DevParaInfoContainer.getDevParaView(reqInfo.getDevNo(),"12").getParaVal()) + Double.valueOf(yStep);
+            double z = Double.valueOf(DevParaInfoContainer.getDevParaView(reqInfo.getDevNo(),"13").getParaVal()) + Double.valueOf(zStep);
+            paraVal = "{X}["+x+"]{Y}["+y+"]{Z}["+z+"]";
+            frameParaData.setParaNo("3");
+            reqInfo.setCmdMark("cmdse");
+        }
         if(frameParaData.getParaNo().equals("3")){
             String x = make0Str(paraVal.split("]")[0].substring(4),3,2);
             String y = make0Str(paraVal.split("]")[1].substring(4),3,2);

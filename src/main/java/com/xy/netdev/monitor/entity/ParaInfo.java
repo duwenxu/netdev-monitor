@@ -204,6 +204,10 @@ public class ParaInfo extends Model<ParaInfo> {
     @TableField(value = "NDPA_REMARK3_DATA")
     private String ndpaRemark3Data;
 
+    @ApiModelProperty(value = "显示顺序")
+    @TableField(value = "NDPA_SHOW_SEQ")
+    private Integer ndpaShowSeq;
+
     @ApiModelProperty(value = "设备类型编码")
     @TableField(exist = false)
     private String devTypeCode;
