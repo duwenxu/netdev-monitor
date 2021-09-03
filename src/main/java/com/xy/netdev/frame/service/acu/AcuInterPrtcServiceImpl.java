@@ -117,13 +117,13 @@ public class AcuInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
                     }
                 }
                 //设置位置模式的值
-                if(paraInfo.getParaNo().equals("11")){
+                /*if(paraInfo.getParaNo().equals("11")){
                     if(Float.valueOf(val)>360){
                         val = String.format("%.2f",(Float.valueOf(val) - 360));
                     }
                     //方位角特殊处理
                     value = value + val;
-                }else if(paraInfo.getParaNo().equals("12")){
+                }else */if(paraInfo.getParaNo().equals("12")){
                     value = value + "Y"+val;
                 }else if(paraInfo.getParaNo().equals("13")){
                     value = value + "Z"+val;

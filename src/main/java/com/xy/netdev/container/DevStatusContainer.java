@@ -59,7 +59,7 @@ public class DevStatusContainer {
             if(SysConfigConstant.DEVICE_CAR_GF.equals(devInfo.getDevType())){
                 //通过主BUC射频开关来判断主备:默认主
                 ParaViewInfo paraInfo = DevParaInfoContainer.getDevParaView(devInfo.getDevNo(),"15");
-                if("1".equals(paraInfo.getParaVal()) || StringUtils.isBlank(paraInfo.getParaVal())){
+                if(paraInfo != null &&("1".equals(paraInfo.getParaVal()) || StringUtils.isBlank(paraInfo.getParaVal()))){
                     //主
                     devStatusInfo.setDevDeployType(SysConfigConstant.DEV_DEPLOY_MASTER);
                     devStatusInfo.setMasterOrSlave(SysConfigConstant.RPT_DEV_STATUS_MASTERORSLAVE_MASTER);
