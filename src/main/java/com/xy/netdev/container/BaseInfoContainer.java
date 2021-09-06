@@ -676,6 +676,7 @@ public class BaseInfoContainer {
             frameParaInfo.setNdpaRemark3Data(paraInfo.getNdpaRemark3Data());//数据3
             frameParaInfo.setCmplexLevel(paraInfo.getNdpaCmplexLevel());//复杂级别
             frameParaInfo.setNdpaIsImportant(paraInfo.getNdpaIsImportant());   //是否重要
+            frameParaInfo.setNdpaIsImportant(paraInfo.getNdpaShowSeq());   //是否重要
             frameParaInfo.setNdpaOutterStatus(paraInfo.getNdpaOutterStatus());
             frameParaInfo.setNdpaRptOid(paraInfo.getNdpaRptOid());
             Map map = new HashMap();

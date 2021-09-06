@@ -92,7 +92,7 @@ public class GfInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
                 .filter(frameParaData -> StrUtil.isNotBlank(frameParaData.getParaVal()))
                 .map(frameParaData -> frameParaData.getParaNo().equals("14") ? ByteUtils.objToBytes(Integer.valueOf(frameParaData.getParaVal())*10, frameParaData.getLen()): ByteUtils.objToBytes(frameParaData.getParaVal(), frameParaData.getLen()))
                 .collect(Collectors.toList());
-        //当包含衰减值参数时
+        /*//当包含衰减值参数时
         List<FrameParaData> lists = reqInfo.getFrameParaList().stream().filter(Objects::nonNull)
                 .filter(frameParaData -> StrUtil.isNotBlank(frameParaData.getParaVal()))
                 .filter(frameParaData1 -> frameParaData1.getParaNo().equals("14")).collect(Collectors.toList());
@@ -102,7 +102,12 @@ public class GfInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
             }else{
                 DevParaInfoContainer.updateParaValue(reqInfo.getDevNo(), ParaHandlerUtil.genLinkKey(reqInfo.getDevNo(), "28"),lists.get(0).getParaVal());
             }
-        }
+        }*/
+        reqInfo.getFrameParaList().stream().filter(Objects::nonNull).forEach(frameParaData -> {
+            if("2".equals(frameParaData.getParaNo()) || "3".equals(frameParaData.getParaNo()) || "4".equals(frameParaData.getParaNo()) || "5".equals(frameParaData.getParaNo())){
+                DevParaInfoContainer.updateParaValue(reqInfo.getDevNo(), ParaHandlerUtil.genLinkKey(reqInfo.getDevNo(), frameParaData.getParaNo()),frameParaData.getParaVal());
+            }
+        });
         reqInfo.setParamBytes(ByteUtils.listToBytes(bytes));
     }
 

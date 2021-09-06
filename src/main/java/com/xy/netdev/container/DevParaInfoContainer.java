@@ -1,8 +1,6 @@
 package com.xy.netdev.container;
 
-import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson.JSONArray;
-import com.xy.netdev.SpacePreset.entity.NtdvSpacePreset;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.ParaHandlerUtil;
@@ -226,7 +224,8 @@ public class DevParaInfoContainer {
         //此处改为LinkedHashMap为了排序
         Map<String, ParaViewInfo> paraViewMap = new LinkedHashMap<>();
         if (devTypeParaList != null && !devTypeParaList.isEmpty()) {
-            devTypeParaList.sort(Comparator.comparing(paraInfo -> Integer.valueOf(paraInfo.getNdpaNo())));
+            //按照参数显示顺序字段排序
+            devTypeParaList.sort(Comparator.comparing(ParaInfo::getNdpaShowSeq,Comparator.nullsLast(Integer::compareTo)));
             for (ParaInfo paraInfo : devTypeParaList) {
                 //确保复杂参数在子参数之前被添加
                 if (!paraInfo.getNdpaCmplexLevel().equals(SysConfigConstant.PARA_COMPLEX_LEVEL_SUB)) {
@@ -321,6 +320,7 @@ public class DevParaInfoContainer {
         }
         viewInfo.setParaByteLen(paraInfo.getNdpaByteLen());
         viewInfo.setNdpaOutterStatus(paraInfo.getNdpaOutterStatus());
+        viewInfo.setNdpaIsImportant(paraInfo.getNdpaIsImportant());
         viewInfo.setNdpaIsImportant(paraInfo.getNdpaIsImportant());
         viewInfo.setRptOidSign(paraInfo.getNdpaRptOid());
         return viewInfo;

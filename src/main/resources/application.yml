@@ -6,9 +6,9 @@ spring:
     name: netdev-monitor
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://mariadb.xy.dev2:3306/netdevice-two?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true
-    username: xy
-    password: xy@root
+    url: jdbc:mysql://localhost:3306/netdevice1?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true
+    username: root
+    password: 123456
   websocket:
     #整个项目中此端口不可占用，否导致websocket不可用
     port: 8888
