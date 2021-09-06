@@ -3,6 +3,7 @@ package com.xy.netdev.sendrecv.head;
 import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.StrUtil;
 import com.xy.common.exception.BaseException;
+import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
@@ -111,6 +112,7 @@ public class ComtechImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
         frameRespData.setParamBytes(context);
 
         FrameParaInfo para = BaseInfoContainer.getParaInfoByCmd(COMTECH_GF, cmk);
+
         if (para.getParaId() == null && !cmk.equals("?")){
             log.warn("Comtech功放cmd:[{}]未查询到对应的参数",cmk);
             throw new BaseException("Comtech功放cmd:"+cmk+" 未查询到对应的参数");
@@ -134,7 +136,7 @@ public class ComtechImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
         comtechEntity = ComtechEntity.builder()
                 .start(AsciiEnum.STX.getCode())
                 .address(StrUtil.bytes(CHANNEL_ADDRESS)[0])
-                .command(StrUtil.bytes(cmdMark))
+                .command(StrUtil.bytes(cmdMark,StandardCharsets.UTF_8))
                 .parameters(paramBytes)
                 .end(AsciiEnum.EXT.getCode())
                 .build();
@@ -142,7 +144,11 @@ public class ComtechImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
         comtechEntity.setCheck(check);
         byte[] pack = pack(comtechEntity);
 
-        log.debug("Comtech发送查询帧：查询命令字：[{}]，查询帧：[{}],字符串格式：[{}]",cmdMark,HexUtil.encodeHexStr(pack),StrUtil.str(pack,StandardCharsets.UTF_8));
+        if(frameReqData.getOperType().equals(SysConfigConstant.OPREATE_CONTROL)){
+            log.warn("Comtech发送控制帧：查询命令字：[{}]，查询帧：[{}],字符串格式：[{}]",cmdMark,HexUtil.encodeHexStr(pack),StrUtil.str(pack,StandardCharsets.UTF_8));
+        }else{
+            log.info("Comtech发送查询帧：查询命令字：[{}]，查询帧：[{}],字符串格式：[{}]",cmdMark,HexUtil.encodeHexStr(pack),StrUtil.str(pack,StandardCharsets.UTF_8));
+        }
         return pack;
     }
 
@@ -184,13 +190,14 @@ public class ComtechImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqDa
         ComtechEntity comtechEntity = ComtechEntity.builder()
                 .start(AsciiEnum.STX.getCode())
                 .address(StrUtil.bytes(CHANNEL_ADDRESS)[0])
-                .command(StrUtil.bytes("A"))
-//                .parameters(StrUtil.bytes("99.9"))
+                .command(StrUtil.bytes("PBS"))
+                .parameters(StrUtil.bytes("2"))
                 .end(AsciiEnum.EXT.getCode())
                 .build();
         byte check =xorCheck(comtechEntity);
         comtechEntity.setCheck(check);
         byte[] pack = pack(comtechEntity);
         log.info("生成的控制字节为：{}",HexUtil.encodeHexStr(pack));
+        System.out.println("生成的控制字节为："+ HexUtil.encodeHexStr(pack));
     }
 }

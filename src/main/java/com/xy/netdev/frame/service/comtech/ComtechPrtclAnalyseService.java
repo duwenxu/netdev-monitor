@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
@@ -138,12 +139,20 @@ public class ComtechPrtclAnalyseService implements IParaPrtclAnalysisService {
         if (paraList == null || paraList.isEmpty()) {
             return;
         }
+        if(reqInfo.getCmdMark().equals(":")){
+            reqInfo.setCmdMark(":");
+        }
         //控制参数信息拼接
         FrameParaData paraData = paraList.get(0);
         String paraVal = paraData.getParaVal();
         byte[] dataBytes = null;
         if (!StringUtils.isBlank(paraVal)) {
             dataBytes = StrUtil.bytes(paraVal);
+        }
+        //衰减值，需要衰减值设置参数来设置
+        if(reqInfo.getCmdMark().equals("A")){
+            reqInfo.setCmdMark("K");
+            reqInfo.getFrameParaList().get(0).setParaNo("63");
         }
         reqInfo.setParamBytes(dataBytes);
         socketMutualService.request(reqInfo, ProtocolRequestEnum.CONTROL);
@@ -154,7 +163,22 @@ public class ComtechPrtclAnalyseService implements IParaPrtclAnalysisService {
         byte[] bytes = respData.getParamBytes();
         String cmdMark = respData.getCmdMark();
         log.info("接收到Comtech控制响应帧：[{}]", HexUtil.encodeHexStr(bytes));
-
+        if(bytes.length>1){
+            ArrayList<FrameParaData> paraList = new ArrayList<>();
+            FrameParaInfo paraInfo = BaseInfoContainer.getParaInfoByCmd(respData.getDevType(), cmdMark);
+            FrameParaData paraData = new FrameParaData();
+            BeanUtil.copyProperties(paraInfo, paraData, true);
+            BeanUtil.copyProperties(respData, paraData, true);
+            //普通参数
+            String paraVal = StrUtil.str(bytes, StandardCharsets.UTF_8);
+            paraData.setParaVal(paraVal.substring(1));
+            if(cmdMark.equals("K")){
+                paraData.setParaNo("59");
+                paraData.setParaCmk("A");
+            }
+            paraList.add(paraData);
+            respData.setFrameParaList(paraList);
+        }
         //此处按命令字长度截取数据体内容
         if (respData.getRespCode().equals("1")){
             respData =  rejectCodeHandler(bytes,respData);

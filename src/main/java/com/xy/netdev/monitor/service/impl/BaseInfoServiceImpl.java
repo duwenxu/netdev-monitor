@@ -82,7 +82,7 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
             List<BaseInfo> subList = baseInfos.stream().filter(base -> menu.getDevNo().equals(base.getDevParentNo()) && DEV_STATUS_NEW.equals(base.getDevStatus())).collect(Collectors.toList());
             LinkedHashMap<String, Object> subMap = new LinkedHashMap<>();
             //将子设备列表转换为Map
-//            subList.sort(Comparator.comparing(BaseInfo::getDevMenuSeq));
+            subList.sort(Comparator.comparing(BaseInfo::getDevMenuSeq));
             subList.forEach(targetInfo -> {
                 LinkedHashMap map = JSONObject.parseObject(JSONObject.toJSONString(targetInfo), LinkedHashMap.class);
                 subMap.put(targetInfo.getDevName(), map);
