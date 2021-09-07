@@ -72,7 +72,6 @@ public class AcuPrtcServiceImpl implements IParaPrtclAnalysisService {
             if(Float.valueOf(DevParaInfoContainer.getDevParaView(frameParaData.getDevNo(),"12").getParaVal())<20){
                 throw new BaseException("俯仰角小于20°不能执行位置模式命令！");
             }
-            DevParaInfoContainer.updateParaValue(reqInfo.getDevNo(),ParaHandlerUtil.genLinkKey(reqInfo.getDevNo(), frameParaData.getParaNo()),paraVal);
             String x = make0Str(paraVal.split("]")[0].substring(4),3,2);
             String y = make0Str(paraVal.split("]")[1].substring(4),3,2);
             String z = make0Str(paraVal.split("]")[2].substring(4),3,2);
@@ -92,7 +91,7 @@ public class AcuPrtcServiceImpl implements IParaPrtclAnalysisService {
                 .replace("}","")
                 .replace("[","")
                 .replace("]","");
-        if(frameParaData.getParaNo().equals("29")){
+        if(frameParaData.getParaNo().equals("29") || frameParaData.getParaNo().equals("3")){
             //修改缓存中卫星经度和极化方式数值
             DevParaInfoContainer.updateParaValue(reqInfo.getDevNo(), ParaHandlerUtil.genLinkKey(reqInfo.getDevNo(), frameParaData.getParaNo()),replace);
 
