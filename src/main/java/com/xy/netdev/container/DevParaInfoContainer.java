@@ -440,8 +440,8 @@ public class DevParaInfoContainer {
                 ParaViewInfo paraViewInfo = devParaMap.get(devNo).get(linkKey);
                 paraViewInfo.setParaVal(val);
                 devParaMap.get(devNo).put(linkKey,paraViewInfo);
-                //刷新缓存
-                DevIfeMegSend.sendParaToDev(devNo);
+                /*//刷新缓存
+                DevIfeMegSend.sendParaToDev(devNo);*/
             }
         }
     }
