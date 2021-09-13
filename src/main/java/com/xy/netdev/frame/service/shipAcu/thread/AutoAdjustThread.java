@@ -1,6 +1,7 @@
 package com.xy.netdev.frame.service.shipAcu.thread;
 
 import com.xy.netdev.admin.service.ISysParamService;
+import com.xy.netdev.common.util.ParaHandlerUtil;
 import com.xy.netdev.container.DevParaInfoContainer;
 import com.xy.netdev.monitor.bo.Angel;
 import com.xy.netdev.monitor.service.IShipAcuService;
@@ -78,6 +79,8 @@ public class AutoAdjustThread implements Runnable{
                 log.error("船载acu自动化流程发生异常！");
             }
         }
+        //流程完成，工作模式设置为初始值
+        DevParaInfoContainer.updateParaValue(angel.getDevNo(), ParaHandlerUtil.genLinkKey(angel.getDevNo(), "73"),"0");
     }
 
     /**
