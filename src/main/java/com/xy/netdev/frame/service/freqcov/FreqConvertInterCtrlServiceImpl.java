@@ -6,26 +6,20 @@ import com.xy.netdev.admin.entity.SysParam;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.ByteUtils;
-import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.service.ICtrlInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
-import com.xy.netdev.frame.service.modem.ModemInterPrtcServiceImpl;
 import com.xy.netdev.frame.service.modemscmm.ModemScmmPrtcServiceImpl;
-import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import com.xy.netdev.transit.IDataReciveService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
 import static com.xy.netdev.common.util.ByteUtils.byteArrayCopy;
 
 /**
@@ -51,6 +45,10 @@ public class FreqConvertInterCtrlServiceImpl implements ICtrlInterPrtclAnalysisS
         List<FrameParaData> paraList = reqData.getFrameParaList();
         byte[] bytes = new byte[]{};
         for (FrameParaData paraData : paraList) {
+            //解决上下变频器的切换单元的主备机相反
+            if("25".equals(reqData.getDevNo()) && "01".equals(paraData.getParaNo())){
+                paraData.setParaVal("00".equals(paraData.getParaVal()) ? "01":"00");
+            }
             byte[] frameBytes = modemScmmPrtcService.doGetFrameBytes(paraData);
             bytes = ByteUtils.bytesMerge(bytes, frameBytes);
         }
