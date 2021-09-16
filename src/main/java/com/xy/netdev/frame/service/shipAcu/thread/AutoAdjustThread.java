@@ -60,7 +60,7 @@ public class AutoAdjustThread implements Runnable{
                     //执行命令
                     shipAcuService.operCtrl(angel);
                     log.info("执行命令"+angel.getFunc()+"完成！");
-                    if("0011".equals(step)){
+                    if("0011".equals(step) || "0101".equals(step)){
                         this.adjustAngle(0.15,-0.1);
                     }
                     if(isStop){
@@ -98,6 +98,10 @@ public class AutoAdjustThread implements Runnable{
                         break;
                     }
                 }
+            }
+            if("1".equals(DevParaInfoContainer.getDevParaView(angel.getDevNo(),"73"))){
+                isStop = true;
+                break;
             }
             Thread.sleep(Long.valueOf(sysParamService.getParaRemark1(ACU_SLEEP_TIME)));
         }
@@ -148,12 +152,12 @@ public class AutoAdjustThread implements Runnable{
      * @return
      */
     private boolean isNext(String devNo) throws Exception{
+        //判断方位、俯仰、极化是否到位
+        this.WaitAngleGet();
         if("1".equals(DevParaInfoContainer.getDevParaView(devNo,"73"))){
             isStop = true;
             return false;
         }
-        //判断方位、俯仰、极化是否到位
-        this.WaitAngleGet();
         String agcValue = DevParaInfoContainer.getDevParaView(devNo,"9").getParaVal(); //agc
         String recvStatus = DevParaInfoContainer.getDevParaView(devNo,"65").getSubParaList().stream().filter(paraViewInfo -> paraViewInfo.getParaNo().equals("66")).collect(Collectors.toList()).get(0).getParaVal();  //接收机状态
         if(Double.parseDouble(agcValue)> Double.parseDouble(sysParamService.getParaRemark1(ACU_AGE_VALUE)) && recvStatus.equals("0")){

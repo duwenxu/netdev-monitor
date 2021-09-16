@@ -56,7 +56,7 @@ public class ShipAcuServiceImpl implements IShipAcuService {
             //空间指向
             jc = pol;
             pol = angel.getFreq();
-        }else if("0100".equals(angel.getFunc())){
+        }else if("0101".equals(angel.getFunc())){
             //星下点
             az = angel.getSatJd();
             el = angel.getSatWd();
