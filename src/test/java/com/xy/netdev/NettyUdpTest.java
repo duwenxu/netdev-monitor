@@ -24,17 +24,17 @@ public class NettyUdpTest {
 
     private static final Bootstrap bootstrap = new Bootstrap();
     /**目的地address*/
-    private static final InetSocketAddress DEST_ADDRESS = new InetSocketAddress("127.0.0.1", 8081);
+    private static final InetSocketAddress DEST_ADDRESS = new InetSocketAddress("127.0.0.1", 4000);
     private static final InetSocketAddress SOURCE_ADDRESS = new InetSocketAddress("172.21.2.100", 8070);
     /**发送频率*/
     private static final int sendInterval = 1000;
     private static final String[] datas = new String[]{
             //2300调制解调器
-            "7e1783020013592000fa00000056322e302d3139303932336d7e",
-            "7e138303001351500056322e302d313930393233987e",
-            "7e1f830500800000000000000000000000000000000000000000000000000801307e",
-            "7e0a8306003e80000b02005e7e",
-            "7e168307003e80000b1e000002030005002aaf54000000be7e",
+//            "7e1783020013592000fa00000056322e302d3139303932336d7e",
+//            "7e138303001351500056322e302d313930393233987e",
+//            "7e1f830500800000000000000000000000000000000000000000000000000801307e",
+//            "7e0a8306003e80000b02005e7e",
+//            "7e168307003e80000b1e000002030005002aaf54000000be7e",
             //6914射频设备
 //            "7A7A7A7A000000150006140000222222227B7B7B7B",
 //            "7A7A7A7A00000018FDFD000600040000222222227B7B7B7B",
@@ -69,13 +69,13 @@ public class NettyUdpTest {
 //            "008C000101AA",
 //            "008D000101AA",
 //            "008E00050200010403AA"
-//            "55AA1202010001010200000000AAAA",
-//            "55AA110100000000AAAA",
-//            "55AA2201140124F8140124F800000001AAAA",
-//            "55AA210100000001AAAA",
-//            "55AA320100010100000002AAAA",
-//            "55AA310100000002AAAA",
-//            "55AA50020100010100000000AAAA"
+            "55AA1202010001010200000000AAAA",
+            "55AA110100000000AAAA",
+            "55AA2201140124F8140124F800000001AAAA",
+            "55AA210100000001AAAA",
+            "55AA320100010100000002AAAA",
+            "55AA310100000002AAAA",
+            "55AA50020100010100000000AAAA"
     };
 
     @Test
