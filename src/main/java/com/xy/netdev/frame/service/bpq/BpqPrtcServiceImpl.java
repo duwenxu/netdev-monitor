@@ -221,24 +221,6 @@ public class BpqPrtcServiceImpl implements IParaPrtclAnalysisService {
         BaseInfoContainer.updateBaseInfo(devNo);
     }
 
-//    private String getDevNo(String addr){
-//        String devNo = "";
-//        switch (addr){
-//            case "001":
-//                devNo = "42";
-//                break;
-//            case "010":
-//                devNo = "40";
-//                break;
-//            case "011":
-//                devNo = "41";
-//                break;
-//            default:
-//                devNo = "42";
-//                break;
-//        }
-//        return devNo;
-//    }
 
     /**
      * 获取变频器内部地址映射关系

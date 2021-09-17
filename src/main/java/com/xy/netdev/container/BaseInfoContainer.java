@@ -2,8 +2,8 @@ package com.xy.netdev.container;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.fasterxml.jackson.databind.ser.Serializers;
 import com.xy.common.exception.BaseException;
+import com.xy.netdev.SpacePreset.entity.NtdvSpacePreset;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.admin.service.impl.SysParamServiceImpl;
 import com.xy.netdev.common.util.ParaHandlerUtil;
@@ -25,7 +25,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.xy.netdev.common.constant.SysConfigConstant.*;
-import static com.xy.netdev.common.constant.SysConfigConstant.DEVICE_QHDY;
 import static com.xy.netdev.monitor.constant.MonitorConstants.SUB_KU_GF;
 import static com.xy.netdev.monitor.constant.MonitorConstants.SUB_MODEM;
 
@@ -119,11 +118,23 @@ public class BaseInfoContainer {
      */
     private static Map<String,List<BaseInfo>> combDevMap = new HashMap<>();
 
+    /**
+     * 预置卫星集合
+     */
+    private static List<NtdvSpacePreset> spacePresets = new ArrayList<>();
+
+    /**
+     * 需要预置卫星的设备类型
+     */
+    private static List<String> devTypeSpacePresetList = new ArrayList(){{add("0020001");add("0020048");}};
+
 
     /**
      * @功能：当系统启动时,进行初始化各设备日志
      */
-    public static void init(List<BaseInfo> devs, List<ParaInfo> paraInfos, List<Interface> interfaces, List<PrtclFormat> prtclList) {
+    public static void init(List<BaseInfo> devs, List<ParaInfo> paraInfos, List<Interface> interfaces, List<PrtclFormat> prtclList,List<NtdvSpacePreset> spacePresets) {
+        //赋予预置卫星
+        BaseInfoContainer.spacePresets = spacePresets;
         //将设备参数转化为帧参数
         List<FrameParaInfo> frameParaInfos = changeDevParaToFrame(paraInfos, prtclList);
         //加载设备信息
@@ -155,6 +166,7 @@ public class BaseInfoContainer {
      */
     public static void addDevMap(List<BaseInfo> devList) {
         devList.forEach(baseInfo -> {
+            //存放缓存
             try {
                 if(devMap.containsKey(baseInfo.getDevIpAddr())){
                     devMap.get(baseInfo.getDevIpAddr()).add(baseInfo);
@@ -195,14 +207,14 @@ public class BaseInfoContainer {
     public static void addParaMap(List<FrameParaInfo> paraList) {
         paraList.forEach(paraInfo -> {
             try {
+                //切换单元特殊处理
                 if(paraInfo.getDevType().equals(DEVICE_QHDY)){
                     paramCmdMap.put(ParaHandlerUtil.genLinkKey(DEVICE_BPQ, paraInfo.getCmdMark()), paraInfo);
                     paramNoMap.put(ParaHandlerUtil.genLinkKey(DEVICE_BPQ, paraInfo.getParaNo()), paraInfo);
                 }
+                //缓存存放数据
                 paramCmdMap.put(ParaHandlerUtil.genLinkKey(paraInfo.getDevType(), paraInfo.getCmdMark()), paraInfo);
                 paramNoMap.put(ParaHandlerUtil.genLinkKey(paraInfo.getDevType(), paraInfo.getParaNo()), paraInfo);
-
-
             } catch (Exception e) {
                 log.error("参数[" + paraInfo.getParaName() + "]的设备类型或命令标识或参数编号存在异常，请检查:" + e.getMessage());
             }
@@ -215,6 +227,7 @@ public class BaseInfoContainer {
      * @功能：添加设备类型对应的接口MAP
      */
     public static void addDevTypeInterMap(List<Interface> interfaces) {
+        //利用接口列表生成设备类型列表
         List<String> devTypes = interfaces.stream().map(Interface::getDevType).collect(Collectors.toList());
         //循环设备类型
         devTypes.forEach(devType -> {
@@ -265,11 +278,13 @@ public class BaseInfoContainer {
     public static void addDevNoItfMap(List<BaseInfo> devList, List<Interface> interfaces) {
         devList.forEach(baseInfo -> {
             try {
+                //存放页面接口缓存
                 List<Interface> pageInterfaces = interfaces.stream()
                         .filter(anInterface -> baseInfo.getDevType().equals(anInterface.getDevType())
                                 && INTERFACE_TYPE_PAGE_QUERY.equals(anInterface.getItfType()))
                         .collect(Collectors.toList());
                 devPageItfMap.put(baseInfo.getDevNo(), pageInterfaces);
+                //存放组装控制接口缓存
                 List<Interface> ctrlInterfaces = interfaces.stream()
                         .filter(anInterface -> baseInfo.getDevType().equals(anInterface.getDevType())
                                 && INTERFACE_TYPE_PACK_CTRL.equals(anInterface.getItfType()))
@@ -289,13 +304,15 @@ public class BaseInfoContainer {
     public static void addInterLinkParaMap(List<DevInterParam> devInterParamList) {
         //修改各参数序号和下标
         devInterParamList.forEach(devInterParam -> {
-            int seq = 0;
-            int point = 0;
+            int seq = 0;   //序号
+            int point = 0;  //下标
             for (FrameParaInfo paraInfo : devInterParam.getDevParamList()) {
                 try {
+                    //计算新的参数序号
                     seq++;
                     paraInfo.setParaSeq(seq);  //参数序号
-                    //对于存在分隔符的参数下标做特殊处理
+                    /**--------------计算参数下标 start---------------**/
+                    //子调制解调器与功放特殊处理
                     String devType = paraInfo.getDevType();
                     if (SUB_MODEM.equals(devType)) {
                         if (seq == 1) {
@@ -303,13 +320,14 @@ public class BaseInfoContainer {
                         } else {
                             point = point + 2;
                         }
-                    }else if(SUB_KU_GF.equals(devType)&&StringUtils.isBlank(paraInfo.getParaByteLen())){
+                    }else if(SUB_KU_GF.equals(devType)&&StringUtils.isNotBlank(paraInfo.getParaByteLen())){
                             point = point + 1;
                     }
                     paraInfo.setParaStartPoint(point);//参数下标：从哪一个字节开始
                     log.debug("cmd:{}----point:{}", paraInfo.getCmdMark(), point);
                     String byteLen = StringUtils.isBlank(paraInfo.getParaByteLen()) ? "0" : paraInfo.getParaByteLen();
                     point = point + Integer.parseInt(byteLen);
+                    /**--------------计算参数下标 end---------------**/
                 } catch (NumberFormatException e) {
                     log.error("参数[" + paraInfo.getParaName() + "]的字节长度存在异常，请检查：" + e.getMessage());
                 }
@@ -395,6 +413,23 @@ public class BaseInfoContainer {
      */
     public static List<Interface> getPageItfInfo(String devNo) {
         return devPageItfMap.get(devNo) != null ? devPageItfMap.get(devNo) : new ArrayList();
+    }
+
+
+    /**
+     * @return 接口列表
+     * @功能：根据设备序号 获取预置卫星列表
+     */
+    public static List<NtdvSpacePreset> getSpacePresets() {
+        return spacePresets;
+    }
+
+    /**
+     * @return 接口列表
+     * @功能：根据设备序号 获取需要设置一键对星的设备类型列表
+     */
+    public static List<String> getDevTypeOptSat() {
+        return devTypeSpacePresetList;
     }
 
     /**
@@ -499,6 +534,7 @@ public class BaseInfoContainer {
         if (devInterParam != null) {
             PrtclFormat prtclFormat= devInterParam.getInterfacePrtcl();
             if (prtclFormat!=null){
+                //设置协议归属
                 prtclFormat.setIsPrtclParam(1);
             }
             return prtclFormat;
@@ -557,7 +593,7 @@ public class BaseInfoContainer {
     }
 
     /**
-     * @param devType 设备类型(参数表中的编码
+     * @param devType 设备类型(参数表中的编码)
      * @return 处理类名
      * @功能：根据设备类型 获取处理类名
      */
@@ -640,12 +676,24 @@ public class BaseInfoContainer {
             frameParaInfo.setNdpaRemark3Data(paraInfo.getNdpaRemark3Data());//数据3
             frameParaInfo.setCmplexLevel(paraInfo.getNdpaCmplexLevel());//复杂级别
             frameParaInfo.setNdpaIsImportant(paraInfo.getNdpaIsImportant());   //是否重要
+            frameParaInfo.setNdpaIsImportant(paraInfo.getNdpaShowSeq());   //是否重要
             frameParaInfo.setNdpaOutterStatus(paraInfo.getNdpaOutterStatus());
             frameParaInfo.setNdpaRptOid(paraInfo.getNdpaRptOid());
             Map map = new HashMap();
             try {
                 if (!StringUtils.isBlank(paraInfo.getNdpaSelectData())) {
-                    JSONArray.parseArray(paraInfo.getNdpaSelectData(), ParaSpinnerInfo.class).forEach(paraSpinnerInfo -> map.put(paraSpinnerInfo.getCode(), paraSpinnerInfo.getName()));
+                    List<ParaSpinnerInfo> spinnerInfos = JSONArray.parseArray(paraInfo.getNdpaSelectData(), ParaSpinnerInfo.class);
+                    //如果参数为acu的一键对星参数  则下拉框数据填充预置卫星数据
+                    if(devTypeSpacePresetList.contains(paraInfo.getDevType()) && "optSate".equals(paraInfo.getNdpaCmdMark()) && spacePresets.size()>0){
+                        spinnerInfos.clear();
+                        spacePresets.forEach(ntdvSpacePreset -> {
+                            ParaSpinnerInfo paraSpinnerInfo = new ParaSpinnerInfo();
+                            paraSpinnerInfo.setCode(ntdvSpacePreset.getSpId().toString());
+                            paraSpinnerInfo.setName(ntdvSpacePreset.getSpName()+"["+ntdvSpacePreset.getSpCode()+"]");
+                            spinnerInfos.add(paraSpinnerInfo);
+                        });
+                    }
+                    spinnerInfos.forEach(paraSpinnerInfo -> map.put(paraSpinnerInfo.getCode(), paraSpinnerInfo.getName()));
                 }
             } catch (Exception e) {
                 log.error("参数下拉值域解析错误：设备类型：{}，参数编号：{}",paraInfo.getDevType(),paraInfo.getNdpaNo());
@@ -659,7 +707,7 @@ public class BaseInfoContainer {
                     .filter(prtclFormat -> prtclFormat.getFmtId().equals(paraInfo.getFmtId()))
                     .collect(Collectors.toList());
             if (prtclFormats.size() > 0) {
-                //设置协议归属
+                //设置协议归属：参数协议
                 prtclFormats.get(0).setIsPrtclParam(0);
                 frameParaInfo.setInterfacePrtcl(prtclFormats.get(0));      //解析协议
             }
@@ -674,10 +722,11 @@ public class BaseInfoContainer {
                 mapIn.forEach((key, value) -> {
                     mapOut.put(value, key);
                 });
-                frameParaInfo.setTransOuttoInMap(mapOut);    //数据内->外转换值域map
+                frameParaInfo.setTransOuttoInMap(mapOut);    //数据外->内转换值域map
             }
             frameParaInfo.setAlertPara(paraInfo.getNdpaAlertPara()); //状态上报类型
             frameParaInfo.setAlertLevel(paraInfo.getNdpaAlertLevel());
+            //设置子参数
             frameParaInfo.setSubParaList(new ArrayList<>());
             if (paraInfo.getNdpaCmplexLevel().equals(PARA_COMPLEX_LEVEL_SUB)) {
                 //若为子参数不仅添加到父参数下且增加到参数列表
@@ -716,7 +765,7 @@ public class BaseInfoContainer {
                     .filter(prtclFormat -> prtclFormat.getFmtId().equals(anInterface.getFmtId()))
                     .collect(Collectors.toList());
             if (prtclFormats.size() > 0) {
-                //设置协议的归属
+                //设置协议的归属:接口
                 prtclFormats.get(0).setIsPrtclParam(1);
                 devInterParam.setInterfacePrtcl(prtclFormats.get(0));
             }
@@ -725,7 +774,7 @@ public class BaseInfoContainer {
             List<String> paraIds = StringUtils.isBlank(anInterface.getItfDataFormat()) ? new ArrayList<>() : Arrays.asList(anInterface.getItfDataFormat().split(","));
             Map<Integer, FrameParaInfo> frameParaInfoMap = frameParaInfos.stream().collect(Collectors.toMap(FrameParaInfo::getParaId,FrameParaInfo -> FrameParaInfo));
             paraIds.forEach(paraId->{
-                //解决是一个实体类导致的数据属性同步变化
+                //解决因为同一个实体类导致的数据属性同步变化
                 try {
                     FrameParaInfo frameParaInfo = new FrameParaInfo();
                     BeanUtils.copyProperties(frameParaInfoMap.get(Integer.valueOf(paraId)),frameParaInfo);

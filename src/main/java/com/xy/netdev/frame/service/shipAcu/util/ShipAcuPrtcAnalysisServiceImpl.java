@@ -1,13 +1,11 @@
 package com.xy.netdev.frame.service.shipAcu.util;
 
-import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson.JSON;
 import com.xy.common.exception.BaseException;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.common.util.SpringContextUtils;
 import com.xy.netdev.container.BaseInfoContainer;
-import com.xy.netdev.container.DevParaInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
@@ -18,7 +16,6 @@ import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import com.xy.netdev.transit.IDataReciveService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -45,6 +42,8 @@ public class ShipAcuPrtcAnalysisServiceImpl implements IQueryInterPrtclAnalysisS
     @Autowired
     private IDataReciveService dataReciveService;
 
+    private int num =0;
+
     /**
      * 状态上报包帧头标识
      */
@@ -58,6 +57,10 @@ public class ShipAcuPrtcAnalysisServiceImpl implements IQueryInterPrtclAnalysisS
 
     @Override
     public FrameRespData queryParaResponse(FrameRespData respData) {
+        if(num == 5){
+            num++;
+            return null;
+        }
         byte[] bytes = respData.getParamBytes();
         if (ObjectUtil.isNull(bytes)) {
             log.warn("1.5米ACU查询响应异常, 未获取到数据体, 设备编号：[{}], 信息:[{}]", respData.getDevNo(), JSON.toJSONString(respData));
@@ -79,6 +82,13 @@ public class ShipAcuPrtcAnalysisServiceImpl implements IQueryInterPrtclAnalysisS
         return respData;
     }
 
+    /**
+     * 生成参数列表
+     * @param respData
+     * @param bytes
+     * @param cmdMark
+     * @param frameParaDataList
+     */
     private void setFrameDataList(FrameRespData respData, byte[] bytes, String cmdMark, List<FrameParaData> frameParaDataList) {
         //获取接口单元的参数信息
         List<FrameParaInfo> frameParaInfos = BaseInfoContainer.getInterLinkParaList(respData.getDevType(), cmdMark);
@@ -87,14 +97,17 @@ public class ShipAcuPrtcAnalysisServiceImpl implements IQueryInterPrtclAnalysisS
             genFramePara(param, respData, byte1, frameParaDataList);
             //特定字解析
             if (param.getParaNo().equals("15")) {
+                //过滤出包含特定字的参数：特定字的下属参数
                 List<FrameParaInfo> list = BaseInfoContainer.getParasByDevType(respData.getDevType())
                         .stream().filter(frameParaInfo -> Flag.equals(frameParaInfo.getNdpaRemark3Data()))
                         .collect(Collectors.toList());
-                //解析特定字及后续参数
+                /**---------------------------解析特定字下属参数-----------------------**/
+                //获取特定字下属参数的字节
                 byte[] byteEnd = ByteUtils.byteArrayCopy(bytes, 33, 12);
                 int paraStartPoint = 0;
                 //排序
                 list.sort(Comparator.comparing(frameParaInfo -> Integer.valueOf(frameParaInfo.getParaNo())));
+                //解析特定字下属参数
                 for (FrameParaInfo frameParaData1 : list) {
                     byte[] byteNext = ByteUtils.byteArrayCopy(byteEnd, paraStartPoint, Integer.valueOf(frameParaData1.getParaByteLen()));
                     genFramePara(frameParaData1, respData, byteNext, frameParaDataList);
@@ -114,8 +127,9 @@ public class ShipAcuPrtcAnalysisServiceImpl implements IQueryInterPrtclAnalysisS
         FrameParaData frameParaData = null;
         if (PARA_COMPLEX_LEVEL_COMPOSE.equals(param.getCmplexLevel())) {
             //比特位分解
-            int paraStartPoint = 0;
+            int paraStartPoint = 0;  //参数下标
             List<FrameParaInfo> list = param.getSubParaList();
+            //排序
             list.sort(Comparator.comparing(paraInfo -> Integer.valueOf(paraInfo.getParaNo())));
             String value = "";
             for (int i = 1; i <= list.size(); i++) {
@@ -124,7 +138,9 @@ public class ShipAcuPrtcAnalysisServiceImpl implements IQueryInterPrtclAnalysisS
                 String paraVal = "";
                 if(PARA_DATA_TYPE_INT.equals(frameParaInfo.getDataType())){
                     paraVal = ByteUtils.byteToInt(ByteUtils.byteArrayCopy(byte1, paraStartPoint, Integer.valueOf(frameParaInfo.getParaByteLen())))+"";
+                    //生成参数帧
                     subFrame = genFramePara(frameParaInfo, respData.getDevNo(), paraVal);
+                    //计算新的参数的字节起点
                     paraStartPoint = paraStartPoint + Integer.valueOf(frameParaInfo.getParaByteLen());
                 }else if(PARA_DATA_TYPE_BYTE.equals(frameParaInfo.getDataType())){
                     subFrame = genFramePara(frameParaInfo, respData.getDevNo(), ByteUtils.byteArrayCopy(byte1,paraStartPoint,Integer.valueOf(frameParaInfo.getParaByteLen())));
@@ -167,18 +183,18 @@ public class ShipAcuPrtcAnalysisServiceImpl implements IQueryInterPrtclAnalysisS
         String paraValueStr = "";
         if(bytes instanceof String){
             paraValueStr = bytes.toString();
-        }else{
-            if (StringUtils.isNotBlank(currentPara.getNdpaRemark2Data())) {
-                ParamCodec handler = SpringContextUtils.getBean(currentPara.getNdpaRemark2Data());
-                if (PARA_DATA_TYPE_INT.equals(currentPara.getDataType())) {
-                    paraValueStr = String.valueOf(handler.decode((byte[]) bytes, currentPara.getNdpaRemark1Data()));
-                } else {
-                    paraValueStr = String.valueOf(handler.decode((byte[]) bytes, null));
-                }
-            }else{
-                paraValueStr = ByteUtils.byteToBinary(((byte[])bytes)[0]).substring(4);
+        } else if (StringUtils.isNotBlank(currentPara.getNdpaRemark2Data())) {
+            //当参数的备注2包含数据则生成特殊的处理类处理
+            ParamCodec handler = SpringContextUtils.getBean(currentPara.getNdpaRemark2Data());
+            if (StringUtils.isNotBlank(currentPara.getNdpaRemark1Data())) {
+                paraValueStr = String.valueOf(handler.decode((byte[]) bytes, currentPara.getNdpaRemark1Data()));
+            } else {
+                paraValueStr = String.valueOf(handler.decode((byte[]) bytes, null));
             }
+        } else {
+            paraValueStr = ByteUtils.byteToBinary(((byte[]) bytes)[0]).substring(4);
         }
+        //生成参数帧
         FrameParaData frameParaData = FrameParaData.builder()
                 .devType(currentPara.getDevType())
                 .paraNo(currentPara.getParaNo())

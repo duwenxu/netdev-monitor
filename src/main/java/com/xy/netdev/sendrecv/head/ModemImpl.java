@@ -36,10 +36,10 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
     private static final String[] RESPONSE_SIGNS = {"53","41"};
 
     /**每个设备的缓存帧map*/
-    private final Map<String, byte[]> byteBufMap= new ConcurrentHashMap<String,byte[]>(8);
-    private final Map<String, byte[]> readyByteMap= new ConcurrentHashMap<String,byte[]>(8);
+    private final Map<String, byte[]> byteBufMap= new ConcurrentHashMap<>(8);
+    private final Map<String, byte[]> readyByteMap= new ConcurrentHashMap<>(8);
     /**全查询响应帧16进制String长度*/
-    private static final int FULL_FRAME_lEN = 532;
+    private static final int FULL_FRAME_LEN = 532;
 
     @Autowired
     private ModemPrtcServiceImpl prtcService;
@@ -124,7 +124,7 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
     private void dealWithFrame(FrameRespData frameRespData,byte[] bytes) {
         String hexFrameStr = HexUtil.encodeHexStr(bytes);
         String devKey = frameRespData.getDevType() + ":" + frameRespData.getDevNo();
-        if (hexFrameStr.startsWith("02") && hexFrameStr.length()==FULL_FRAME_lEN){
+        if (hexFrameStr.startsWith("02") && hexFrameStr.length()== FULL_FRAME_LEN){
             readyByteMap.put(devKey,bytes);
         }else if (hexFrameStr.startsWith("02")){
             byteBufMap.put(devKey,bytes);
@@ -147,7 +147,7 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
                             oldBytes = bytesMerge(oldBytes,bytes);
                         }
                         String hexStr = HexUtil.encodeHexStr(oldBytes);;
-                        if (hexStr.length() == FULL_FRAME_lEN){
+                        if (hexStr.length() == FULL_FRAME_LEN){
                             readyByteMap.put(devKey,oldBytes);
                             byteBufMap.remove(devKey);
                         }
@@ -178,12 +178,13 @@ public class ModemImpl extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
         } else {
             keyword = prtclFormat.getFmtCkey();
         }
+        byte[] deviceBytes = HexUtil.decodeHex(BaseInfoContainer.getDevInfoByNo(frameReqData.getDevNo()).getDevRemark1Data());
         ModemEntity modemEntity = ModemEntity.builder()
                 .beginOffset((byte) 0x02)
                 .num(ByteUtils.objToBytes(len, 2))
                 .deviceType((byte) 0x65)
                 //.deviceAddress((byte) 0x01)
-                .deviceAddress(HexUtil.decodeHex(BaseInfoContainer.getDevInfoByNo(frameReqData.getDevNo()).getDevRemark1Data())[0])
+                .deviceAddress(deviceBytes[0])
                 .cmd(Byte.valueOf(keyword, 16))
                 .params(paramBytes)
                 .check((byte) 0)

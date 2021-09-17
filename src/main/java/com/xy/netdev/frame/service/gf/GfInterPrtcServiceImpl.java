@@ -6,7 +6,9 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.util.ByteUtils;
+import com.xy.netdev.common.util.ParaHandlerUtil;
 import com.xy.netdev.container.BaseInfoContainer;
+import com.xy.netdev.container.DevParaInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
@@ -70,7 +72,7 @@ public class GfInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
                                     frameParaInfo.getAlertPara())).toString();
 
                     String paraNo = frameParaInfo.getParaNo();
-                    if (paraNo.equals("13")||paraNo.equals("14")||paraNo.equals("26")||paraNo.equals("27")){
+                    if (paraNo.equals("13")||paraNo.equals("14")||paraNo.equals("27")||paraNo.equals("28")){
                         s = Integer.parseInt(s) * 0.1+"";
                     }
                     paraInfo.setParaVal(s);
@@ -90,6 +92,22 @@ public class GfInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
                 .filter(frameParaData -> StrUtil.isNotBlank(frameParaData.getParaVal()))
                 .map(frameParaData -> frameParaData.getParaNo().equals("14") ? ByteUtils.objToBytes(Integer.valueOf(frameParaData.getParaVal())*10, frameParaData.getLen()): ByteUtils.objToBytes(frameParaData.getParaVal(), frameParaData.getLen()))
                 .collect(Collectors.toList());
+        /*//当包含衰减值参数时
+        List<FrameParaData> lists = reqInfo.getFrameParaList().stream().filter(Objects::nonNull)
+                .filter(frameParaData -> StrUtil.isNotBlank(frameParaData.getParaVal()))
+                .filter(frameParaData1 -> frameParaData1.getParaNo().equals("14")).collect(Collectors.toList());
+        if(lists.size()>0){
+            if("1".equals(DevParaInfoContainer.getDevParaView(lists.get(0).getDevNo(),"7").getParaVal())){
+                DevParaInfoContainer.updateParaValue(reqInfo.getDevNo(), ParaHandlerUtil.genLinkKey(reqInfo.getDevNo(), lists.get(0).getParaNo()),lists.get(0).getParaVal());
+            }else{
+                DevParaInfoContainer.updateParaValue(reqInfo.getDevNo(), ParaHandlerUtil.genLinkKey(reqInfo.getDevNo(), "28"),lists.get(0).getParaVal());
+            }
+        }*/
+        reqInfo.getFrameParaList().stream().filter(Objects::nonNull).forEach(frameParaData -> {
+            if("2".equals(frameParaData.getParaNo()) || "3".equals(frameParaData.getParaNo()) || "4".equals(frameParaData.getParaNo()) || "5".equals(frameParaData.getParaNo())){
+                DevParaInfoContainer.updateParaValue(reqInfo.getDevNo(), ParaHandlerUtil.genLinkKey(reqInfo.getDevNo(), frameParaData.getParaNo()),frameParaData.getParaVal());
+            }
+        });
         reqInfo.setParamBytes(ByteUtils.listToBytes(bytes));
     }
 

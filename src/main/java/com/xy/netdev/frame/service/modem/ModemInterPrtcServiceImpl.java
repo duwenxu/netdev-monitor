@@ -89,6 +89,12 @@ public class ModemInterPrtcServiceImpl implements IQueryInterPrtclAnalysisServic
                 if (paraData.getParaNo().equals("9")){
                     paraData.setParaVal("-"+ paraData.getParaVal());
                 }
+                //特殊处理收载波电平
+                if (paraData.getParaNo().equals("40")){
+                    if(Double.valueOf(paraData.getParaVal())< -60){
+                        paraData.setParaVal("< -60");
+                    }
+                }
                 frameParaDataList.add(paraData);
             }
         }

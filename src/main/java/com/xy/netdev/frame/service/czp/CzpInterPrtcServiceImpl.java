@@ -51,13 +51,14 @@ public class CzpInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
     @Override
     public FrameRespData queryParaResponse(FrameRespData respData) {
         byte[] bytes = respData.getParamBytes();
-        //全查询：按容器中的参数顺序解析
+        //全查询：按容器中接口的参数顺序解析
         String devType = respData.getDevType();
         List<FrameParaInfo> frameParaInfos = BaseInfoContainer.getInterLinkParaList(devType,respData.getCmdMark());
         List<FrameParaData> frameParaDataList = new ArrayList<>();
         for (FrameParaInfo frameParaInfo : frameParaInfos){
-            //参数下标--->参数下标+参数字节长度+关键字（2）
+            //参数字节 = 总字节(参数下标+参数长度)
             byte[] paraValBytes = ByteUtils.byteArrayCopy(bytes,frameParaInfo.getParaStartPoint(),Integer.valueOf(frameParaInfo.getParaByteLen()));
+            //判断是否组合参数，组合参数则去遍历子参数
             if(PARA_COMPLEX_LEVEL_COMPOSE.equals(frameParaInfo.getCmplexLevel())){
                 //子参数列表
                 List<FrameParaInfo> subList = frameParaInfo.getSubParaList();
@@ -68,6 +69,7 @@ public class CzpInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
                     frameParaDataList.add(frameParaData);
                 }
             }
+            //增加参数本身
             frameParaDataList.add(genFramePara(frameParaInfo,paraValBytes,respData.getDevNo()));
         }
         respData.setFrameParaList(frameParaDataList);

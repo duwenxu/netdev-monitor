@@ -1,9 +1,7 @@
 package com.xy.netdev.container;
 
 import cn.hutool.core.util.HexUtil;
-import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.extra.spring.SpringUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.google.common.base.Charsets;
 import com.xy.netdev.admin.service.ISysParamService;
@@ -13,8 +11,6 @@ import com.xy.netdev.common.util.ParaHandlerUtil;
 import com.xy.netdev.container.paraext.ParaExtServiceFactory;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameRespData;
-import com.xy.netdev.frame.service.ParamCodec;
-import com.xy.netdev.frame.service.codec.Hex2DecParamCodec;
 import com.xy.netdev.frame.service.snmp.SnmpRptDTO;
 import com.xy.netdev.monitor.bo.DevStatusInfo;
 import com.xy.netdev.monitor.bo.ParaSpinnerInfo;
@@ -28,15 +24,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 
-import java.text.Format;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.xy.netdev.common.constant.SysConfigConstant.*;
-import static com.xy.netdev.common.util.DateTools.FORMAT;
 import static com.xy.netdev.monitor.constant.MonitorConstants.INT;
 
 /**
@@ -88,12 +81,13 @@ public class DevParaInfoContainer {
         return devParaOidMap;
     }
 
+
     /**
      * @param paraList 参数列表
      * @return
      * @功能：添加设备参数MAP
      */
-    public static void initData(List<ParaInfo> paraList, ISysParamService sysParamService) {
+    public static void initData(List<ParaInfo> paraList,ISysParamService sysParamService) {
         DevParaInfoContainer.sysParamService = sysParamService;
         Map<String, List<ParaInfo>> paraMapByDevType = paraList.stream().collect(Collectors.groupingBy(ParaInfo::getDevType));
         BaseInfoContainer.getDevNos().forEach(devNo -> {
@@ -234,7 +228,8 @@ public class DevParaInfoContainer {
         //此处改为LinkedHashMap为了排序
         Map<String, ParaViewInfo> paraViewMap = new LinkedHashMap<>();
         if (devTypeParaList != null && !devTypeParaList.isEmpty()) {
-            devTypeParaList.sort(Comparator.comparing(paraInfo -> Integer.valueOf(paraInfo.getNdpaNo())));
+            //按照参数显示顺序字段排序
+            devTypeParaList.sort(Comparator.comparing(ParaInfo::getNdpaShowSeq,Comparator.nullsLast(Integer::compareTo)));
             for (ParaInfo paraInfo : devTypeParaList) {
                 //确保复杂参数在子参数之前被添加
                 if (!paraInfo.getNdpaCmplexLevel().equals(SysConfigConstant.PARA_COMPLEX_LEVEL_SUB)) {
@@ -314,8 +309,22 @@ public class DevParaInfoContainer {
         viewInfo.setDevType(paraInfo.getDevType());
         viewInfo.setParaCmdMark(paraInfo.getNdpaCmdMark());
         viewInfo.setSpinnerInfoList(JSONArray.parseArray(paraInfo.getNdpaSelectData(), ParaSpinnerInfo.class));
+        //acu选择预置卫星特殊处理  sunchao
+        if(BaseInfoContainer.getDevTypeOptSat().contains(paraInfo.getDevType()) && "optSate".equals(paraInfo.getNdpaCmdMark()) && BaseInfoContainer.getSpacePresets().size()>0){
+            List<ParaSpinnerInfo> spinnerInfos = new ArrayList<>();
+            BaseInfoContainer.getSpacePresets().forEach(ntdvSpacePreset -> {
+                ParaSpinnerInfo paraSpinnerInfo = new ParaSpinnerInfo();
+                paraSpinnerInfo.setCode(ntdvSpacePreset.getSpId().toString());
+                paraSpinnerInfo.setName(ntdvSpacePreset.getSpName()+"["+sysParamService.getParaName(ntdvSpacePreset.getSpPolarization())+"]");
+                spinnerInfos.add(paraSpinnerInfo);
+            });
+            viewInfo.setSpinnerInfoList(spinnerInfos);
+            //设置缺省值：默认第一个卫星
+            viewInfo.setParaVal(spinnerInfos.get(0).getCode());
+        }
         viewInfo.setParaByteLen(paraInfo.getNdpaByteLen());
         viewInfo.setNdpaOutterStatus(paraInfo.getNdpaOutterStatus());
+        viewInfo.setNdpaIsImportant(paraInfo.getNdpaIsImportant());
         viewInfo.setNdpaIsImportant(paraInfo.getNdpaIsImportant());
         viewInfo.setRptOidSign(paraInfo.getNdpaRptOid());
         return viewInfo;
@@ -360,14 +369,14 @@ public class DevParaInfoContainer {
      */
     public synchronized static boolean handlerRespDevPara(FrameRespData respData) {
         //ACU参数一直不停变化，需要特殊处理上报
-        if (respData.getDevType().equals(SysConfigConstant.DEVICE_ACU) || respData.getDevType().equals(SysConfigConstant.DEVICE_ACU_SAN)) {
+        /*if (respData.getDevType().equals(SysConfigConstant.DEVICE_ACU) || respData.getDevType().equals(SysConfigConstant.DEVICE_ACU_SAN)) {
             respNum++;
             if (respNum % 15 == 0) {
                 respNum = 0;
             } else {
                 return false;
             }
-        }
+        }*/
         List<FrameParaData> frameParaList = respData.getFrameParaList();
         int num = 0;
         if (frameParaList != null && !frameParaList.isEmpty()) {
@@ -471,9 +480,10 @@ public class DevParaInfoContainer {
                 ParaViewInfo paraViewInfo = devParaMap.get(devNo).get(linkKey);
                 paraViewInfo.setParaVal(val);
                 devParaMap.get(devNo).put(linkKey,paraViewInfo);
+                /*//刷新缓存
+                DevIfeMegSend.sendParaToDev(devNo);*/
             }
         }
-
     }
 
     /**

@@ -4,9 +4,11 @@ package com.xy.netdev.SpacePreset.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xy.common.helper.ControllerHelper;
+import com.xy.common.helper.ControllerResultWrapper;
 import com.xy.common.model.Result;
 import com.xy.netdev.SpacePreset.entity.NtdvSpacePreset;
 import com.xy.netdev.SpacePreset.service.INtdvSpacePresetService;
+import com.xy.netdev.container.BaseContainerLoader;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,8 @@ import javax.servlet.http.HttpServletRequest;
 public class NtdvSpacePresetController {
     @Autowired
     private INtdvSpacePresetService spacePresetService;
+    @Autowired
+    private BaseContainerLoader baseContainerLoader;
 
 
     /**
@@ -42,6 +46,19 @@ public class NtdvSpacePresetController {
     }
 
     /**
+     * 根据ID查找预置卫星返回提示信息
+     */
+    @ApiOperation(value = "根据ID查找设备信息", notes = "根据ID查找设备信息")
+    @GetMapping("/{id}")
+    public Result<NtdvSpacePreset> queryItem(@PathVariable String id){
+        NtdvSpacePreset entity = spacePresetService.getById(id);
+        Result result = new Result();
+        result.ok();
+        result.setResult(entity);
+        return result;
+    }
+
+    /**
      * 添加数据
      *
      * @return
@@ -49,7 +66,10 @@ public class NtdvSpacePresetController {
     @ApiOperation(value = "添加卫星预置信息", notes = "添加卫星预置信息")
     @PostMapping
     public Result<NtdvSpacePreset> add(NtdvSpacePreset spacePreset) {
-        return ControllerHelper.add(spacePreset, spacePresetService);
+        Result<NtdvSpacePreset> result = ControllerHelper.add(spacePreset, spacePresetService);
+        //清理缓存
+        baseContainerLoader.cleanCache();
+        return result;
     }
 
     /**
@@ -60,7 +80,10 @@ public class NtdvSpacePresetController {
     @ApiOperation(value = "更新卫星预置信息", notes = "更新卫星预置信息")
     @PutMapping
     public Result<NtdvSpacePreset> edit(NtdvSpacePreset spacePreset) {
-        return ControllerHelper.edit(spacePreset, spacePresetService);
+        Result<NtdvSpacePreset> result = ControllerHelper.edit(spacePreset, spacePresetService);
+        //清理缓存
+        baseContainerLoader.cleanCache();
+        return result;
     }
 
     /**
@@ -71,7 +94,22 @@ public class NtdvSpacePresetController {
     @ApiOperation(value = "删除卫星预置信息", notes = "删除卫星预置信息")
     @DeleteMapping("/{id}")
     public Result<NtdvSpacePreset> delete(@PathVariable String id) {
-        return ControllerHelper.delete(id, spacePresetService);
+        Result<NtdvSpacePreset> result = ControllerHelper.delete(id, spacePresetService);
+        //清理缓存
+        baseContainerLoader.cleanCache();
+        return result;
+    }
+
+    /**
+     * 预置卫星执行一键对星功能
+     *
+     * @return
+     */
+    @ApiOperation(value = "预置卫星执行一键对星功能", notes = "预置卫星执行一键对星功能")
+    @PostMapping("/keyStarByPolar")
+    public Result<NtdvSpacePreset> keyStarByPolar(NtdvSpacePreset spacePreset) {
+        spacePresetService.keyStarByPolar(spacePreset);
+        return ControllerResultWrapper.genUpdateResult();
     }
 
 }

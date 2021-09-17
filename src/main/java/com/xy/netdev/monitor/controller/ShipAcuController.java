@@ -2,7 +2,8 @@ package com.xy.netdev.monitor.controller;
 
 import com.xy.common.helper.ControllerResultWrapper;
 import com.xy.common.model.Result;
-import com.xy.netdev.common.annotation.AutoLog;
+import com.xy.netdev.common.util.ParaHandlerUtil;
+import com.xy.netdev.container.DevParaInfoContainer;
 import com.xy.netdev.frame.service.shipAcu.util.AngleUtil;
 import com.xy.netdev.monitor.bo.Angel;
 import com.xy.netdev.monitor.service.IShipAcuService;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 import java.util.Map;
 
 
@@ -61,6 +63,8 @@ public class ShipAcuController {
     @PostMapping(value = "/operCtrl")
     public Result operCtrl(Angel angel) {
         shipAcuService.operCtrl(angel);
+        //修改当前工作方式标志位参数值
+        DevParaInfoContainer.updateParaValue(angel.getDevNo(), ParaHandlerUtil.genLinkKey(angel.getDevNo(), "73"),"1");
         return ControllerResultWrapper.genAddResult();
     }
 

@@ -57,17 +57,19 @@ public class TransSwitchInterPrtcServiceImpl implements IQueryInterPrtclAnalysis
     public FrameRespData queryParaResponse(FrameRespData respData) {
         byte[] bytes = respData.getParamBytes();
         String dataStr = HexUtil.encodeHexStr(bytes);
+        //将参数帧按照分隔符进行分割
         String[] paramStrs = dataStr.split(SEPAR_CHAR);
         //全查询：按容器中的参数顺序解析
         String devType = respData.getDevType();
         List<FrameParaData> frameParaDataList = new ArrayList<>();
         for(String str : paramStrs){
             String paraCmk = str.substring(0, 2);  //关键字
-            String paraValueStr = str.substring(2);
+            String paraValueStr = str.substring(2);  //参数值
             byte[] paraByte = HexUtil.decodeHex(paraValueStr);
             FrameParaInfo currentPara = BaseInfoContainer.getParaInfoByCmd(devType, paraCmk);
             if (StringUtils.isEmpty(currentPara.getParaNo())){ continue;}
             if(currentPara.getCmplexLevel().equals(PARA_COMPLEX_LEVEL_COMPOSE)){
+                //当参数为组合参数时特殊处理生成指定格式的字符串
                 paraValueStr = HexStrToBit(paraValueStr).substring(4);
                 StringBuffer sb = new StringBuffer(paraValueStr);
                 sb.insert(1,"_");
@@ -77,11 +79,13 @@ public class TransSwitchInterPrtcServiceImpl implements IQueryInterPrtclAnalysis
                 //改变子参数的数据
                 String[] paraList = paraValueStr.split("_");
                 for(int i=0; i< paraList.length;i++){
+                    //填充子参数
                     FrameParaData subFrame = genFramePara(currentPara.getSubParaList().get(i),paraList[i]);
                     subFrame.setDevNo(respData.getDevNo());
                     frameParaDataList.add(subFrame);
                 }
             }
+            //填充参数本身
             FrameParaData frameParaData = genFramePara(currentPara,paraValueStr);
             frameParaData.setDevNo(respData.getDevNo());
             frameParaData.setParaOrigByte(paraByte);
@@ -93,6 +97,12 @@ public class TransSwitchInterPrtcServiceImpl implements IQueryInterPrtclAnalysis
         return respData;
     }
 
+    /**
+     * 生成参数数据帧FrameParaData
+     * @param currentPara
+     * @param paraValueStr
+     * @return
+     */
     private  FrameParaData genFramePara(FrameParaInfo currentPara,String paraValueStr){
         FrameParaData frameParaData = FrameParaData.builder()
                 .devType(currentPara.getDevType())

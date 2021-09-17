@@ -69,7 +69,7 @@ public class ShipAcuInterPrtcServiceImpl implements ICtrlInterPrtclAnalysisServi
             bytes = ByteUtils.bytesMerge(bytes, frameBytes);
         }
         reqData.setParamBytes(bytes);
-        log.info("1.5米ACU天线发送控制帧标识字：[{}]，内容：[{}]",reqData.getCmdMark(), HexUtil.encodeHexStr(bytes));
+        //log.info("1.5米ACU天线发送控制帧标识字：[{}]，内容：[{}]",reqData.getCmdMark(), HexUtil.encodeHexStr(bytes));
         socketMutualService.request(reqData, ProtocolRequestEnum.CONTROL);
     }
 

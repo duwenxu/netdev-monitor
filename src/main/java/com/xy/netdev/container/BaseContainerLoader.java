@@ -1,6 +1,7 @@
 package com.xy.netdev.container;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.xy.netdev.SpacePreset.service.INtdvSpacePresetService;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.BeanFactoryUtil;
@@ -46,6 +47,9 @@ public class BaseContainerLoader implements ApplicationRunner {
     private IPrtclFormatService prtclFormatService;
     @Autowired
     private ISysParamService sysParamService;
+    @Autowired
+    private INtdvSpacePresetService spacePresetService;
+
     //第三类设备-动中通
     private static String DEV_TYPE_DZT = "3";
     /**
@@ -83,7 +87,7 @@ public class BaseContainerLoader implements ApplicationRunner {
         List<BaseInfo> devs = baseInfoService.list().stream().
                 filter(baseInfo -> !baseInfo.getDevStatus().equals(SysConfigConstant.DEV_STATUS_REPAIR))
                 .collect(Collectors.toList());
-        //查询有效的参数列表:根据NDPA_CMPLEX_LEVEL对list：用来生成参数的上下级关系
+        //查询有效的参数列表:根据NDPA_CMPLEX_LEVEL对list排序：方便用来生成参数的上下级关系
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("NDPA_STATUS", SysConfigConstant.STATUS_OK);
         queryWrapper.orderByAsc("NDPA_CMPLEX_LEVEL");
@@ -98,14 +102,14 @@ public class BaseContainerLoader implements ApplicationRunner {
         //查询协议列表
         List<PrtclFormat> prtclList = prtclFormatService.list();
         //初始化基础容器的数据
-        BaseInfoContainer.init(devs, paraInfos, interfaces, prtclList);
+        BaseInfoContainer.init(devs, paraInfos, interfaces, prtclList,spacePresetService.list());
     }
 
     /**
      * 加载设备参数信息
      */
     private void initDevParam() {
-        //查询有效的参数列表:根据NDPA_CMPLEX_LEVEL对list：用来生成参数的上下级关系
+        //查询有效的参数列表:根据NDPA_CMPLEX_LEVEL排序对list：用来生成参数的上下级关系
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("NDPA_STATUS", SysConfigConstant.STATUS_OK);
         queryWrapper.orderByAsc("NDPA_CMPLEX_LEVEL");
@@ -117,6 +121,7 @@ public class BaseContainerLoader implements ApplicationRunner {
      * 加载设备日志容器
      */
     private void initDevLog() {
+        //获取操作日志记录条数
         int devLogSize = Integer.parseInt(sysParamService.getParaRemark1(SysConfigConstant.DEV_LOG_VIEW_SZIE));
         //初始化各设备日志
         DevLogInfoContainer.init(devLogSize,sysParamService);
@@ -126,19 +131,22 @@ public class BaseContainerLoader implements ApplicationRunner {
      * 加载设备日志容器
      */
     private void initDevAlert() {
+        //获取告警日志记录条数
         int devAlertInfoSize = Integer.parseInt(sysParamService.getParaRemark1(SysConfigConstant.DEV_ALERT_INFO_SZIE));
         //初始化各设备日志
         DevAlertInfoContainer.init(devAlertInfoSize,sysParamService);
     }
 
     /**
-     * 清空缓存
+     * 刷新缓存
      */
     public void cleanCache(){
+        //清空缓存
         BaseInfoContainer.cleanCache();
         DevParaInfoContainer.cleanCache();
         DevCtrlInterInfoContainer.cleanCache();
         DevStatusContainer.cleanCache();
+        //重新加载
         load();
         //初始化设备参数容器
         initDevParam();

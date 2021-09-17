@@ -158,6 +158,8 @@ public class FrameParaInfo {
     @ApiModelProperty(value = "是否重要：0 不重要 1 重要  2隐藏")
     private Integer ndpaIsImportant ;
 
+    @ApiModelProperty(value = "参数显示顺序")
+    private Integer ndpaShowSeq;
 
     @ApiModelProperty(value = "是否该字段提供给54所访问")
     private String ndpaOutterStatus;

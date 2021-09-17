@@ -82,7 +82,7 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
             List<BaseInfo> subList = baseInfos.stream().filter(base -> menu.getDevNo().equals(base.getDevParentNo()) && DEV_STATUS_NEW.equals(base.getDevStatus())).collect(Collectors.toList());
             LinkedHashMap<String, Object> subMap = new LinkedHashMap<>();
             //将子设备列表转换为Map
-//            subList.sort(Comparator.comparing(BaseInfo::getDevMenuSeq));
+           subList.sort(Comparator.comparing(BaseInfo::getDevMenuSeq,Comparator.nullsLast(Integer::compareTo)));
             subList.forEach(targetInfo -> {
                 LinkedHashMap map = JSONObject.parseObject(JSONObject.toJSONString(targetInfo), LinkedHashMap.class);
                 subMap.put(targetInfo.getDevName(), map);
@@ -132,8 +132,9 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
      */
     private String generateDevModelFileMap(BaseInfo baseInfo) {
         Map<String, Object> map = new HashMap<>();
+        String devType = baseInfo.getDevType();
         //获取有效且对外开放的参数列表
-        List<ParaInfo> paraInfos = paraInfoService.list().stream().filter(paraInfo -> STATUS_OK.equals(paraInfo.getNdpaStatus()) && IS_DEFAULT_TRUE.equals(paraInfo.getNdpaOutterStatus())).collect(Collectors.toList());
+        List<ParaInfo> paraInfos = paraInfoService.list().stream().filter(paraInfo -> STATUS_OK.equals(paraInfo.getNdpaStatus()) && IS_DEFAULT_TRUE.equals(paraInfo.getNdpaOutterStatus()) && devType.equals(paraInfo.getDevType())).collect(Collectors.toList());
         /***********************增加dev节点********************************/
         Map<String, Object> devMap = new LinkedHashMap<>();
         //给dev节点增加属性值
@@ -146,7 +147,6 @@ public class BaseInfoServiceImpl extends ServiceImpl<BaseInfoMapper, BaseInfo> i
         devMap.put("corp", ParaHandlerUtil.generateEmptyStr(sysParamService.getParaName(baseInfo.getDevCorp())));
         List paraList = new ArrayList();
         //获取指定设备的参数并过滤生成可提供给54所的参数用来生成文件
-        String devType = BaseInfoContainer.getDevInfoByNo(baseInfo.getDevNo()).getDevType();
         List<ParaInfo> parasTemp = paraInfos.stream().filter(paraInfo -> devType.equals(paraInfo.getDevType()) && paraInfo.getNdpaOutterStatus().equals(IS_DEFAULT_TRUE)).collect(Collectors.toList());
         for (ParaInfo parainfo : parasTemp) {
             String paraType = parainfo.getNdpaCmplexLevel();

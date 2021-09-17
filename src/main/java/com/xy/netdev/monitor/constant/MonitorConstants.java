@@ -52,4 +52,5 @@ public interface MonitorConstants {
     String FLOAT = "0023008";
     String IP_ADDRESS = "0023006";
     String IP_MASK = "0023007";
+    String DOUBLE = "0023009";
 }

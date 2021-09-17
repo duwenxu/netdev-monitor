@@ -87,13 +87,13 @@ public class HdpmInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService
                     String cmdMk = "";
 
                     if(j==0){
-                         cmdMk = "CH"+String.valueOf(i);
+                         cmdMk = "CH"+i;
                     }
                     if(j==1){
-                         cmdMk = "VOL"+String.valueOf(i);
+                         cmdMk = "VOL"+i;
                     }
                     if(j==2){
-                        cmdMk = "ECU"+String.valueOf(i);
+                        cmdMk = "ECU"+i;
                     }
                     String val = devData[j];
                     FrameParaData paraInfo = new FrameParaData();
