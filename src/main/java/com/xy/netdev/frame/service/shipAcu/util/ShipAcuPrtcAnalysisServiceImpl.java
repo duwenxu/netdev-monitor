@@ -144,6 +144,7 @@ public class ShipAcuPrtcAnalysisServiceImpl implements IQueryInterPrtclAnalysisS
                     paraStartPoint = paraStartPoint + Integer.valueOf(frameParaInfo.getParaByteLen());
                 }else if(PARA_DATA_TYPE_BYTE.equals(frameParaInfo.getDataType())){
                     subFrame = genFramePara(frameParaInfo, respData.getDevNo(), ByteUtils.byteArrayCopy(byte1,paraStartPoint,Integer.valueOf(frameParaInfo.getParaByteLen())));
+                    paraVal = subFrame.getParaVal();
                     paraStartPoint = paraStartPoint + Integer.valueOf(frameParaInfo.getParaByteLen());
                 }else{
                     paraVal = ByteUtils.byteToBinary(byte1[0]);
@@ -155,6 +156,13 @@ public class ShipAcuPrtcAnalysisServiceImpl implements IQueryInterPrtclAnalysisS
                     paraStartPoint = paraEndPoint;
                 }
                 frameParaDataList.add(subFrame);
+                /*if("62".equals(frameParaInfo.getParaNo())){
+                    DevParaInfoContainer.updateParaValue(respData.getDevNo(), ParaHandlerUtil.genLinkKey(respData.getDevNo(),"2"),paraVal);
+                }else if("63".equals(frameParaInfo.getParaNo())){
+                    DevParaInfoContainer.updateParaValue(respData.getDevNo(), ParaHandlerUtil.genLinkKey(respData.getDevNo(),"4"),paraVal);
+                }else if("64".equals(frameParaInfo.getParaNo())){
+                    DevParaInfoContainer.updateParaValue(respData.getDevNo(), ParaHandlerUtil.genLinkKey(respData.getDevNo(),"8"),paraVal);
+                }*/
                 value = value+paraVal+"_";
             }
             //父参数设置值

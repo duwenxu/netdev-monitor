@@ -63,8 +63,6 @@ public class ShipAcuController {
     @PostMapping(value = "/operCtrl")
     public Result operCtrl(Angel angel) {
         shipAcuService.operCtrl(angel);
-        //修改当前工作方式标志位参数值
-        DevParaInfoContainer.updateParaValue(angel.getDevNo(), ParaHandlerUtil.genLinkKey(angel.getDevNo(), "73"),"1");
         return ControllerResultWrapper.genAddResult();
     }
 
@@ -75,6 +73,8 @@ public class ShipAcuController {
     @ApiOperation(value = "自动执行", notes = "手动执行")
     @PostMapping(value = "/autoCtrl")
     public Result autoCtrl(Angel angel) {
+        //修改当前工作方式标志位参数值
+        DevParaInfoContainer.updateParaValue(angel.getDevNo(), ParaHandlerUtil.genLinkKey(angel.getDevNo(), "73"),"1");
         shipAcuService.autoCtrl(angel);
         return ControllerResultWrapper.genAddResult();
     }
