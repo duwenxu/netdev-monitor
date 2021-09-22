@@ -1,8 +1,12 @@
 package com.xy.netdev.container;
 
+import cn.hutool.core.util.HexUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONArray;
+import com.google.common.base.Charsets;
 import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
+import com.xy.netdev.common.util.DateTools;
 import com.xy.netdev.common.util.ParaHandlerUtil;
 import com.xy.netdev.container.paraext.ParaExtServiceFactory;
 import com.xy.netdev.frame.bo.FrameParaData;
@@ -11,10 +15,11 @@ import com.xy.netdev.frame.service.snmp.SnmpRptDTO;
 import com.xy.netdev.monitor.bo.DevStatusInfo;
 import com.xy.netdev.monitor.bo.ParaSpinnerInfo;
 import com.xy.netdev.monitor.bo.ParaViewInfo;
+import com.xy.netdev.monitor.entity.BaseInfo;
 import com.xy.netdev.monitor.entity.ParaInfo;
 import com.xy.netdev.synthetical.util.SyntheticalUtil;
-import com.xy.netdev.websocket.send.DevIfeMegSend;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -24,8 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 
-import static com.xy.netdev.common.constant.SysConfigConstant.DEV_STATUS_NEW;
-import static com.xy.netdev.common.constant.SysConfigConstant.PARA_COMPLEX_LEVEL_COMPOSE;
+import static com.xy.netdev.common.constant.SysConfigConstant.*;
 import static com.xy.netdev.monitor.constant.MonitorConstants.INT;
 
 /**
@@ -380,7 +384,7 @@ public class DevParaInfoContainer {
                 String devNo = respData.getDevNo();
                 String paraNo = frameParaData.getParaNo();
                 String linkKey = ParaHandlerUtil.genLinkKey(devNo, paraNo);
-                ParaViewInfo paraViewInfo = null;
+                ParaViewInfo paraViewInfo;
                 //空指针异常处理
                 try {
                     paraViewInfo = devParaMap.get(devNo).get(linkKey);
@@ -388,6 +392,9 @@ public class DevParaInfoContainer {
                     continue;
                 }
                 if (paraViewInfo != null && StringUtils.isNotEmpty(frameParaData.getParaVal()) && !frameParaData.getParaVal().equals(paraViewInfo.getParaVal())) {
+                    //对一些特定规则的snmp协议参数值做扩展处理
+                    snmpParamValExt(paraViewInfo,frameParaData);
+                    //snmp存储参数值变更
                     updateChanged(devNo,linkKey,paraViewInfo,frameParaData.getParaVal());
                     paraViewInfo.setParaVal(frameParaData.getParaVal());
                     paraViewInfo.setParaOrigByte(frameParaData.getParaOrigByte());
@@ -395,9 +402,11 @@ public class DevParaInfoContainer {
                     if (paraViewInfo.getParaCmplexLevel().equals(PARA_COMPLEX_LEVEL_COMPOSE)) {
                         for (ParaViewInfo paraViewInfo1 : paraViewInfo.getSubParaList()) {
                             List<FrameParaData> lists = frameParaList.stream().filter(frameParaData1 -> frameParaData1.getParaNo().equals(paraViewInfo1.getParaNo())).collect(Collectors.toList());
-                            if(lists != null && lists.size()>0){
-                                paraViewInfo1.setParaVal(lists.get(0).getParaVal());
-                                paraViewInfo1.setParaOrigByte(lists.get(0).getParaOrigByte());
+                            if(lists.size() > 0){
+                                FrameParaData frameParaData1 = lists.get(0);
+                                snmpParamValExt(paraViewInfo1,frameParaData1);
+                                paraViewInfo1.setParaVal(frameParaData1.getParaVal());
+                                paraViewInfo1.setParaOrigByte(frameParaData1.getParaOrigByte());
                             }
                         }
                     }
@@ -413,6 +422,37 @@ public class DevParaInfoContainer {
         return num > 0;
     }
 
+    /***
+     * @Description  对于snmp协议中的部分参数做特殊解析
+     * @Param [paraView, frameParaData] [内存中的参数信息对象，相应数据解析的参数信息对象]
+     * @return void
+     **/
+    @SneakyThrows
+    private synchronized static void snmpParamValExt(ParaViewInfo paraView,FrameParaData frameParaData){
+        String devNo = frameParaData.getDevNo();
+        BaseInfo base = BaseInfoContainer.getDevInfoByNo(devNo);
+        String paraVal = frameParaData.getParaVal();
+        String paraCmplexLevel = paraView.getParaCmplexLevel();
+        //对于snmp协议中的16进制结果做处理
+        if (SNMP.equals(base.getDevNetPtcl())&& paraVal!=null&& match(paraVal)&&(PARA_COMPLEX_LEVEL_SIMPLE.equals(paraCmplexLevel)||PARA_COMPLEX_LEVEL_SUB.equals(paraCmplexLevel))){
+            String datatype = paraView.getParaDatatype();
+            switch (datatype){
+               case  PARA_DATA_TYPE_STR:
+                   String newVal = null;
+                   try {
+                       byte[] bytes = HexUtil.decodeHex(paraVal.replace(":", ""));
+                       newVal = StrUtil.str(bytes, Charsets.UTF_8);
+                   } catch (Exception e) {
+//                       log.error("String类型16进制转bytes异常，设备编号：[{}],参数编号：[{}],参数名称:[{}],参数值：[{}]",devNo,paraView.getParaNo(),paraView.getParaName(),paraVal);
+                   }
+                   frameParaData.setParaVal(newVal);
+            }
+        }
+    }
+
+    private static boolean match(String data){
+        return data.contains(":") && !DateTools.isValidDate(data);
+    }
     /**
      * 更新改变的SNMP参数值
      */

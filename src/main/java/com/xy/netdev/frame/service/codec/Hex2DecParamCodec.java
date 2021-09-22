@@ -62,11 +62,11 @@ public class Hex2DecParamCodec implements ParamCodec {
 
     public static void main(String[] args) {
 //        byte[] bytes = {0x00, 0x13, 0x59, 0x20};
-        byte[] bytes = {0x21};
+        byte[] bytes = {0x16,(byte) 0xa8};
         Hex2DecParamCodec hex2DecParamCodec = new Hex2DecParamCodec();
-        String decode = hex2DecParamCodec.decode(bytes);
+        String decode = hex2DecParamCodec.decode(bytes,0,2);
         System.out.println(decode);
-        byte[] encode = hex2DecParamCodec.encode(decode);
+        byte[] encode = hex2DecParamCodec.encode(decode,0,2);
         System.out.println(HexUtil.encodeHex(encode));
     }
 }

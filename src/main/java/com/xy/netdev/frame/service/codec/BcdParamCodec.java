@@ -66,11 +66,14 @@ public class BcdParamCodec implements ParamCodec {
     }
 
     public static void main(String[] args) {
-        BcdParamCodec bcdParamCodec = new BcdParamCodec();
-        byte[] bytes = {0x00, (byte) 0xFA};
-        String decode = bcdParamCodec.decode(bytes);
-        System.out.println(decode);
-        byte[] encode = bcdParamCodec.encode(decode);
-        System.out.println(HexUtil.encodeHexStr(encode).toUpperCase());
+//        BcdParamCodec bcdParamCodec = new BcdParamCodec();
+//        byte[] bytes = {0x00, (byte) 0xFA};
+//        String decode = bcdParamCodec.decode(bytes);
+//        System.out.println(decode);
+//        byte[] encode = bcdParamCodec.encode(decode);
+//        System.out.println(HexUtil.encodeHexStr(encode).toUpperCase());
+
+
+
     }
 }
