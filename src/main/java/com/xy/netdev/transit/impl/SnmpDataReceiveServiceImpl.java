@@ -31,7 +31,7 @@ public class SnmpDataReceiveServiceImpl implements ISnmpDataReceiveService {
             //TODO 更新SNMP数据
             dataReciveService.sendCtrlInter(respData);
             //站控主动上报
-            dataReciveService.rptDevExecutor.submit(() -> dataReciveService.stationRptParamsByDev(respData));
+//            dataReciveService.rptDevExecutor.submit(() -> dataReciveService.stationRptParamsByDev(respData));
         }
         DevLogInfoContainer.handlerRespDevPara(respData);//记录日志
         DevIfeMegSend.sendLogToDev(respData.getDevNo());//操作日志websocet推前台

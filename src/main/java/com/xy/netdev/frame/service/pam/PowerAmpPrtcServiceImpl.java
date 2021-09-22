@@ -1,20 +1,20 @@
 package com.xy.netdev.frame.service.pam;
 
-import cn.hutool.core.codec.BCD;
 import cn.hutool.core.util.HexUtil;
-import cn.hutool.core.util.StrUtil;
-import com.google.common.base.Charsets;
+import com.xy.netdev.common.util.BeanFactoryUtil;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
+import com.xy.netdev.frame.service.ParamCodec;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import com.xy.netdev.transit.IDataReciveService;
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +22,7 @@ import java.util.List;
 
 import static com.xy.netdev.common.util.ByteUtils.*;
 import static com.xy.netdev.monitor.constant.MonitorConstants.BYTE;
-import static com.xy.netdev.monitor.constant.MonitorConstants.STR;
+import static com.xy.netdev.monitor.constant.MonitorConstants.DOUBLE;
 
 /**
  * Ku400w功放 参数查询响应 帧协议解析层
@@ -69,8 +69,9 @@ public class PowerAmpPrtcServiceImpl implements IParaPrtclAnalysisService {
         byte[] bytes = HexUtil.decodeHex(reqInfo.getCmdMark());
         //此处只有 衰减可设置
         switch (dataType) {
-            case STR:
-                byte[] valBytes = StrUtil.bytes(paraData.getParaVal());
+            case DOUBLE:
+                ParamCodec codec = BeanFactoryUtil.getBean(paraInfoByNo.getNdpaRemark2Data());
+                byte[] valBytes = codec.encode(make0Str(paraData.getParaVal(),2,2));
                 bytes = bytesMerge(bytes, valBytes);
                 break;
             case BYTE:
@@ -107,15 +108,26 @@ public class PowerAmpPrtcServiceImpl implements IParaPrtclAnalysisService {
         return respData;
     }
 
-    public static void main(String[] args) {
-//        byte[] bytes = {0x56, 0x32, 0x2E, 0x30, 0x2D, 0x31, 0x39, 0x30, 0x39, 0x32, 0x33};
-        byte[] bytes = {0x02, 0x05};
-//        String str = StrUtil.str(bytes, Charsets.UTF_8);
-//        String str = byteToBinary((byte) 0x50);
-        String s = "0205";
-        String str = BCD.bcdToStr(bytes);
-//        String str = ParamDecoder.BCD(bytes, 2);
-        System.out.println(BCD.strToBcd(s));
+    /**
+     * 数值型字符串补0
+     * @return
+     */
+    private String make0Str(String value,int len, int smallLen){
+        if(StringUtils.isNotBlank(value)){
+            if(value.contains(".")){
+                //小数补0
+                String[] valueList = value.split("\\.");
+                String small = StringUtils.rightPad(valueList[1],2,"0");
+                if(small.length()>smallLen){
+                    small = small.substring(0,smallLen);
+                }
+                value = StringUtils.leftPad(valueList[0],len,"0")+"."+small;
+            }else{
+                //整数补小数及0
+                value = StringUtils.leftPad(value,len,"0")+"."+StringUtils.leftPad("",smallLen,"0");
+            }
+        }
+        return value;
     }
 }
 

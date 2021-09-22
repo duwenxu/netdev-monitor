@@ -4,6 +4,7 @@ import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.container.DevCtrlInterInfoContainer;
 import com.xy.netdev.container.DevParaInfoContainer;
+import com.xy.netdev.frame.service.shipAcu.thread.AutoAdjustThread;
 import com.xy.netdev.monitor.bo.Angel;
 import com.xy.netdev.monitor.bo.InterfaceViewInfo;
 import com.xy.netdev.monitor.entity.Interface;
@@ -13,12 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
-
-import java.util.stream.Collectors;
-
-import static com.xy.netdev.common.constant.SysConfigConstant.*;
 
 /**
  * 船载1.5米ACU 服务实现类
@@ -61,7 +56,7 @@ public class ShipAcuServiceImpl implements IShipAcuService {
             //空间指向
             jc = pol;
             pol = angel.getFreq();
-        }else if("0100".equals(angel.getFunc())){
+        }else if("0101".equals(angel.getFunc())){
             //星下点
             az = angel.getSatJd();
             el = angel.getSatWd();
@@ -81,32 +76,6 @@ public class ShipAcuServiceImpl implements IShipAcuService {
         interfaceViewInfo.getSubParaList().get(3).setParaVal(jc);
         interfaceViewInfo.getSubParaList().get(4).setParaVal(pol);
         devCmdSendService.interfaceCtrSend(interfaceViewInfo);
-    }
-
-    /**
-     * 自动执行
-     * @param angel
-     */
-    @Override
-    public void autoCtrl(Angel angel) {
-        //autoOperStr = StringUtils.leftPad(autoOperStr,1,angel.getFunc()+",");
-        operCtrl(angel);
-        try {
-            isStage(angel);
-            //按顺序执行自动流程
-            for (String s : autoOperStr.split(",")) {
-                angel.setFunc(s);
-                operCtrl(angel);
-                try {
-                    Thread.sleep(Long.valueOf(sysParamService.getParaRemark1(ACU_SLEEP_TIME)));
-                } catch (Exception e) {
-
-                }
-            }
-        } catch (InterruptedException e) {
-            log.debug("1.5米acu发生异常！");
-        }
-
     }
 
     /**
@@ -137,63 +106,14 @@ public class ShipAcuServiceImpl implements IShipAcuService {
 
 
     /**
-     * 自动化
+     * 自动执行
      * @param angel
-     * @throws InterruptedException
      */
-    private void isStage(Angel angel) throws InterruptedException {
-        String value = "0";
-        if(isNext(angel.getDevNo())){
-            value = "-1";
-            exec(angel,value);
-            if(isNext(angel.getDevNo())){
-                value = "0.05";
-                exec(angel,value);
-            }
-        }else{
-            value = "0.15";
-            exec(angel,value);
-            if(isNext(angel.getDevNo())){
-                value = "-1";
-                exec(angel,value);
-                if(isNext(angel.getDevNo())){
-                    value = "0.05";
-                    exec(angel,value);
-                }
-            }
-        }
-    }
-
-    /**
-     * 方位角微调
-     * @param angel
-     * @param value
-     * @throws InterruptedException
-     */
-    private void exec(Angel angel,String value) throws InterruptedException {
-        while(isNext(angel.getDevNo())){
-            angel.setFunc("0011");
-            angel.setAz(value);
-            operCtrl(angel);
-            Thread.sleep(Long.valueOf(sysParamService.getParaRemark1(ACU_SLEEP_TIME)));
-        }
-        angel.setFunc("0011");
-        angel.setAz((-Double.valueOf(value)) + "");
-        operCtrl(angel);
-        Thread.sleep(Long.valueOf(sysParamService.getParaRemark1(ACU_SLEEP_TIME)));
-    }
-
-    /**
-     * 判断
-     * @param devNo
-     * @return
-     */
-    private boolean isNext(String devNo){
-        String agc = DevParaInfoContainer.getDevParaView(devNo,"9").getParaVal(); //agc
-        String recvStatus = DevParaInfoContainer.getDevParaView(devNo,"65").getSubParaList().stream().filter(paraViewInfo -> paraViewInfo.getParaNo().equals("66")).collect(Collectors.toList()).get(0).getParaVal();  //接收机状态
-        if(Double.parseDouble(agc)> Double.parseDouble(sysParamService.getParaRemark1(ACU_AGE_VALUE)) && recvStatus.equals("1")){
-            return true;
-        }
-        return false;
+    @Override
+    public void autoCtrl(Angel angel) {
+        //启动自动化执行线程
+        Thread thread = new Thread(new AutoAdjustThread(angel,sysParamService,this));
+        thread.setName("船载acu线程");
+        thread.start();
     }
 }

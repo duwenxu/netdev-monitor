@@ -42,6 +42,8 @@ public class ShipAcuPrtcAnalysisServiceImpl implements IQueryInterPrtclAnalysisS
     @Autowired
     private IDataReciveService dataReciveService;
 
+    private int num =0;
+
     /**
      * 状态上报包帧头标识
      */
@@ -55,6 +57,10 @@ public class ShipAcuPrtcAnalysisServiceImpl implements IQueryInterPrtclAnalysisS
 
     @Override
     public FrameRespData queryParaResponse(FrameRespData respData) {
+        if(num == 5){
+            num++;
+            return null;
+        }
         byte[] bytes = respData.getParamBytes();
         if (ObjectUtil.isNull(bytes)) {
             log.warn("1.5米ACU查询响应异常, 未获取到数据体, 设备编号：[{}], 信息:[{}]", respData.getDevNo(), JSON.toJSONString(respData));
@@ -138,6 +144,7 @@ public class ShipAcuPrtcAnalysisServiceImpl implements IQueryInterPrtclAnalysisS
                     paraStartPoint = paraStartPoint + Integer.valueOf(frameParaInfo.getParaByteLen());
                 }else if(PARA_DATA_TYPE_BYTE.equals(frameParaInfo.getDataType())){
                     subFrame = genFramePara(frameParaInfo, respData.getDevNo(), ByteUtils.byteArrayCopy(byte1,paraStartPoint,Integer.valueOf(frameParaInfo.getParaByteLen())));
+                    paraVal = subFrame.getParaVal();
                     paraStartPoint = paraStartPoint + Integer.valueOf(frameParaInfo.getParaByteLen());
                 }else{
                     paraVal = ByteUtils.byteToBinary(byte1[0]);
@@ -149,6 +156,13 @@ public class ShipAcuPrtcAnalysisServiceImpl implements IQueryInterPrtclAnalysisS
                     paraStartPoint = paraEndPoint;
                 }
                 frameParaDataList.add(subFrame);
+                /*if("62".equals(frameParaInfo.getParaNo())){
+                    DevParaInfoContainer.updateParaValue(respData.getDevNo(), ParaHandlerUtil.genLinkKey(respData.getDevNo(),"2"),paraVal);
+                }else if("63".equals(frameParaInfo.getParaNo())){
+                    DevParaInfoContainer.updateParaValue(respData.getDevNo(), ParaHandlerUtil.genLinkKey(respData.getDevNo(),"4"),paraVal);
+                }else if("64".equals(frameParaInfo.getParaNo())){
+                    DevParaInfoContainer.updateParaValue(respData.getDevNo(), ParaHandlerUtil.genLinkKey(respData.getDevNo(),"8"),paraVal);
+                }*/
                 value = value+paraVal+"_";
             }
             //父参数设置值
@@ -177,18 +191,16 @@ public class ShipAcuPrtcAnalysisServiceImpl implements IQueryInterPrtclAnalysisS
         String paraValueStr = "";
         if(bytes instanceof String){
             paraValueStr = bytes.toString();
-        }else{
-            if (StringUtils.isNotBlank(currentPara.getNdpaRemark2Data())) {
-                //当参数的备注2包含数据则生成特殊的处理类处理
-                ParamCodec handler = SpringContextUtils.getBean(currentPara.getNdpaRemark2Data());
-                if (PARA_DATA_TYPE_INT.equals(currentPara.getDataType())) {
-                    paraValueStr = String.valueOf(handler.decode((byte[]) bytes, currentPara.getNdpaRemark1Data()));
-                } else {
-                    paraValueStr = String.valueOf(handler.decode((byte[]) bytes, null));
-                }
-            }else{
-                paraValueStr = ByteUtils.byteToBinary(((byte[])bytes)[0]).substring(4);
+        } else if (StringUtils.isNotBlank(currentPara.getNdpaRemark2Data())) {
+            //当参数的备注2包含数据则生成特殊的处理类处理
+            ParamCodec handler = SpringContextUtils.getBean(currentPara.getNdpaRemark2Data());
+            if (StringUtils.isNotBlank(currentPara.getNdpaRemark1Data())) {
+                paraValueStr = String.valueOf(handler.decode((byte[]) bytes, currentPara.getNdpaRemark1Data()));
+            } else {
+                paraValueStr = String.valueOf(handler.decode((byte[]) bytes, null));
             }
+        } else {
+            paraValueStr = ByteUtils.byteToBinary(((byte[]) bytes)[0]).substring(4);
         }
         //生成参数帧
         FrameParaData frameParaData = FrameParaData.builder()

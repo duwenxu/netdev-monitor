@@ -103,6 +103,10 @@ public class FreqConvertInterPrtcServiceImpl implements IQueryInterPrtclAnalysis
                 int byteLen = Integer.parseInt(param.getParaByteLen());
                 byte[] targetBytes = byteArrayCopy(bytes, startPoint, byteLen);
                 FrameParaData paraData = modemInterPrtcService.doGetParam(respData, targetBytes, param);
+                //解决上下变频器的切换单元的主备机相反
+                if("25".equals(respData.getDevNo()) && "01".equals(paraData.getParaNo())){
+                    paraData.setParaVal("00".equals(paraData.getParaVal()) ? "01":"00");
+                }
                 frameParaDataList.add(paraData);
             }
         }

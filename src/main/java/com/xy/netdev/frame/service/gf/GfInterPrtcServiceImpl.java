@@ -72,7 +72,7 @@ public class GfInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService {
                                     frameParaInfo.getAlertPara())).toString();
 
                     String paraNo = frameParaInfo.getParaNo();
-                    if (paraNo.equals("13")||paraNo.equals("15")||paraNo.equals("27")||paraNo.equals("29")){
+                    if (paraNo.equals("13")||paraNo.equals("14")||paraNo.equals("27")||paraNo.equals("28")){
                         s = Integer.parseInt(s) * 0.1+"";
                     }
                     paraInfo.setParaVal(s);
