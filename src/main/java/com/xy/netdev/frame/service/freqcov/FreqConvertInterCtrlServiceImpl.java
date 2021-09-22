@@ -46,9 +46,9 @@ public class FreqConvertInterCtrlServiceImpl implements ICtrlInterPrtclAnalysisS
         byte[] bytes = new byte[]{};
         for (FrameParaData paraData : paraList) {
             //解决上下变频器的切换单元的主备机相反
-            if("25".equals(reqData.getDevNo()) && "01".equals(paraData.getParaNo())){
+            /*if("25".equals(reqData.getDevNo()) && "01".equals(paraData.getParaNo())){
                 paraData.setParaVal("00".equals(paraData.getParaVal()) ? "01":"00");
-            }
+            }*/
             byte[] frameBytes = modemScmmPrtcService.doGetFrameBytes(paraData);
             bytes = ByteUtils.bytesMerge(bytes, frameBytes);
         }
