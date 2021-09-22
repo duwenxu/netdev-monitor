@@ -105,7 +105,7 @@ public class LpdSwitch extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
         if (OPREATE_CONTROL.equals(frameReqData.getOperType())) {
             //控制
             keyWord = prtclFormat.getFmtCkey();
-            lenByte = ByteUtils.objToBytes(frameLen, 2);
+            lenByte = getFrameLenByte(frameLen);
         }
         //命令类型：2字节
         lists.add(HexUtil.decodeHex(keyWord));
@@ -117,8 +117,8 @@ public class LpdSwitch extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
         System.arraycopy(byteCheck, 0, frameByte, 1, frameLen+6);
         /**************(后续修改)**************/
         //校验字：LRC校验
-        String  str = getLRC(byteCheck);
-        System.arraycopy(new byte[]{0x00,0x02}, 0, frameByte, frameLen+7, 2);
+        byte[] rst = getLRC(byteCheck);
+        System.arraycopy(rst, 0, frameByte, frameLen+7, 2);
         //结束符 :1
         System.arraycopy(new byte[]{0x0D,0x0A}, 0, frameByte, frameLen+9, 2);
         return frameByte;
@@ -127,8 +127,8 @@ public class LpdSwitch extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
     /*
      * 输入byte[] data , 返回LRC校验byte
      */
-    private String getLRC(byte[] data) {
-        StringBuilder sb = new StringBuilder();
+    private byte[] getLRC(byte[] data) {
+        byte[] rst = new byte[2];
         int tmp = 0;
         for (int i = 0; i < data.length; i++) {
             tmp = tmp + (byte) data[i];
@@ -138,9 +138,18 @@ public class LpdSwitch extends AbsDeviceSocketHandler<SocketEntity, FrameReqData
         tmp += 1;
         String hexStr = HexUtil.encodeHexStr(new byte[]{(byte) tmp});
         for(int len = 0;len<hexStr.length();len++){
-            sb.append(convertHexToString(hexStr.substring(len,len+1)));
+            rst[len] =  Integer.valueOf(hexStr.substring(len,len+1).toUpperCase().charAt(0)).byteValue();
         }
-        return sb.toString();
+        return rst;
+    }
+
+    private byte[] getFrameLenByte(int rameLen){
+        byte[] rst = new byte[2];
+        String lenStr = String.valueOf(rameLen);
+        for(int len = 0;len<lenStr.length();len++){
+            rst[len] =  Integer.valueOf(lenStr.substring(len,len+1).toUpperCase().charAt(0)).byteValue();
+        }
+        return rst;
     }
 
     /**
