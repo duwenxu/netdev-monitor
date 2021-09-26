@@ -51,7 +51,8 @@ public class DevParaInfoContainer {
     private static final Map<String, Map<String, ParaViewInfo>> devParaMap = new LinkedHashMap<>();
 
     /**
-     * SNMP OID-参数值 映射  结构： <DevNo,<OID,SnmpReqDTO></OID,SnmpReqDTO>
+     * SNMP OID-参数信息 映射  结构： <DevNo,<OID,SnmpReqDTO></OID,SnmpReqDTO>
+     * 用来存储Snmp上报参数信息
      */
     @Getter
     private static final Map<String, Map<String, SnmpRptDTO>> devSnmpParaMap = new ConcurrentHashMap<>(10);
@@ -97,29 +98,6 @@ public class DevParaInfoContainer {
         });
         //SNMP 内存参数映射处理
         initSnmpRptData();
-//        //todo test
-//        ParaViewInfo paraViewInfo1 = new ParaViewInfo();
-//        paraViewInfo1.setDevType("0020012");
-//        paraViewInfo1.setParaNo("1");
-//        paraViewInfo1.setParaVal("1450.0000");
-//        paraViewInfo1.setDevNo("19");
-//        paraViewInfo1.setParaStrLen("8");
-//        String linkKey1 = ParaHandlerUtil.genLinkKey(paraViewInfo1.getDevNo(), paraViewInfo1.getParaNo());
-//
-//        ParaViewInfo viewInfo1 = devParaMap.get(paraViewInfo1.getDevNo()).get(linkKey1);
-//        BeanUtil.copyProperties(viewInfo1,paraViewInfo1,true);
-//        devParaMap.get(paraViewInfo1.getDevNo()).put(linkKey1,paraViewInfo1);
-//
-//        ParaViewInfo paraViewInfo2 = new ParaViewInfo();
-//        paraViewInfo2.setDevType("0020012");
-//        paraViewInfo2.setParaNo("2");
-//        paraViewInfo2.setParaVal("2.5");
-//        paraViewInfo2.setDevNo("19");
-//        paraViewInfo2.setParaStrLen("3");
-//        String linkKey2 = ParaHandlerUtil.genLinkKey(paraViewInfo2.getDevNo(), paraViewInfo2.getParaNo());
-//        ParaViewInfo viewInfo2 = devParaMap.get(paraViewInfo2.getDevNo()).get(linkKey2);
-//        BeanUtil.copyProperties(viewInfo2,paraViewInfo2,true);
-//        devParaMap.get(paraViewInfo2.getDevNo()).put(linkKey2,paraViewInfo2);
     }
 
     private static void initSnmpRptData() {
@@ -188,20 +166,23 @@ public class DevParaInfoContainer {
             Set<String> oidPrefixes = snmpMap.getValue().keySet().stream().map(oid -> oid.substring(0, oid.lastIndexOf(SNMP_RPT_SUFFIX))).collect(Collectors.toSet());
             for (String oidPrefix:oidPrefixes){
                 oidPrefix = oidPrefix.substring(0, oidPrefix.lastIndexOf("."));
+                /**区号*/
+                String devOid1 = oidPrefix + ".1" + SNMP_RPT_SUFFIX;
+                /**站号*/
+                String devOid2 = oidPrefix + ".2" + SNMP_RPT_SUFFIX;
+                /**设备编号*/
+                String devOid3 = oidPrefix + ".3" + SNMP_RPT_SUFFIX;
                 /**根据MIB库定义  设备连接状态在各个设备中：均为1.1.4*/
                 String devOid4 = oidPrefix + ".4" + SNMP_RPT_SUFFIX;
-                String devOid1 = oidPrefix + ".1" + SNMP_RPT_SUFFIX;
-                String devOid2 = oidPrefix + ".2" + SNMP_RPT_SUFFIX;
-                String devOid3 = oidPrefix + ".3" + SNMP_RPT_SUFFIX;
                 /**获取设备状态参数*/
                 String oidDevNo = DevParaInfoContainer.getOidDevNo(devOid4);
                 DevStatusInfo devStatusInfo = DevStatusContainer.getDevStatusInfo(oidDevNo);
                 String isInterrupt = devStatusInfo.getIsInterrupt();
-                String val = "0";
-                if ("0".equals(isInterrupt)) {
-                    val = "1";
+                String isConnected = SNMP_DEV_STATUS_UN_CONNECTED;
+                if (RPT_DEV_STATUS_UN_INTERRUPT.equals(isInterrupt)) {
+                    isConnected = SNMP_DEV_STATUS_CONNECTED;
                 }
-                SnmpRptDTO rptDTO4 = SnmpRptDTO.builder().paraCode("4").paraName("设备连接状态").paraDatatype(INT).paraVal(val).build();
+                SnmpRptDTO rptDTO4 = SnmpRptDTO.builder().paraCode("4").paraName("设备连接状态").paraDatatype(INT).paraVal(isConnected).build();
                 SnmpRptDTO rptDTO1 = SnmpRptDTO.builder().paraCode("1").paraName("区号").paraDatatype(INT).paraVal("1").build();
                 SnmpRptDTO rptDTO2 = SnmpRptDTO.builder().paraCode("2").paraName("站号").paraDatatype(INT).paraVal("1").build();
                 SnmpRptDTO rptDTO3 = SnmpRptDTO.builder().paraCode("3").paraName("设备编号").paraDatatype(INT).paraVal("1").build();
@@ -209,7 +190,7 @@ public class DevParaInfoContainer {
                 devSnmpParaMap.get(currentDevNo).put(devOid1, rptDTO1);
                 devSnmpParaMap.get(currentDevNo).put(devOid2, rptDTO2);
                 devSnmpParaMap.get(currentDevNo).put(devOid3, rptDTO3);
-//                devNoStatusOidMap.put(currentDevNo,devOid4);
+                //此处的set用来处理Acu下包含了三个设备的参数及连接信息上报(Acu、Ka40W功放、Ku100W功放)，需要在这里Acu设备下添加这三个上报信息
                 if (!devNoStatusOidMap.containsKey(currentDevNo)){
                     devNoStatusOidMap.put(currentDevNo,new CopyOnWriteArraySet());
                 }

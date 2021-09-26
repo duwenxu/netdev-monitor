@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.xy.netdev.container.DevParaInfoContainer.SNMP_RPT_SUFFIX;
 import static com.xy.netdev.monitor.constant.MonitorConstants.*;
 
 
@@ -34,6 +35,7 @@ public class OidAccessService implements IOidAccessService {
      * @param oid 设备参数OID
      * @return 设备参数OID 与 设备参数值 MAP
      */
+    @Override
     public Map<String, String> getValByOid(String oid) {
         Map<String, String> result = new HashMap<>();
         genOidVal(oid, result);
@@ -47,6 +49,7 @@ public class OidAccessService implements IOidAccessService {
      * @param oidList 设备参数OID列表
      * @return 设备参数OID 与 设备参数值 MAP
      */
+    @Override
     public Map<String, String> getValByOidList(List<String> oidList) {
         Map<String, String> result = new HashMap<>();
         for (String oid : oidList) {
@@ -63,7 +66,9 @@ public class OidAccessService implements IOidAccessService {
         }
     }
 
+    /**K: OID V:snmp上报数据结构体  临时的snmp数据收集容器*/
     private final ConcurrentHashMap<String, SnmpRptDTO> mergeSnmpDtoMap= new ConcurrentHashMap<>(10);
+    /**停止表示OID*/
     private static final String STOP_SIGN_OID = "1.3.6.1.4.1.63000.2.2.2.00.00.1.1.4";
 
     @Override
@@ -79,18 +84,21 @@ public class OidAccessService implements IOidAccessService {
         long t2 = System.currentTimeMillis();
         ArrayList<VariableBinding> variableBindings = new ArrayList<>();
         for (String oid : oidList) {
-            if (oid.endsWith(".1.1.1")){
+            if (oid.endsWith(SNMP_RPT_SUFFIX)){
+                //以 .1.1.1 结尾的OID请求认为已请求到末端，发送终止OID数据，避免请求过来的OID继续往下递归
                 VariableBinding binding = new VariableBinding(new OID(STOP_SIGN_OID), new Integer32(1));
                 variableBindings.add(binding);
             }else {
-                /**OID拼接后缀发送*/
-                oid = oid + DevParaInfoContainer.SNMP_RPT_SUFFIX;
+                /**对于普通OID,拼接后缀发送*/
+                oid = oid + SNMP_RPT_SUFFIX;
                 VariableBinding variableBinding = new VariableBinding(new OID(oid));
+                //对于不存在的OID参数，返回空值
                 if (!mergeSnmpDtoMap.containsKey(oid)) {
                     variableBinding.setVariable(new Null());
                 } else {
                     SnmpRptDTO snmpRptDTO = mergeSnmpDtoMap.get(oid);
                     String paraVal = snmpRptDTO.getParaVal();
+                    //获取SNMP参数值并按类型进行包装
                     if (StringUtils.isBlank(paraVal)) {
                         variableBinding.setVariable(new Null());
                     } else {

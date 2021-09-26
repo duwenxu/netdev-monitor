@@ -332,14 +332,23 @@ public interface SysConfigConstant {
     /**
      * 站控-设备状态上报--中断状态-中断
      */
-    String RPT_DEV_STATUS_ISINTERRUPT_YES = "1";
+    String RPT_DEV_STATUS_INTERRUPT = "1";
 
 
     /**
      * 站控-设备状态上报--中断状态-未中断
      */
-    String RPT_DEV_STATUS_ISINTERRUPT_NO = "0";
+    String RPT_DEV_STATUS_UN_INTERRUPT = "0";
 
+    /**
+     * SNMP设备连接状态上报值--已连接
+     */
+    String SNMP_DEV_STATUS_CONNECTED = "1";
+
+    /**
+     * SNMP设备连接状态上报值--未连接
+     */
+    String SNMP_DEV_STATUS_UN_CONNECTED = "0";
 
     /**
      * 站控-设备状态上报--告警状态-告警

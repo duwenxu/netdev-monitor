@@ -48,7 +48,7 @@ public class DevStatusContainer {
             List<BaseInfo> masterSlaveDevList = BaseInfoContainer.getDevsFatByDevNo(devInfo.getDevNo());
             devStatusInfo.setDevNo(devInfo.getDevNo());
             devStatusInfo.setDevTypeCode(sysParamServiceLocal.getParaRemark1(devInfo.getDevType()));
-            devStatusInfo.setIsInterrupt(SysConfigConstant.RPT_DEV_STATUS_ISINTERRUPT_YES);
+            devStatusInfo.setIsInterrupt(SysConfigConstant.RPT_DEV_STATUS_INTERRUPT);
             devStatusInfo.setIsAlarm(SysConfigConstant.RPT_DEV_STATUS_ISALARM_NO);
             devStatusInfo.setIsUseStandby(initDevIsUseStandby(devInfo,masterSlaveDevList));
 //            devStatusInfo.setWorkStatus(sysParamServiceLocal.getParaRemark1(devInfo.getDevStatus()));

@@ -36,23 +36,18 @@ public class SnmpMsgRecvHandler implements CommandResponder, ApplicationRunner {
     @Autowired
     private OidAccessService oidAccessService;
 
-    private MultiThreadedMessageDispatcher dispatcher;
     private Snmp snmp = null;
     private Address listenAddress;
-    private Address targetAddress;
-    private ThreadPool threadPool;
-    private SimpleDateFormat simpleDateFormat;
-    private String port;
 
     public SnmpMsgRecvHandler() {
-        simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     }
 
     private void init() throws IOException {
         TransportMapping transport;
-        threadPool = ThreadPool.create("SNMP-RECEIVE-HANDLER", 2);
-        dispatcher = new MultiThreadedMessageDispatcher(threadPool, new MessageDispatcherImpl());
-        listenAddress = GenericAddress.parse(System.getProperty("snmp4j.listenAddress", "udp:" + appConfigRead.getListenAddress())); // 本地IP与监听端口
+        ThreadPool threadPool = ThreadPool.create("SNMP-RECEIVE-HANDLER", 2);
+        MultiThreadedMessageDispatcher dispatcher = new MultiThreadedMessageDispatcher(threadPool, new MessageDispatcherImpl());
+        // 本地IP与监听端口
+        listenAddress = GenericAddress.parse(System.getProperty("snmp4j.listenAddress", "udp:" + appConfigRead.getListenAddress()));
         // 对TCP与UDP协议进行处理
         if (listenAddress instanceof UdpAddress) {
             transport = new DefaultUdpTransportMapping((UdpAddress) listenAddress);
@@ -77,8 +72,7 @@ public class SnmpMsgRecvHandler implements CommandResponder, ApplicationRunner {
             snmp.addCommandResponder(this);
             log.info("开始监听网络规划SNMP请求信息,监听地址：[{}]", listenAddress.toString());
         } catch (Exception ex) {
-            log.error("监听异常");
-            ex.printStackTrace();
+            log.error("监听异常",ex);
         }
     }
 
@@ -89,35 +83,41 @@ public class SnmpMsgRecvHandler implements CommandResponder, ApplicationRunner {
      * @param bindings  SNMP参数值
      */
     private void dispatchRespPdu(CommandResponderEvent respEvent, List<VariableBinding> bindings) {
-        port = respEvent.getPeerAddress().toString().split("/")[1];
+        //获取发送端端口作为发出的端口
+        String port = respEvent.getPeerAddress().toString().split("/")[1];
         // 设置 target
         CommunityTarget target = new CommunityTarget();
-        targetAddress = GenericAddress.parse(System.getProperty(
-                "snmp4j.listenAddress", "udp:" + appConfigRead.getTargetAddress() + "/" + port)); // 本地IP与监听端口
+        // 本地IP与监听端口
+        Address targetAddress = GenericAddress.parse(System.getProperty(
+                "snmp4j.listenAddress", "udp:" + appConfigRead.getTargetAddress() + "/" + port));
         target.setAddress(targetAddress);
         target.setCommunity(new OctetString("public"));
         target.setVersion(SnmpConstants.version2c);
 
         ResponseEvent send;
 
+        //组装发送PDU
         PDU sendPdu = new PDU();
+        /**设置错误状态 0：success*/
         sendPdu.setErrorStatus(0);
+        /**设置请求ID*/
         sendPdu.setRequestID(respEvent.getPDU().getRequestID());
+        /**设置值*/
         sendPdu.setVariableBindings(bindings);
+        /**设置数据类型为 响应*/
         sendPdu.setType(PDU.RESPONSE);
         try {
-//            try {
-//                Thread.sleep(30);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
             send = snmp.send(sendPdu, target);
             log.debug("SNMP发送接收响应信息,发送地址：[{}],发送内容：[{}],发送结果：[{}]", target.getAddress().toString(), sendPdu, send);
         } catch (IOException e) {
-            log.error("SNMP相应信息发送失败！");
+            log.error("SNMP相应信息发送失败！",e);
         }
     }
 
+    /**
+     * 处理监听到的流入的 SNMP请求、上报或通知消息
+     * @param respEvent
+     */
     @Override
     public void processPdu(CommandResponderEvent respEvent) {
         // 解析Response
@@ -132,16 +132,20 @@ public class SnmpMsgRecvHandler implements CommandResponder, ApplicationRunner {
             if (PDU.GET == type || PDU.GETNEXT == type) {
                 //获取到需要查询的所有OID
                 List<String> oidStrings = oidList.stream().map(OID::toString).collect(Collectors.toList());
+                //通过OID列表查询需要上报的参数值信息
                 targetVariables = oidAccessService.getVariablesByOidList(oidStrings);
-            } else if (PDU.SET == type) {
-            }
-
+            } 
+            //发送响应数据
             dispatchRespPdu(respEvent, targetVariables);
-
 //            doTest(respEvent, oidList);
         }
     }
 
+    /**
+     * 网络规划软件上报测试
+     * @param respEvent SNMP请求信息监听器
+     * @param oidList 请求的OID参数列表
+     */
     private void doTest(CommandResponderEvent respEvent, List<OID> oidList) {
         String oid1 = oidList.get(0).toString();
 

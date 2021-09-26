@@ -182,7 +182,7 @@ public class DevLogInfoContainer {
      * @param reqData        协议解析请求数据
      * @return
      */
-    public static void   handlerReqDevPara(FrameReqData reqData) {
+    public static void  handlerReqDevPara(FrameReqData reqData) {
         ISysParamService sysParamService =BaseInfoContainer.getSysParamService();
         OperLog devLog =new OperLog();
         devLog.setDevType(reqData.getDevType());
