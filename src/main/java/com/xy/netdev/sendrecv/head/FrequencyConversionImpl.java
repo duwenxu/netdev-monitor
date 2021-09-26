@@ -60,7 +60,7 @@ public class FrequencyConversionImpl extends AbsDeviceSocketHandler<SocketEntity
             frameRespData.setParamBytes(socketEntity.getBytes());
             frameRespData.setAccessType(getAccessType(frameRespData.getDevType(),paramMark.substring(1)));
         }else{
-            log.error("变频器返回数据异常：{}",data);
+            log.info("变频器返回数据异常：{}",data);
         }
 
         return frameRespData;

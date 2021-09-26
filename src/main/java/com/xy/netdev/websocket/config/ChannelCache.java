@@ -75,9 +75,18 @@ public class ChannelCache {
     //存放接口、设备、通道信息
     public void setChannelUser(String ifeMake, String devNo,Channel channel){
         //判断此接口此设备是否已存在通道
-        if(channelMap.get(ifeMake) != null && channelMap.get(ifeMake).get(devNo) != null){
-            //存在，则将新的通道添加到通道组中
-            channelMap.get(ifeMake).get(devNo).add(channel);
+        if(channelMap.get(ifeMake) != null){
+            if(channelMap.get(ifeMake).get(devNo) != null){
+                if(!channelMap.get(ifeMake).get(devNo).contains(channel)){
+                    //存在，则将新的通道添加到通道组中
+                    channelMap.get(ifeMake).get(devNo).add(channel);
+                }
+            }else{
+                //不存在，则新建通道组填充进去
+                ChannelGroup clients = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
+                clients.add(channel);
+                channelMap.get(ifeMake).put(devNo,clients);
+            }
         }else{
             //不存在，则新建通道组填充进去
             ChannelGroup clients = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
@@ -99,7 +108,7 @@ public class ChannelCache {
         Collection<ChannelGroup> col = channelMapIfe.values();
         for(ChannelGroup group:col){
             if(group.contains(channel)){
-                col.remove(group);
+                group.remove(channel);
                 break;
             }
         }
@@ -109,13 +118,13 @@ public class ChannelCache {
             Collection<ChannelGroup> groups =  map.values();
             for(ChannelGroup group:groups){
                 if(group.contains(channel)){
-                    maps.remove(map);
+                    maps.remove(channel);
                     //直接跳出最外层循环
                     break a;
                 }
             }
         }
-        channelMap.values().remove(channel);
+        //channelMap.values().remove(channel);
         //关闭通道
         channel.disconnect();
     }

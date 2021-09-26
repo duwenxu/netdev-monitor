@@ -5,12 +5,14 @@ import com.xy.netdev.admin.service.ISysParamService;
 import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
+import com.xy.netdev.container.DevParaInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
 import com.xy.netdev.frame.service.IParaPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
+import com.xy.netdev.monitor.bo.ParaViewInfo;
 import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import com.xy.netdev.transit.IDataReceiveService;
 import lombok.extern.slf4j.Slf4j;
@@ -58,17 +60,20 @@ public class LpdSwitchPrtcServiceImpl implements IParaPrtclAnalysisService {
             return ;
         }
         List<byte[]> list = new ArrayList<>();
-        reqInfo.getFrameParaList().forEach(frameParaData->{
-            FrameParaInfo paraInfoByNo = BaseInfoContainer.getParaInfoByNo(frameParaData.getDevType(), frameParaData.getParaNo());
+        FrameParaData crtlPara = reqInfo.getFrameParaList().get(0);
+        List<ParaViewInfo> paraViewInfos = DevParaInfoContainer.getDevParaViewList(reqInfo.getDevNo());
+        for (ParaViewInfo paraViewInfo : paraViewInfos) {
+            FrameParaInfo paraInfoByNo = BaseInfoContainer.getParaInfoByNo(paraViewInfo.getDevType(), paraViewInfo.getParaNo());
             //将参数值进行映射转换
-            String paraValStr = paraInfoByNo.getTransIntoOutMap().get(frameParaData.getParaVal());
+            String paraValStr = paraInfoByNo.getTransIntoOutMap().get(paraViewInfo.getParaVal());
+            if(paraViewInfo.getParaCmdMark().equals(reqInfo.getCmdMark())){
+                paraValStr = paraInfoByNo.getTransIntoOutMap().get(crtlPara.getParaVal());
+            }
             //将参数标识进行转换
-            String cmdMarkStr = paraInfoByNo.getTransIntoOutMap().get(paraInfoByNo.getCmdMark());
-            //设置转换后的值(此处用于页面显示)
-            /*frameParaData.setParaVal(paraValStr);*/
+            String cmdMarkStr = "303"+paraInfoByNo.getCmdMark();
             String dataBody = cmdMarkStr + paraValStr;
             list.add(HexUtil.decodeHex(dataBody));
-        });
+        }
         reqInfo.setParamBytes(ByteUtils.listToBytes(list));
         socketMutualService.request(reqInfo, ProtocolRequestEnum.CONTROL);
     }

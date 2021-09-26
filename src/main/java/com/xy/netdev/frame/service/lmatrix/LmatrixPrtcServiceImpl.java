@@ -40,6 +40,8 @@ public class LmatrixPrtcServiceImpl implements IParaPrtclAnalysisService {
 
     private static final String CTRL_SUCCESS_CODE = "20";
     private static final String CTRL_ERROR_CODE = "21";
+    private static final String DEV_TYPE_UP = "0020041";
+
 
     @Override
     public void queryPara(FrameReqData reqInfo) {}
@@ -64,11 +66,11 @@ public class LmatrixPrtcServiceImpl implements IParaPrtclAnalysisService {
             FrameParaInfo paraInfoByNo = BaseInfoContainer.getParaInfoByNo(frameParaData.getDevType(), frameParaData.getParaNo());
             //参数标识
             String cmdMarkStr = paraInfoByNo.getCmdMark();
-            list.add(ByteUtils.objToBytes(Integer.parseInt(cmdMarkStr), 1));
-            list.add(ByteUtils.objToBytes(1, 1));
-            //参数值
-            String paraValStr = frameParaData.getParaVal();
-            list.add(ByteUtils.objToBytes(Integer.parseInt(paraValStr), 1));
+                list.add(ByteUtils.objToBytes(Integer.parseInt(cmdMarkStr), 1));
+                list.add(ByteUtils.objToBytes(1, 1));
+                //参数值
+                String paraValStr = frameParaData.getParaVal();
+                list.add(ByteUtils.objToBytes(Integer.parseInt(paraValStr), 1));
         });
         reqInfo.setParamBytes(ByteUtils.listToBytes(list));
         socketMutualService.request(reqInfo, ProtocolRequestEnum.CONTROL);

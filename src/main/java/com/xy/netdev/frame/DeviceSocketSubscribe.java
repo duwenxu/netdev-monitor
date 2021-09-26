@@ -6,6 +6,7 @@ import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.util.HexUtil;
 import com.xy.common.exception.BaseException;
 import com.xy.netdev.common.util.BeanFactoryUtil;
+import com.xy.netdev.common.util.ParaHandlerUtil;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
@@ -16,9 +17,6 @@ import com.xy.netdev.sendrecv.entity.SocketEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -96,7 +94,7 @@ public class DeviceSocketSubscribe {
 
         //执行设备数据响应
         Optional<AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData>> socketHandler
-                = getHandler(socketEntity.getRemoteAddress());
+                = getHandler(socketEntity.getRemoteAddress(),String.valueOf(socketEntity.getRemotePort()));
         BaseInfo finalDevInfo = devInfo;
         socketHandler.ifPresent(handler -> {
             log.debug("收到设备数据, 远端地址:{}:{},数据体:{}"
@@ -113,13 +111,27 @@ public class DeviceSocketSubscribe {
      * @return 目标实体
      */
 
-    private Optional<AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData>> getHandler(String ip){
-        AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData> socketHandler = cache.get(ip);
+    private Optional<AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData>> getHandler(String ip,String port){
+        AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData> socketHandler = cache.get(ParaHandlerUtil.genLinkKey(ip,port));
         if (socketHandler != null){
             return Optional.of(socketHandler);
         }
-        //设备信息
-        BaseInfo devInfo = getDevInfo(ip).get(0);
+        /*//设备信息
+        BaseInfo devInfo = getDevInfo(ip).get(0);*/
+
+        BaseInfo devInfo = null;
+        List<BaseInfo> devInfos = getDevInfo(ip);
+        if(devInfos!=null && devInfos.size()>1){
+            for (BaseInfo baseInfo : devInfos) {
+                if(baseInfo.getDevPort().equals(String.valueOf(port))){
+                     devInfo = baseInfo;
+                }
+            }
+        }else {
+            if (devInfos.size()> 0){
+                devInfo = devInfos.get(0);
+            }
+        }
         if (devInfo == null){
             log.warn("响应处理未找到指定设备信息, 执行方法getDevInfo(ip), 设备ip:{}", ip);
             return Optional.empty();
@@ -129,7 +141,7 @@ public class DeviceSocketSubscribe {
         AbsDeviceSocketHandler<SocketEntity, FrameReqData, FrameRespData> handler =null;
         if (StringUtils.isNotEmpty(classByDevType)) {
             handler = BeanFactoryUtil.getBean(classByDevType);
-            cache.put(ip, handler, DateUnit.MINUTE.getMillis());
+            cache.put(ParaHandlerUtil.genLinkKey(ip,port), handler, DateUnit.MINUTE.getMillis());
         }
         return Optional.of(handler);
     }

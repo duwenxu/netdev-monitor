@@ -4,15 +4,16 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson.JSON;
+import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.frame.bo.FrameParaData;
 import com.xy.netdev.frame.bo.FrameReqData;
 import com.xy.netdev.frame.bo.FrameRespData;
-import com.xy.netdev.frame.service.modemscmm.ModemScmmInterPrtcServiceImpl;
-import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import com.xy.netdev.frame.service.IQueryInterPrtclAnalysisService;
 import com.xy.netdev.frame.service.SocketMutualService;
+import com.xy.netdev.frame.service.modemscmm.ModemScmmInterPrtcServiceImpl;
 import com.xy.netdev.monitor.bo.FrameParaInfo;
+import com.xy.netdev.sendrecv.enums.ProtocolRequestEnum;
 import com.xy.netdev.transit.impl.DataReciveServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -23,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.xy.netdev.common.util.ByteUtils.*;
+import static com.xy.netdev.common.util.ByteUtils.byteArrayCopy;
 
 /**
  * Ku400w功放 接口查询响应 帧协议解析层
@@ -80,10 +81,11 @@ public class PowerAmpInterPrtcServiceImpl implements IQueryInterPrtclAnalysisSer
                         //获取参数字节
                         targetBytes = byteArrayCopy(bytes, startPoint, paraByteLen);
                         previousBytes = targetBytes;
+                        value = modemScmmInterPrtcService.doGetValue(param, targetBytes);
                     } else {
                         targetBytes = previousBytes;
+                        value = ByteUtils.byteToBinary(targetBytes[0]).substring(Integer.valueOf(param.getParaStrLen()),Integer.valueOf(param.getParaStrLen())+1);
                     }
-                    value = modemScmmInterPrtcService.doGetValue(param, targetBytes);
                     log.debug("东森功放 参数编号：{}，参数字节：{}，参数值：{}", paraInfo.getParaNo(), HexUtil.encodeHexStr(targetBytes), value);
                 } catch (Exception e) {
                     log.error("参数编号：[{}]字节长度截取错误，起始位置：{}，字节长度：{}", param.getParaNo(), startPoint, paraByteLen);

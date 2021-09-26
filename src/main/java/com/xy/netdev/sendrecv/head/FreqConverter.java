@@ -116,11 +116,11 @@ public class FreqConverter extends AbsDeviceSocketHandler<SocketEntity, FrameReq
         byte[] pack = pack(entity);
         //反转小端
 //        Bytes.reverse(pack);
-        if (OPREATE_QUERY.equals(frameReqData.getOperType())){
+        /*if (OPREATE_QUERY.equals(frameReqData.getOperType())){
             log.info("6914变频器发送查询帧：[{}]",HexUtil.encodeHexStr(pack));
         }else {
             log.info("6914变频器发送控制帧：[{}]",HexUtil.encodeHexStr(pack));
-        }
+        }*/
         return pack;
     }
 

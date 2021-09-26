@@ -84,10 +84,10 @@ public class GfPrtcServiceImpl implements IParaPrtclAnalysisService {
         BeanUtil.copyProperties(frameParaInfo, paraInfo, true);
         BeanUtil.copyProperties(respData, paraInfo, true);
         paraInfo.setLen(Integer.parseInt(frameParaInfo.getParaByteLen()));
-        paraInfo.setParaVal(byteToNumber(bytes
+        /*paraInfo.setParaVal(byteToNumber(bytes
                 , offset
                 , Integer.parseInt(frameParaInfo.getParaByteLen())
-                , isUnsigned(sysParamService, frameParaInfo.getAlertPara())).toString());
+                , isUnsigned(sysParamService, frameParaInfo.getAlertPara())).toString());*/
         respData.setFrameParaList(Lists.list(paraInfo));
         return respData;
     }

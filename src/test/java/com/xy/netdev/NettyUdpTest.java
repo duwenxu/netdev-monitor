@@ -24,7 +24,7 @@ public class NettyUdpTest {
 
     private static final Bootstrap bootstrap = new Bootstrap();
     /**目的地address*/
-    private static final InetSocketAddress DEST_ADDRESS = new InetSocketAddress("172.21.2.100", 7000);
+    private static final InetSocketAddress DEST_ADDRESS = new InetSocketAddress("127.0.0.1", 4000);
     private static final InetSocketAddress SOURCE_ADDRESS = new InetSocketAddress("172.21.2.100", 8070);
     /**发送频率*/
     private static final int sendInterval = 1000;
@@ -69,18 +69,13 @@ public class NettyUdpTest {
 //            "008C000101AA",
 //            "008D000101AA",
 //            "008E00050200010403AA"
-//            "55AA1202010001010200000000AAAA",
-//            "55AA110100000000AAAA",
-//            "55AA2201140124F8140124F800000001AAAA",
-//            "55AA210100000001AAAA",
-//            "55AA320100010100000002AAAA",
-//            "55AA310100000002AAAA",
-//            "55AA50020100010100000000AAAA"
-
-            //7.3Acu
-//        "000007010000010000004901C3F5DA42F0FFFFFFFFFFFFFFFF00010132300000303130313031000100004040010100140000a04001010000a002a0010000344300000000000000003201010000a0400000a04000"
-        "0000070100000200000021010101010101010101010101010101010101010101010101010101010101010101"
-
+            "55AA1202010001010200000000AAAA",
+            "55AA110100000000AAAA",
+            "55AA2201140124F8140124F800000001AAAA",
+            "55AA210100000001AAAA",
+            "55AA320100010100000002AAAA",
+            "55AA310100000002AAAA",
+            "55AA50020100010100000000AAAA"
     };
 
     @Test
@@ -107,14 +102,17 @@ public class NettyUdpTest {
                     Thread.sleep(sendInterval);
                     ChannelFuture channelFuture = channel.writeAndFlush(packet);
                     //添加ChannelFutureListener以便在写操作完成后接收通知
-                    channelFuture.addListener((ChannelFutureListener) future -> {
-                        //写操作完成，并没有错误发生
-                        if (future.isSuccess()){
-                            log.info("向地址：[{}],端口：[{}]发送数据", packet.recipient().getAddress().getHostAddress(),packet.recipient().getPort());
-                        }else{
-                            //记录错误
-                            System.out.println("error");
-                            future.cause().printStackTrace();
+                    channelFuture.addListener(new ChannelFutureListener() {
+                        @Override
+                        public void operationComplete(ChannelFuture future) throws Exception {
+                            //写操作完成，并没有错误发生
+                            if (future.isSuccess()){
+                                log.info("向地址：[{}],端口：[{}]发送数据", packet.recipient().getAddress().getHostAddress(),packet.recipient().getPort());
+                            }else{
+                                //记录错误
+                                System.out.println("error");
+                                future.cause().printStackTrace();
+                            }
                         }
                     });
                 }

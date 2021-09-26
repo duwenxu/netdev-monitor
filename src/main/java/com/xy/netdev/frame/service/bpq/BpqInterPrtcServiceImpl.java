@@ -170,7 +170,10 @@ public class BpqInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
 
     private void handleAlarmInfo(String cmdMark,String value,FrameParaData paraInfo,FrameParaInfo frameParaDetail){
         if(cmdMark.equals("POW")){
-            Double val = Double.parseDouble(value);
+            Double val = 0.0;
+            if(StringUtils.isNotBlank(value)){
+                val = Double.parseDouble(value);
+            }
             if(val>1.9){
                 //上报告警信息
                 devStatusReportService.rptWarning(paraInfo.getDevNo(),"1");

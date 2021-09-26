@@ -5,6 +5,7 @@ import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson.JSON;
 import com.xy.netdev.common.util.BeanFactoryUtil;
+import com.xy.netdev.common.util.ByteUtils;
 import com.xy.netdev.container.BaseInfoContainer;
 import com.xy.netdev.factory.SingletonFactory;
 import com.xy.netdev.frame.bo.ExtParamConf;

@@ -47,23 +47,46 @@ public class AcuPrtcServiceImpl implements IParaPrtclAnalysisService {
 
     @Override
     public void ctrlPara(FrameReqData reqInfo) {
+        /*String workStr = DevParaInfoContainer.getDevParaView(reqInfo.getDevNo(),"7").getParaVal();
+        if(workStr.equals("0") || Float.valueOf(DevParaInfoContainer.getDevParaView(reqInfo.getDevNo(),"12").getParaVal())<20){
+            if(!"cmdsP".equals(reqInfo.getCmdMark()) && !"cmdsb".equals(reqInfo.getCmdMark()) && !"cmdst".equals(reqInfo.getCmdMark())){
+                throw new BaseException("未展开完成状态下只允许执行展开命令！");
+            }
+        }*/
         FrameParaData frameParaData = reqInfo.getFrameParaList().get(0);
         String paraVal = frameParaData.getParaVal().replaceAll(" ","");
         //当参数为位置模式时特殊处理
-        if(frameParaData.getParaNo().equals("3")){
-            String x = make0Str(paraVal.split("]")[0].substring(4),3,2);
-            String y = make0Str(paraVal.split("]")[1].substring(4),3,2);
-            String z = make0Str(paraVal.split("]")[2].substring(4),3,2);
+        if(reqInfo.getCmdMark().equals("step")){
+            //修改缓存中卫星经度和极化方式数值
+            String replace = paraVal.replace("{", "")
+                    .replace("}","")
+                    .replace("[","")
+                    .replace("]","");
+            DevParaInfoContainer.updateParaValue(reqInfo.getDevNo(), ParaHandlerUtil.genLinkKey(reqInfo.getDevNo(), frameParaData.getParaNo()),replace);
+            String xStep = paraVal.split("]")[0].substring(1);
+            String yStep = paraVal.split("]")[1].substring(4);
+            String zStep = paraVal.split("]")[2].substring(4);
+            double x = Double.valueOf(DevParaInfoContainer.getDevParaView(reqInfo.getDevNo(),"11").getParaVal()) + Double.valueOf(xStep);
+            double y = Double.valueOf(DevParaInfoContainer.getDevParaView(reqInfo.getDevNo(),"12").getParaVal()) + Double.valueOf(yStep);
+            double z = Double.valueOf(DevParaInfoContainer.getDevParaView(reqInfo.getDevNo(),"13").getParaVal()) + Double.valueOf(zStep);
             paraVal = "{X}["+x+"]{Y}["+y+"]{Z}["+z+"]";
+            frameParaData.setParaNo("3");
+            reqInfo.setCmdMark("cmdse");
+        }
+        if(frameParaData.getParaNo().equals("3")){
             //如果为位置模式，则判断当前俯仰角大于20度时才执行
             if(Float.valueOf(DevParaInfoContainer.getDevParaView(frameParaData.getDevNo(),"12").getParaVal())<20){
                 throw new BaseException("俯仰角小于20°不能执行位置模式命令！");
             }
+            String x = make0Str(paraVal.split("]")[0].substring(4),3,2);
+            String y = make0Str(paraVal.split("]")[1].substring(4),3,2);
+            String z = make0Str(paraVal.split("]")[2].substring(4),3,2);
+            paraVal = "{X}["+x+"]{Y}["+y+"]{Z}["+z+"]";
         }else if(frameParaData.getParaNo().equals("6")){
             //当参数为接收机本振频率
             paraVal = paraVal.split("]")[0]+"]{F}["+make0Str(paraVal.split("]")[1].substring(4),5,2)+"]";
         }
-        else if(frameParaData.getParaNo().equals("4")){
+        else if(frameParaData.getParaNo().equals("29")){
             /*//当长度不为0时补0
             paraVal = make0Str(paraVal,frameParaData.getLen(),1);*/
             //卫星经度补0
@@ -74,7 +97,7 @@ public class AcuPrtcServiceImpl implements IParaPrtclAnalysisService {
                 .replace("}","")
                 .replace("[","")
                 .replace("]","");
-        if(frameParaData.getParaNo().equals("4")){
+        if(frameParaData.getParaNo().equals("29") || frameParaData.getParaNo().equals("3")){
             //修改缓存中卫星经度和极化方式数值
             DevParaInfoContainer.updateParaValue(reqInfo.getDevNo(), ParaHandlerUtil.genLinkKey(reqInfo.getDevNo(), frameParaData.getParaNo()),replace);
         }

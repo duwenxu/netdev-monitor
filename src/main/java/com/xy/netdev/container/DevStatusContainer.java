@@ -6,6 +6,7 @@ import com.xy.netdev.common.constant.SysConfigConstant;
 import com.xy.netdev.monitor.bo.DevStatusInfo;
 import com.xy.netdev.monitor.bo.ParaViewInfo;
 import com.xy.netdev.monitor.entity.BaseInfo;
+import com.xy.netdev.websocket.send.DevIfeMegSend;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.*;
@@ -58,7 +59,7 @@ public class DevStatusContainer {
             if(SysConfigConstant.DEVICE_CAR_GF.equals(devInfo.getDevType())){
                 //通过主BUC射频开关来判断主备:默认主
                 ParaViewInfo paraInfo = DevParaInfoContainer.getDevParaView(devInfo.getDevNo(),"15");
-                if("1".equals(paraInfo.getParaVal()) || StringUtils.isBlank(paraInfo.getParaVal())){
+                if(paraInfo != null &&("1".equals(paraInfo.getParaVal()) || StringUtils.isBlank(paraInfo.getParaVal()))){
                     //主
                     devStatusInfo.setDevDeployType(SysConfigConstant.DEV_DEPLOY_MASTER);
                     devStatusInfo.setMasterOrSlave(SysConfigConstant.RPT_DEV_STATUS_MASTERORSLAVE_MASTER);
@@ -121,6 +122,7 @@ public class DevStatusContainer {
         if(!devStatusInfo.getIsInterrupt().equals(isInterrupt)){
             devStatusInfo.setIsInterrupt(isInterrupt);
             devStatusMap.put(devNo,devStatusInfo);
+            DevIfeMegSend.sendDevStatusToDev();
             return true;
         }
         return false;
@@ -138,7 +140,7 @@ public class DevStatusContainer {
     public synchronized static boolean setAlarm(String devNo,String isAlarm,String rptType) {
         isAlarm = getDevAllPramsStatus(devNo,isAlarm,rptType);
         DevStatusInfo devStatusInfo = devStatusMap.get(devNo);
-        if(!devStatusInfo.getIsAlarm().equals(isAlarm)){
+        if(devStatusInfo != null && !devStatusInfo.getIsAlarm().equals(isAlarm)){
             devStatusInfo.setIsAlarm(isAlarm);
             return true;
         }
@@ -392,7 +394,7 @@ public class DevStatusContainer {
      */
     public static String getDevAllPramsStatus(String devNo,String status,String rptType){
         Map<String,Map<String,String>> devRptMap = devParamRptMap.get(devNo);
-        if(devRptMap.size()>0){
+        if(devRptMap != null && devRptMap.size()>0){
             Map<String,String> paraStatusMap =  devRptMap.get(rptType);
             for (String value : paraStatusMap.values()) {
                 if(value.equals(EXCEPTION_STATUS)){

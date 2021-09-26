@@ -54,12 +54,6 @@ public class AcuInterPrtcServiceImpl implements IQueryInterPrtclAnalysisService 
 
     @Override
     public FrameRespData queryParaResponse(FrameRespData respData) {
-        if(num==1){
-            num = 0;
-        }else{
-            num ++;
-            return respData;
-        }
         List<FrameParaInfo> frameParaInfos = BaseInfoContainer
                 .getInterLinkParaList(respData.getDevType(), respData.getCmdMark()).stream().filter(Objects::nonNull).collect(Collectors.toList());
         byte[] bytes = respData.getParamBytes();
