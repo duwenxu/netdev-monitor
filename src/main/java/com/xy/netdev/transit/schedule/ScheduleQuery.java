@@ -261,6 +261,11 @@ public class ScheduleQuery implements ApplicationRunner {
         return snmpBaseMap;
     }
 
+    /**
+     * 参数结构转换 将普通请求参数结构转换为snmp参数结构体
+     * @param frameReqData 协议解析参数请求数据体
+     * @return snmp参数请求结构体
+     */
     public SnmpReqDTO frameReq2SnmpReq(FrameReqData frameReqData) {
         List<FrameParaData> frameParaList = frameReqData.getFrameParaList();
         for (FrameParaData frameParaData : frameParaList) {

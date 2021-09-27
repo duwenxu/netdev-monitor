@@ -51,12 +51,16 @@ public class DevParaInfoContainer {
     private static final Map<String, Map<String, ParaViewInfo>> devParaMap = new LinkedHashMap<>();
 
     /**
-     * SNMP OID-参数信息 映射  结构： <DevNo,<OID,SnmpReqDTO></OID,SnmpReqDTO>
+     * SNMP OID-参数信息 映射  结构： <DevNo,<OID,SnmpReqDTO>>
      * 用来存储Snmp上报参数信息
      */
     @Getter
     private static final Map<String, Map<String, SnmpRptDTO>> devSnmpParaMap = new ConcurrentHashMap<>(10);
 
+    /**
+     * 设备编号 与 设备状态OID映射   结构：<DevNo,Set<devStatusOid>>
+     * Acu包含3个设备上报状态，因此用Set存储
+     */
     @Getter
     private static final Map<String,Set<String>> devNoStatusOidMap = new ConcurrentHashMap<>(10);
     /**
@@ -105,7 +109,9 @@ public class DevParaInfoContainer {
     }
 
     /**
+     * 初始化SNMP上报数据
      * 从指定的参数值缓存更新SNMP的缓存数据
+     *
      * @param devParaMap 设备参数值缓存
      */
     private static void initSnmpRptData(Map<String, Map<String, ParaViewInfo>> devParaMap) {
@@ -115,6 +121,7 @@ public class DevParaInfoContainer {
             String devStatus = BaseInfoContainer.getDevInfoByNo(currentDevNo).getDevStatus();
             if (!DEV_STATUS_NEW.equals(devStatus)){ continue;}
             Collection<ParaViewInfo> values = entry.getValue().values();
+            //遍历筛选snmp参数添加缓存初始化
             for (ParaViewInfo paraView : values) {
                 List<ParaViewInfo> subParaList = paraView.getSubParaList();
                 if (subParaList == null || subParaList.size() == 0) {
@@ -136,15 +143,19 @@ public class DevParaInfoContainer {
      * @param value        参数值结构体
      */
     private static void addSnmpParaData(String currentDevNo, ParaViewInfo value) {
+        //参数是否需要上报的条件：1.提供给54所访问 2.上报oid不为空
         boolean canBeOpt = SysConfigConstant.IS_DEFAULT_TRUE.equals(value.getNdpaOutterStatus()) && !StringUtils.isEmpty(value.getRptOidSign());
         if (canBeOpt) {
+            //初始化尚未加入的设备缓存
             if (!devSnmpParaMap.containsKey(currentDevNo)) {
                 devSnmpParaMap.put(currentDevNo, new ConcurrentHashMap<>(10));
             }
             Map<String, SnmpRptDTO> viewInfoMap = devSnmpParaMap.get(currentDevNo);
+            //按上报协议规则拼装参数OID
             String rptOid = SyntheticalUtil.genRptOid(value.getRptOidSign(), value.getParaCode(), sysParamService);
             SnmpRptDTO snmpRptDTO = new SnmpRptDTO();
             BeanUtils.copyProperties(value, snmpRptDTO);
+            //将 oid-snmp数据上报结构体 映射加入缓存
             viewInfoMap.put(rptOid, snmpRptDTO);
         }
     }
@@ -227,12 +238,19 @@ public class DevParaInfoContainer {
         return paraViewMap;
     }
 
-    //生成每个参数对应的OID映射
+    /**
+     * 初始化中的snmp参数缓存填充
+     * @param devNo 设备编号
+     * @param paraInfo 参数信息
+     */
     private static void genOidMap(String devNo, ParaInfo paraInfo) {
+        //对需要上报的参数
         if (paraInfo.getNdpaOutterStatus().equals(SysConfigConstant.IS_DEFAULT_TRUE) && !StringUtils.isEmpty(paraInfo.getNdpaRptOid())) {
             paraInfo.setDevNo(devNo);
             String oid = SyntheticalUtil.genRptOid(paraInfo.getNdpaRptOid(), paraInfo.getNdpaCode(), sysParamService);
+            //加入缓存
             devParaOidMap.put(oid, paraInfo);
+            //扩展添加设备状态等oid
             genStdOidPara(oid, devNo);
         }
     }
@@ -399,6 +417,7 @@ public class DevParaInfoContainer {
                 }
             }
         }
+        //更新值改变的Snmp协议需要上报的数据信息
         updateSnmpRptData();
         return num > 0;
     }
@@ -409,31 +428,38 @@ public class DevParaInfoContainer {
      * @return void
      **/
     @SneakyThrows
-    private synchronized static void snmpParamValExt(ParaViewInfo paraView,FrameParaData frameParaData){
+    private synchronized static void snmpParamValExt(ParaViewInfo paraView, FrameParaData frameParaData) {
         String devNo = frameParaData.getDevNo();
         BaseInfo base = BaseInfoContainer.getDevInfoByNo(devNo);
         String paraVal = frameParaData.getParaVal();
         String paraCmplexLevel = paraView.getParaCmplexLevel();
         //对于snmp协议中的16进制结果做处理
-        if (SNMP.equals(base.getDevNetPtcl())&& paraVal!=null&& match(paraVal)&&(PARA_COMPLEX_LEVEL_SIMPLE.equals(paraCmplexLevel)||PARA_COMPLEX_LEVEL_SUB.equals(paraCmplexLevel))){
+        boolean ifNeedParse = SNMP.equals(base.getDevNetPtcl()) && paraVal != null && match(paraVal) && (PARA_COMPLEX_LEVEL_SIMPLE.equals(paraCmplexLevel) || PARA_COMPLEX_LEVEL_SUB.equals(paraCmplexLevel));
+        if (ifNeedParse) {
             String datatype = paraView.getParaDatatype();
-            switch (datatype){
-               case  PARA_DATA_TYPE_STR:
-                   String newVal = null;
-                   try {
-                       byte[] bytes = HexUtil.decodeHex(paraVal.replace(":", ""));
-                       newVal = StrUtil.str(bytes, Charsets.UTF_8);
-                   } catch (Exception e) {
-//                       log.error("String类型16进制转bytes异常，设备编号：[{}],参数编号：[{}],参数名称:[{}],参数值：[{}]",devNo,paraView.getParaNo(),paraView.getParaName(),paraVal);
-                   }
-                   frameParaData.setParaVal(newVal);
+            if (PARA_DATA_TYPE_STR.equals(datatype)) {
+                String newVal = null;
+                try {
+                    byte[] bytes = HexUtil.decodeHex(paraVal.replace(":", ""));
+                    //AscII码直接转换为对应值
+                    newVal = StrUtil.str(bytes, Charsets.UTF_8);
+                } catch (Exception e) {
+                    log.warn("String类型16进制转bytes异常，设备编号：[{}],参数编号：[{}],参数名称:[{}],参数值：[{}]", devNo, paraView.getParaNo(), paraView.getParaName(), paraVal);
+                }
+                frameParaData.setParaVal(newVal);
             }
         }
     }
 
+    /**
+     * 匹配指定条件的数据
+     * @param data 数据
+     * @return 是否非日期但由:分隔
+     */
     private static boolean match(String data){
         return data.contains(":") && !DateTools.isValidDate(data);
     }
+
     /**
      * 更新改变的SNMP参数值
      */

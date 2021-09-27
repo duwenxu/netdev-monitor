@@ -29,7 +29,9 @@ import static com.xy.netdev.monitor.constant.MonitorConstants.*;
 @Service
 @Slf4j
 public class SnmpTransceiverServiceImpl implements SnmpTransceiverService {
+    /**snmp协议：查询 团体名*/
     private static final String COMMUNITY_GET = "public";
+    /**snmp协议：控制 团体名*/
     private static final String COMMUNITY_SET = "private";
     @Autowired
     private ISysParamService sysParamService;
@@ -65,15 +67,18 @@ public class SnmpTransceiverServiceImpl implements SnmpTransceiverService {
     @Override
     public SnmpResDTO queryParamList(SnmpReqDTO snmpReqDTO, String baseIp) {
         List<FrameParaInfo> interLinkParaList = BaseInfoContainer.getInterLinkParaList(snmpReqDTO.getDevType(), snmpReqDTO.getCmdMark());
+        //查询信息Map:<oid,FrameParaData>
         ConcurrentHashMap<String, FrameParaData> queryMap = new ConcurrentHashMap<>();
-        //处理得到oidList
+        //处理得到的oidList
         for (FrameParaInfo paraInfo : interLinkParaList) {
             if (PARA_COMPLEX_LEVEL_COMPOSE.equals(paraInfo.getCmplexLevel())){
                 List<FrameParaInfo> subParaList = paraInfo.getSubParaList();
                 for (FrameParaInfo frameParaInfo : subParaList) {
+                    //子参数拼装查询Map
                     addToQueryMap(snmpReqDTO, queryMap, frameParaInfo);
                 }
             }else {
+                //普通参数拼装查询Map
                 addToQueryMap(snmpReqDTO, queryMap, paraInfo);
             }
         }
@@ -86,7 +91,7 @@ public class SnmpTransceiverServiceImpl implements SnmpTransceiverService {
                 resEntry.getValue().setParaVal(variable.toString());
             }
         }
-        //添加父参数 参数值 用于判断更改
+        //添加父参数参数值,用于判断参数值是否变化
         for (FrameParaInfo paraInfo : interLinkParaList) {
             if (PARA_COMPLEX_LEVEL_COMPOSE.equals(paraInfo.getCmplexLevel())){
                 addToQueryMap(snmpReqDTO, queryMap, paraInfo);
@@ -99,7 +104,7 @@ public class SnmpTransceiverServiceImpl implements SnmpTransceiverService {
                 queryMap.get(paraInfo.getCmdMark()).setParaVal(parentParaBuf.toString());
             }
         }
-
+        //组装查询响应结果并返回
         SnmpResDTO snmpResDTO = new SnmpResDTO();
         BeanUtil.copyProperties(snmpReqDTO,snmpResDTO,true);
         List<FrameParaData> resParaList = new ArrayList<>(queryMap.values());
@@ -114,14 +119,16 @@ public class SnmpTransceiverServiceImpl implements SnmpTransceiverService {
         for (FrameParaData paraData : frameParaList) {
             String oid = paraData.getOid();
             String paraVal = paraData.getParaVal();
-            String respCode = "0";
-            Assert.isTrue(!StringUtils.isBlank(oid)&&!StringUtils.isBlank(paraVal),"SNMP参数控制:oid和paraVal不能为空,oid:"+oid+",paraVal:"+paraVal);
+            String respCode = SUCCESS;
             try {
+                Assert.isTrue(!StringUtils.isBlank(oid)&&!StringUtils.isBlank(paraVal),"SNMP参数控制:oid和paraVal不能为空,oid:"+oid+",paraVal:"+paraVal);
+                //包装普通参数为snmp参数用于设置
                 VariableBinding variableBinding = packSnmpVal(paraData);
                 respCode = SnmpUtil.setPDU(baseIp, COMMUNITY_SET, variableBinding);
             } catch (Exception e) {
                 log.error("SNMP参数设置异常：IP:[{}],设备编号：[{}],参数编号：[{}],参数OID：[{}],参数值：[{}]",baseIp,paraData.getDevNo(),paraData.getParaNo(),oid,paraVal);
             }
+            //snmp控制请求体转帧请求体
             FrameReqData frameReqData = convertFrameReqDto(snmpReqDTO,respCode);
             //回调
             dataSendService.notifyNetworkResult(frameReqData);
@@ -183,9 +190,9 @@ public class SnmpTransceiverServiceImpl implements SnmpTransceiverService {
 
     /**
      * 拼接OID
-     * @param cmdMark
-     * @param devType
-     * @return
+     * @param cmdMark 参数关键字
+     * @param devType 设备类型
+     * @return 参数oid
      */
     public synchronized String oidSplic(String cmdMark,String devType) {
         FrameParaInfo paraInfo = BaseInfoContainer.getParaInfoByCmd(devType, cmdMark);

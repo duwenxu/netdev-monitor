@@ -32,6 +32,11 @@ public class DateTools {
         return DateThreadLocal.getSimpleDateFormat(FORMAT_YMD).format(currentTime);
     }
 
+    /**
+     * 验证给定的字符串是否为指定的 日期格式字符串
+     * @param str 给定字符串
+     * @return 验证结果
+     */
     public static boolean isValidDate(String str) {
         boolean convertSuccess=true;
         //指定日期格式为四位年/两位月份/两位日期，注意yyyy/MM/dd区分大小写；

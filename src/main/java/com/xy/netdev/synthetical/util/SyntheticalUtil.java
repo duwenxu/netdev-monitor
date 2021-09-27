@@ -31,7 +31,7 @@ public class SyntheticalUtil {
     /**
      * 生成上报OID
      * @param rptOid 上报OID
-     * @param paraCode 参数编码
+     * @param paraCode snmp协议上报时的参数编码
      * @param sysParamService 参数服务类
      * @return OID
      */

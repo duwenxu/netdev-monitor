@@ -631,4 +631,10 @@ public interface SysConfigConstant {
      * 本振--D
      */
     String  LOCAL_VIBRATE_D = "0102004";
+
+    /**通用 成功码*/
+    String SUCCESS = "0";
+
+    /**通用 失败码*/
+    String FAIL = "1";
 }

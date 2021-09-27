@@ -17,6 +17,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static com.xy.netdev.common.constant.SysConfigConstant.FAIL;
+import static com.xy.netdev.common.constant.SysConfigConstant.SUCCESS;
+
 /**
  * SNMP协议操作工具包
  */
@@ -160,7 +163,7 @@ public class SnmpUtil {
         pdu.add(val);
         pdu.setType(PDU.SET);
         //默认成功
-        String respCode = "0";
+        String respCode = SUCCESS;
         try {
             DefaultUdpTransportMapping transport = new DefaultUdpTransportMapping();
             snmp = new Snmp(transport);
@@ -170,10 +173,10 @@ public class SnmpUtil {
             PDU response = responseEvent.getResponse();
             if (response == null) {
                 log.info("Control response is null, request time out");
-                respCode = "1";
+                respCode = FAIL;
             } else {
                 if (response.getErrorStatus() != 0) {
-                    respCode = "1";
+                    respCode = FAIL;
                 }
                 log.info("SNMP控制响应：错误码：[{}],错误信息：[{}]", response.getErrorStatus(), response.getErrorStatusText());
             }
